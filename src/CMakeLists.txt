@@ -132,6 +132,6 @@ endif()
 add_custom_target(x_tests)
 
 add_subdirectory(sqlite)
-#add_subdirectory(api_dbcs)
-#add_subdirectory(x_test)
+add_subdirectory(api_dbcs)
+add_subdirectory(x_test)
 
