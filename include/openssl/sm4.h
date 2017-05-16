@@ -1,47 +1,75 @@
+/**
+ * \file sm4.h
+ */
+#ifndef XYSSL_SM4_H
+#define XYSSL_SM4_H
 
-// sms4.h
-#ifndef _SMS4_H_111
-#define _SMS4_H_111
+#define SM4_ENCRYPT     1
+#define SM4_DECRYPT     0
 
-#define SM4_MAXNR  14
+/**
+ * \brief          SM4 context structure
+ */
+typedef struct
+{
+    int mode;                   /*!<  encrypt/decrypt   */
+    unsigned int sk[32];       /*!<  SM4 subkeys       */
+}
+sm4_context;
 
-#define SMS4_KEY_LEN		16
 
-#define SMS4_BLOCK_LEN		16
-
-#define SMS4_MAX_LEN		512
-
-#define	NO_ERR				0
-#define	PARAM_ERR			-1
-#define DATA_LEN_ERR	-2
-
-struct sm4_key_st {
-#ifdef SM4_LONG
-    unsigned long rd_key[4 *(SM4_MAXNR + 1)];
-#else
-    unsigned int rd_key[4 *(SM4_MAXNR + 1)];
-#endif
-    int rounds;
-};
-typedef struct sm4_key_st SM4_KEY;
-
-#ifdef	__cplusplus
-//extern "C" {
+#ifdef __cplusplus
+extern "C" {
 #endif
 
+/**
+ * \brief          SM4 key schedule (128-bit, encryption)
+ *
+ * \param ctx      SM4 context to be initialized
+ * \param key      16-byte secret key
+ */
+void sm4_setkey_enc( sm4_context *ctx, unsigned char key[16] );
 
-unsigned int tcm_sms4_encrypt(unsigned char *IV, unsigned char *input, unsigned int inputLen, unsigned char *output, unsigned char *key);
+/**
+ * \brief          SM4 key schedule (128-bit, decryption)
+ *
+ * \param ctx      SM4 context to be initialized
+ * \param key      16-byte secret key
+ */
+void sm4_setkey_dec( sm4_context *ctx, unsigned char key[16] );
 
-unsigned int tcm_sms4_decrypt(unsigned char *IV, unsigned char *input, unsigned int inputLen, unsigned char *output, unsigned char *key);
+/**
+ * \brief          SM4-ECB block encryption/decryption
+ * \param ctx      SM4 context
+ * \param mode     SM4_ENCRYPT or SM4_DECRYPT
+ * \param length   length of the input data
+ * \param input    input block
+ * \param output   output block
+ */
+void sm4_crypt_ecb( sm4_context *ctx,
+				     int mode,
+					 int length,
+                     unsigned char *input,
+                     unsigned char *output);
 
-int SMS4EncryptECB(unsigned char *pbKey, unsigned char *pbInData, unsigned int uInDataLen, unsigned char *pbOutData);
+/**
+ * \brief          SM4-CBC buffer encryption/decryption
+ * \param ctx      SM4 context
+ * \param mode     SM4_ENCRYPT or SM4_DECRYPT
+ * \param length   length of the input data
+ * \param iv       initialization vector (updated after use)
+ * \param input    buffer holding the input data
+ * \param output   buffer holding the output data
+ */
+void sm4_crypt_cbc( sm4_context *ctx,
+                     int mode,
+                     int length,
+                     unsigned char iv[16],
+                     unsigned char *input,
+                     unsigned char *output );
 
-int SMS4DecryptECB(unsigned char *pbKey, unsigned char *pbInData, unsigned int uInDataLen, unsigned char *pbOutData);
-
-#ifdef	__cplusplus
-//}
+#ifdef __cplusplus
+}
 #endif
 
-
-
-#endif
+#endif /* sm4.h */

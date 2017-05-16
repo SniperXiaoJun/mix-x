@@ -29,8 +29,12 @@
 #include "gm-ecc-512.h"
 #endif 
 
-
+#if defined(MIX_BORINGSSL)
+EC_GROUP *g_group;
+#else
 extern EC_GROUP *g_group;
+#endif
+
 
 
 int copy_extensions(X509 *x, X509_REQ *req, int copy_type);
@@ -122,35 +126,36 @@ err:
 }
 
 
+#if defined(MIX_BORINGSSL)
 
-
+#else
 
 typedef struct SM2SIGN_DATA_st
-{	
+{
 	ASN1_INTEGER	*r;
 	ASN1_INTEGER	*s;
 }SM2SIGN_DATA;
 
 DECLARE_ASN1_FUNCTIONS(SM2SIGN_DATA)
-ASN1_SEQUENCE(SM2SIGN_DATA) ={		
+ASN1_SEQUENCE(SM2SIGN_DATA) = {
 	ASN1_SIMPLE(SM2SIGN_DATA, r, ASN1_INTEGER),
 	ASN1_SIMPLE(SM2SIGN_DATA, s, ASN1_INTEGER)
 }
 
 ASN1_SEQUENCE_END(SM2SIGN_DATA)
-	IMPLEMENT_ASN1_FUNCTIONS(SM2SIGN_DATA)
+IMPLEMENT_ASN1_FUNCTIONS(SM2SIGN_DATA)
 
 
-	unsigned int SM2SignAsn1Convert(
+unsigned int SM2SignAsn1Convert(
 	unsigned char *pbR, unsigned int nRLen,
 	unsigned char *pbS, unsigned int nSLen,
-	unsigned char *pbOutDer, unsigned int *pOutDerLen) 
-{	
+	unsigned char *pbOutDer, unsigned int *pOutDerLen)
+{
 	unsigned long			nOutLen = 0;
 	unsigned long			nRet = 0;
 
 	unsigned char *p = NULL;
-	unsigned char pbOut[2048] = {0};
+	unsigned char pbOut[2048] = { 0 };
 	unsigned char *pOut = pbOut;
 
 	SM2SIGN_DATA  stData;
@@ -162,37 +167,37 @@ ASN1_SEQUENCE_END(SM2SIGN_DATA)
 	//r
 	p = pbR;
 	bNUM = BN_bin2bn(p, nRLen, NULL);
-	if(NULL == bNUM)
+	if (NULL == bNUM)
 	{
 		nRet = -1;
 		goto ErrExit;
 	}
 	asn1_integer_r = BN_to_ASN1_INTEGER(bNUM, NULL);
-	if(NULL == asn1_integer_r)
+	if (NULL == asn1_integer_r)
 	{
 		nRet = -2;
 		goto ErrExit;
 	}
 
-	if(bNUM)
+	if (bNUM)
 		BN_free(bNUM);
 
 	//s
 	p = pbS;
 	bNUM = BN_bin2bn(p, nSLen, NULL);
-	if(NULL == bNUM)
+	if (NULL == bNUM)
 	{
 		nRet = -1;
 		goto ErrExit;
 	}
 	asn1_integer_s = BN_to_ASN1_INTEGER(bNUM, NULL);
-	if(NULL == asn1_integer_s)
+	if (NULL == asn1_integer_s)
 	{
 		nRet = -2;
 		goto ErrExit;
 	}
 
-	if(bNUM)
+	if (bNUM)
 		BN_free(bNUM);
 
 	//	
@@ -202,61 +207,69 @@ ASN1_SEQUENCE_END(SM2SIGN_DATA)
 
 	*pOutDerLen = nOutLen;
 
-	if(pbOutDer)
+	if (pbOutDer)
 		memcpy(pbOutDer, pbOut, nOutLen);
 
-ErrExit:	
+ErrExit:
 
 	return nRet;
 }
 
+#endif
+
+typedef struct SM2SIGN_DATA_st
+{
+	ASN1_INTEGER	*r;
+	ASN1_INTEGER	*s;
+}SM2SIGN_DATA;
+
 unsigned int SM2SignAsn1DeConvert(
 	unsigned char *pbR, unsigned int *nRLen,
 	unsigned char *pbS, unsigned int *nSLen,
-	unsigned char *pbDer, unsigned int nDerLen) 
-{	
+	unsigned char *pbDer, unsigned int nDerLen)
+{
 	unsigned int 		nOutLen = 0;
 	unsigned long		nRet = 0;
 
 	unsigned char * pPtr = pbDer;
 
-	SM2SIGN_DATA  * stData = d2i_SM2SIGN_DATA(NULL, &pPtr,nDerLen);
+	SM2SIGN_DATA  * stData = d2i_SM2SIGN_DATA(NULL, &pPtr, nDerLen);
 
 	BIGNUM	*bNUM = NULL;
 
-	if(NULL == stData)
+	if (NULL == stData)
 	{
 		nRet = -2;
 		goto ErrExit;
 	}
 
 	bNUM = ASN1_INTEGER_to_BN(stData->r, NULL);
-	if(NULL == bNUM)
+	if (NULL == bNUM)
 	{
 		nRet = -1;
 		goto ErrExit;
 	}
-	*nRLen = BN_bn2bin(bNUM,pbR);
+	*nRLen = BN_bn2bin(bNUM, pbR);
 
-	if(bNUM)
+	if (bNUM)
 	{
 		BN_free(bNUM);
 	}
 
 	bNUM = ASN1_INTEGER_to_BN(stData->s, NULL);
-	if(NULL == bNUM)
+	if (NULL == bNUM)
 	{
 		nRet = -1;
 		goto ErrExit;
 	}
-	*nSLen = BN_bn2bin(bNUM,pbS);
+	*nSLen = BN_bn2bin(bNUM, pbS);
 
-	if(bNUM)
+	if (bNUM)
 	{
 		BN_free(bNUM);
 	}
 
-ErrExit:	
+ErrExit:
 
 	return nRet;
 }
@@ -268,8 +281,12 @@ unsigned int OpenSSL_Initialize()
 	OpenSSL_add_all_digests();
 	ERR_load_crypto_strings();
 
+#if defined(MIX_BORINGSSL)
+	g_group = EC_GROUP_new_by_curve_name(NID_sm2p256v1);
+#else
 	// ��ʼ��SM2����
 	tcm_ecc_init();
+#endif
 
 #if defined(GM_ECC_512_SUPPORT)
 	tcm_gmecc512_init();
@@ -734,98 +751,6 @@ err:
 
 	return rv;
 }
-
-unsigned int OpenSSL_P7BMake(
-	OPST_CERT_LIST pX509List[],
-	int uiX509ListLen,
-	const unsigned char *pbCRL, unsigned int uiCRLLen,
-	unsigned char *pbP7BContent, unsigned int *puiP7BContentLen
-	)
-{
-	unsigned int rv = -1;
-	int i=0;
-	
-	PKCS7 *p7 = NULL;
-	PKCS7_SIGNED *p7s = NULL;
-	X509_CRL *crl=NULL;
-	STACK_OF(X509_CRL) *crl_stack=NULL;
-	STACK_OF(X509) *cert_stack=NULL;
-	X509 *x509 = NULL;
-
-	unsigned char * ptr_out = NULL;
-	ptr_out = pbP7BContent;
-
-	if ((p7=PKCS7_new()) == NULL) 
-	{
-		goto err;
-	}
-	if ((p7s=PKCS7_SIGNED_new()) == NULL)
-	{
-		goto err;
-	}
-	p7->type=OBJ_nid2obj(NID_pkcs7_signed);
-	p7->d.sign=p7s;
-	p7s->contents->type=OBJ_nid2obj(NID_pkcs7_data);
-
-	if (!ASN1_INTEGER_set(p7s->version,1))
-	{
-		goto err;
-	}
-
-	if (pbCRL == 0 || 0 == uiCRLLen)
-	{
-
-	}
-	else
-	{
-		crl = d2i_X509_CRL(NULL, &pbCRL, uiCRLLen);
-	}
-	
-
-	if ((crl_stack=sk_X509_CRL_new_null()) == NULL) 
-	{
-		goto err;
-	}
-	p7s->crl=crl_stack;
-	if (crl != NULL)
-	{
-		sk_X509_CRL_push(crl_stack,crl);
-		crl=NULL; /* now part of p7 for OPENSSL_freeing */
-	}
-
-	if ((cert_stack=sk_X509_new_null()) == NULL) goto err;
-	p7s->cert=cert_stack;
-
-	for (i = 0; i < uiX509ListLen; i++)
-	{
-		x509 = d2i_X509(NULL, &pX509List[i].content, pX509List[i].contentLen);
-
-		if (NULL == x509)
-		{
-			goto err;
-		}
-
-		sk_X509_push(cert_stack,x509);
-	}
-
-	//p7
-
-	*puiP7BContentLen =i2d_PKCS7(p7,&ptr_out);
-
-	rv=0;
-err:
-	if (p7 != NULL) 
-	{
-		PKCS7_free(p7);
-	}
-	if (crl != NULL)
-	{
-		X509_CRL_free(crl);
-	}
-
-	return rv;
-}
-
 
 
 unsigned int OpenSSL_SM2SignCSR(
@@ -1383,15 +1308,19 @@ unsigned int OpenSSL_SM2GenCSRWithPubkey(const OPST_USERINFO *pstUserInfo,
 	
 
 	ptr_out = pbCSR;
+#if defined(MIX_BORINGSSL)
 
+#else
 	X509_ALGOR_set0(req->req_info->pubkey->algor,
-		OBJ_txt2obj("1.2.840.10045.2.1",OBJ_NAME_TYPE_PKEY_METH)
-		,V_ASN1_OBJECT,OBJ_txt2obj("1.2.156.10197.1.301",OBJ_NAME_TYPE_PKEY_METH)
-		);
+		OBJ_txt2obj("1.2.840.10045.2.1", OBJ_NAME_TYPE_PKEY_METH)
+		, V_ASN1_OBJECT, OBJ_txt2obj("1.2.156.10197.1.301", OBJ_NAME_TYPE_PKEY_METH)
+	);
 
 	X509_ALGOR_set0(req->sig_alg,
-		OBJ_txt2obj("1.2.156.10197.1.501",0), 
+		OBJ_txt2obj("1.2.156.10197.1.501", 0),
 		V_ASN1_UNDEF, NULL);
+#endif
+	
 
 	*puiCSRLen = i2d_X509_REQ(req, &ptr_out);
 
@@ -1500,6 +1429,10 @@ unsigned int OpenSSL_SM2GenRootCert(const unsigned char * pbCSR,unsigned int uiC
 	//cleanup the extension code if any custom extensions have been added
 	X509V3_EXT_cleanup();
 
+#if defined(MIX_BORINGSSL)
+
+#else
+
 	X509_ALGOR_set0(x509->cert_info->key->algor,
 		OBJ_txt2obj("1.2.840.10045.2.1",OBJ_NAME_TYPE_PKEY_METH)
 		,V_ASN1_OBJECT,OBJ_txt2obj("1.2.156.10197.1.301",OBJ_NAME_TYPE_PKEY_METH)
@@ -1512,7 +1445,7 @@ unsigned int OpenSSL_SM2GenRootCert(const unsigned char * pbCSR,unsigned int uiC
 	X509_ALGOR_set0(x509->cert_info->signature,
 		OBJ_txt2obj("1.2.156.10197.1.501",0), 
 		V_ASN1_UNDEF, NULL);
-
+#endif
 
 	if (!pbX509Cert)
 	{
@@ -1679,7 +1612,9 @@ unsigned int OpenSSL_SM2GenCert(const unsigned char * pbCSR,unsigned int uiCSRLe
 
 	if(strlen(strExtKeyUsage))
 		Add_Ext(x509, x509, NID_ext_key_usage, strExtKeyUsage);
+#if defined(MIX_BORINGSSL)
 
+#else
 	X509_ALGOR_set0(x509->cert_info->key->algor,
 		OBJ_txt2obj("1.2.840.10045.2.1",OBJ_NAME_TYPE_PKEY_METH)
 		,V_ASN1_OBJECT,OBJ_txt2obj("1.2.156.10197.1.301",OBJ_NAME_TYPE_PKEY_METH)
@@ -1692,6 +1627,7 @@ unsigned int OpenSSL_SM2GenCert(const unsigned char * pbCSR,unsigned int uiCSRLe
 	X509_ALGOR_set0(x509->cert_info->signature,
 		OBJ_txt2obj("1.2.156.10197.1.501",0), 
 		V_ASN1_UNDEF, NULL);
+#endif
 
 	ptr_out = pbX509Cert;
 
@@ -1857,7 +1793,9 @@ unsigned int OpenSSL_SM2GenCertEX(const unsigned char * pbCSR,unsigned int uiCSR
 
 	if(strlen(strExtKeyUsage))
 		Add_Ext(x509, x509, NID_ext_key_usage, strExtKeyUsage);
+#if defined(MIX_BORINGSSL)
 
+#else
 	X509_ALGOR_set0(x509->cert_info->key->algor,
 		OBJ_txt2obj("1.2.840.10045.2.1",OBJ_NAME_TYPE_PKEY_METH)
 		,V_ASN1_OBJECT,OBJ_txt2obj("1.2.156.10197.1.301",OBJ_NAME_TYPE_PKEY_METH)
@@ -1870,7 +1808,7 @@ unsigned int OpenSSL_SM2GenCertEX(const unsigned char * pbCSR,unsigned int uiCSR
 	X509_ALGOR_set0(x509->cert_info->signature,
 		OBJ_txt2obj("1.2.156.10197.1.501",0), 
 		V_ASN1_UNDEF, NULL);
-
+#endif
 	ptr_out = pbX509Cert;
 
 	* puiX509CertLen = i2d_X509(x509, &ptr_out);
@@ -1902,58 +1840,6 @@ err:
 	if (bnSN)
 	{
 		BN_free(bnSN);
-	}
-
-	return rv;
-}
-
-unsigned int OpenSSL_CertGetSubject(const unsigned char * pbX509Cert, unsigned int uiX509CertLen,
-	unsigned char * pbSubject, unsigned int * puiSubjectLen)
-{
-	X509 * x509 =  NULL;
-	X509_NAME * pX509_Name_Subject = NULL;
-	unsigned int rv = -1;
-
-	x509 = d2i_X509( NULL, (const unsigned char **)&pbX509Cert,uiX509CertLen);
-	if (!x509)
-	{	
-		goto err;
-	}
-
-	pX509_Name_Subject = X509_get_subject_name(x509);
-	if (!pX509_Name_Subject)
-	{	
-		goto err;
-	}
-
-	if (!puiSubjectLen)
-	{
-		rv = OPE_ERR_INVALID_PARAM;
-		goto err;
-	}
-
-	if (!pbSubject)
-	{
-		* puiSubjectLen = pX509_Name_Subject->bytes->length;
-	}
-	else if(* puiSubjectLen < pX509_Name_Subject->bytes->length)
-	{
-		* puiSubjectLen = pX509_Name_Subject->bytes->length;
-		rv = OPE_ERR_BUFF_SMALL;
-		goto err;
-	}
-	else
-	{
-		* puiSubjectLen = pX509_Name_Subject->bytes->length;
-		memcpy(pbSubject, pX509_Name_Subject->bytes->data, * puiSubjectLen);
-	}
-
-	rv = 0;
-err:
-
-	if(x509)
-	{
-		X509_free(x509);
 	}
 
 	return rv;
@@ -2526,16 +2412,20 @@ err:
 
 short Add_Ext(X509 *cert, X509 * root, int nid, char *value)
 {
+
+#if defined(MIX_BORINGSSL)
+
+#else
 	X509_EXTENSION *ex;
 	X509V3_CTX ctx;
-
 	X509V3_set_ctx(&ctx, root, cert, NULL, NULL, 0);
 	ex = X509V3_EXT_conf_nid(NULL, &ctx, nid, value);
 	if (!ex)
 		return -1;
 
-	X509_add_ext(cert,ex,-1);
+	X509_add_ext(cert, ex, -1);
 	X509_EXTENSION_free(ex);
+#endif
 
 	return 1;
 }
@@ -2652,14 +2542,16 @@ unsigned int OpenSSL_SM2GenCRL(const OPST_CRL * pstCRLList, unsigned int uiCRLLi
 	//if (!X509_CRL_sign(crl, pkey, EVP_ecdsa()))
 	//	goto err;
 	//printf("sign crl\n");
+#if defined(MIX_BORINGSSL)
 
+#else
 	X509_ALGOR_set0(crl->sig_alg,
 		OBJ_txt2obj("1.2.156.10197.1.501",0), 
 		V_ASN1_UNDEF, 0);
 	X509_ALGOR_set0(crl->crl->sig_alg,
 		OBJ_txt2obj("1.2.156.10197.1.501",0), 
 		V_ASN1_UNDEF, 0);
-
+#endif
 	*puiCRLLen = i2d_X509_CRL(crl, &out_ptr);
 
 	rv = 0;
@@ -3328,9 +3220,9 @@ unsigned int OpenSSL_SM2DecryptInner(const unsigned char *pbIN, unsigned int uiI
 		goto err;
 	}
 
-	t = (unsigned char *)OPENSSL_malloc(uiPlainTextLen);
-	zero_buffer = (unsigned char *)OPENSSL_malloc(uiPlainTextLen);
-	data_value_out = (unsigned char *)OPENSSL_malloc(uiPlainTextLen);
+	t = (unsigned char *)malloc(uiPlainTextLen);
+	zero_buffer = (unsigned char *)malloc(uiPlainTextLen);
+	data_value_out = (unsigned char *)malloc(uiPlainTextLen);
 
 	memset(zero_buffer, 0, uiPlainTextLen);
 
@@ -3454,15 +3346,15 @@ unsigned int OpenSSL_SM2DecryptInner(const unsigned char *pbIN, unsigned int uiI
 err:
 	if(t)
 	{
-		OPENSSL_free(t);
+		free(t);
 	}
 	if(zero_buffer)
 	{
-		OPENSSL_free(zero_buffer);
+		free(zero_buffer);
 	}
 	if(data_value_out)
 	{
-		OPENSSL_free(data_value_out);
+		free(data_value_out);
 	}
 	if (pubkey_x_C1)
 	{
@@ -3624,11 +3516,11 @@ unsigned int OpenSSL_SM2EncryptInner(
 		goto err;
 	} 
 
-	t = (unsigned char *)OPENSSL_malloc(uiINLen);
-	c1 = (unsigned char *)OPENSSL_malloc(2*SM2_BYTES_LEN+1);
-	c2 = (unsigned char *)OPENSSL_malloc(uiINLen);
-	c3 = (unsigned char *)OPENSSL_malloc(SM3_DIGEST_LEN);
-	zero_buffer = (unsigned char *)OPENSSL_malloc(uiINLen);
+	t = (unsigned char *)malloc(uiINLen);
+	c1 = (unsigned char *)malloc(2*SM2_BYTES_LEN+1);
+	c2 = (unsigned char *)malloc(uiINLen);
+	c3 = (unsigned char *)malloc(SM3_DIGEST_LEN);
+	zero_buffer = (unsigned char *)malloc(uiINLen);
 
 	if( !t || !c1 || !c2 || !c3 || !zero_buffer)
 	{
@@ -3769,23 +3661,23 @@ err:
 
 	if(t)
 	{
-		OPENSSL_free(t);
+		free(t);
 	}
 	if(c1)
 	{
-		OPENSSL_free(c1);
+		free(c1);
 	}
 	if(c2)
 	{
-		OPENSSL_free(c2);
+		free(c2);
 	}
 	if(c3)
 	{
-		OPENSSL_free(c3);
+		free(c3);
 	}
 	if(zero_buffer)
 	{
-		OPENSSL_free(zero_buffer);
+		free(zero_buffer);
 	}
 	if (pubkey_xy)
 	{
@@ -3864,20 +3756,29 @@ err:
 }
 
 
+#if defined(MIX_BORINGSSL)
+
+#else
+
+#include <stdio.h>
+#include <openssl/pkcs12.h>
+
+
+
 unsigned int OpenSSL_CertSubjectCompareIssuer(const unsigned char * pbX509Cert, unsigned int uiX509CertLen,
 	unsigned int * bEqual
-	)
+)
 {
-	X509 * x509 =  NULL;
+	X509 * x509 = NULL;
 	X509_NAME * pX509_Name_Subject = NULL;
 	X509_NAME * pX509_Name_Issuer = NULL;
 	unsigned int rv = -1;
 
 	unsigned lenCmp = 0;
 
-	x509 = d2i_X509( NULL, (const unsigned char **)&pbX509Cert,uiX509CertLen);
+	x509 = d2i_X509(NULL, (const unsigned char **)&pbX509Cert, uiX509CertLen);
 	if (!x509)
-	{	
+	{
 		goto err;
 	}
 
@@ -3888,7 +3789,7 @@ unsigned int OpenSSL_CertSubjectCompareIssuer(const unsigned char * pbX509Cert, 
 	lenCmp = pX509_Name_Subject->bytes->length > pX509_Name_Issuer->bytes->length ?
 		pX509_Name_Subject->bytes->length : pX509_Name_Issuer->bytes->length;
 
-	if (0 == memcmp(pX509_Name_Subject->bytes->data,pX509_Name_Issuer->bytes->data, lenCmp))
+	if (0 == memcmp(pX509_Name_Subject->bytes->data, pX509_Name_Issuer->bytes->data, lenCmp))
 	{
 		*bEqual = 1;
 	}
@@ -3900,7 +3801,7 @@ unsigned int OpenSSL_CertSubjectCompareIssuer(const unsigned char * pbX509Cert, 
 	rv = 0;
 err:
 
-	if(x509)
+	if (x509)
 	{
 		X509_free(x509);
 	}
@@ -3908,10 +3809,57 @@ err:
 	return rv;
 }
 
-#include <stdio.h>
-#include <openssl/pkcs12.h>
+unsigned int OpenSSL_CertGetSubject(const unsigned char * pbX509Cert, unsigned int uiX509CertLen,
+	unsigned char * pbSubject, unsigned int * puiSubjectLen)
+{
+	X509 * x509 = NULL;
+	X509_NAME * pX509_Name_Subject = NULL;
+	unsigned int rv = -1;
 
+	x509 = d2i_X509(NULL, (const unsigned char **)&pbX509Cert, uiX509CertLen);
+	if (!x509)
+	{
+		goto err;
+	}
 
+	pX509_Name_Subject = X509_get_subject_name(x509);
+	if (!pX509_Name_Subject)
+	{
+		goto err;
+	}
+
+	if (!puiSubjectLen)
+	{
+		rv = OPE_ERR_INVALID_PARAM;
+		goto err;
+	}
+
+	if (!pbSubject)
+	{
+		*puiSubjectLen = pX509_Name_Subject->bytes->length;
+	}
+	else if (*puiSubjectLen < pX509_Name_Subject->bytes->length)
+	{
+		*puiSubjectLen = pX509_Name_Subject->bytes->length;
+		rv = OPE_ERR_BUFF_SMALL;
+		goto err;
+	}
+	else
+	{
+		*puiSubjectLen = pX509_Name_Subject->bytes->length;
+		memcpy(pbSubject, pX509_Name_Subject->bytes->data, *puiSubjectLen);
+	}
+
+	rv = 0;
+err:
+
+	if (x509)
+	{
+		X509_free(x509);
+	}
+
+	return rv;
+}
 
 static int pkcs12_add_bag(STACK_OF(PKCS12_SAFEBAG) **pbags, PKCS12_SAFEBAG *bag);
 
@@ -3961,9 +3909,9 @@ PKCS12 *PKCS12_create(char *pass, char *name, EVP_PKEY *pkey, X509 *cert,
 	if (!mac_iter)
 		mac_iter = 1;
 
-	if(!pkey && !cert && !ca)
+	if (!pkey && !cert && !ca)
 	{
-		PKCS12err(PKCS12_F_PKCS12_CREATE,PKCS12_R_INVALID_NULL_ARGUMENT);
+		PKCS12err(PKCS12_F_PKCS12_CREATE, PKCS12_R_INVALID_NULL_ARGUMENT);
 		return NULL;
 	}
 
@@ -3977,14 +3925,14 @@ PKCS12 *PKCS12_create(char *pass, char *name, EVP_PKEY *pkey, X509 *cert,
 	if (cert)
 	{
 		bag = PKCS12_add_cert(&bags, cert);
-		if(name && !PKCS12_add_friendlyname(bag, name, -1))
+		if (name && !PKCS12_add_friendlyname(bag, name, -1))
 			goto err;
-		if(keyidlen && !PKCS12_add_localkeyid(bag, keyid, keyidlen))
+		if (keyidlen && !PKCS12_add_localkeyid(bag, keyid, keyidlen))
 			goto err;
 	}
 
 	/* Add all other certificates */
-	for(i = 0; i < sk_X509_num(ca); i++)
+	for (i = 0; i < sk_X509_num(ca); i++)
 	{
 		if (!PKCS12_add_cert(&bags, sk_X509_value(ca, i)))
 			goto err;
@@ -4008,9 +3956,9 @@ PKCS12 *PKCS12_create(char *pass, char *name, EVP_PKEY *pkey, X509 *cert,
 		//if (!copy_bag_attr(bag, pkey, NID_LocalKeySet))
 		//	goto err;
 
-		if(name && !PKCS12_add_friendlyname(bag, name, -1))
+		if (name && !PKCS12_add_friendlyname(bag, name, -1))
 			goto err;
-		if(keyidlen && !PKCS12_add_localkeyid(bag, keyid, keyidlen))
+		if (keyidlen && !PKCS12_add_localkeyid(bag, keyid, keyidlen))
 			goto err;
 	}
 
@@ -4056,7 +4004,7 @@ PKCS12_SAFEBAG *PKCS12_add_cert(STACK_OF(PKCS12_SAFEBAG) **pbags, X509 *cert)
 	int keyidlen = -1;
 
 	/* Add user certificate */
-	if(!(bag = PKCS12_x5092certbag(cert)))
+	if (!(bag = PKCS12_x5092certbag(cert)))
 		goto err;
 
 	/* Use friendlyName and localKeyID in certificate.
@@ -4065,12 +4013,12 @@ PKCS12_SAFEBAG *PKCS12_add_cert(STACK_OF(PKCS12_SAFEBAG) **pbags, X509 *cert)
 
 	name = (char *)X509_alias_get0(cert, &namelen);
 
-	if(name && !PKCS12_add_friendlyname(bag, name, namelen))
+	if (name && !PKCS12_add_friendlyname(bag, name, namelen))
 		goto err;
 
 	keyid = X509_keyid_get0(cert, &keyidlen);
 
-	if(keyid && !PKCS12_add_localkeyid(bag, keyid, keyidlen))
+	if (keyid && !PKCS12_add_localkeyid(bag, keyid, keyidlen))
 		goto err;
 
 	if (!pkcs12_add_bag(pbags, bag))
@@ -4096,16 +4044,16 @@ PKCS12_SAFEBAG *PKCS12_add_key(STACK_OF(PKCS12_SAFEBAG) **pbags, EVP_PKEY *key,
 	PKCS8_PRIV_KEY_INFO *p8 = NULL;
 
 	/* Make a PKCS#8 structure */
-	if(!(p8 = EVP_PKEY2PKCS8(key)))
+	if (!(p8 = EVP_PKEY2PKCS8(key)))
 		goto err;
 
 
 	X509_ALGOR_set0(p8->pkeyalg,
-		OBJ_txt2obj("1.2.840.10045.2.1",OBJ_NAME_TYPE_PKEY_METH)
-		,V_ASN1_OBJECT,OBJ_txt2obj("1.2.156.10197.1.301",OBJ_NAME_TYPE_PKEY_METH)
-		);
+		OBJ_txt2obj("1.2.840.10045.2.1", OBJ_NAME_TYPE_PKEY_METH)
+		, V_ASN1_OBJECT, OBJ_txt2obj("1.2.156.10197.1.301", OBJ_NAME_TYPE_PKEY_METH)
+	);
 
-	if(key_usage && !PKCS8_add_keyusage(p8, key_usage))
+	if (key_usage && !PKCS8_add_keyusage(p8, key_usage))
 		goto err;
 	if (nid_key != -1)
 	{
@@ -4115,7 +4063,7 @@ PKCS12_SAFEBAG *PKCS12_add_key(STACK_OF(PKCS12_SAFEBAG) **pbags, EVP_PKEY *key,
 	else
 		bag = PKCS12_MAKE_KEYBAG(p8);
 
-	if(!bag)
+	if (!bag)
 		goto err;
 
 	if (!pkcs12_add_bag(pbags, bag))
@@ -4159,7 +4107,7 @@ int PKCS12_add_safe(STACK_OF(PKCS7) **psafes, STACK_OF(PKCS12_SAFEBAG) *bags,
 		p7 = PKCS12_pack_p7data(bags);
 	else
 		p7 = PKCS12_pack_p7encdata(nid_safe, pass, -1, NULL, 0,
-		iter, bags);
+			iter, bags);
 	if (!p7)
 		goto err;
 
@@ -4194,7 +4142,7 @@ static int pkcs12_add_bag(STACK_OF(PKCS12_SAFEBAG) **pbags, PKCS12_SAFEBAG *bag)
 			return 0;
 		free_bags = 1;
 	}
-	else 
+	else
 		free_bags = 0;
 
 	if (!sk_PKCS12_SAFEBAG_push(*pbags, bag))
@@ -4222,7 +4170,7 @@ PKCS12 *PKCS12_add_safes(STACK_OF(PKCS7) *safes, int nid_p7)
 	if (!p12)
 		return NULL;
 
-	if(!PKCS12_pack_authsafes(p12, safes))
+	if (!PKCS12_pack_authsafes(p12, safes))
 	{
 		PKCS12_free(p12);
 		return NULL;
@@ -4231,6 +4179,180 @@ PKCS12 *PKCS12_add_safes(STACK_OF(PKCS7) *safes, int nid_p7)
 	return p12;
 
 }
+
+
+unsigned int OpenSSL_P7BMake(
+	OPST_CERT_LIST pX509List[],
+	int uiX509ListLen,
+	const unsigned char *pbCRL, unsigned int uiCRLLen,
+	unsigned char *pbP7BContent, unsigned int *puiP7BContentLen
+)
+{
+	unsigned int rv = -1;
+	int i = 0;
+
+	PKCS7 *p7 = NULL;
+	PKCS7_SIGNED *p7s = NULL;
+	X509_CRL *crl = NULL;
+	STACK_OF(X509_CRL) *crl_stack = NULL;
+	STACK_OF(X509) *cert_stack = NULL;
+	X509 *x509 = NULL;
+
+	unsigned char * ptr_out = NULL;
+	ptr_out = pbP7BContent;
+
+	if ((p7 = PKCS7_new()) == NULL)
+	{
+		goto err;
+	}
+	if ((p7s = PKCS7_SIGNED_new()) == NULL)
+	{
+		goto err;
+	}
+	p7->type = OBJ_nid2obj(NID_pkcs7_signed);
+	p7->d.sign = p7s;
+	p7s->contents->type = OBJ_nid2obj(NID_pkcs7_data);
+
+	if (!ASN1_INTEGER_set(p7s->version, 1))
+	{
+		goto err;
+	}
+
+	if (pbCRL == 0 || 0 == uiCRLLen)
+	{
+
+	}
+	else
+	{
+		crl = d2i_X509_CRL(NULL, &pbCRL, uiCRLLen);
+	}
+
+
+	if ((crl_stack = sk_X509_CRL_new_null()) == NULL)
+	{
+		goto err;
+	}
+	p7s->crl = crl_stack;
+	if (crl != NULL)
+	{
+		sk_X509_CRL_push(crl_stack, crl);
+		crl = NULL; /* now part of p7 for freeing */
+	}
+
+	if ((cert_stack = sk_X509_new_null()) == NULL) goto err;
+	p7s->cert = cert_stack;
+
+	for (i = 0; i < uiX509ListLen; i++)
+	{
+		x509 = d2i_X509(NULL, &pX509List[i].content, pX509List[i].contentLen);
+
+		if (NULL == x509)
+		{
+			goto err;
+		}
+
+		sk_X509_push(cert_stack, x509);
+	}
+
+	//p7
+
+	*puiP7BContentLen = i2d_PKCS7(p7, &ptr_out);
+
+	rv = 0;
+err:
+	if (p7 != NULL)
+	{
+		PKCS7_free(p7);
+	}
+	if (crl != NULL)
+	{
+		X509_CRL_free(crl);
+	}
+
+	return rv;
+}
+
+
+unsigned int OpenSSL_SM2GenPFX(const char *password, const char *nickname,
+	const unsigned char *pbPrivateKey, unsigned int uiPrivateKeyLen,
+	const unsigned char * pbPublicKeyX, unsigned int uiPublicKeyXLen,
+	const unsigned char * pbPublicKeyY, unsigned int uiPublicKeyYLen,
+	const unsigned char * pbX509Cert, unsigned int uiX509CertLen,
+	const unsigned char * pbX509CA, unsigned int uiX509CALen,
+	int nid_key, int nid_cert, int iter, int mac_iter, int keytype,
+	unsigned char *pbPFX, unsigned int * puiPFXLen
+)
+{
+	X509 * x509 = NULL;
+	unsigned int rv = -1;
+	PKCS12 * p12 = NULL;
+	EVP_PKEY	*pkey = NULL;
+	unsigned char *ptr_out = NULL;
+
+	unsigned char value[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned int len = BUFFER_LEN_1K * 4;
+
+	ptr_out = value;
+
+
+	x509 = d2i_X509(NULL, (const unsigned char **)&pbX509Cert, uiX509CertLen);
+	if (!x509)
+	{
+		goto err;
+	}
+
+	pkey = OpenSSL_NewEVP_PKEY_OF_SM2Keys(
+		pbPrivateKey, uiPrivateKeyLen,
+		pbPublicKeyX, uiPublicKeyXLen,
+		pbPublicKeyY, uiPublicKeyYLen);
+
+	if (!pkey)
+	{
+		goto err;
+	}
+
+	p12 = PKCS12_create(password, nickname, pkey, x509,
+		NULL, nid_key, nid_cert, iter, mac_iter, keytype
+	);
+
+
+	//X509_ALGOR_set0(req->req_info->pubkey->algor,
+	//	OBJ_txt2obj("1.2.840.10045.2.1",OBJ_NAME_TYPE_PKEY_METH)
+	//	,V_ASN1_OBJECT,OBJ_txt2obj("1.2.156.10197.1.301",OBJ_NAME_TYPE_PKEY_METH)
+	//	);
+
+	//X509_ALGOR_set0(ec algor,
+	//	OBJ_txt2obj("1.2.840.10045.2.1",OBJ_NAME_TYPE_PKEY_METH)
+	//	,V_ASN1_OBJECT,OBJ_txt2obj("1.2.156.10197.1.301",OBJ_NAME_TYPE_PKEY_METH)
+	//	);
+
+
+
+	len = i2d_PKCS12(p12, NULL);
+
+	if (len > *puiPFXLen)
+	{
+		*puiPFXLen = len;
+	}
+	else
+	{
+		len = i2d_PKCS12(p12, &ptr_out);
+		*puiPFXLen = len;
+		memcpy(pbPFX, value, len);
+	}
+
+	rv = 0;
+err:
+
+	if (x509)
+	{
+		X509_free(x509);
+	}
+
+	return rv;
+}
+
+#endif
 
 
 
@@ -4328,86 +4450,8 @@ err:
 	return pkey;
 }
 
-unsigned int OpenSSL_SM2GenPFX(const char *password,const char *nickname, 
-	const unsigned char *pbPrivateKey, unsigned int uiPrivateKeyLen, 
-	const unsigned char * pbPublicKeyX, unsigned int uiPublicKeyXLen, 
-	const unsigned char * pbPublicKeyY, unsigned int uiPublicKeyYLen,
-	const unsigned char * pbX509Cert, unsigned int uiX509CertLen,
-	const unsigned char * pbX509CA, unsigned int uiX509CALen,
-	int nid_key, int nid_cert, int iter, int mac_iter, int keytype,
-	unsigned char *pbPFX, unsigned int * puiPFXLen
-	)
-{
-	X509 * x509 =  NULL;
-	unsigned int rv = -1;
-	PKCS12 * p12 = NULL;
-	EVP_PKEY	*pkey = NULL;
-	unsigned char *ptr_out = NULL;
 
-	unsigned char value[BUFFER_LEN_1K * 4] = {0};
-	unsigned int len = BUFFER_LEN_1K * 4;
-
-	ptr_out = value;
-
-
-	x509 = d2i_X509( NULL, (const unsigned char **)&pbX509Cert,uiX509CertLen);
-	if (!x509)
-	{	
-		goto err;
-	}
-
-	pkey = OpenSSL_NewEVP_PKEY_OF_SM2Keys( 
-		pbPrivateKey, uiPrivateKeyLen, 
-		pbPublicKeyX, uiPublicKeyXLen, 
-		pbPublicKeyY, uiPublicKeyYLen);
-
-	if (!pkey)
-	{
-		goto err;
-	}
-
-	p12 = PKCS12_create(password, nickname, pkey, x509,
-		NULL, nid_key, nid_cert, iter, mac_iter, keytype
-		);
-
-
-	//X509_ALGOR_set0(req->req_info->pubkey->algor,
-	//	OBJ_txt2obj("1.2.840.10045.2.1",OBJ_NAME_TYPE_PKEY_METH)
-	//	,V_ASN1_OBJECT,OBJ_txt2obj("1.2.156.10197.1.301",OBJ_NAME_TYPE_PKEY_METH)
-	//	);
-
-	//X509_ALGOR_set0(ec algor,
-	//	OBJ_txt2obj("1.2.840.10045.2.1",OBJ_NAME_TYPE_PKEY_METH)
-	//	,V_ASN1_OBJECT,OBJ_txt2obj("1.2.156.10197.1.301",OBJ_NAME_TYPE_PKEY_METH)
-	//	);
-
-
-
-	len = i2d_PKCS12(p12, NULL);
-
-	if (len > *puiPFXLen)
-	{
-		*puiPFXLen = len;
-	}
-	else
-	{
-		len = i2d_PKCS12(p12, &ptr_out);
-		*puiPFXLen = len;
-		memcpy(pbPFX,value, len);
-	}
-
-	rv = 0;
-err:
-
-	if(x509)
-	{
-		X509_free(x509);
-	}
-
-	return rv;
-}
-
-#include "sm4.h"
+#include "openssl/sm4.h"
 #define	SGD_SMS4_ECB	0x00000401		//SMS4算法ECB加密模式
 
 unsigned int OpenSSL_SM2GenExportEnvelopedKey(

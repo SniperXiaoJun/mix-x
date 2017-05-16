@@ -1166,7 +1166,9 @@ unsigned int OpenSSL_GMECC512GenCSRWithPubkey(const OPST_USERINFO *pstUserInfo,
 	OpenSSL_AddNameByName(name, "unstructuredName",(unsigned char *)pstUserInfo->unstructuredName,pstUserInfo->uiLenUN,0);
 
 	ptr_out = pbCSR;
+#if defined(MIX_BORINGSSL)
 
+#else
 	X509_ALGOR_set0(req->req_info->pubkey->algor,
 		OBJ_txt2obj("1.2.840.10045.2.1",OBJ_NAME_TYPE_PKEY_METH)
 		,V_ASN1_OBJECT,OBJ_txt2obj("1.2.156.10197.1.301",OBJ_NAME_TYPE_PKEY_METH)
@@ -1175,7 +1177,7 @@ unsigned int OpenSSL_GMECC512GenCSRWithPubkey(const OPST_USERINFO *pstUserInfo,
 	X509_ALGOR_set0(req->sig_alg,
 		OBJ_txt2obj("1.2.156.10197.1.501",0), 
 		V_ASN1_UNDEF, NULL);
-
+#endif
 	*puiCSRLen = i2d_X509_REQ(req, &ptr_out);
 
 	rv = 0;
@@ -1282,7 +1284,9 @@ unsigned int OpenSSL_GMECC512GenRootCert(const unsigned char * pbCSR,unsigned in
 
 	//cleanup the extension code if any custom extensions have been added
 	X509V3_EXT_cleanup();
+#if defined(MIX_BORINGSSL)
 
+#else
 	X509_ALGOR_set0(x509->cert_info->key->algor,
 		OBJ_txt2obj("1.2.840.10045.2.1",OBJ_NAME_TYPE_PKEY_METH)
 		,V_ASN1_OBJECT,OBJ_txt2obj("1.2.156.10197.1.301",OBJ_NAME_TYPE_PKEY_METH)
@@ -1295,7 +1299,7 @@ unsigned int OpenSSL_GMECC512GenRootCert(const unsigned char * pbCSR,unsigned in
 	X509_ALGOR_set0(x509->cert_info->signature,
 		OBJ_txt2obj("1.2.156.10197.1.501",0), 
 		V_ASN1_UNDEF, NULL);
-
+#endif
 
 	if (!pbX509Cert)
 	{
@@ -1462,7 +1466,9 @@ unsigned int OpenSSL_GMECC512GenCert(const unsigned char * pbCSR,unsigned int ui
 
 	if(strlen(strExtKeyUsage))
 		Add_Ext(x509, x509, NID_ext_key_usage, strExtKeyUsage);
+#if defined(MIX_BORINGSSL)
 
+#else
 	X509_ALGOR_set0(x509->cert_info->key->algor,
 		OBJ_txt2obj("1.2.840.10045.2.1",OBJ_NAME_TYPE_PKEY_METH)
 		,V_ASN1_OBJECT,OBJ_txt2obj("1.2.156.10197.1.301",OBJ_NAME_TYPE_PKEY_METH)
@@ -1475,7 +1481,7 @@ unsigned int OpenSSL_GMECC512GenCert(const unsigned char * pbCSR,unsigned int ui
 	X509_ALGOR_set0(x509->cert_info->signature,
 		OBJ_txt2obj("1.2.156.10197.1.501",0), 
 		V_ASN1_UNDEF, NULL);
-
+#endif
 	ptr_out = pbX509Cert;
 
 	* puiX509CertLen = i2d_X509(x509, &ptr_out);
@@ -1640,7 +1646,9 @@ unsigned int OpenSSL_GMECC512GenCertEX(const unsigned char * pbCSR,unsigned int 
 
 	if(strlen(strExtKeyUsage))
 		Add_Ext(x509, x509, NID_ext_key_usage, strExtKeyUsage);
+#if defined(MIX_BORINGSSL)
 
+#else
 	X509_ALGOR_set0(x509->cert_info->key->algor,
 		OBJ_txt2obj("1.2.840.10045.2.1",OBJ_NAME_TYPE_PKEY_METH)
 		,V_ASN1_OBJECT,OBJ_txt2obj("1.2.156.10197.1.301",OBJ_NAME_TYPE_PKEY_METH)
@@ -1653,7 +1661,7 @@ unsigned int OpenSSL_GMECC512GenCertEX(const unsigned char * pbCSR,unsigned int 
 	X509_ALGOR_set0(x509->cert_info->signature,
 		OBJ_txt2obj("1.2.156.10197.1.501",0), 
 		V_ASN1_UNDEF, NULL);
-
+#endif
 	ptr_out = pbX509Cert;
 
 	* puiX509CertLen = i2d_X509(x509, &ptr_out);
@@ -2673,9 +2681,9 @@ unsigned int OpenSSL_GMECC512DecryptInner(const unsigned char *pbIN, unsigned in
 		goto err;
 	}
 
-	t = (unsigned char *)OPENSSL_malloc(uiPlainTextLen);
-	zero_buffer = (unsigned char *)OPENSSL_malloc(uiPlainTextLen);
-	data_value_out = (unsigned char *)OPENSSL_malloc(uiPlainTextLen);
+	t = (unsigned char *)malloc(uiPlainTextLen);
+	zero_buffer = (unsigned char *)malloc(uiPlainTextLen);
+	data_value_out = (unsigned char *)malloc(uiPlainTextLen);
 
 	memset(zero_buffer, 0, uiPlainTextLen);
 
@@ -2799,15 +2807,15 @@ unsigned int OpenSSL_GMECC512DecryptInner(const unsigned char *pbIN, unsigned in
 err:
 	if(t)
 	{
-		OPENSSL_free(t);
+		free(t);
 	}
 	if(zero_buffer)
 	{
-		OPENSSL_free(zero_buffer);
+		free(zero_buffer);
 	}
 	if(data_value_out)
 	{
-		OPENSSL_free(data_value_out);
+		free(data_value_out);
 	}
 	if (pubkey_x_C1)
 	{
@@ -2969,11 +2977,11 @@ unsigned int OpenSSL_GMECC512EncryptInner(
 		goto err;
 	} 
 
-	t = (unsigned char *)OPENSSL_malloc(uiINLen);
-	c1 = (unsigned char *)OPENSSL_malloc(2*GM_ECC_512_BYTES_LEN+1);
-	c2 = (unsigned char *)OPENSSL_malloc(uiINLen);
-	c3 = (unsigned char *)OPENSSL_malloc((GM_HASH_BYTES_LEN));
-	zero_buffer = (unsigned char *)OPENSSL_malloc(uiINLen);
+	t = (unsigned char *)malloc(uiINLen);
+	c1 = (unsigned char *)malloc(2*GM_ECC_512_BYTES_LEN+1);
+	c2 = (unsigned char *)malloc(uiINLen);
+	c3 = (unsigned char *)malloc((GM_HASH_BYTES_LEN));
+	zero_buffer = (unsigned char *)malloc(uiINLen);
 
 	if( !t || !c1 || !c2 || !c3 || !zero_buffer)
 	{
@@ -3114,23 +3122,23 @@ err:
 
 	if(t)
 	{
-		OPENSSL_free(t);
+		free(t);
 	}
 	if(c1)
 	{
-		OPENSSL_free(c1);
+		free(c1);
 	}
 	if(c2)
 	{
-		OPENSSL_free(c2);
+		free(c2);
 	}
 	if(c3)
 	{
-		OPENSSL_free(c3);
+		free(c3);
 	}
 	if(zero_buffer)
 	{
-		OPENSSL_free(zero_buffer);
+		free(zero_buffer);
 	}
 	if (pubkey_xy)
 	{
@@ -3248,6 +3256,9 @@ err:
 
 	return pkey;
 }
+#if defined (MIX_BORINGSSL)
+
+#else
 
 unsigned int OpenSSL_GMECC512GenPFX(const char *password,const char *nickname, 
 	const unsigned char *pbPrivateKey, unsigned int uiPrivateKeyLen, 
@@ -3328,7 +3339,9 @@ err:
 	return rv;
 }
 
-#include "sm4.h"
+#endif
+
+#include "openssl/sm4.h"
 #define	SGD_SMS4_ECB	0x00000401		//SMS4算法ECB加密模式
 
 unsigned int OpenSSL_GMECC512GenExportEnvelopedKey(

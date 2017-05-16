@@ -96,14 +96,18 @@ int tcm_gmecc512_init()
 		goto err;
 	if (!BN_hex2bn(&b, sz_b))
 		goto err;
-	
+#if defined(MIX_BORINGSSL)
+	g_group512 = EC_GROUP_new_curve_GFp(p, a, b, ctx);
+	if (!g_group512)
+		goto err;
+#else
 	// applications should use EC_GROUP_new_curve_GFp so that the library gets to choose the EC_METHOD
 	g_group512 = EC_GROUP_new(EC_GFp_mont_method()); 
 	if (!g_group512)
 		goto err;
-	
 	if (!EC_GROUP_set_curve_GFp(g_group512, p, a, b, ctx))
 		goto err;
+#endif
 	
 	if (!BN_hex2bn(&x, sz_xG))
 		goto err;
@@ -445,10 +449,10 @@ int tcm_gmecc512_encrypt(unsigned char *plaintext, unsigned int uPlaintextLen, u
 		goto err;
 	}
 
-	t = OPENSSL_malloc(uPlaintextLen);
-	c1 = OPENSSL_malloc(2*GM_ECC_512_BYTES_LEN+1);
-	c2 = OPENSSL_malloc(uPlaintextLen);
-	c3 = OPENSSL_malloc(GM_HASH_BYTES_LEN);
+	t = malloc(uPlaintextLen);
+	c1 = malloc(2*GM_ECC_512_BYTES_LEN+1);
+	c2 = malloc(uPlaintextLen);
+	c3 = malloc(GM_HASH_BYTES_LEN);
 	if( !t || !c1 || !c2 || !c3)
 	{
 		nRet = OPE_ERR_NOT_ENOUGH_MEMORY;
@@ -564,13 +568,13 @@ int tcm_gmecc512_encrypt(unsigned char *plaintext, unsigned int uPlaintextLen, u
 	*puCiphertextLen = uCiphertextLen;
 
 	if(t)
-		OPENSSL_free(t);
+		free(t);
 	if(c1)
-		OPENSSL_free(c1);
+		free(c1);
 	if(c2)
-		OPENSSL_free(c2);
+		free(c2);
 	if(c3)
-		OPENSSL_free(c3);
+		free(c3);
 	
 	if (ptPubkey)
 		EC_POINT_free(ptPubkey);
@@ -586,13 +590,13 @@ int tcm_gmecc512_encrypt(unsigned char *plaintext, unsigned int uPlaintextLen, u
 	return 0;
 err:
 	if(t)
-		OPENSSL_free(t);
+		free(t);
 	if(c1)
-		OPENSSL_free(c1);
+		free(c1);
 	if(c2)
-		OPENSSL_free(c2);
+		free(c2);
 	if(c3)
-		OPENSSL_free(c3);
+		free(c3);
 
 	if (ptPubkey)
 		EC_POINT_free(ptPubkey);
@@ -666,11 +670,11 @@ int tcm_gmecc512_decrypt(unsigned char *ciphertext, unsigned int uCiphertextLen,
 		goto err;
 	}
 
-	t = OPENSSL_malloc(uPlaintextLen);
+	t = malloc(uPlaintextLen);
 	c1 = ciphertext;
 	c2 = ciphertext + (2*GM_ECC_512_BYTES_LEN+1);
 	c3 = ciphertext + (2*GM_ECC_512_BYTES_LEN+1) + uPlaintextLen;
-	decPlaintext = OPENSSL_malloc(uPlaintextLen);
+	decPlaintext = malloc(uPlaintextLen);
 	if( !t || !decPlaintext)
 	{
 		nRet = OPE_ERR_NOT_ENOUGH_MEMORY;
@@ -790,9 +794,9 @@ int tcm_gmecc512_decrypt(unsigned char *ciphertext, unsigned int uCiphertextLen,
 	*puPlaintextLen = uPlaintextLen;
 
 	if(t)
-		OPENSSL_free(t);
+		free(t);
 	if(decPlaintext)
-		OPENSSL_free(decPlaintext);
+		free(decPlaintext);
 	
 	if (ptC1)
 		EC_POINT_free(ptC1);
@@ -808,9 +812,9 @@ int tcm_gmecc512_decrypt(unsigned char *ciphertext, unsigned int uCiphertextLen,
 	return 0;
 err:
 	if(t)
-		OPENSSL_free(t);
+		free(t);
 	if(decPlaintext)
-		OPENSSL_free(decPlaintext);
+		free(decPlaintext);
 	
 	if (ptC1)
 		EC_POINT_free(ptC1);
@@ -1520,7 +1524,7 @@ int tcm_gmecc512_exchange(unsigned char fA, unsigned char prikey_A[GM_ECC_512_BY
 	yULen = BN_bn2bin(yU, byU + GM_ECC_512_BYTES_LEN - yULen);
 
 	// pKdfInData
-	pKdfInData = (unsigned char*) OPENSSL_malloc(2*GM_ECC_512_BYTES_LEN + 2*GM_HASH_BYTES_LEN);
+	pKdfInData = (unsigned char*) malloc(2*GM_ECC_512_BYTES_LEN + 2*GM_HASH_BYTES_LEN);
 	if(!pKdfInData)
 	{
 		nRet = OPE_ERR_NOT_ENOUGH_MEMORY;
@@ -1606,7 +1610,7 @@ int tcm_gmecc512_exchange(unsigned char fA, unsigned char prikey_A[GM_ECC_512_BY
 	gm_hash_finish(&gm_hashCtx, Sa, EHASH_TYPE_ZY_HASH_256);
 
 	if(pKdfInData)
-		OPENSSL_free(pKdfInData);
+		free(pKdfInData);
 
 	if(ptRA)
 		EC_POINT_free(ptRA);
@@ -1627,7 +1631,7 @@ int tcm_gmecc512_exchange(unsigned char fA, unsigned char prikey_A[GM_ECC_512_BY
 	return 0;
 err:
 	if(pKdfInData)
-		OPENSSL_free(pKdfInData);
+		free(pKdfInData);
 
 	if(ptRA)
 		EC_POINT_free(ptRA);
