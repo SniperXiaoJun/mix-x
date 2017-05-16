@@ -10,7 +10,15 @@ FILE(GLOB x_commontools_cpps "${CMAKE_SOURCE_DIR}/x_commontools/*.cpp")
 
 FILE(GLOB x_commontools_rcs "${CMAKE_SOURCE_DIR}/x_commontools/*.rc")
 
-FILE(GLOB common_cs "${CMAKE_SOURCE_DIR}/common/*.c")
+FILE(GLOB 
+  common_cs 
+  ${CMAKE_SOURCE_DIR}/common/FILE_LOG.c 
+  ${CMAKE_SOURCE_DIR}/common/gm-ecc-512.c 
+  ${CMAKE_SOURCE_DIR}/common/gm-hash-bit.c 
+  ${CMAKE_SOURCE_DIR}/common/modp_b64.c 
+  ${CMAKE_SOURCE_DIR}/common/o_all_func_def.c 
+  ${CMAKE_SOURCE_DIR}/common/openssl_func_def.c 
+  ${CMAKE_SOURCE_DIR}/common/openssl_func_def_gm_ecc_512.c)
 FILE(GLOB common_cpps "${CMAKE_SOURCE_DIR}/common/*.cpp")
 
 LINK_DIRECTORIES(
