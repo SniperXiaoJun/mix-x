@@ -7,5 +7,5 @@ add_executable(
 )
 
 target_link_libraries(x_test sqlite3)
-add_dependencies(x_tests x_test)
+add_dependencies(x_all x_test)
 

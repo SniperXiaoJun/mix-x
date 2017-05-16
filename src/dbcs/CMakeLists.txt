@@ -1,8 +1,9 @@
 include_directories(../../include)
 
+
+
 set(
     ARCH_SOURCES
-
     #cpu-arm.c
 )
 
@@ -10,21 +11,21 @@ set(
 #add_subdirectory(x_itemx)
 
 add_library(
-  sqlite3
+  dbcs
 
-  sqlite3.c
+  dbcs.cpp
 
   ${ARCH_SOURCES}
-
+  
 #  $<TARGET_OBJECTS:x_itemx>
 )
 
 add_executable(
-  x_sqlite
+  x_dbcs
 
-  x_sqlite.c
+  x_dbcs.c
 )
 
-target_link_libraries(x_sqlite sqlite3)
-add_dependencies(x_all x_sqlite)
+target_link_libraries(x_dbcs dbcs)
+add_dependencies(x_all x_dbcs)
 

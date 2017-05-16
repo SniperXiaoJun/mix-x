@@ -60,42 +60,42 @@ extern "C" {
 	/*
 		创建证书上下文
 	*/
-	COMMON_API unsigned int DBCS_API_CreateCtx(DBCS_CertificateContext *pCertificateCtx,unsigned char *pCertificate, unsigned int uiCertificateLen);
+	COMMON_API unsigned int DBCS_CreateCtx(DBCS_CertificateContext *pCertificateCtx,unsigned char *pCertificate, unsigned int uiCertificateLen);
 
 	/*
 		设置用户自定义数据
 	*/
-	COMMON_API unsigned int DBCS_API_SetCtxVendor(DBCS_CertificateContext *pCertificateCtx,unsigned char *pVendor, unsigned int uiVendorLen);
+	COMMON_API unsigned int DBCS_SetCtxVendor(DBCS_CertificateContext *pCertificateCtx,unsigned char *pVendor, unsigned int uiVendorLen);
 
 	/*
 		释放证书上下文
 	*/
-	COMMON_API unsigned int DBCS_API_FreeCtx(DBCS_CertificateContext *pCertificateCtx,unsigned char *pCertificate, unsigned int uiCertificateLen);
+	COMMON_API unsigned int DBCS_FreeCtx(DBCS_CertificateContext *pCertificateCtx,unsigned char *pCertificate, unsigned int uiCertificateLen);
 
 	/*
 		添加证书到数据库
 	*/
-	COMMON_API unsigned int DBCS_API_AddCtxToDB(DBCS_CertificateContext *pCertificateCtx);
+	COMMON_API unsigned int DBCS_AddCtxToDB(DBCS_CertificateContext *pCertificateCtx);
 
 	/*
 		从数据库删除证书上
 	*/
-	COMMON_API unsigned int DBCS_API_DelCtxFromDB(DBCS_CertificateContext *pCertificateCtx);
+	COMMON_API unsigned int DBCS_DelCtxFromDB(DBCS_CertificateContext *pCertificateCtx);
 
 	/*
 		清空数据库
 	*/
-	COMMON_API unsigned int DBCS_API_ClrAllFromDB();
+	COMMON_API unsigned int DBCS_ClrAllFromDB();
 
 	/*
 		从数据库查找证书	
 	*/
-	COMMON_API unsigned int DBCS_API_FindCtxFromDB(DBCS_CertificateFindAttr *pCertificateFindAttr,DBCS_CertificateContext *pPreCertificateCtx, DBCS_CertificateContext **pCertificateCtx);
+	COMMON_API unsigned int DBCS_FindCtxFromDB(DBCS_CertificateFindAttr *pCertificateFindAttr,DBCS_CertificateContext *pPreCertificateCtx, DBCS_CertificateContext **pCertificateCtx);
 
 	/*
 		从数据库遍历证书
 	*/
-	COMMON_API unsigned int DBCS_API_EnumCtxFromDB(DBCS_CertificateContext *pPreCertificateCtx, DBCS_CertificateContext **pCertificateCtx);
+	COMMON_API unsigned int DBCS_EnumCtxFromDB(DBCS_CertificateContext *pPreCertificateCtx, DBCS_CertificateContext **pCertificateCtx);
 
 #ifdef __cplusplus
 }
