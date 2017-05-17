@@ -10,6 +10,7 @@
 #include "CommonToolsTypedef.h"
 #include "FILE_LOG.h"
 #include "encode_switch.h"
+#include "o_all_func_def.h"
 // CommonToolsDlgB64 对话框
 
 IMPLEMENT_DYNAMIC(CommonToolsDlgB64, CDialogEx)
@@ -95,69 +96,72 @@ void CommonToolsDlgB64::OnBnClickedOk()
 	// TODO: 在此添加控件通知处理程序代码
 	//CDialogEx::OnOK();
 
-	wchar_t data_value_in[BUFFER_LEN_1K * 4] = {0};
-	char data_value_out[BUFFER_LEN_1K * 4] = {0};
-	wchar_t file_in[BUFFER_LEN_1K * 4] = {0};
-	wchar_t file_out[BUFFER_LEN_1K * 4] = {0};
+	unsigned char data_value_in[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned char data_value_out[BUFFER_LEN_1K * 4] = { 0 };
 
 	unsigned int data_len_in = BUFFER_LEN_1K * 4;
 	unsigned int data_len_out = BUFFER_LEN_1K * 4;
 
-	switch(m_iSelIN)
+	wchar_t data_value_tmp[BUFFER_LEN_1K] = { 0 };
+
+	switch (m_iSelIN)
 	{
 	case E_INPUT_TYPE_FILE:
-		{
-			editIN.GetWindowText(file_in,BUFFER_LEN_1K * 4);
+	{
+		editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
 
-			FILE_READ("", (char *)utf8_encode(file_in).c_str(),(unsigned char *)data_value_in,&data_len_in);
-		}
-		break;
+		FILE_READ("", utf8_encode(data_value_tmp).c_str(), data_value_in, &data_len_in);
+	}
+	break;
 	case E_INPUT_TYPE_CHAR:
-		{
-			editIN.GetWindowText(data_value_in,BUFFER_LEN_1K * 4);
-			data_len_in = wcslen(data_value_in);
-		}
-		break;
+	{
+		editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+
+		memcpy(data_value_in, utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()));
+
+		data_len_in = strlen(utf8_encode(data_value_tmp).c_str());
+	}
+	break;
 	case E_INPUT_TYPE_HEX:
-		{
-			editIN.GetWindowText(data_value_in,BUFFER_LEN_1K * 4);
-			data_len_in = wcslen(data_value_in);
-		}
-		break;
+	{
+		editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+
+		OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()), data_value_in, &data_len_in);
+	}
+	break;
 	default:
-		{
-			editIN.GetWindowText(data_value_in,BUFFER_LEN_1K * 4);
-			data_len_in = wcslen(data_value_in);
-		}
-		break;
+	{
+		MessageBox(L"选择类型", L"提示");
+
+		return;
+	}
+	break;
 	}
 
-	data_len_out = modp_b64_encode(data_value_out, (char *)utf8_encode(data_value_in).c_str(),data_len_in);
+	data_len_out = modp_b64_encode((char *)data_value_out,(char *)data_value_in,data_len_in);
 
-	switch(m_iSelOUT)
+	switch (m_iSelOUT)
 	{
 	case E_OUTPUT_TYPE_FILE:
-		{
-			editOUT.GetWindowText(file_out,BUFFER_LEN_1K * 4);
+	{
+		editOUT.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
 
-			FILE_WRITE("", (char *)utf8_encode(file_out).c_str(),(unsigned char *)data_value_out,data_len_out);
-		}
-		break;
+		FILE_WRITE("", utf8_encode(data_value_tmp).c_str(), data_value_out, data_len_out);
+	}
+	break;
 	case E_OUTPUT_TYPE_CHAR:
-		{
-			editOUT.SetWindowText(utf8_decode(data_value_out).c_str());
-		}
-		break;
 	case E_OUTPUT_TYPE_HEX:
-		{
-			editOUT.SetWindowText(utf8_decode(data_value_out).c_str());
-		}
-		break;
+	{
+		editOUT.SetWindowText(utf8_decode((char *)data_value_out).c_str());
+	}
+	break;
 	default:
-		{
-			editOUT.SetWindowText(utf8_decode(data_value_out).c_str());
-		}
-		break;
+	{
+		MessageBox(L"选择类型", L"提示");
+
+		return;
+	}
+	break;
 	}
 }
 
@@ -167,68 +171,71 @@ void CommonToolsDlgB64::OnBnClickedCancel()
 	// TODO: 在此添加控件通知处理程序代码
 	// CDialogEx::OnCancel();
 
-	wchar_t data_value_in[BUFFER_LEN_1K * 4] = {0};
-	char data_value_out[BUFFER_LEN_1K * 4] = {0};
-	wchar_t file_in[BUFFER_LEN_1K * 4] = {0};
-	wchar_t file_out[BUFFER_LEN_1K * 4] = {0};
+	unsigned char data_value_in[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned char data_value_out[BUFFER_LEN_1K * 4] = { 0 };
 
 	unsigned int data_len_in = BUFFER_LEN_1K * 4;
 	unsigned int data_len_out = BUFFER_LEN_1K * 4;
 
-	switch(m_iSelIN)
+	wchar_t data_value_tmp[BUFFER_LEN_1K] = { 0 };
+
+	switch (m_iSelIN)
 	{
 	case E_INPUT_TYPE_FILE:
-		{
-			editIN.GetWindowText(file_in,BUFFER_LEN_1K * 4);
+	{
+		editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
 
-			FILE_READ("", (char *)utf8_encode(file_in).c_str(),(unsigned char *)data_value_in,&data_len_in);
-		}
-		break;
+		FILE_READ("", utf8_encode(data_value_tmp).c_str(), data_value_in, &data_len_in);
+	}
+	break;
 	case E_INPUT_TYPE_CHAR:
-		{
-			editIN.GetWindowText(data_value_in,BUFFER_LEN_1K * 4);
-			data_len_in = wcslen(data_value_in);
-		}
-		break;
+	{
+		editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+
+		memcpy(data_value_in, utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()));
+
+		data_len_in = strlen(utf8_encode(data_value_tmp).c_str());
+	}
+	break;
 	case E_INPUT_TYPE_HEX:
-		{
-			editIN.GetWindowText(data_value_in,BUFFER_LEN_1K * 4);
-			data_len_in = wcslen(data_value_in);
-		}
-		break;
+	{
+		editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+
+		OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()), data_value_in, &data_len_in);
+	}
+	break;
 	default:
-		{
-			editIN.GetWindowText(data_value_in,BUFFER_LEN_1K * 4);
-			data_len_in = wcslen(data_value_in);
-		}
-		break;
+	{
+		MessageBox(L"选择类型", L"提示");
+
+		return;
+	}
+	break;
 	}
 
-	data_len_out = modp_b64_decode(data_value_out, (char *)utf8_encode(data_value_in).c_str(),data_len_in);
+	data_len_out = modp_b64_decode((char *)data_value_out, (char *)data_value_in, data_len_in);
 
-	switch(m_iSelOUT)
+	switch (m_iSelOUT)
 	{
 	case E_OUTPUT_TYPE_FILE:
-		{
-			editOUT.GetWindowText(file_out,BUFFER_LEN_1K * 4);
+	{
+		editOUT.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
 
-			FILE_WRITE("", (char *)utf8_encode(file_out).c_str(),(unsigned char *)data_value_out,data_len_out);
-		}
-		break;
+		FILE_WRITE("", utf8_encode(data_value_tmp).c_str(), data_value_out, data_len_out);
+	}
+	break;
 	case E_OUTPUT_TYPE_CHAR:
-		{
-			editOUT.SetWindowText(utf8_decode(data_value_out).c_str());
-		}
-		break;
 	case E_OUTPUT_TYPE_HEX:
-		{
-			editOUT.SetWindowText(utf8_decode(data_value_out).c_str());
-		}
-		break;
+	{
+		editOUT.SetWindowText(utf8_decode((char *)data_value_out).c_str());
+	}
+	break;
 	default:
-		{
-			editOUT.SetWindowText(utf8_decode(data_value_out).c_str());
-		}
-		break;
+	{
+		MessageBox(L"选择类型", L"提示");
+
+		return;
+	}
+	break;
 	}
 }

@@ -44,14 +44,7 @@ void CommonToolsDlgHASH::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CommonToolsDlgHASH, CDialogEx)
 	ON_BN_CLICKED(IDOK, &CommonToolsDlgHASH::OnBnClickedOk)
 	ON_BN_CLICKED(IDCANCEL, &CommonToolsDlgHASH::OnBnClickedCancel)
-	ON_BN_CLICKED(IDC_RADIO1, &CommonToolsDlgHASH::OnBnClickedRadio1)
-	ON_BN_CLICKED(IDC_RADIO2, &CommonToolsDlgHASH::OnBnClickedRadio2)
-	ON_BN_CLICKED(IDC_RADIO3, &CommonToolsDlgHASH::OnBnClickedRadio3)
-	ON_BN_CLICKED(IDC_RADIO4, &CommonToolsDlgHASH::OnBnClickedRadio4)
-	ON_BN_CLICKED(IDC_RADIO5, &CommonToolsDlgHASH::OnBnClickedRadio5)
-	ON_BN_CLICKED(IDC_RADIO6, &CommonToolsDlgHASH::OnBnClickedRadio6)
 	ON_BN_CLICKED(IDCANCEL2, &CommonToolsDlgHASH::OnBnClickedCancel2)
-	ON_EN_CHANGE(IDC_EDIT7, &CommonToolsDlgHASH::OnEnChangeEdit7)
 END_MESSAGE_MAP()
 
 
@@ -63,55 +56,28 @@ void CommonToolsDlgHASH::OnBnClickedOk()
 {
 	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼þÍ¨Öª´¦Àí³ÌÐò´úÂë
 	//CDialogEx::OnOK();
-	wchar_t data_value_key[BUFFER_LEN_1K * 4] = {0};
+	unsigned char data_value_key[BUFFER_LEN_1K * 4] = {0};
 	wchar_t data_value_tmp[BUFFER_LEN_1K * 4] = {0};
 	unsigned int data_len_key = BUFFER_LEN_1K * 4;
 	unsigned int data_len_tmp = BUFFER_LEN_1K * 4;
 
-	wchar_t data_value_in[BUFFER_LEN_1K * 4] = {0};
+	unsigned char data_value_in[BUFFER_LEN_1K * 4] = {0};
 	unsigned char data_value_out[BUFFER_LEN_1K * 4] = {0};
-	wchar_t file_in[BUFFER_LEN_1K * 4] = {0};
-	wchar_t file_out[BUFFER_LEN_1K * 4] = {0};
+	unsigned char data_value_out_hex[BUFFER_LEN_1K * 4] = { 0 };
 
 	unsigned int data_len_in = BUFFER_LEN_1K * 4;
 	unsigned int data_len_out = BUFFER_LEN_1K * 4;
+	unsigned int data_len_out_hex = BUFFER_LEN_1K * 4;
 
 	OpenSSL_Initialize();
 
 	editKEYS.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	data_len_tmp = wcslen(data_value_tmp);
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)data_value_key,&data_len_key);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()), data_value_key,&data_len_key);
 
-	switch(m_iSelIN)
-	{
-	case E_INPUT_TYPE_FILE:
-		{
-			editIN.GetWindowText(file_in,BUFFER_LEN_1K * 4);
+	editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()), data_value_in, &data_len_in);
+	
 
-			FILE_READ("", (char *)utf8_encode(file_in).c_str(),(unsigned char *)data_value_in,&data_len_in);
-		}
-		break;
-	case E_INPUT_TYPE_CHAR:
-		{
-			editIN.GetWindowText(data_value_in,BUFFER_LEN_1K * 4);
-			data_len_in = wcslen(data_value_in);
-		}
-		break;
-	case E_INPUT_TYPE_HEX:
-		{
-			editIN.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-			data_len_tmp = wcslen(data_value_tmp);
-
-			OPF_WStr2Bin(data_value_tmp,data_len_tmp,(unsigned char *)data_value_in, &data_len_in);
-		}
-		break;
-	default:
-		{
-			editIN.GetWindowText(data_value_in,BUFFER_LEN_1K * 4);
-			data_len_in = wcslen(data_value_in);
-		}
-		break;
-	}
 	if(g_HashAlgType == E_HASH_ALG_ZY_256)
 	{
 		unsigned int ulRet = gm_hash_hash(data_len_in, (unsigned char *)data_value_in,
@@ -149,34 +115,10 @@ void CommonToolsDlgHASH::OnBnClickedOk()
 		}
 	}
 
-
-	switch(m_iSelOUT)
-	{
-	case E_OUTPUT_TYPE_FILE:
-		{
-			editOUT.GetWindowText(file_out,BUFFER_LEN_1K * 4);
-
-			FILE_WRITE("", (char *)utf8_encode(file_out).c_str(),(unsigned char *)data_value_out,data_len_out);
-		}
-		break;
-	case E_OUTPUT_TYPE_CHAR:
-		{
-			editOUT.SetWindowText(utf8_decode((char*)data_value_out).c_str());
-		}
-		break;
-	case E_OUTPUT_TYPE_HEX:
-		{
-			data_len_tmp = BUFFER_LEN_1K * 4;
-			OPF_Bin2WStr(data_value_out,data_len_out,data_value_tmp, &data_len_tmp);
-			editOUT.SetWindowText(data_value_tmp);
-		}
-		break;
-	default:
-		{
-			editOUT.SetWindowText(utf8_decode((char*)data_value_out).c_str());
-		}
-		break;
-	}
+	data_len_tmp = BUFFER_LEN_1K * 4;
+	OPF_Bin2Str(data_value_out,data_len_out, (char *)data_value_out_hex, &data_len_out_hex);
+	editOUT.SetWindowText(utf8_decode((char *)data_value_out_hex).c_str());
+	
 	OpenSSL_Finalize();
 }
 
@@ -185,14 +127,12 @@ void CommonToolsDlgHASH::OnBnClickedCancel()
 {
 	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼þÍ¨Öª´¦Àí³ÌÐò´úÂë
 	// CDialogEx::OnCancel();
-	wchar_t data_value_key[BUFFER_LEN_1K * 4] = {0};
+	unsigned char data_value_key[BUFFER_LEN_1K * 4] = {0};
 	wchar_t data_value_tmp[BUFFER_LEN_1K * 4] = {0};
 	unsigned int data_len_key = BUFFER_LEN_1K * 4;
 	unsigned int data_len_tmp = BUFFER_LEN_1K * 4;
-	wchar_t data_value_in[BUFFER_LEN_1K * 4] = {0};
+	unsigned char data_value_in[BUFFER_LEN_1K * 4] = {0};
 	unsigned char data_value_out[BUFFER_LEN_1K * 4] = {0};
-	wchar_t file_in[BUFFER_LEN_1K * 4] = {0};
-	wchar_t file_out[BUFFER_LEN_1K * 4] = {0};
 
 	unsigned int data_len_in = BUFFER_LEN_1K * 4;
 	unsigned int data_len_out = BUFFER_LEN_1K * 4;
@@ -200,47 +140,20 @@ void CommonToolsDlgHASH::OnBnClickedCancel()
 	unsigned char userID[BUFFER_LEN_1K] = {0};
 	unsigned int userIDLen = BUFFER_LEN_1K;
 
-	editKEYS.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	data_len_tmp = wcslen(data_value_tmp);
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)data_value_key,&data_len_key);
+	unsigned char data_value_out_hex[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned int data_len_out_hex = BUFFER_LEN_1K * 4;
 
+	editKEYS.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()),(unsigned char *)data_value_key,&data_len_key);
 
 	m_editID.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	data_len_tmp = wcslen(data_value_tmp);
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)userID,&userIDLen);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()), (unsigned char *)userID,&userIDLen);
 
 	OpenSSL_Initialize();
 
-	switch(m_iSelIN)
-	{
-	case E_INPUT_TYPE_FILE:
-		{
-			editIN.GetWindowText(file_in,BUFFER_LEN_1K * 4);
+	editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()), (unsigned char *)data_value_in, &data_len_in);
 
-			FILE_READ("", (char *)utf8_encode(file_in).c_str(),(unsigned char *)data_value_in,&data_len_in);
-		}
-		break;
-	case E_INPUT_TYPE_CHAR:
-		{
-			editIN.GetWindowText(data_value_in,BUFFER_LEN_1K * 4);
-			data_len_in = wcslen(data_value_in);
-		}
-		break;
-	case E_INPUT_TYPE_HEX:
-		{
-			editIN.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-			data_len_tmp = wcslen(data_value_tmp);
-
-			OPF_WStr2Bin(data_value_tmp,data_len_tmp,(unsigned char *)data_value_in, &data_len_in);
-		}
-		break;
-	default:
-		{
-			editIN.GetWindowText(data_value_in,BUFFER_LEN_1K * 4);
-			data_len_in = wcslen(data_value_in);
-		}
-		break;
-	}
 
 	if(g_HashAlgType == E_HASH_ALG_ZY_256)
 	{
@@ -260,7 +173,7 @@ void CommonToolsDlgHASH::OnBnClickedCancel()
 			
 			if (0 == userIDLen)
 			{
-				ulRet = tcm_gmecc512_get_message_hash((unsigned char *)data_value_in,data_len_in,(unsigned char*)"1234567812345678", 16,(unsigned char *)pubkey_xy_value,GM_ECC_512_BYTES_LEN * 2+1,(unsigned char *)data_value_out,&data_len_out);
+				ulRet = tcm_gmecc512_get_message_hash((unsigned char *)data_value_in,data_len_in,(unsigned char *)"1234567812345678", 16,(unsigned char *)pubkey_xy_value,GM_ECC_512_BYTES_LEN * 2+1,(unsigned char *)data_value_out,&data_len_out);
 			}
 			else
 			{
@@ -274,7 +187,7 @@ void CommonToolsDlgHASH::OnBnClickedCancel()
 		}
 		else
 		{
-			MessageBox(L"操作成功");
+			MessageBox(L"操作失败");
 		}
 	}
 	else
@@ -291,7 +204,7 @@ void CommonToolsDlgHASH::OnBnClickedCancel()
 
 			if (0 == userIDLen)
 			{
-				ulRet = tcm_get_message_hash((unsigned char *)data_value_in,data_len_in,(unsigned char*)"1234567812345678", 16,(unsigned char *)pubkey_xy_value,SM2_BYTES_LEN * 2+1,(unsigned char *)data_value_out,&data_len_out);
+				ulRet = tcm_get_message_hash((unsigned char *)data_value_in,data_len_in,(unsigned char *)"1234567812345678", 16,(unsigned char *)pubkey_xy_value,SM2_BYTES_LEN * 2+1,(unsigned char *)data_value_out,&data_len_out);
 			}
 			else
 			{
@@ -305,82 +218,15 @@ void CommonToolsDlgHASH::OnBnClickedCancel()
 		}
 		else
 		{
-			MessageBox(L"操作成功");
+			MessageBox(L"操作失败");
 		}
 	}
 
-
-	switch(m_iSelOUT)
-	{
-	case E_OUTPUT_TYPE_FILE:
-		{
-			editOUT.GetWindowText(file_out,BUFFER_LEN_1K * 4);
-
-			FILE_WRITE("", (char *)utf8_encode(file_out).c_str(),(unsigned char *)data_value_out,data_len_out);
-		}
-		break;
-	case E_OUTPUT_TYPE_CHAR:
-		{
-			editOUT.SetWindowText(utf8_decode((char*)data_value_out).c_str());
-		}
-		break;
-	case E_OUTPUT_TYPE_HEX:
-		{
-			data_len_tmp = BUFFER_LEN_1K * 4;
-			OPF_Bin2WStr(data_value_out,data_len_out,data_value_tmp, &data_len_tmp);
-			editOUT.SetWindowText(data_value_tmp);
-		}
-		break;
-	default:
-		{
-			editOUT.SetWindowText(utf8_decode((char*)data_value_out).c_str());
-		}
-		break;
-	}
+	data_len_tmp = BUFFER_LEN_1K * 4;
+	OPF_Bin2Str(data_value_out, data_len_out, (char *)data_value_out_hex, &data_len_out_hex);
+	editOUT.SetWindowText(utf8_decode((char *)data_value_out_hex).c_str());
+	
 	OpenSSL_Finalize();
-}
-
-// CommonToolsDlgHASH ÏûÏ¢´¦Àí³ÌÐò
-
-void CommonToolsDlgHASH::OnBnClickedRadio1()
-{
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼þÍ¨Öª´¦Àí³ÌÐò´úÂë
-	m_iSelIN = E_INPUT_TYPE_FILE;
-}
-
-
-void CommonToolsDlgHASH::OnBnClickedRadio2()
-{
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼þÍ¨Öª´¦Àí³ÌÐò´úÂë
-	m_iSelIN = E_INPUT_TYPE_CHAR;
-}
-
-
-void CommonToolsDlgHASH::OnBnClickedRadio3()
-{
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼þÍ¨Öª´¦Àí³ÌÐò´úÂë
-	m_iSelIN = E_INPUT_TYPE_HEX;
-}
-
-
-void CommonToolsDlgHASH::OnBnClickedRadio4()
-{
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼þÍ¨Öª´¦Àí³ÌÐò´úÂë
-	m_iSelOUT = E_OUTPUT_TYPE_FILE;
-}
-
-
-void CommonToolsDlgHASH::OnBnClickedRadio5()
-{
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼þÍ¨Öª´¦Àí³ÌÐò´úÂë
-	m_iSelOUT = E_OUTPUT_TYPE_CHAR;
-}
-
-
-void CommonToolsDlgHASH::OnBnClickedRadio6()
-{
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼þÍ¨Öª´¦Àí³ÌÐò´úÂë
-	m_iSelOUT = E_OUTPUT_TYPE_HEX;
 }
 
 
@@ -388,14 +234,14 @@ void CommonToolsDlgHASH::OnBnClickedCancel2()
 {
 	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼þÍ¨Öª´¦Àí³ÌÐò´úÂë
 	// CDialogEx::OnCancel();
-	wchar_t data_value_key[BUFFER_LEN_1K * 4] = {0};
+	unsigned char data_value_key[BUFFER_LEN_1K * 4] = {0};
 	wchar_t data_value_tmp[BUFFER_LEN_1K * 4] = {0};
 	unsigned int data_len_key = BUFFER_LEN_1K * 4;
 	unsigned int data_len_tmp = BUFFER_LEN_1K * 4;
-	wchar_t data_value_in[BUFFER_LEN_1K * 4] = {0};
-	char data_value_out[BUFFER_LEN_1K * 4] = {0};
-	wchar_t file_in[BUFFER_LEN_1K * 4] = {0};
-	wchar_t file_out[BUFFER_LEN_1K * 4] = {0};
+	unsigned char data_value_in[BUFFER_LEN_1K * 4] = {0};
+	unsigned char data_value_out[BUFFER_LEN_1K * 4] = {0};
+	unsigned char file_in[BUFFER_LEN_1K * 4] = {0};
+	unsigned char file_out[BUFFER_LEN_1K * 4] = {0};
 
 	unsigned int data_len_in = BUFFER_LEN_1K * 4;
 	unsigned int data_len_out = BUFFER_LEN_1K * 4;
@@ -403,48 +249,21 @@ void CommonToolsDlgHASH::OnBnClickedCancel2()
 	unsigned char userID[BUFFER_LEN_1K] = {0};
 	unsigned int userIDLen = BUFFER_LEN_1K;
 
-	editKEYS.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	data_len_tmp = wcslen(data_value_tmp);
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)data_value_key,&data_len_key);
+	unsigned char data_value_out_hex[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned int data_len_out_hex = BUFFER_LEN_1K * 4;
 
+	editKEYS.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()), (unsigned char *)data_value_key,&data_len_key);
 
 	m_editID.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	data_len_tmp = wcslen(data_value_tmp);
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)userID,&userIDLen);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()), (unsigned char *)userID,&userIDLen);
 
 
 	OpenSSL_Initialize();
 
-	switch(m_iSelIN)
-	{
-	case E_INPUT_TYPE_FILE:
-		{
-			editIN.GetWindowText(file_in,BUFFER_LEN_1K * 4);
-
-			FILE_READ("", (char *)utf8_encode(file_in).c_str(),(unsigned char *)data_value_in,&data_len_in);
-		}
-		break;
-	case E_INPUT_TYPE_CHAR:
-		{
-			editIN.GetWindowText(data_value_in,BUFFER_LEN_1K * 4);
-			data_len_in = wcslen(data_value_in);
-		}
-		break;
-	case E_INPUT_TYPE_HEX:
-		{
-			editIN.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-			data_len_tmp = wcslen(data_value_tmp);
-
-			OPF_WStr2Bin(data_value_tmp,data_len_tmp,(unsigned char *)data_value_in, &data_len_in);
-		}
-		break;
-	default:
-		{
-			editIN.GetWindowText(data_value_in,BUFFER_LEN_1K * 4);
-			data_len_in = wcslen(data_value_in);
-		}
-		break;
-	}
+	editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()), (unsigned char *)data_value_in, &data_len_in);
+	
 
 	if(g_HashAlgType == E_HASH_ALG_ZY_256)
 	{
@@ -464,7 +283,7 @@ void CommonToolsDlgHASH::OnBnClickedCancel2()
 
 			if (userIDLen == 0)
 			{
-				ulRet =	tcm_gmecc512_get_usrinfo_value((unsigned char*)"1234567812345678", 16,(unsigned char *)pubkey_xy_value,GM_ECC_512_BYTES_LEN * 2+1,(unsigned char *)data_value_out, EHASH_TYPE_ZY_HASH_512);
+				ulRet =	tcm_gmecc512_get_usrinfo_value((unsigned char *)"1234567812345678", 16,(unsigned char *)pubkey_xy_value,GM_ECC_512_BYTES_LEN * 2+1,(unsigned char *)data_value_out, EHASH_TYPE_ZY_HASH_512);
 
 			}
 			else
@@ -481,7 +300,7 @@ void CommonToolsDlgHASH::OnBnClickedCancel2()
 		}
 		else
 		{
-			MessageBox(L"操作成功");
+			MessageBox(L"操作失败");
 		}
 	}
 	else
@@ -499,7 +318,7 @@ void CommonToolsDlgHASH::OnBnClickedCancel2()
 
 			if (userIDLen == 0)
 			{
-				ulRet =	tcm_get_usrinfo_value((unsigned char*)"1234567812345678", 16,(unsigned char *)pubkey_xy_value,SM2_BYTES_LEN * 2+1,(unsigned char *)data_value_out);
+				ulRet =	tcm_get_usrinfo_value((unsigned char *)"1234567812345678", 16,(unsigned char *)pubkey_xy_value,SM2_BYTES_LEN * 2+1,(unsigned char *)data_value_out);
 			}
 			else
 			{
@@ -515,48 +334,12 @@ void CommonToolsDlgHASH::OnBnClickedCancel2()
 		}
 		else
 		{
-			MessageBox(L"操作成功");
+			MessageBox(L"操作失败");
 		}
 	}
 
-
-	switch(m_iSelOUT)
-	{
-	case E_OUTPUT_TYPE_FILE:
-		{
-			editOUT.GetWindowText(file_out,BUFFER_LEN_1K * 4);
-
-			FILE_WRITE("", (char *)utf8_encode(file_out).c_str(),(unsigned char *)data_value_out,data_len_out);
-		}
-		break;
-	case E_OUTPUT_TYPE_CHAR:
-		{
-			editOUT.SetWindowText(utf8_decode((char*)data_value_out).c_str());
-		}
-		break;
-	case E_OUTPUT_TYPE_HEX:
-		{
-			data_len_tmp = BUFFER_LEN_1K * 4;
-			OPF_Bin2WStr((unsigned char *)data_value_out,data_len_out,data_value_tmp, &data_len_tmp);
-			editOUT.SetWindowText(data_value_tmp);
-		}
-		break;
-	default:
-		{
-			editOUT.SetWindowText(utf8_decode((char*)data_value_out).c_str());
-		}
-		break;
-	}
+	OPF_Bin2Str(data_value_out, data_len_out, (char *)data_value_out_hex, &data_len_out_hex);
+	editOUT.SetWindowText(utf8_decode((char *)data_value_out_hex).c_str());
+	
 	OpenSSL_Finalize();
-}
-
-
-void CommonToolsDlgHASH::OnEnChangeEdit7()
-{
-	// TODO:  If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CDialogEx::OnInitDialog()
-	// function and call CRichEditCtrl().SetEventMask()
-	// with the ENM_CHANGE flag ORed into the mask.
-
-	// TODO:  Add your control notification handler code here
 }

@@ -19,11 +19,6 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnBnClickedRadio1();
-	afx_msg void OnBnClickedRadio2();
-	afx_msg void OnBnClickedRadio3();
-
-	int m_iSelXY;
 	CEdit editXY;
 
 	afx_msg void OnBnClickedOk();

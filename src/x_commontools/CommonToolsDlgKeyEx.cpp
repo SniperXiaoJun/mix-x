@@ -81,9 +81,7 @@ void CommonToolsDlgKeyEx::OnBnClickedCancel()
 
 	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼þÍ¨Öª´¦Àí³ÌÐò´úÂë
 	// CDialogEx::OnOK();
-
-	wchar_t data_value[BUFFER_LEN_1K * 4] = {0};
-	unsigned int data_len = BUFFER_LEN_1K * 4;
+	wchar_t data_value_tmp[BUFFER_LEN_1K * 4] = {0};
 
 	unsigned char data_value_key[BUFFER_LEN_1K * 4] = {0};
 	unsigned int data_len_key = BUFFER_LEN_1K * 4;
@@ -126,62 +124,51 @@ void CommonToolsDlgKeyEx::OnBnClickedCancel()
 	unsigned char data_value_idb[BUFFER_LEN_1K * 4] = {0};
 	unsigned int data_len_idb = BUFFER_LEN_1K * 4;
 
+	unsigned char data_value_out_hex[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned int data_len_out_hex = BUFFER_LEN_1K * 4;
+
 
 	unsigned int ulRet = 0;
 
 	OpenSSL_Initialize();
 
 	//ida
-	data_len = BUFFER_LEN_1K * 4;
-	m_editida.GetWindowText(data_value,data_len);
-	data_len = wcslen(data_value);
-	OPF_WStr2Bin(data_value,data_len,data_value_ida,&data_len_ida);
+	m_editida.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()),data_value_ida,&data_len_ida);
 	//idb
-	data_len = BUFFER_LEN_1K * 4;
-	m_editidb.GetWindowText(data_value,data_len);
-	data_len = wcslen(data_value);
-	OPF_WStr2Bin(data_value,data_len,data_value_idb,&data_len_idb);
+	m_editidb.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);	
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()),data_value_idb,&data_len_idb);
 
 	//prv
-	data_len = BUFFER_LEN_1K * 4;
-	m_editprv.GetWindowText(data_value,data_len);
-	data_len = wcslen(data_value);
-	OPF_WStr2Bin(data_value,data_len,data_value_prv_A,&data_len_prv_A);
+	m_editprv.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()),data_value_prv_A,&data_len_prv_A);
 
 	//prvar
-	data_len = BUFFER_LEN_1K * 4;
-	m_editprvar.GetWindowText(data_value,data_len);
-	data_len = wcslen(data_value);
-	OPF_WStr2Bin(data_value,data_len,data_value_prv_AR,&data_len_prv_AR);
+	m_editprvar.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()),data_value_prv_AR,&data_len_prv_AR);
 
 	//pub
-	data_len = BUFFER_LEN_1K * 4;
-	m_editpub.GetWindowText(data_value,data_len);
-	data_len = wcslen(data_value);
-	OPF_WStr2Bin(data_value,data_len,data_value_xy_A+1,&data_len_xy_A);
+	m_editpub.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()),data_value_xy_A+1,&data_len_xy_A);
 
 	//pubar
-	data_len = BUFFER_LEN_1K * 4;
-	m_editpubar.GetWindowText(data_value,data_len);
-	data_len = wcslen(data_value);
-	OPF_WStr2Bin(data_value,data_len,data_value_xy_AR+1,&data_len_xy_AR);
+	m_editpubar.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()),data_value_xy_AR+1,&data_len_xy_AR);
 
 	//pubb
-	data_len = BUFFER_LEN_1K * 4;
-	m_editpubb.GetWindowText(data_value,data_len);
-	data_len = wcslen(data_value);
-	OPF_WStr2Bin(data_value,data_len,data_value_xy_B+1,&data_len_xy_B);
+	
+	m_editpubb.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()),data_value_xy_B+1,&data_len_xy_B);
 
 	//pubbr
-	data_len = BUFFER_LEN_1K * 4;
-	m_editpubbr.GetWindowText(data_value,data_len);
-	data_len = wcslen(data_value);
-	OPF_WStr2Bin(data_value,data_len,data_value_xy_BR+1,&data_len_xy_BR);
+	
+	m_editpubbr.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()),data_value_xy_BR+1,&data_len_xy_BR);
 
 	//key_len
-	data_len = BUFFER_LEN_1K * 4;
-	m_editkey_len.GetWindowText(data_value,data_len);
-	key_len = atoi((char *)utf8_encode(data_value).c_str());
+	
+	m_editkey_len.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+	key_len = atoi((char *)utf8_encode(data_value_tmp).c_str());
 
 	if(g_KeyAlgType == E_KEY_ALG_ECC_512)
 	{
@@ -225,17 +212,17 @@ void CommonToolsDlgKeyEx::OnBnClickedCancel()
 
 	if (0 == ulRet)
 	{
-		data_len = BUFFER_LEN_1K * 4;
-		OPF_Bin2WStr(data_value_key,data_len_key_len, data_value,&data_len);
-		m_editkey.SetWindowText(data_value);
+		data_len_out_hex = BUFFER_LEN_1K * 4;
+		OPF_Bin2Str(data_value_key,data_len_key_len, (char *)data_value_out_hex,&data_len_out_hex);
+		m_editkey.SetWindowText(utf8_decode((char *)data_value_out_hex).c_str());
 
-		data_len = BUFFER_LEN_1K * 4;
-		OPF_Bin2WStr(data_value_S1,data_len_S1,data_value,&data_len);
-		m_editS1.SetWindowText(data_value);
+		data_len_out_hex = BUFFER_LEN_1K * 4;
+		OPF_Bin2Str(data_value_S1,data_len_S1, (char *)data_value_out_hex, &data_len_out_hex);
+		m_editS1.SetWindowText(utf8_decode((char *)data_value_out_hex).c_str());
 
-		data_len = BUFFER_LEN_1K * 4;
-		OPF_Bin2WStr(data_value_SA,data_len_SA,data_value,&data_len);
-		m_editSA.SetWindowText(data_value);
+		data_len_out_hex = BUFFER_LEN_1K * 4;
+		OPF_Bin2Str(data_value_SA,data_len_SA, (char *)data_value_out_hex, &data_len_out_hex);
+		m_editSA.SetWindowText(utf8_decode((char *)data_value_out_hex).c_str());
 	}
 	else
 	{

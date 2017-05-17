@@ -69,7 +69,6 @@ void CommonToolsDlgSM2KEY::OnBnClickedOk()
 	unsigned int data_len_prv = BUFFER_LEN_1K * 4;
 
 	wchar_t data_value_tmp[BUFFER_LEN_1K * 4] = {0};
-	unsigned int data_len_tmp = BUFFER_LEN_1K * 4;
 
 	wchar_t file_xy[BUFFER_LEN_1K * 4] = {0};
 	wchar_t file_prv[BUFFER_LEN_1K * 4] = {0};

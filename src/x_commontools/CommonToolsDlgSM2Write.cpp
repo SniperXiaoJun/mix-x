@@ -66,7 +66,6 @@ void CommonToolsDlgSM2Write::OnBnClickedCancel()
 
 	// pubkey xy
 	editIN.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	data_len_tmp = wcslen(data_value_tmp);
 	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)data_value,&data_len);
 
 	unsigned int ulRet = 0;

@@ -72,12 +72,12 @@ void CommonToolsDlgSM2REQ::OnBnClickedOk()
 
 	// pubkey xy
 	editXY.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	data_len_tmp = wcslen(data_value_tmp);
+	
 	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)data_value_xy,&data_len_xy);
 
 	// privkey
 	editPRV.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	data_len_tmp = wcslen(data_value_tmp);
+	
 	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)data_value_prv,&data_len_prv);
 
 	OPST_USERINFO userInfo = {0};
@@ -164,12 +164,12 @@ void CommonToolsDlgSM2REQ::OnBnClickedCancel()
 
 	// pubkey xy
 	editXY.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	data_len_tmp = wcslen(data_value_tmp);
+	
 	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)data_value_xy,&data_len_xy);
 
 	// privkey
 	editPRV.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	data_len_tmp = wcslen(data_value_tmp);
+	
 	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)data_value_prv,&data_len_prv);
 
 	OPST_USERINFO userInfo = {0};
