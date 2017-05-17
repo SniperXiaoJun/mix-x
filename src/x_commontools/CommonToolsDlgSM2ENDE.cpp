@@ -96,23 +96,20 @@ void CommonToolsDlgSM2ENDE::OnBnClickedOk()
 
 	wchar_t data_value_in[BUFFER_LEN_1K * 4] = { 0 };
 	unsigned char data_value_out[BUFFER_LEN_1K * 4] = { 0 };
-	wchar_t file_in[BUFFER_LEN_1K * 4] = { 0 };
-	wchar_t file_out[BUFFER_LEN_1K * 4] = { 0 };
 
 	unsigned int data_len_in = BUFFER_LEN_1K * 4;
 	unsigned int data_len_out = BUFFER_LEN_1K * 4;
 
-	OpenSSL_Initialize();
+	unsigned char data_value_out_hex[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned int data_len_out_hex = BUFFER_LEN_1K * 4;
 
 	editKEYS.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
-
-	OPF_WStr2Bin(data_value_tmp, data_len_tmp, (unsigned char *)data_value_key, &data_len_key);
-
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()),  (unsigned char *)data_value_key, &data_len_key);
+	
+	OpenSSL_Initialize();
 
 	editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
-
-
-	OPF_WStr2Bin(data_value_tmp, data_len_tmp, (unsigned char *)data_value_in, &data_len_in);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()),  (unsigned char *)data_value_in, &data_len_in);
 
 	if (g_KeyAlgType == E_KEY_ALG_ECC_512)
 	{
@@ -151,8 +148,8 @@ void CommonToolsDlgSM2ENDE::OnBnClickedOk()
 
 
 	data_len_tmp = BUFFER_LEN_1K * 4;
-	OPF_Bin2WStr(data_value_out, data_len_out, data_value_tmp, &data_len_tmp);
-	editOUT.SetWindowText(data_value_tmp);
+	OPF_Bin2Str(data_value_out, data_len_out, (char *)data_value_out_hex, &data_len_out_hex);
+	editOUT.SetWindowText(utf8_decode((char *)data_value_out_hex).c_str());
 
 	OpenSSL_Finalize();
 }
@@ -162,30 +159,26 @@ void CommonToolsDlgSM2ENDE::OnBnClickedCancel()
 {
 	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼þÍ¨Öª´¦Àí³ÌÐò´úÂë
 	// CDialogEx::OnCancel();
-	char data_value_key[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned char data_value_key[BUFFER_LEN_1K * 4] = { 0 };
 	wchar_t data_value_tmp[BUFFER_LEN_1K * 4] = { 0 };
 	unsigned int data_len_key = BUFFER_LEN_1K * 4;
 	unsigned int data_len_tmp = BUFFER_LEN_1K * 4;
-	wchar_t data_value_in[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned char data_value_in[BUFFER_LEN_1K * 4] = { 0 };
 	unsigned char data_value_out[BUFFER_LEN_1K * 4] = { 0 };
-	wchar_t file_in[BUFFER_LEN_1K * 4] = { 0 };
-	wchar_t file_out[BUFFER_LEN_1K * 4] = { 0 };
+
+	unsigned char data_value_out_hex[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned int data_len_out_hex = BUFFER_LEN_1K * 4;
 
 	unsigned int data_len_in = BUFFER_LEN_1K * 4;
 	unsigned int data_len_out = BUFFER_LEN_1K * 4;
 
 	editKEYS.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
-
-	OPF_WStr2Bin(data_value_tmp, data_len_tmp, (unsigned char *)data_value_key, &data_len_key);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()), data_value_key, &data_len_key);
+	
+	editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()), data_value_in, &data_len_in);
 
 	OpenSSL_Initialize();
-
-
-	editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
-
-
-	OPF_WStr2Bin(data_value_tmp, data_len_tmp, (unsigned char *)data_value_in, &data_len_in);
-
 
 	if (g_KeyAlgType == E_KEY_ALG_ECC_512)
 	{
@@ -219,8 +212,8 @@ void CommonToolsDlgSM2ENDE::OnBnClickedCancel()
 	}
 
 	data_len_tmp = BUFFER_LEN_1K * 4;
-	OPF_Bin2WStr(data_value_out, data_len_out, data_value_tmp, &data_len_tmp);
-	editOUT.SetWindowText(data_value_tmp);
+	OPF_Bin2Str(data_value_out, data_len_out, (char *)data_value_out_hex, &data_len_out_hex);
+	editOUT.SetWindowText(utf8_decode((char *)data_value_out_hex).c_str());
 
 	OpenSSL_Finalize();
 }
