@@ -74,27 +74,29 @@ void CommonToolsDlgSM2CERT::OnBnClickedOk()
 	unsigned int data_len_rootcer= BUFFER_LEN_1K * 4;
 	unsigned int data_len_tmp = BUFFER_LEN_1K * 4;
 
+	unsigned char data_value_out_hex[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned int data_len_out_hex = BUFFER_LEN_1K * 4;
+
+	unsigned char sn[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned int sn_len = 0;
+
 	OpenSSL_Initialize();
 
 	// pubkey xy
 	editXY.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)data_value_xy,&data_len_xy);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()), data_value_xy,&data_len_xy);
 
 	// privkey
 	editPRV.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)data_value_prv,&data_len_prv);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()), data_value_prv,&data_len_prv);
 
 	// csr
 	editCSR.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp,(unsigned char *)data_value_csr,&data_len_csr);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()), data_value_csr,&data_len_csr);
 
 	// rootcer
 	editROOTCER.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp,(unsigned char *)data_value_rootcer,&data_len_rootcer);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()), data_value_rootcer,&data_len_rootcer);
 
 	unsigned int ulRet = 0;
 	if(g_KeyAlgType == E_KEY_ALG_ECC_512)
@@ -114,14 +116,8 @@ void CommonToolsDlgSM2CERT::OnBnClickedOk()
 		}
 	}
 
-
-	unsigned char sn[BUFFER_LEN_1K * 4] = {0};
-	unsigned int sn_len = 0;
-
-
 	editSN.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp,sn,&sn_len);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()), sn,&sn_len);
 
 	unsigned int date = 0;
 
@@ -173,11 +169,8 @@ void CommonToolsDlgSM2CERT::OnBnClickedOk()
 		goto err;
 	}
 
-	data_len_tmp = BUFFER_LEN_1K * 4;
-
-	OPF_Bin2WStr( (unsigned char *)data_value_cer,data_len_cer, data_value_tmp,&data_len_tmp);
-
-	editCER.SetWindowText(data_value_tmp);
+	OPF_Bin2Str( (unsigned char *)data_value_cer,data_len_cer, (char *)data_value_out_hex, &data_len_out_hex);
+	editCER.SetWindowText(utf8_decode((char *)data_value_out_hex).c_str());
 err:
 
 	OpenSSL_Finalize();
@@ -202,7 +195,6 @@ void CommonToolsDlgSM2CERT::OnBnClickedCancel()
 	unsigned char data_value_cer[BUFFER_LEN_1K * 4] = {0};
 
 	wchar_t data_value_tmp[BUFFER_LEN_1K * 4] = {0};
-	wchar_t file_xy[BUFFER_LEN_1K * 4] = {0};
 
 	unsigned int data_len_xy = BUFFER_LEN_1K * 4;
 	unsigned int data_len_prv = BUFFER_LEN_1K * 4;
@@ -211,27 +203,29 @@ void CommonToolsDlgSM2CERT::OnBnClickedCancel()
 	unsigned int data_len_rootcer= BUFFER_LEN_1K * 4;
 	unsigned int data_len_tmp = BUFFER_LEN_1K * 4;
 
+	unsigned char data_value_out_hex[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned int data_len_out_hex = BUFFER_LEN_1K * 4;
+
+	unsigned char sn[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned int sn_len = 0;
+
 	OpenSSL_Initialize();
 
 	// pubkey xy
 	editXY.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)data_value_xy,&data_len_xy);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()), data_value_xy,&data_len_xy);
 
 	// privkey
 	editPRV.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)data_value_prv,&data_len_prv);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()), data_value_prv,&data_len_prv);
 
 	// csr
 	editCSR.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp,(unsigned char *)data_value_csr,&data_len_csr);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()), data_value_csr,&data_len_csr);
 
 	// rootcer
 	editROOTCER.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp,(unsigned char *)data_value_rootcer,&data_len_rootcer);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()), data_value_rootcer,&data_len_rootcer);
 
 	unsigned int ulRet = 0;
 
@@ -252,13 +246,9 @@ void CommonToolsDlgSM2CERT::OnBnClickedCancel()
 		}
 	}
 
-	unsigned char sn[BUFFER_LEN_1K * 4] = {0};
-	unsigned int sn_len = 0;
-
 
 	editSN.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp,sn,&sn_len);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()),sn,&sn_len);
 
 	unsigned int date = 0;
 
@@ -311,9 +301,8 @@ void CommonToolsDlgSM2CERT::OnBnClickedCancel()
 
 	data_len_tmp = BUFFER_LEN_1K * 4;
 
-	OPF_Bin2WStr( (unsigned char *)data_value_cer,data_len_cer, data_value_tmp,&data_len_tmp);
-
-	editCER.SetWindowText(data_value_tmp);
+	OPF_Bin2Str( (unsigned char *)data_value_cer,data_len_cer, (char *)data_value_out_hex, &data_len_out_hex);
+	editCER.SetWindowText(utf8_decode((char *)data_value_out_hex).c_str());
 err:
 
 	OpenSSL_Finalize();
@@ -358,7 +347,6 @@ void CommonToolsDlgSM2CERT::OnBnClickedOk2()
 	unsigned char data_value_cer[BUFFER_LEN_1K * 4] = {0};
 
 	wchar_t data_value_tmp[BUFFER_LEN_1K * 4] = {0};
-	wchar_t file_xy[BUFFER_LEN_1K * 4] = {0};
 
 	unsigned int data_len_xy = BUFFER_LEN_1K * 4;
 	unsigned int data_len_prv = BUFFER_LEN_1K * 4;
@@ -372,12 +360,12 @@ void CommonToolsDlgSM2CERT::OnBnClickedOk2()
 	// pubkey xy
 	editXY.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
 	
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)data_value_xy,&data_len_xy);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()), data_value_xy,&data_len_xy);
 
 	// cer
 	editCER.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
 	
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp,(unsigned char *)data_value_cer,&data_len_cer);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(),strlen(utf8_encode(data_value_tmp).c_str()), data_value_cer,&data_len_cer);
 
 	if(g_KeyAlgType == E_KEY_ALG_ECC_512)
 	{
