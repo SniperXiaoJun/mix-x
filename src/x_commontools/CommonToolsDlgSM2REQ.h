@@ -22,10 +22,9 @@ protected:
 public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
-	afx_msg void OnEnChangeEdit1();
 	CEdit editPRV;
 	CEdit editXY;
-	afx_msg void OnEnChangeEditName();
+
 	CEdit editName;
 	CEdit editEmail;
 	CEdit editReq;

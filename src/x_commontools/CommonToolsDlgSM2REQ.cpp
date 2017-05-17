@@ -44,8 +44,6 @@ void CommonToolsDlgSM2REQ::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CommonToolsDlgSM2REQ, CDialogEx)
 	ON_BN_CLICKED(IDOK, &CommonToolsDlgSM2REQ::OnBnClickedOk)
 	ON_BN_CLICKED(IDCANCEL, &CommonToolsDlgSM2REQ::OnBnClickedCancel)
-	ON_EN_CHANGE(IDC_EDIT1, &CommonToolsDlgSM2REQ::OnEnChangeEdit1)
-	ON_EN_CHANGE(IDC_EDIT_NAME, &CommonToolsDlgSM2REQ::OnEnChangeEditName)
 END_MESSAGE_MAP()
 
 
@@ -61,24 +59,24 @@ void CommonToolsDlgSM2REQ::OnBnClickedOk()
 	unsigned char data_value_csr[BUFFER_LEN_1K * 4] = {0};
 
 	wchar_t data_value_tmp[BUFFER_LEN_1K * 4] = {0};
-	wchar_t file_xy[BUFFER_LEN_1K * 4] = {0};
 
 	unsigned int data_len_xy = BUFFER_LEN_1K * 4;
 	unsigned int data_len_prv = BUFFER_LEN_1K * 4;
 	unsigned int data_len_csr= BUFFER_LEN_1K * 4;
 	unsigned int data_len_tmp = BUFFER_LEN_1K * 4;
 
+	unsigned char data_value_out_hex[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned int data_len_out_hex = BUFFER_LEN_1K * 4;
+
 	OpenSSL_Initialize();
 
 	// pubkey xy
 	editXY.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)data_value_xy,&data_len_xy);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()), data_value_xy,&data_len_xy);
 
 	// privkey
 	editPRV.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)data_value_prv,&data_len_prv);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()), data_value_prv,&data_len_prv);
 
 	OPST_USERINFO userInfo = {0};
 
@@ -132,11 +130,9 @@ void CommonToolsDlgSM2REQ::OnBnClickedOk()
 		}
 	}
 
-	data_len_tmp = BUFFER_LEN_1K * 4;
 
-	OPF_Bin2WStr( (unsigned char *)data_value_csr,data_len_csr, data_value_tmp,&data_len_tmp);
-
-	editReq.SetWindowText(data_value_tmp);
+	OPF_Bin2Str( (unsigned char *)data_value_csr,data_len_csr, (char *)data_value_out_hex, &data_len_out_hex);
+	editReq.SetWindowText(utf8_decode((char *)data_value_out_hex).c_str());
 err:
 
 	OpenSSL_Finalize();
@@ -153,24 +149,24 @@ void CommonToolsDlgSM2REQ::OnBnClickedCancel()
 	unsigned char data_value_csr[BUFFER_LEN_1K * 4] = {0};
 
 	wchar_t data_value_tmp[BUFFER_LEN_1K * 4] = {0};
-	wchar_t file_xy[BUFFER_LEN_1K * 4] = {0};
 
 	unsigned int data_len_xy = BUFFER_LEN_1K * 4;
 	unsigned int data_len_prv = BUFFER_LEN_1K * 4;
 	unsigned int data_len_csr= BUFFER_LEN_1K * 4;
 	unsigned int data_len_tmp = BUFFER_LEN_1K * 4;
 
+	unsigned char data_value_out_hex[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned int data_len_out_hex = BUFFER_LEN_1K * 4;
+
 	OpenSSL_Initialize();
 
 	// pubkey xy
 	editXY.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)data_value_xy,&data_len_xy);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()), data_value_xy,&data_len_xy);
 
 	// privkey
 	editPRV.GetWindowText(data_value_tmp,BUFFER_LEN_1K * 4);
-	
-	OPF_WStr2Bin(data_value_tmp,data_len_tmp, (unsigned char *)data_value_prv,&data_len_prv);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()), data_value_prv,&data_len_prv);
 
 	OPST_USERINFO userInfo = {0};
 
@@ -225,42 +221,15 @@ void CommonToolsDlgSM2REQ::OnBnClickedCancel()
 		uiRet = OpenSSL_SM2SignCSR(data_value_csr,data_len_csr,data_value_prv,data_len_prv,0,data_value_csr,&data_len_csr);
 	}
 
-	
-
 	if (uiRet)
 	{
 		MessageBox(L"操作失败");
 		goto err;
 	}
 
-	data_len_tmp = BUFFER_LEN_1K * 4;
-
-	OPF_Bin2WStr( (unsigned char *)data_value_csr,data_len_csr, data_value_tmp,&data_len_tmp);
-
-	editReq.SetWindowText(data_value_tmp);
+	OPF_Bin2Str( (unsigned char *)data_value_csr,data_len_csr, (char *)data_value_out_hex, &data_len_out_hex);
+	editReq.SetWindowText(utf8_decode((char *)data_value_out_hex).c_str());
 err:
 
 	OpenSSL_Finalize();
-}
-
-
-void CommonToolsDlgSM2REQ::OnEnChangeEdit1()
-{
-	// TODO:  Èç¹û¸Ã¿Ø¼þÊÇ RICHEDIT ¿Ø¼þ£¬Ëü½«²»
-	// ·¢ËÍ´ËÍ¨Öª£¬³ý·ÇÖØÐ´ CDialogEx::OnInitDialog()
-	// º¯Êý²¢µ÷ÓÃ CRichEditCtrl().SetEventMask()£¬
-	// Í¬Ê±½« ENM_CHANGE ±êÖ¾¡°»ò¡±ÔËËãµ½ÑÚÂëÖÐ¡£
-
-	// TODO:  ÔÚ´ËÌí¼Ó¿Ø¼þÍ¨Öª´¦Àí³ÌÐò´úÂë
-}
-
-
-void CommonToolsDlgSM2REQ::OnEnChangeEditName()
-{
-	// TODO:  Èç¹û¸Ã¿Ø¼þÊÇ RICHEDIT ¿Ø¼þ£¬Ëü½«²»
-	// ·¢ËÍ´ËÍ¨Öª£¬³ý·ÇÖØÐ´ CDialogEx::OnInitDialog()
-	// º¯Êý²¢µ÷ÓÃ CRichEditCtrl().SetEventMask()£¬
-	// Í¬Ê±½« ENM_CHANGE ±êÖ¾¡°»ò¡±ÔËËãµ½ÑÚÂëÖÐ¡£
-
-	// TODO:  ÔÚ´ËÌí¼Ó¿Ø¼þÍ¨Öª´¦Àí³ÌÐò´úÂë
 }
