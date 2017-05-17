@@ -285,9 +285,9 @@ unsigned int OpenSSL_Initialize()
 	g_group = EC_GROUP_new_by_curve_name(NID_sm2p256v1);
 #else
 	// ��ʼ��SM2����
-	tcm_ecc_init();
+	
 #endif
-
+	tcm_ecc_init();
 #if defined(GM_ECC_512_SUPPORT)
 	tcm_gmecc512_init();
 #endif 
