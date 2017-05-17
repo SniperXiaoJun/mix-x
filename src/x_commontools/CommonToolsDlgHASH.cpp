@@ -171,14 +171,9 @@ void CommonToolsDlgHASH::OnBnClickedCancel()
 
 			unsigned int ulRet = 0;
 			
-			if (0 == userIDLen)
-			{
-				ulRet = tcm_gmecc512_get_message_hash((unsigned char *)data_value_in,data_len_in,(unsigned char *)"1234567812345678", 16,(unsigned char *)pubkey_xy_value,GM_ECC_512_BYTES_LEN * 2+1,(unsigned char *)data_value_out,&data_len_out);
-			}
-			else
-			{
-				ulRet = tcm_gmecc512_get_message_hash((unsigned char *)data_value_in,data_len_in,userID,userIDLen,(unsigned char *)pubkey_xy_value,GM_ECC_512_BYTES_LEN * 2+1,(unsigned char *)data_value_out,&data_len_out);
-			}
+
+			ulRet = tcm_gmecc512_get_message_hash((unsigned char *)data_value_in,data_len_in,userID,userIDLen,(unsigned char *)pubkey_xy_value,GM_ECC_512_BYTES_LEN * 2+1,(unsigned char *)data_value_out,&data_len_out);
+			
 
 			if (ulRet)
 			{
@@ -202,14 +197,9 @@ void CommonToolsDlgHASH::OnBnClickedCancel()
 
 			unsigned int ulRet = 0;
 
-			if (0 == userIDLen)
-			{
-				ulRet = tcm_get_message_hash((unsigned char *)data_value_in,data_len_in,(unsigned char *)"1234567812345678", 16,(unsigned char *)pubkey_xy_value,SM2_BYTES_LEN * 2+1,(unsigned char *)data_value_out,&data_len_out);
-			}
-			else
-			{
-				ulRet = tcm_get_message_hash((unsigned char *)data_value_in,data_len_in,userID,userIDLen,(unsigned char *)pubkey_xy_value,SM2_BYTES_LEN * 2+1,(unsigned char *)data_value_out,&data_len_out);
-			}
+
+			ulRet = tcm_get_message_hash((unsigned char *)data_value_in,data_len_in,userID,userIDLen,(unsigned char *)pubkey_xy_value,SM2_BYTES_LEN * 2+1,(unsigned char *)data_value_out,&data_len_out);
+			
 
 			if (ulRet)
 			{
@@ -281,15 +271,8 @@ void CommonToolsDlgHASH::OnBnClickedCancel2()
 
 			unsigned int ulRet = 0;
 
-			if (userIDLen == 0)
-			{
-				ulRet =	tcm_gmecc512_get_usrinfo_value((unsigned char *)"1234567812345678", 16,(unsigned char *)pubkey_xy_value,GM_ECC_512_BYTES_LEN * 2+1,(unsigned char *)data_value_out, EHASH_TYPE_ZY_HASH_512);
-
-			}
-			else
-			{
-				ulRet =	tcm_gmecc512_get_usrinfo_value(userID,userIDLen,(unsigned char *)pubkey_xy_value,GM_ECC_512_BYTES_LEN * 2+1,(unsigned char *)data_value_out, EHASH_TYPE_ZY_HASH_512);
-			}
+			ulRet =	tcm_gmecc512_get_usrinfo_value(userID,userIDLen,(unsigned char *)pubkey_xy_value,GM_ECC_512_BYTES_LEN * 2+1,(unsigned char *)data_value_out, EHASH_TYPE_ZY_HASH_512);
+			
 			
 			data_len_out = 64;
 
@@ -316,14 +299,9 @@ void CommonToolsDlgHASH::OnBnClickedCancel2()
 
 			unsigned int ulRet = 0;
 
-			if (userIDLen == 0)
-			{
-				ulRet =	tcm_get_usrinfo_value((unsigned char *)"1234567812345678", 16,(unsigned char *)pubkey_xy_value,SM2_BYTES_LEN * 2+1,(unsigned char *)data_value_out);
-			}
-			else
-			{
-				ulRet =	tcm_get_usrinfo_value(userID,userIDLen,(unsigned char *)pubkey_xy_value,SM2_BYTES_LEN * 2+1,(unsigned char *)data_value_out);
-			}
+
+			ulRet =	tcm_get_usrinfo_value(userID,userIDLen,(unsigned char *)pubkey_xy_value,SM2_BYTES_LEN * 2+1,(unsigned char *)data_value_out);
+			
 
 			data_len_out = 32;
 
@@ -342,4 +320,14 @@ void CommonToolsDlgHASH::OnBnClickedCancel2()
 	editOUT.SetWindowText(utf8_decode((char *)data_value_out_hex).c_str());
 	
 	OpenSSL_Finalize();
+}
+
+
+BOOL CommonToolsDlgHASH::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+
+	m_editID.SetWindowText(L"31323334353637383132333435363738");
+
+	return TRUE;  
 }

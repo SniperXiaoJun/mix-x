@@ -22,15 +22,6 @@ protected:
 public:
 	afx_msg void OnBnClickedOk();
 
-
-	int m_iSelXY;
-	int m_iSelPRV;
 	CEdit editXY;
 	CEdit editPRV;
-	afx_msg void OnBnClickedRadio1();
-	afx_msg void OnBnClickedRadio2();
-	afx_msg void OnBnClickedRadio3();
-	afx_msg void OnBnClickedRadio4();
-	afx_msg void OnBnClickedRadio5();
-	afx_msg void OnBnClickedRadio6();
 };
