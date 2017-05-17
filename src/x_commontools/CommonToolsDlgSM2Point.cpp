@@ -51,10 +51,9 @@ void CommonToolsDlgSM2Point::OnBnClickedOk()
 	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼þÍ¨Öª´¦Àí³ÌÐò´úÂë
 	// CDialogEx::OnOK();
 
-	char data_value_xy[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned char data_value_xy[BUFFER_LEN_1K * 4] = { 0 };
 
 	wchar_t data_value_tmp[BUFFER_LEN_1K * 4] = { 0 };
-	wchar_t file_xy[BUFFER_LEN_1K * 4] = { 0 };
 
 	unsigned int data_len_xy = BUFFER_LEN_1K * 4;
 	unsigned int data_len_tmp = BUFFER_LEN_1K * 4;
@@ -64,7 +63,7 @@ void CommonToolsDlgSM2Point::OnBnClickedOk()
 
 	editXY.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
 
-	OPF_WStr2Bin(data_value_tmp, data_len_tmp, (unsigned char *)data_value_xy, &data_len_xy);
+	OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()), data_value_xy, &data_len_xy);
 
 	if (g_KeyAlgType == E_KEY_ALG_ECC_512)
 	{
