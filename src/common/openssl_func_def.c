@@ -2878,9 +2878,20 @@ unsigned int OpenSSL_SM2Write(const unsigned char * pbIN, unsigned int uiINLen,
 	)
 {
 	unsigned int uiRet = -1;
-
-	FILE * file = fopen(szFileName, "w");
-
+	const unsigned char * ptr_in = NULL;
+	unsigned char data_value[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned int data_len = BUFFER_LEN_1K * 4;
+	unsigned char * ptr_out = NULL;
+	EVP_PKEY * pkey = NULL;
+	EC_KEY		*ec = NULL;
+	BN_CTX *ctx = NULL;
+	EC_POINT *pubkey = NULL;
+	BIGNUM *pubkey_x = NULL, *pubkey_y = NULL;
+	BIGNUM *prvkey = NULL;
+	X509 * x509 = NULL;
+	FILE * file = NULL;
+		
+	file = fopen(szFileName, "w+b");
 	if(NULL == file)
 	{
 		goto err;
@@ -2890,14 +2901,6 @@ unsigned int OpenSSL_SM2Write(const unsigned char * pbIN, unsigned int uiINLen,
 	{
 	case E_INPUT_DATA_TYPE_PRIVATEKEY:
 		{
-			EVP_PKEY * pkey = NULL;
-			EC_KEY		*ec = NULL;
-			BN_CTX *ctx=NULL;
-			BIGNUM *prvkey=NULL;
-			unsigned char data_value[BUFFER_LEN_1K * 4] = {0};
-			unsigned int data_len = BUFFER_LEN_1K *4;
-			unsigned char * ptr_out = NULL;
-
 			if(uiINLen != SM2_BYTES_LEN)
 			{
 				uiRet = -1;
@@ -2930,6 +2933,14 @@ unsigned int OpenSSL_SM2Write(const unsigned char * pbIN, unsigned int uiINLen,
 				goto err;
 			}
 
+#if defined(MIX_BORINGSSL)
+			if (!EC_KEY_check_key(ec))
+			{
+				goto err;
+			}
+#else
+
+#endif
 			/* set private key */
 			prvkey = BN_bin2bn( pbIN,uiINLen, NULL );
 			if (NULL == prvkey)
@@ -2941,11 +2952,32 @@ unsigned int OpenSSL_SM2Write(const unsigned char * pbIN, unsigned int uiINLen,
 			{
 				goto err;
 			} 
-			//// NO PRIVKEY
-			//if (!EC_KEY_check_key(ec)) 
-			//{
-			//	goto err;
-			//}
+
+			{
+				if (!(pubkey = EC_POINT_new(g_group)))
+				{
+					goto err;
+				}
+
+				if (!EC_POINT_mul(g_group, pubkey, prvkey, NULL, NULL, NULL)) {
+					goto err;
+				}
+
+				if (!EC_KEY_set_public_key(ec, pubkey))
+				{
+					goto err;
+				}
+
+#if defined(MIX_BORINGSSL)
+				if (!EC_KEY_check_key(ec))
+				{
+					goto err;
+				}
+#else
+
+#endif
+			}
+
 
 			if(!EVP_PKEY_assign_EC_KEY(pkey, ec))
 			{
@@ -2980,12 +3012,6 @@ unsigned int OpenSSL_SM2Write(const unsigned char * pbIN, unsigned int uiINLen,
 		break;
 	case E_INPUT_DATA_TYPE_CERT:
 		{
-			X509 * x509 = NULL;
-			const unsigned char * ptr_in = NULL;
-			unsigned char data_value[BUFFER_LEN_1K * 4] = {0};
-			unsigned int data_len = BUFFER_LEN_1K *4;
-			unsigned char * ptr_out = NULL;
-
 			ptr_in = pbIN;
 
 			x509 = d2i_X509(NULL,&ptr_in,uiINLen);
@@ -3012,16 +3038,6 @@ unsigned int OpenSSL_SM2Write(const unsigned char * pbIN, unsigned int uiINLen,
 
 	case E_INPUT_DATA_TYPE_PUBLICKEY:
 		{
-			const unsigned char * ptr_in = NULL;
-			unsigned char data_value[BUFFER_LEN_1K * 4] = {0};
-			unsigned int data_len = BUFFER_LEN_1K *4;
-			unsigned char * ptr_out = NULL;
-			EVP_PKEY * pkey = NULL;
-			EC_KEY		*ec = NULL;
-			BN_CTX *ctx=NULL;
-			EC_POINT *pubkey=NULL;
-			BIGNUM *pubkey_x=NULL, *pubkey_y=NULL;
-
 			if(uiINLen != SM2_BYTES_LEN * 2)
 			{
 				uiRet = -1;
@@ -3111,6 +3127,28 @@ unsigned int OpenSSL_SM2Write(const unsigned char * pbIN, unsigned int uiINLen,
 	}
 
 err:
+
+	if (ctx)
+	{
+		BN_CTX_free(ctx);
+	}
+
+	if (ec)
+	{
+		EC_KEY_free(ec);
+		ec = NULL;
+	}
+
+	if (x509)
+	{
+		X509_free(x509);
+	}
+
+	if (pkey != NULL)
+	{
+		EVP_PKEY_free(pkey);
+	}
+
 	if (file)
 	{
 		fclose(file);
