@@ -3133,11 +3133,11 @@ err:
 		BN_CTX_free(ctx);
 	}
 
-	if (ec)
-	{
-		EC_KEY_free(ec);
-		ec = NULL;
-	}
+	//if (ec)
+	//{
+	//	EC_KEY_free(ec);
+	//	ec = NULL;
+	//}
 
 	if (x509)
 	{
