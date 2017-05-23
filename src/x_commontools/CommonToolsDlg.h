@@ -38,7 +38,7 @@ public:
 	afx_msg void OnTcnSelchangeTabAll(NMHDR *pNMHDR, LRESULT *pResult);
 
 	int m_CurSelTab;
-	CDialog * pDialog[14];
+	CDialog * pDialog[15];
 	int pos;
 
 	CDialog m_page1;

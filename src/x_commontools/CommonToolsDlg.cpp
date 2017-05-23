@@ -21,6 +21,7 @@
 #include "CommonToolsDlgBit.h"
 #include "CommonToolsDlgFILL.h"
 #include "CommonToolsDlgReverse.h"
+#include "CommonToolsDlgDigitalE.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -139,6 +140,7 @@ BOOL CommonToolsDlg::OnInitDialog()
 	m_tb.InsertItem(11, L"BIT");
 	m_tb.InsertItem(12, L"FILL");
 	m_tb.InsertItem(13, L"REVERSE");
+	m_tb.InsertItem(14, L"DigitalE");
 
 
 
@@ -240,6 +242,12 @@ BOOL CommonToolsDlg::OnInitDialog()
 			pDialog[i]->Create(IDD_DIALOG_REVERSE, &m_tb);
 			break;
 
+		case 14:
+
+			pDialog[i] = new CommonToolsDlgDigitalE(this);
+
+			pDialog[i]->Create(IDD_DIALOG_SM2DigitalE, &m_tb);
+			break;
 
 
 		default:
@@ -248,7 +256,7 @@ BOOL CommonToolsDlg::OnInitDialog()
 			break;
 		}
 
-		if (i < 14)
+		if (i < 15)
 		{
 			pDialog[i]->MoveWindow(&rc);
 			pDialog[i]->ShowWindow(SW_HIDE);
