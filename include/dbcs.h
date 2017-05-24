@@ -23,8 +23,8 @@ typedef struct _DBCS_CertificateAttr
 	DBCS_Data stPublicKey;          // 公钥
 	DBCS_Data stSerialNumber;       // 序列号
 	DBCS_Data stVendorData;         // 用户自定义数据
-	unsigned char cAlgType;			// 证书类型
-    unsigned char cUsageType;		// 签名加密
+	unsigned char ucCertAlgType;	// 证书类型
+    unsigned char ucCertUsageType;	// 签名加密
 	unsigned int ulVerify;			// 验证结果 WTF_CERT_VERIFY_RESULT_FLAG
 	unsigned long long ulNotBefore;	// 起始
 	unsigned long long ulNotAfter;	// 截止
@@ -33,8 +33,8 @@ typedef struct _DBCS_CertificateAttr
 typedef struct _DBCS_CertificateFindAttr
 {
 	unsigned int uiFindFlag;        // 查找标记 以下选项按位或 1 2 4 8 16 32 64 128 ... 支持4*8=32个查找项 32与组合查找
-	unsigned char cAlgType;			// 证书类型
-	unsigned char cUsageType;		// 签名加密
+	unsigned char ucCertAlgType;	// 证书类型
+	unsigned char ucCertUsageType;	// 签名加密
 	DBCS_Data stSubject;    		// 主题项
 	DBCS_Data stIsuue;              // 颁发者
 	DBCS_Data stPublicKey;          // 公钥
