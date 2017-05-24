@@ -26,18 +26,18 @@ static const char COMMIT_CMD[] = "COMMIT TRANSACTION;";
 static const char ROLLBACK_CMD[] = "ROLLBACK TRANSACTION;"; 
 static const char CHECK_TABLE_CMD[] = "SELECT ALL * FROM %s LIMIT 0;";
 static const char *CREATE_TABLE_CMD[] =
-{ "CREATE TABLE if not exists table_certificate (id PRIMARY KEY UNIQUE autoincrement, content, store_type, id_attr);"
-, "CREATE TABLE if not exists table_certificate_attr (id PRIMARY KEY UNIQUE autoincrement, cert_alg_type, cert_use_type, skf_name, device_name, application_ame, container_name, common_name, subject, isuue, public_key, serial_number, vendor_data, subject_keyid, isuue_keyid, verify, not_before, not_after);"
-, "CREATE TABLE if not exists table_skf (id PRIMARY KEY UNIQUE autoincrement, name, path);"
-, "CREATE TABLE if not exists table_pid_vid (id PRIMARY KEY UNIQUE autoincrement, pid, vid);"
-, "CREATE TABLE if not exists table_product (id PRIMARY KEY UNIQUE autoincrement, name, id_skf, id_pid_vid);"
-, "CREATE TABLE if not exists table_check_list (id PRIMARY KEY UNIQUE autoincrement, type, description);"
-, "CREATE TABLE if not exists table_check_keyid_list (id PRIMARY KEY UNIQUE autoincrement, keyid, type);"
-, "CREATE TABLE if not exists table_fix_list (id PRIMARY KEY UNIQUE autoincrement, type);"
-, "CREATE TABLE if not exists table_data (id PRIMARY KEY UNIQUE autoincrement, data);"
-, "CREATE TABLE if not exists table_element (id PRIMARY KEY UNIQUE autoincrement, type, data, description);"
-, "CREATE TABLE if not exists table_tlv (id PRIMARY KEY UNIQUE autoincrement, type, value);"
-, "CREATE TABLE if not exists table_path (id PRIMARY KEY UNIQUE autoincrement, name, value);"
+{ "CREATE TABLE if not exists table_certificate (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, content, store_type, id_attr);"
+, "CREATE TABLE if not exists table_certificate_attr (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, cert_alg_type, cert_use_type, skf_name, device_name, application_ame, container_name, common_name, subject, isuue, public_key, serial_number, vendor_data, subject_keyid, isuue_keyid, verify, not_before, not_after);"
+, "CREATE TABLE if not exists table_skf (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name, path);"
+, "CREATE TABLE if not exists table_pid_vid (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, pid, vid);"
+, "CREATE TABLE if not exists table_product (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name, id_skf, id_pid_vid);"
+, "CREATE TABLE if not exists table_check_list (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, type, description);"
+, "CREATE TABLE if not exists table_check_keyid_list (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, keyid, type);"
+, "CREATE TABLE if not exists table_fix_list (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, type);"
+, "CREATE TABLE if not exists table_data (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, data);"
+, "CREATE TABLE if not exists table_element (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, type, data, description);"
+, "CREATE TABLE if not exists table_tlv (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, type, value);"
+, "CREATE TABLE if not exists table_path (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name, value);"
 };
 
 
