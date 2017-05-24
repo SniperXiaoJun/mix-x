@@ -24,7 +24,7 @@ typedef struct _DBCS_CertificateAttr
 	DBCS_Data stSerialNumber;       // 序列号
 	DBCS_Data stVendorData;         // 用户自定义数据
 	unsigned char ucCertAlgType;	// 证书类型
-    unsigned char ucCertUsageType;	// 签名加密
+	unsigned char ucCertUsageType;	// 签名加密
 	unsigned int ulVerify;			// 验证结果 WTF_CERT_VERIFY_RESULT_FLAG
 	unsigned long long ulNotBefore;	// 起始
 	unsigned long long ulNotAfter;	// 截止
@@ -58,42 +58,42 @@ typedef struct _DBCS_CertificateContext
 extern "C" {
 #endif
 	/*
-		创建证书上下文
+	创建证书上下文
 	*/
-	COMMON_API unsigned int DBCS_CreateCtx(DBCS_CertificateContext *pCertificateCtx,unsigned char *pCertificate, unsigned int uiCertificateLen);
+	COMMON_API unsigned int DBCS_CreateCtx(DBCS_CertificateContext *pCertificateCtx, unsigned char *pCertificate, unsigned int uiCertificateLen);
 
 	/*
-		设置用户自定义数据
+	设置用户自定义数据
 	*/
-	COMMON_API unsigned int DBCS_SetCtxVendor(DBCS_CertificateContext *pCertificateCtx,unsigned char *pVendor, unsigned int uiVendorLen);
+	COMMON_API unsigned int DBCS_SetCtxVendor(DBCS_CertificateContext *pCertificateCtx, unsigned char *pVendor, unsigned int uiVendorLen);
 
 	/*
-		释放证书上下文
+	释放证书上下文
 	*/
-	COMMON_API unsigned int DBCS_FreeCtx(DBCS_CertificateContext *pCertificateCtx,unsigned char *pCertificate, unsigned int uiCertificateLen);
+	COMMON_API unsigned int DBCS_FreeCtx(DBCS_CertificateContext *pCertificateCtx, unsigned char *pCertificate, unsigned int uiCertificateLen);
 
 	/*
-		添加证书到数据库
+	添加证书到数据库
 	*/
 	COMMON_API unsigned int DBCS_AddCtxToDB(DBCS_CertificateContext *pCertificateCtx);
 
 	/*
-		从数据库删除证书上
+	从数据库删除证书上
 	*/
 	COMMON_API unsigned int DBCS_DelCtxFromDB(DBCS_CertificateContext *pCertificateCtx);
 
 	/*
-		清空数据库
+	清空数据库
 	*/
 	COMMON_API unsigned int DBCS_ClrAllFromDB();
 
 	/*
-		从数据库查找证书	
+	从数据库查找证书
 	*/
-	COMMON_API unsigned int DBCS_FindCtxFromDB(DBCS_CertificateFindAttr *pCertificateFindAttr,DBCS_CertificateContext *pPreCertificateCtx, DBCS_CertificateContext **pCertificateCtx);
+	COMMON_API unsigned int DBCS_FindCtxFromDB(DBCS_CertificateFindAttr *pCertificateFindAttr, DBCS_CertificateContext *pPreCertificateCtx, DBCS_CertificateContext **pCertificateCtx);
 
 	/*
-		从数据库遍历证书
+	从数据库遍历证书
 	*/
 	COMMON_API unsigned int DBCS_EnumCtxFromDB(DBCS_CertificateContext *pPreCertificateCtx, DBCS_CertificateContext **pCertificateCtx);
 
