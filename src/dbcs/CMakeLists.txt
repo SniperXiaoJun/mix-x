@@ -27,5 +27,7 @@ add_executable(
 )
 
 target_link_libraries(x_dbcs dbcs)
+target_link_libraries(x_dbcs sqlite3)
+
 add_dependencies(x_all x_dbcs)
 
