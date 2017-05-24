@@ -276,6 +276,6 @@ err:
 	}
 
 
-	return 0;
+	return crv;
 }
 
