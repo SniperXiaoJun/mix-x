@@ -95,27 +95,27 @@ extern "C" {
 	/*
 	创建证书上下文
 	*/
-	COMMON_API unsigned int SMB_CS_CreateCtx(SMB_CS_CertificateContext *pCertificateCtx, unsigned char *pCertificate, unsigned int uiCertificateLen);
+	COMMON_API unsigned int SMB_CS_CreateCtx(SMB_CS_CertificateContext *pCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen);
 
 	/*
 	设置用户自定义数据
 	*/
-	COMMON_API unsigned int SMB_CS_SetCtxVendor(SMB_CS_CertificateContext *pCertificateCtx, unsigned char *pVendor, unsigned int uiVendorLen);
+	COMMON_API unsigned int SMB_CS_SetCtxVendor(SMB_CS_CertificateContext *pCertCtx, unsigned char *pVendor, unsigned int uiVendorLen);
 
 	/*
 	释放证书上下文
 	*/
-	COMMON_API unsigned int SMB_CS_FreeCtx(SMB_CS_CertificateContext *pCertificateCtx, unsigned char *pCertificate, unsigned int uiCertificateLen);
+	COMMON_API unsigned int SMB_CS_FreeCtx(SMB_CS_CertificateContext *pCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen);
 
 	/*
 	添加证书到数据库
 	*/
-	COMMON_API unsigned int SMB_CS_AddCtxToDB(SMB_CS_CertificateContext *pCertificateCtx);
+	COMMON_API unsigned int SMB_CS_AddCtxToDB(SMB_CS_CertificateContext *pCertCtx);
 
 	/*
 	从数据库删除证书上
 	*/
-	COMMON_API unsigned int SMB_CS_DelCtxFromDB(SMB_CS_CertificateContext *pCertificateCtx);
+	COMMON_API unsigned int SMB_CS_DelCtxFromDB(SMB_CS_CertificateContext *pCertCtx);
 
 	/*
 	清空数据库
@@ -125,12 +125,12 @@ extern "C" {
 	/*
 	从数据库查找证书
 	*/
-	COMMON_API unsigned int SMB_CS_FindCtxFromDB(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext *pPreCertificateCtx, SMB_CS_CertificateContext **pCertificateCtx);
+	COMMON_API unsigned int SMB_CS_FindCtxsFromDB(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader);
 
 	/*
 	从数据库遍历证书
 	*/
-	COMMON_API unsigned int SMB_CS_EnumCtxFromDB(SMB_CS_CertificateContext *pPreCertificateCtx, SMB_CS_CertificateContext **pCertificateCtx);
+	COMMON_API unsigned int SMB_CS_EnumCtxsFromDB(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader);
 
 	/*
 	从数据库遍历SKF名称

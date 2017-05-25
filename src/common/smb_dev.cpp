@@ -979,7 +979,7 @@ err:
 }
 
 
-unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateContext_NODE **pCtxNodeHeader, unsigned int ulKeyFlag, unsigned int ulSignFlag, unsigned int ulVerifyFlag, unsigned int ulFilterFlag)
+unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int ulKeyFlag, unsigned int ulSignFlag, unsigned int ulVerifyFlag, unsigned int ulFilterFlag)
 {
 	HINSTANCE ghInst = NULL;
 
@@ -1037,7 +1037,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 
 	DEVHANDLE hDev = NULL;
 
-	if (0 == *pCtxNodeHeader)
+	if (0 == *ppCertCtxNodeHeader)
 	{
 		ulRet = EErr_SMB_INVALID_ARG;
 		goto err;
@@ -1254,7 +1254,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 
 							pCertCtx->stAttr.ucCertAlgType = ulContainerType; // RSA SM2
 
-							OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)pCtxNodeHeader, (void *)pCertCtx);
+							OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppCertCtxNodeHeader, (void *)pCertCtx);
 						}
 
 					}
@@ -1346,7 +1346,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 
 							pCertCtx->stAttr.ucCertAlgType = ulContainerType; // RSA SM2
 
-							OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)pCtxNodeHeader, (void *)pCertCtx);
+							OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppCertCtxNodeHeader, (void *)pCertCtx);
 						}
 					}
 					else if (0x0A00001C == ulRet)
@@ -1398,7 +1398,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 		ptrDev += 1;
 	}
 
-	for (pCtxNode = *pCtxNodeHeader; pCtxNode; pCtxNode = pCtxNode->ptr_next)
+	for (pCtxNode = *ppCertCtxNodeHeader; pCtxNode; pCtxNode = pCtxNode->ptr_next)
 	{
 		SMB_DEV_FillCertAttr(pCtxNode->ptr_data);
 	}
