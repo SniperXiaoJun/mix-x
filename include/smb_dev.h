@@ -75,7 +75,7 @@ extern "C" {
 		puiCertsLen		长度
 	返回值: 0:成功 其他:错误码
 	*/
-	COMMON_API unsigned int SMB_DEV_EnumCertBySKF(const char*pszSKFName, void *pvCertsValue, unsigned int *puiCertsLen, unsigned int uiKeyFlag, unsigned int uiSignFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag);
+	COMMON_API unsigned int SMB_DEV_EnumCertBySKF(const char*pszSKFName, SMB_CS_CertificateContext_NODE **pCtxHeader, unsigned int uiKeyFlag, unsigned int uiSignFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag);
 
 	/*
 	功能名称:	枚举证书
@@ -251,7 +251,7 @@ extern "C" {
 	其他： 错误码
 
 	*/
-	COMMON_API unsigned int SMB_DEV_CertFillAttr(BYTE *pbCert, unsigned int uiCertLen, SMB_CS_CertificateAttr*pCertAttr);
+	COMMON_API unsigned int SMB_DEV_FillCertAttr(SMB_CS_CertificateContext * pCertContext);
 
 	/*
 	功能描述:	显示证书

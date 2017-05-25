@@ -25,6 +25,7 @@ FILE(GLOB
   common_cpps
   ${CMAKE_SOURCE_DIR}/common/smb_dev.cpp
   ${CMAKE_SOURCE_DIR}/common/smb_cs.cpp
+  ${CMAKE_SOURCE_DIR}/common/smcert.cpp
  )
 
 LINK_DIRECTORIES(

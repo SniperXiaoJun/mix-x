@@ -4,6 +4,7 @@
 #include <string>
 
 #include "openssl_func_def.h"
+#include "o_all_func_def.h"
 
 std::map<std::string, OPST_HANDLE_ARGS> g_currentArgs;
 
@@ -977,7 +978,7 @@ err:
 }
 
 
-unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, void *pvCertsValue, unsigned int *puiCertsLen, unsigned int ulKeyFlag, unsigned int ulSignFlag, unsigned int ulVerifyFlag, unsigned int ulFilterFlag)
+unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateContext_NODE **pCtxNodeHeader, unsigned int ulKeyFlag, unsigned int ulSignFlag, unsigned int ulVerifyFlag, unsigned int ulFilterFlag)
 {
 	HINSTANCE ghInst = NULL;
 
@@ -1011,10 +1012,8 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, void *pvCertsValue, u
 	FUNC_NAME_DECLARE(func_, GenerateAgreementDataAndKeyWithECCEx, );
 
 	unsigned int ulRet = 0;
-	int i = 0; // certs
 
-	char *data_value = NULL;
-	char *pTmp = NULL;
+	BYTE *pTmp = NULL;
 
 	unsigned int dllPathLen = BUFFER_LEN_1K;
 	char dllPathValue[BUFFER_LEN_1K] = { 0 };
@@ -1033,17 +1032,17 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, void *pvCertsValue, u
 	char *ptrApp = NULL;
 	char *ptrDev = NULL;
 
-	unsigned int ulOutLen = 0;
-
-	SMB_CS_CertificateContext *pCertCtx = NULL;
+	SMB_CS_CertificateContext_NODE *pCtxNode = NULL;
 
 	DEVHANDLE hDev = NULL;
 
-	char buffer_zero[BUFFER_LEN_1K] = { 0 };
+	if (0 == *pCtxNodeHeader)
+	{
+		ulRet = EErr_SMB_INVALID_ARG;
+		goto err;
+	}
 
-
-	pTmp = (char *)malloc(BUFFER_LEN_1K *4);
-	data_value = (char *)malloc(BUFFER_LEN_1K *BUFFER_LEN_1K);
+	pTmp = (BYTE *)malloc(BUFFER_LEN_1K *4);
 
 	ulRet = SMB_CS_ReadSKFPath(pszSKFName, dllPathValue, &dllPathLen);
 
@@ -1082,10 +1081,6 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, void *pvCertsValue, u
 	FUNC_NAME_INIT(func_, LockDev, );
 	FUNC_NAME_INIT(func_, UnlockDev, );
 
-
-	pCertCtx = (SMB_CS_CertificateContext *)data_value;
-	i = 0;
-	ulOutLen = 0;
 	ulRet = func_EnumDev(TRUE, szDevs, &ulDevSize);
 	if (0 != ulRet)
 	{
@@ -1144,12 +1139,6 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, void *pvCertsValue, u
 
 			ulRet = func_EnumContainer(hAPP, szConNames, &ulConSize);
 
-			//while (ulRet == 0 && 0 == memcmp(buffer_zero,szConNames,ulConSize > BUFFER_LEN_1K? BUFFER_LEN_1K:ulConSize))
-			//{
-			//	ulConSize = BUFFER_LEN_1K;
-			//	ulRet = func_EnumContainer(hAPP,szConNames,&ulConSize);
-			//}
-
 			if (0 != ulRet)
 			{
 				goto err;
@@ -1165,8 +1154,6 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, void *pvCertsValue, u
 			{
 				HCONTAINER hCon = NULL;
 				ULONG ulContainerType = 0;
-
-
 
 				ulRet = func_OpenContainer(hAPP, ptrContainer, &hCon);
 				if (ulRet)
@@ -1213,55 +1200,63 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, void *pvCertsValue, u
 
 									continue;
 								}
-								else
-								{
-									switch (ulRet) {
-									case EErr_SMB_VERIFY_TIME:
-										pCertCtx->stProperty.ulVerify = CERT_VERIFY_RESULT_TIME_INVALID;
-										break;
-									case EErr_SMB_NO_CERT_CHAIN:
-										pCertCtx->stProperty.ulVerify = CERT_VERIFY_RESULT_CHAIN_INVALID;
-										break;
-									case EErr_SMB_VERIFY_CERT:
-										pCertCtx->stProperty.ulVerify = CERT_VERIFY_RESULT_SIGN_INVALID;
-										break;
-									default:
-										pCertCtx->stProperty.ulVerify = CERT_VERIFY_RESULT_CHAIN_INVALID;
-										break;
-									}
-								}
-
-							}
-							else
-							{
-								pCertCtx->stProperty.ulVerify = CERT_VERIFY_RESULT_FLAG_OK;
 							}
 
 						}
 
-						ulOutLen += nValueLen + sizeof(SMB_CS_CertificateContext);
+						{
+							SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
 
-						pCertCtx->nValueLen = nValueLen;
+							memset(pCertCtx, 0, sizeof(SMB_CS_CertificateContext));
 
-						pCertCtx->pbValue = (BYTE *)pCertCtx + sizeof(SMB_CS_CertificateContext);
+							if (ulVerifyFlag)
+							{
+								switch (ulRet) {
+								case 0:
+									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_FLAG_OK;
+									break;
+								case EErr_SMB_VERIFY_TIME:
+									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_TIME_INVALID;
+									break;
+								case EErr_SMB_NO_CERT_CHAIN:
+									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_CHAIN_INVALID;
+									break;
+								case EErr_SMB_VERIFY_CERT:
+									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_SIGN_INVALID;
+									break;
+								default:
+									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_CHAIN_INVALID;
+									break;
+								}
+							}
 
-						memcpy(pCertCtx->pbValue, pTmp, nValueLen);
+							pCertCtx->stContent.length = nValueLen;
+							pCertCtx->stContent.data = (unsigned char *)malloc(pCertCtx->stContent.length);
+							memcpy(pCertCtx->stContent.data, pTmp, pCertCtx->stContent.length);
 
-						strcpy(pCertCtx->stProperty.szSKFName, pszSKFName);
+							pCertCtx->stAttr.stSKFName.length = strlen(pszSKFName) + 1;
+							pCertCtx->stAttr.stSKFName.data = (unsigned char *)malloc(pCertCtx->stAttr.stSKFName.length);
+							memcpy(pCertCtx->stAttr.stSKFName.data, pszSKFName, pCertCtx->stAttr.stSKFName.length);
 
-						strcpy(pCertCtx->stProperty.szDeviceName, ptrDev);
+							pCertCtx->stAttr.stDeviceName.length = strlen(ptrDev) + 1;
+							pCertCtx->stAttr.stDeviceName.data = (unsigned char *)malloc(pCertCtx->stAttr.stDeviceName.length);
+							memcpy(pCertCtx->stAttr.stDeviceName.data, ptrDev, pCertCtx->stAttr.stDeviceName.length);
 
-						strcpy(pCertCtx->stProperty.szApplicationName, ptrApp);
+							pCertCtx->stAttr.stApplicationName.length = strlen(ptrApp) + 1;
+							pCertCtx->stAttr.stApplicationName.data = (unsigned char *)malloc(pCertCtx->stAttr.stApplicationName.length);
+							memcpy(pCertCtx->stAttr.stApplicationName.data, ptrApp, pCertCtx->stAttr.stApplicationName.length);
 
-						strcpy(pCertCtx->stProperty.szContainerName, ptrContainer);
+							pCertCtx->stAttr.stContainerName.length = strlen(ptrContainer) + 1;
+							pCertCtx->stAttr.stContainerName.data = (unsigned char *)malloc(pCertCtx->stAttr.stContainerName.length);
+							memcpy(pCertCtx->stAttr.stContainerName.data, ptrContainer, pCertCtx->stAttr.stContainerName.length);
 
-						pCertCtx->stProperty.bSignType = TRUE;
+							pCertCtx->stAttr.ucCertUsageType = 1; //	签名加密
 
-						pCertCtx->stProperty.nType = ulContainerType;
+							pCertCtx->stAttr.ucCertAlgType = ulContainerType; // RSA SM2
 
-						pCertCtx = (BYTE*)pCertCtx + nValueLen + sizeof(SMB_CS_CertificateContext);
-
-						i++;
+							OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)pCtxNodeHeader,(void *)pCertCtx);
+						}
+						
 					}
 					else if (0x0A00001C == ulRet)
 					{
@@ -1298,54 +1293,61 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, void *pvCertsValue, u
 
 									continue;
 								}
-								else
-								{
-									switch (ulRet) {
-									case EErr_SMB_VERIFY_TIME:
-										pCertCtx->stProperty.ulVerify = CERT_VERIFY_RESULT_TIME_INVALID;
-										break;
-									case EErr_SMB_NO_CERT_CHAIN:
-										pCertCtx->stProperty.ulVerify = CERT_VERIFY_RESULT_CHAIN_INVALID;
-										break;
-									case EErr_SMB_VERIFY_CERT:
-										pCertCtx->stProperty.ulVerify = CERT_VERIFY_RESULT_SIGN_INVALID;
-										break;
-									default:
-										pCertCtx->stProperty.ulVerify = CERT_VERIFY_RESULT_CHAIN_INVALID;
-										break;
-									}
-								}
-
-							}
-							else
-							{
-								pCertCtx->stProperty.ulVerify = CERT_VERIFY_RESULT_FLAG_OK;
 							}
 						}
 
-						ulOutLen += nValueLen + sizeof(SMB_CS_CertificateContext);
+						{
+							SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
 
-						pCertCtx->nValueLen = nValueLen;
+							memset(pCertCtx, 0, sizeof(SMB_CS_CertificateContext));
 
-						pCertCtx->pbValue = (BYTE *)pCertCtx + sizeof(SMB_CS_CertificateContext);
+							if (ulVerifyFlag)
+							{
+								switch (ulRet) {
+								case 0:
+									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_FLAG_OK;
+									break;
+								case EErr_SMB_VERIFY_TIME:
+									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_TIME_INVALID;
+									break;
+								case EErr_SMB_NO_CERT_CHAIN:
+									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_CHAIN_INVALID;
+									break;
+								case EErr_SMB_VERIFY_CERT:
+									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_SIGN_INVALID;
+									break;
+								default:
+									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_CHAIN_INVALID;
+									break;
+								}
+							}
 
-						memcpy(pCertCtx->pbValue, pTmp, nValueLen);
+							pCertCtx->stContent.length = nValueLen;
+							pCertCtx->stContent.data = (unsigned char *)malloc(pCertCtx->stContent.length);
+							memcpy(pCertCtx->stContent.data, pTmp, pCertCtx->stContent.length);
 
-						strcpy(pCertCtx->stProperty.szSKFName, pszSKFName);
+							pCertCtx->stAttr.stSKFName.length = strlen(pszSKFName) + 1;
+							pCertCtx->stAttr.stSKFName.data = (unsigned char *)malloc(pCertCtx->stAttr.stSKFName.length);
+							memcpy(pCertCtx->stAttr.stSKFName.data, pszSKFName, pCertCtx->stAttr.stSKFName.length);
 
-						strcpy(pCertCtx->stProperty.szDeviceName, ptrDev);
+							pCertCtx->stAttr.stDeviceName.length = strlen(ptrDev) + 1;
+							pCertCtx->stAttr.stDeviceName.data = (unsigned char *)malloc(pCertCtx->stAttr.stDeviceName.length);
+							memcpy(pCertCtx->stAttr.stDeviceName.data, ptrDev, pCertCtx->stAttr.stDeviceName.length);
 
-						strcpy(pCertCtx->stProperty.szApplicationName, ptrApp);
+							pCertCtx->stAttr.stApplicationName.length = strlen(ptrApp) + 1;
+							pCertCtx->stAttr.stApplicationName.data = (unsigned char *)malloc(pCertCtx->stAttr.stApplicationName.length);
+							memcpy(pCertCtx->stAttr.stApplicationName.data, ptrApp, pCertCtx->stAttr.stApplicationName.length);
 
-						strcpy(pCertCtx->stProperty.szContainerName, ptrContainer);
+							pCertCtx->stAttr.stContainerName.length = strlen(ptrContainer) + 1;
+							pCertCtx->stAttr.stContainerName.data = (unsigned char *)malloc(pCertCtx->stAttr.stContainerName.length);
+							memcpy(pCertCtx->stAttr.stContainerName.data, ptrContainer, pCertCtx->stAttr.stContainerName.length);
 
-						pCertCtx->stProperty.bSignType = FALSE;
+							pCertCtx->stAttr.ucCertUsageType = 2; //	签名加密
 
-						pCertCtx->stProperty.nType = ulContainerType;
+							pCertCtx->stAttr.ucCertAlgType = ulContainerType; // RSA SM2
 
-						pCertCtx = (BYTE*)pCertCtx + nValueLen + sizeof(SMB_CS_CertificateContext);
-
-						i++;
+							OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)pCtxNodeHeader, (void *)pCertCtx);
+						}
 					}
 					else if (0x0A00001C == ulRet)
 					{
@@ -1396,41 +1398,12 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, void *pvCertsValue, u
 		ptrDev += 1;
 	}
 
-	ulRet = -1;
-
-	if (NULL == pvCertsValue)
+	for (pCtxNode =  *pCtxNodeHeader; pCtxNode; pCtxNode = pCtxNode->ptr_next)
 	{
-		*puiCertsLen = ulOutLen;
-
-		ulRet = 0;
-
-		goto err;
-	}
-	else if (*puiCertsLen < ulOutLen)
-	{
-		*puiCertsLen = ulOutLen;
-
-		ulRet = EErr_SMB_MEM_LES;
-
-		goto err;
-	}
-	else
-	{
-		memcpy(pvCertsValue, data_value, ulOutLen);
-
-		for (pCertCtx = (SMB_CS_CertificateContext *)pvCertsValue; (char *)pCertCtx < (char *)pvCertsValue + ulOutLen;)
-		{
-			pCertCtx->pbValue = (BYTE *)pCertCtx + sizeof(SMB_CS_CertificateContext);
-
-			SMB_DEV_CertGetProperty(pCertCtx->pbValue, pCertCtx->nValueLen, &(pCertCtx->stProperty));
-
-			pCertCtx = (BYTE *)pCertCtx + pCertCtx->nValueLen + sizeof(SMB_CS_CertificateContext);
-		}
-
-		*puiCertsLen = ulOutLen;
-		ulRet = 0;
+		SMB_DEV_FillCertAttr(pCtxNode->ptr_data);
 	}
 
+	ulRet = 0;
 err:
 	if (hDev)
 	{
@@ -1450,18 +1423,65 @@ err:
 #endif
 	}
 
-
 	if (pTmp)
 	{
 		free(pTmp);
 	}
 
-	if (data_value)
+	return ulRet;
+}
+
+
+
+unsigned int SMB_DEV_FillCertAttr(SMB_CS_CertificateContext * pCertContext)
+{
+	unsigned int ulRet = 0;
+	if (NULL == pCertContext)
 	{
-		free(data_value);
-		data_value = NULL;
+		return 0;
+	}
+	else
+	{
+		//2.获取CertContext
+		PCCERT_CONTEXT pCertContext = NULL;
+		CRYPT_INTEGER_BLOB snBlob;
+		CERT_NAME_BLOB issuerBlob;
+		CERT_NAME_BLOB subjectBlob;
+		SYSTEMTIME sysTime;
+		char szTime[128] = { 0 };
+
+		pCertContext = CertCreateCertificateContext(X509_ASN_ENCODING, pbCert, ulCertLen);
+
+		if (NULL == pCertContext)
+		{
+			ulRet = EErr_SMB_CREATE_CERT_CONTEXT;
+			goto err;
+		}
+
+		//3.获取证书信息
+		snBlob = pCertContext->pCertInfo->SerialNumber; // 证书SN
+		issuerBlob = pCertContext->pCertInfo->Issuer; // 证书颁发者
+		subjectBlob = pCertContext->pCertInfo->Subject; // 证书主题
+
+														// 证书有效起始日期
+		memset(&sysTime, 0, sizeof(sysTime));
+		FileTimeToSystemTime(&pCertContext->pCertInfo->NotBefore, &sysTime);
+		SystemTimeToTime_t(sysTime, &(pCertAttr->ulNotBefore));
+		memset(szTime, 0, sizeof(szTime));
+		sprintf_s(szTime, 128, "%04d-%02d-%02d %02d:%02d:%02d", sysTime.wYear, sysTime.wMonth, sysTime.wDay, sysTime.wHour, sysTime.wMinute, sysTime.wSecond);
+		// 证书有效终止日期
+		memset(&sysTime, 0, sizeof(sysTime));
+		FileTimeToSystemTime(&pCertContext->pCertInfo->NotAfter, &sysTime);
+		SystemTimeToTime_t(sysTime, &(pCertAttr->ulNotAfter));
+		memset(szTime, 0, sizeof(szTime));
+		sprintf_s(szTime, 128, "%04d-%02d-%02d %02d:%02d:%02d", sysTime.wYear, sysTime.wMonth, sysTime.wDay, sysTime.wHour, sysTime.wMinute, sysTime.wSecond);
+
+		CertGetNameStringA(pCertContext, CERT_NAME_ATTR_TYPE, 0, NULL, pCertAttr->stCommonName, 64);
 	}
 
+err:
+
 	return ulRet;
+
 }
 

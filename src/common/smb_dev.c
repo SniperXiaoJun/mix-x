@@ -1660,60 +1660,6 @@ void TimetToSystemTime( time_t t, LPSYSTEMTIME pst);
 void SystemTimeToTime_t( SYSTEMTIME st, time_t *pt);
 void  FileTimeToTime_t(  FILETIME  ft,  time_t  *t);
 
-unsigned int SMB_DEV_CertFillAttr(BYTE* pbCert, unsigned int ulCertLen, SMB_CS_CertificateAttr * pCertAttr)
-{
-	unsigned int ulRet = 0;
-	if (NULL == pCertAttr || NULL == pbCert || 0 == ulCertLen)
-	{
-		return 0;
-	}
-	else
-	{
-		//2.获取CertContext
-		PCCERT_CONTEXT pCertContext = NULL;
-		CRYPT_INTEGER_BLOB snBlob;
-		CERT_NAME_BLOB issuerBlob;
-		CERT_NAME_BLOB subjectBlob;
-		SYSTEMTIME sysTime;
-		char szTime[128] = {0};
-
-		pCertContext = CertCreateCertificateContext(X509_ASN_ENCODING, pbCert, ulCertLen);
-
-		if (NULL == pCertContext)
-		{
-			ulRet = EErr_SMB_CREATE_CERT_CONTEXT;
-			goto err;
-		}
-
-		//3.获取证书信息
-		pCertContext->pCertInfo->dwVersion; // 证书版本
-		snBlob = pCertContext->pCertInfo->SerialNumber; // 证书SN
-		issuerBlob = pCertContext->pCertInfo->Issuer; // 证书颁发者
-		subjectBlob = pCertContext->pCertInfo->Subject; // 证书主题
-
-		// 证书有效起始日期
-		memset(&sysTime, 0, sizeof(sysTime));
-		FileTimeToSystemTime(&pCertContext->pCertInfo->NotBefore, &sysTime);
-		SystemTimeToTime_t( sysTime,&(pCertAttr->ulNotBefore));
-		memset(szTime, 0, sizeof(szTime));
-		sprintf_s(szTime, 128, "%04d-%02d-%02d %02d:%02d:%02d", sysTime.wYear, sysTime.wMonth, sysTime.wDay, sysTime.wHour, sysTime.wMinute, sysTime.wSecond);
-		// 证书有效终止日期
-		memset(&sysTime, 0, sizeof(sysTime));
-		FileTimeToSystemTime(&pCertContext->pCertInfo->NotAfter, &sysTime);
-		SystemTimeToTime_t( sysTime,&(pCertAttr->ulNotAfter));
-		memset(szTime, 0, sizeof(szTime));
-		sprintf_s(szTime, 128, "%04d-%02d-%02d %02d:%02d:%02d", sysTime.wYear, sysTime.wMonth, sysTime.wDay, sysTime.wHour, sysTime.wMinute, sysTime.wSecond);
-
-		CertGetNameStringA(pCertContext,CERT_NAME_ATTR_TYPE,0,NULL, pCertAttr->stCommonName, 64);
-
-		CertFreeCertificateContext(pCertContext);
-	}
-
-err:
-
-	return ulRet;
-
-}
 
 #include "Cryptuiapi.h"
 

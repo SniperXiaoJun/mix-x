@@ -24,7 +24,7 @@ typedef struct _SMB_CS_CertificateAttr
 	SMB_CS_Data stSerialNumber;       // 序列号
 	SMB_CS_Data stVendorData;         // 用户自定义数据
 	unsigned char ucCertAlgType;	// 证书类型
-	unsigned char ucCertUsageType;	// 签名加密
+	unsigned char ucCertUsageType;	// 签名加密 1 签名 2 加密 3 签名加密
 	unsigned int ulVerify;			// 验证结果 WTF_CERT_VERIFY_RESULT_FLAG
 	unsigned long long ulNotBefore;	// 起始
 	unsigned long long ulNotAfter;	// 截止
@@ -54,6 +54,11 @@ typedef struct _SMB_CS_CertificateContext
 	SMB_CS_CertificateContent  stContent;   // 证书内容
 }SMB_CS_CertificateContext;
 
+typedef struct _SMB_CS_CertificateContext_NODE
+{
+	SMB_CS_CertificateContext *ptr_data;
+	struct _SMB_CS_CertificateContext_NODE *ptr_next;
+}SMB_CS_CertificateContext_NODE;
 
 typedef enum _EErr_SMB
 {
@@ -79,6 +84,7 @@ typedef enum _EErr_SMB
 													EErr_SMB_SET_CERT_CONTEXT_PROPERTY,				// 设置属性
 													EErr_SMB_INVALIDARG,                            // 参数错误
 													EErr_SMB_MEM_LES,                               // 内存不足
+													EErr_SMB_INVALID_ARG,                           // 参数错误
 													EErr_SMB_FAIL = -1,
 
 }EErr_SMB;
