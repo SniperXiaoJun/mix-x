@@ -5,7 +5,7 @@
 
 std::map<std::string,OPST_HANDLE_ARGS> g_currentArgs;
 
-unsigned int __stdcall WTF_ArgsGet(SMB_CS_CertificateAttr *pCertAttr, OPST_HANDLE_ARGS *args)
+unsigned int SMB_DEV_ArgsGet(SMB_CS_CertificateAttr *pCertAttr, OPST_HANDLE_ARGS *args)
 {
 	OPST_HANDLE_ARGS tmpArgs = {0};
 
@@ -25,7 +25,7 @@ unsigned int __stdcall WTF_ArgsGet(SMB_CS_CertificateAttr *pCertAttr, OPST_HANDL
 
 	//	sprintf(bufferShow,"PID=%d --- %d %d %d %d", GetCurrentProcessId(), args->ghInst, args->hAPP, args->hCon, args->hDev);
 
-	//	if (IDYES == MessageBoxA(NULL,bufferShow, "WTF_ArgsGet", MB_ICONEXCLAMATION))
+	//	if (IDYES == MessageBoxA(NULL,bufferShow, "SMB_DEV_ArgsGet", MB_ICONEXCLAMATION))
 	//	{
 
 	//	}
@@ -39,7 +39,7 @@ unsigned int __stdcall WTF_ArgsGet(SMB_CS_CertificateAttr *pCertAttr, OPST_HANDL
 	return 0;
 }
 
-unsigned int __stdcall WTF_ArgsPut(SMB_CS_CertificateAttr * pCertAttr, OPST_HANDLE_ARGS * args)
+unsigned int SMB_DEV_ArgsPut(SMB_CS_CertificateAttr * pCertAttr, OPST_HANDLE_ARGS * args)
 {
 	OPST_HANDLE_ARGS tmpArgs = {0};
 
@@ -52,7 +52,7 @@ unsigned int __stdcall WTF_ArgsPut(SMB_CS_CertificateAttr * pCertAttr, OPST_HAND
 
 	//	sprintf(bufferShow,"PID=%d --- %d %d %d %d", GetCurrentProcessId(), args->ghInst, args->hAPP, args->hCon, args->hDev);
 
-	//	if (IDYES == MessageBoxA(NULL,bufferShow, "WTF_ArgsPut", MB_ICONEXCLAMATION))
+	//	if (IDYES == MessageBoxA(NULL,bufferShow, "SMB_DEV_ArgsPut", MB_ICONEXCLAMATION))
 	//	{
 
 	//	}
@@ -65,7 +65,7 @@ unsigned int __stdcall WTF_ArgsPut(SMB_CS_CertificateAttr * pCertAttr, OPST_HAND
 	return 0;
 }
 
-unsigned int __stdcall WTF_ArgsClr()
+unsigned int SMB_DEV_ArgsClr()
 {
 	g_currentArgs.clear();
 
@@ -74,7 +74,7 @@ unsigned int __stdcall WTF_ArgsClr()
 
 std::map<std::string,HINSTANCE> g_currentInst;
 
-HINSTANCE __stdcall WTF_LoadLibrary(char * pszDllPath)
+HINSTANCE SMB_DEV_LoadLibrary(char * pszDllPath)
 {
 	HINSTANCE ghInst = NULL;
 
