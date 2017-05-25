@@ -5,6 +5,7 @@
 
 #include "openssl_func_def.h"
 #include "o_all_func_def.h"
+#include "smcert.h"
 
 std::map<std::string, OPST_HANDLE_ARGS> g_currentArgs;
 
@@ -948,8 +949,8 @@ unsigned int SMB_DEV_SM2VerifyDigest(ECCPUBLICKEYBLOB* pECCPubKeyBlob, BYTE *pbD
 {
 	unsigned int ulRet = 0;
 
-	unsigned int sigLen = SM2_BYTES_LEN *2;
-	unsigned char sigValue[SM2_BYTES_LEN *2] = { 0 };
+	unsigned int sigLen = SM2_BYTES_LEN * 2;
+	unsigned char sigValue[SM2_BYTES_LEN * 2] = { 0 };
 
 	memcpy(sigValue, pSignature->r + SM2_BYTES_LEN, SM2_BYTES_LEN);
 	memcpy(sigValue + SM2_BYTES_LEN, pSignature->s + SM2_BYTES_LEN, SM2_BYTES_LEN);
@@ -1042,7 +1043,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 		goto err;
 	}
 
-	pTmp = (BYTE *)malloc(BUFFER_LEN_1K *4);
+	pTmp = (BYTE *)malloc(BUFFER_LEN_1K * 4);
 
 	ulRet = SMB_CS_ReadSKFPath(pszSKFName, dllPathValue, &dllPathLen);
 
@@ -1089,7 +1090,6 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 
 	for (ptrDev = szDevs; (ptrDev < szDevs + ulDevSize) && *ptrDev != 0;)
 	{
-		DEVINFO devInfo;
 		hDev = NULL;
 
 		ulRet = func_ConnectDev(ptrDev, &hDev);
@@ -1178,9 +1178,9 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 
 				if (CERT_SIGN_FLAG & ulSignFlag)
 				{
-					ULONG nValueLen = BUFFER_LEN_1K *4;
+					ULONG nValueLen = BUFFER_LEN_1K * 4;
 
-					nValueLen = BUFFER_LEN_1K *4;
+					nValueLen = BUFFER_LEN_1K * 4;
 
 					ulRet = func_ExportCertificate(hCon, TRUE, pTmp, &nValueLen);
 
@@ -1254,9 +1254,9 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 
 							pCertCtx->stAttr.ucCertAlgType = ulContainerType; // RSA SM2
 
-							OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)pCtxNodeHeader,(void *)pCertCtx);
+							OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)pCtxNodeHeader, (void *)pCertCtx);
 						}
-						
+
 					}
 					else if (0x0A00001C == ulRet)
 					{
@@ -1271,9 +1271,9 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 
 				if (CERT_EX_FLAG & ulSignFlag)
 				{
-					ULONG nValueLen = BUFFER_LEN_1K *4;
+					ULONG nValueLen = BUFFER_LEN_1K * 4;
 
-					nValueLen = BUFFER_LEN_1K *4;
+					nValueLen = BUFFER_LEN_1K * 4;
 
 					ulRet = func_ExportCertificate(hCon, FALSE, pTmp, &nValueLen);
 
@@ -1398,7 +1398,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 		ptrDev += 1;
 	}
 
-	for (pCtxNode =  *pCtxNodeHeader; pCtxNode; pCtxNode = pCtxNode->ptr_next)
+	for (pCtxNode = *pCtxNodeHeader; pCtxNode; pCtxNode = pCtxNode->ptr_next)
 	{
 		SMB_DEV_FillCertAttr(pCtxNode->ptr_data);
 	}
@@ -1433,50 +1433,46 @@ err:
 
 
 
-unsigned int SMB_DEV_FillCertAttr(SMB_CS_CertificateContext * pCertContext)
+unsigned int SMB_DEV_FillCertAttr(SMB_CS_CertificateContext * pCertCtx)
 {
 	unsigned int ulRet = 0;
-	if (NULL == pCertContext)
+	if (NULL == pCertCtx)
 	{
-		return 0;
+		goto err;
 	}
 	else
 	{
-		//2.获取CertContext
-		PCCERT_CONTEXT pCertContext = NULL;
-		CRYPT_INTEGER_BLOB snBlob;
-		CERT_NAME_BLOB issuerBlob;
-		CERT_NAME_BLOB subjectBlob;
-		SYSTEMTIME sysTime;
-		char szTime[128] = { 0 };
+		// 证书的属性
+		char data_info_value[1024] = { 0 };
+		int data_info_len = 0;
 
-		pCertContext = CertCreateCertificateContext(X509_ASN_ENCODING, pbCert, ulCertLen);
+		WT_SetMyCert(pCertCtx->stContent.data, pCertCtx->stContent.length);
 
-		if (NULL == pCertContext)
-		{
-			ulRet = EErr_SMB_CREATE_CERT_CONTEXT;
-			goto err;
-		}
+		memset(data_info_value, 0, 1024);
+		WT_GetCertInfo(CERT_SERIALNUMBER, 0, data_info_value, &data_info_len);
+		pCertCtx->stAttr.stSerialNumber.length = strlen(data_info_value) + 1;
+		pCertCtx->stAttr.stSerialNumber.data = (unsigned char *)malloc(pCertCtx->stAttr.stSerialNumber.length);
+		memcpy(pCertCtx->stAttr.stSerialNumber.data, data_info_value, pCertCtx->stAttr.stSerialNumber.length);
 
-		//3.获取证书信息
-		snBlob = pCertContext->pCertInfo->SerialNumber; // 证书SN
-		issuerBlob = pCertContext->pCertInfo->Issuer; // 证书颁发者
-		subjectBlob = pCertContext->pCertInfo->Subject; // 证书主题
+		memset(data_info_value, 0, 1024);
+		WT_GetCertInfo(CERT_ISSUER_DN, -1, data_info_value, &data_info_len);
+		pCertCtx->stAttr.stIssue.length = strlen(data_info_value) + 1;
+		pCertCtx->stAttr.stIssue.data = (unsigned char *)malloc(pCertCtx->stAttr.stIssue.length);
+		memcpy(pCertCtx->stAttr.stIssue.data, data_info_value, pCertCtx->stAttr.stIssue.length);
 
-														// 证书有效起始日期
-		memset(&sysTime, 0, sizeof(sysTime));
-		FileTimeToSystemTime(&pCertContext->pCertInfo->NotBefore, &sysTime);
-		SystemTimeToTime_t(sysTime, &(pCertAttr->ulNotBefore));
-		memset(szTime, 0, sizeof(szTime));
-		sprintf_s(szTime, 128, "%04d-%02d-%02d %02d:%02d:%02d", sysTime.wYear, sysTime.wMonth, sysTime.wDay, sysTime.wHour, sysTime.wMinute, sysTime.wSecond);
-		// 证书有效终止日期
-		memset(&sysTime, 0, sizeof(sysTime));
-		FileTimeToSystemTime(&pCertContext->pCertInfo->NotAfter, &sysTime);
-		SystemTimeToTime_t(sysTime, &(pCertAttr->ulNotAfter));
-		memset(szTime, 0, sizeof(szTime));
-		sprintf_s(szTime, 128, "%04d-%02d-%02d %02d:%02d:%02d", sysTime.wYear, sysTime.wMonth, sysTime.wDay, sysTime.wHour, sysTime.wMinute, sysTime.wSecond);
+		memset(data_info_value, 0, 1024);
+		WT_GetCertInfo(CERT_SUBJECT_DN, -1, data_info_value, &data_info_len);
+		pCertCtx->stAttr.stSubject.length = strlen(data_info_value) + 1;
+		pCertCtx->stAttr.stSubject.data = (unsigned char *)malloc(pCertCtx->stAttr.stSubject.length);
+		memcpy(pCertCtx->stAttr.stSubject.data, data_info_value, pCertCtx->stAttr.stSubject.length);
 
-		CertGetNameStringA(pCertContext, CERT_NAME_ATTR_TYPE, 0, NULL, pCertAttr->stCommonName, 64);
+		memset(data_info_value, 0, 1024);
+		WT_GetCertInfo(CERT_SUBJECT_DN, NID_COMMONNAME, data_info_value, &data_info_len);
+		pCertCtx->stAttr.stCommonName.length = strlen(data_info_value) + 1;
+		pCertCtx->stAttr.stCommonName.data = (unsigned char *)malloc(pCertCtx->stAttr.stCommonName.length);
+		memcpy(pCertCtx->stAttr.stCommonName.data, data_info_value, pCertCtx->stAttr.stCommonName.length);
+
+		WT_ClearCert();
 	}
 
 err:
@@ -1485,3 +1481,28 @@ err:
 
 }
 
+
+unsigned int SMB_DEV_VerifyCert(unsigned int ulFlag, unsigned int ulAlgType, BYTE* pbCert, unsigned int ulCertLen)
+{
+	unsigned int ulRet = 0;
+
+	switch (ulAlgType)
+	{
+	case CERT_ALG_RSA_FLAG:
+	{
+
+	}
+	break;
+	case CERT_ALG_SM2_FLAG:
+	{
+
+	}
+	break;
+	default:
+		break;
+	}
+
+err:
+
+	return ulRet;
+}

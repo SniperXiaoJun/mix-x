@@ -8,10 +8,14 @@
 #include <openssl/asn1.h>
 #include "smcert.h"
 
-#pragma comment(lib, "libeay32.lib")
+typedef struct buf_mem_st
+{
+	int length; /* current number of bytes */
+	char *data;
+	int max; /* size of buffer */
+} BUF_MEM;
 
 X509 *g_MyCert = NULL;
-
 
 //-------------------------------------------------------------------------------------------------
 int mypint( const char ** s,

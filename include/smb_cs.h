@@ -19,7 +19,7 @@ typedef struct _SMB_CS_CertificateAttr
 	SMB_CS_Data stContainerName;		// 容器名称
 	SMB_CS_Data stCommonName;		    // 通用名 显示设备名
 	SMB_CS_Data stSubject;    		// 主题项
-	SMB_CS_Data stIsuue;              // 颁发者
+	SMB_CS_Data stIssue;              // 颁发者
 	SMB_CS_Data stPublicKey;          // 公钥
 	SMB_CS_Data stSerialNumber;       // 序列号
 	SMB_CS_Data stVendorData;         // 用户自定义数据
