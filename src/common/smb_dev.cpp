@@ -6,6 +6,23 @@
 #include "openssl_func_def.h"
 #include "o_all_func_def.h"
 #include "smcert.h"
+#include "FILE_LOG.h"
+#include "SKFError.h"
+
+
+typedef struct _OPST_HANDLE_ARGS {
+	void*ghInst;
+	void*hDev;
+	void*hAPP;
+	void*hCon;
+}OPST_HANDLE_ARGS;
+COMMON_API unsigned int SMB_DEV_ArgsGet(SMB_CS_CertificateAttr*pCertAttr, OPST_HANDLE_ARGS*args);
+COMMON_API unsigned int SMB_DEV_ArgsPut(SMB_CS_CertificateAttr*pCertAttr, OPST_HANDLE_ARGS*args);
+COMMON_API unsigned int SMB_DEV_ArgsClr();
+COMMON_API unsigned int SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr*pCertAttr, OPST_HANDLE_ARGS *args);
+COMMON_API unsigned int SMB_DEV_SM2SignDigestProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, unsigned int uiDataLen, PECCSIGNATUREBLOB pSignature);
+COMMON_API unsigned int SMB_DEV_SM2SignFinalize(OPST_HANDLE_ARGS *args);
+COMMON_API HINSTANCE SMB_DEV_LoadLibrary(char*pszDllPath);
 
 std::map<std::string, OPST_HANDLE_ARGS> g_currentArgs;
 
@@ -318,7 +335,7 @@ err:
 	return ulRet;
 }
 
-unsigned int SMB_DEV_GetDevInfoByCertProperty(SMB_CS_CertificateAttr *pCertAttr, DEVINFO *pDevInfo)
+unsigned int SMB_DEV_GetDevInfoByCertAttr(SMB_CS_CertificateAttr *pCertAttr, DEVINFO *pDevInfo)
 {
 	HINSTANCE ghInst = NULL;
 
@@ -462,7 +479,7 @@ err:
 }
 
 
-unsigned int SMB_DEV_VerifyPINByCertProperty(SMB_CS_CertificateAttr *pCertAttr, unsigned int ulPINType, char *pszPin, ULONG *puiRetryCount)
+unsigned int SMB_DEV_VerifyPINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsigned int ulPINType, char *pszPin, ULONG *puiRetryCount)
 {
 	HINSTANCE ghInst = NULL;
 
@@ -616,7 +633,7 @@ err:
 }
 
 
-unsigned int SMB_DEV_SM2SignDigest(
+unsigned int SMB_DEV_SM2SignDigestByCertAttr(
 	SMB_CS_CertificateAttr *pCertAttr,
 	char *pszPIN,
 	BYTE *pbDigest, unsigned int uiDigestLen,
@@ -1506,3 +1523,427 @@ err:
 
 	return ulRet;
 }
+
+unsigned int SMB_DEV_EnumCert(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int ulKeyFlag, unsigned int ulSignFlag, unsigned int ulVerifyFlag, unsigned int ulFilterFlag)
+{
+	unsigned int ulRet = 0;
+	char * ptr_SKF = NULL;
+	char szSKFAll[BUFFER_LEN_1K] = { 0 };
+	unsigned int ulSKFAll = 1024;
+
+	SMB_CS_EnumSKF(szSKFAll, &ulSKFAll);
+
+	for (ptr_SKF = szSKFAll; (ptr_SKF < szSKFAll + ulSKFAll) && *ptr_SKF != 0;)
+	{
+		ulRet = SMB_DEV_EnumCertBySKF(ptr_SKF, ppCertCtxNodeHeader, ulKeyFlag, ulSignFlag, ulVerifyFlag, ulFilterFlag);
+
+		// next SKF
+		ptr_SKF += strlen(ptr_SKF) + 1;
+
+		if (ulRet)
+		{
+			continue;
+		}
+	}
+	
+	ulRet = 0;
+
+	return ulRet;
+}
+
+
+unsigned int SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr * pCertAttr, OPST_HANDLE_ARGS * args)
+{
+	HINSTANCE ghInst = NULL;
+
+	/*
+	SKF函数地址
+	*/
+
+	FUNC_NAME_DECLARE(func_, EnumDev, );
+	FUNC_NAME_DECLARE(func_, ConnectDev, );
+	FUNC_NAME_DECLARE(func_, DisConnectDev, );
+	FUNC_NAME_DECLARE(func_, ChangePIN, );
+	FUNC_NAME_DECLARE(func_, OpenApplication, );
+	FUNC_NAME_DECLARE(func_, CloseApplication, );
+	FUNC_NAME_DECLARE(func_, EnumApplication, );
+	FUNC_NAME_DECLARE(func_, ExportCertificate, );
+	FUNC_NAME_DECLARE(func_, EnumContainer, );
+	FUNC_NAME_DECLARE(func_, OpenContainer, );
+	FUNC_NAME_DECLARE(func_, CloseContainer, );
+	FUNC_NAME_DECLARE(func_, VerifyPIN, );
+	FUNC_NAME_DECLARE(func_, GetContainerType, );
+	FUNC_NAME_DECLARE(func_, ECCSignData, );
+	FUNC_NAME_DECLARE(func_, ECCVerify, );
+	FUNC_NAME_DECLARE(func_, ExtECCVerify, );
+	FUNC_NAME_DECLARE(func_, GetDevInfo, );
+	FUNC_NAME_DECLARE(func_, LockDev, );
+	FUNC_NAME_DECLARE(func_, UnlockDev, );
+
+	FUNC_NAME_DECLARE(func_, GenerateKeyWithECCEx, );
+	FUNC_NAME_DECLARE(func_, GenerateAgreementDataWithECC, );
+	FUNC_NAME_DECLARE(func_, GenerateAgreementDataWithECCEx, );
+	FUNC_NAME_DECLARE(func_, GenerateAgreementDataAndKeyWithECCEx, );
+
+	FUNC_NAME_DECLARE(func_, GenRandom, );
+	FUNC_NAME_DECLARE(func_, Transmit, );
+
+
+	unsigned int ulRet = 0;
+
+	unsigned int dllPathLen = BUFFER_LEN_1K;
+	char dllPathValue[BUFFER_LEN_1K] = { 0 };
+
+	DEVHANDLE hDev = NULL;
+	HAPPLICATION hAPP = NULL;
+	HCONTAINER hCon = NULL;
+
+	ulRet = SMB_CS_ReadSKFPath((char *)pCertAttr->stSKFName.data, dllPathValue, &dllPathLen);
+
+	if (0 != ulRet)
+	{
+		ulRet = EErr_SMB_DLL_REG_PATH;
+		goto err;
+	}
+
+#if defined(USE_LOAD_LIBRARY)
+	ghInst = LoadLibraryA(dllPathValue);//动态加载Dll
+#else
+	ghInst = SMB_DEV_LoadLibrary(dllPathValue);
+#endif
+
+	if (!ghInst)
+	{
+		ulRet = EErr_SMB_DLL_PATH;
+		goto err;
+	}
+
+	FUNC_NAME_INIT(func_, EnumDev, );
+	FUNC_NAME_INIT(func_, ConnectDev, );
+	FUNC_NAME_INIT(func_, DisConnectDev, );
+	FUNC_NAME_INIT(func_, ChangePIN, );
+	FUNC_NAME_INIT(func_, OpenApplication, );
+	FUNC_NAME_INIT(func_, CloseApplication, );
+	FUNC_NAME_INIT(func_, EnumApplication, );
+	FUNC_NAME_INIT(func_, ExportCertificate, );
+	FUNC_NAME_INIT(func_, EnumContainer, );
+	FUNC_NAME_INIT(func_, OpenContainer, );
+	FUNC_NAME_INIT(func_, CloseContainer, );
+	FUNC_NAME_INIT(func_, VerifyPIN, );
+	FUNC_NAME_INIT_GetContainerType(func_, GetContainerType, );
+	FUNC_NAME_INIT(func_, LockDev, );
+	FUNC_NAME_INIT(func_, UnlockDev, );
+
+	FUNC_NAME_INIT(func_, ECCSignData, );
+
+	FUNC_NAME_INIT(func_, GenRandom, );
+	FUNC_NAME_INIT(func_, Transmit, );
+
+	{
+		unsigned char bufferRandom[8] = { 0 };
+		ULONG bufferRandomLen = 8;
+
+		unsigned char szEncrypPin[BUFFER_LEN_1K] = { 0 };
+		unsigned int uiEncryptPinLen = BUFFER_LEN_1K;
+
+
+		ulRet = func_ConnectDev((char *)pCertAttr->stDeviceName.data, &hDev);
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+
+#if USE_SELF_MUTEX
+		if (ulRet = SDSCWaitMutex(mutex_buffer, INFINITE, &hMutex))
+		{
+			goto err;
+		}
+#else
+		ulRet = func_LockDev(hDev, 0xFFFFFFFF);
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+#endif
+
+		FILE_LOG_FMT(file_log_name, "func=%s thread=%d line=%d watch=%d", __FUNCTION__, GetCurrentThreadId(), __LINE__, ulRet);
+		ulRet = func_OpenApplication(hDev, (char *)pCertAttr->stApplicationName.data, &hAPP);
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+		FILE_LOG_FMT(file_log_name, "func=%s thread=%d line=%d watch=%d", __FUNCTION__, GetCurrentThreadId(), __LINE__, ulRet);
+
+		ulRet = func_OpenContainer(hAPP, (char *)pCertAttr->stContainerName.data, &hCon);
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+		else
+		{
+			OPST_HANDLE_ARGS * handleArgs = args;
+
+			if (handleArgs)
+			{
+				handleArgs->ghInst = ghInst;
+				handleArgs->hDev = hDev;
+				handleArgs->hAPP = hAPP;
+				handleArgs->hCon = hCon;
+
+				if (hCon)
+				{
+
+				}
+				else
+				{
+					ulRet = EErr_SMB_FAIL;
+					goto err;
+				}
+
+			}
+			else
+			{
+				ulRet = EErr_SMB_FAIL;
+				goto err;
+			}
+
+			return 0;
+		}
+
+		if (hCon)
+		{
+			func_CloseContainer(hCon); hCon = NULL;
+		}
+
+		ulRet = func_CloseApplication(hAPP);
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+
+#if USE_SELF_MUTEX
+		SDSCReleaseMutex(hMutex);
+#else
+		func_UnlockDev(hDev);
+#endif
+
+		ulRet = func_DisConnectDev(hDev); hDev = NULL;
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+	}
+
+err:
+
+	if (hCon)
+	{
+		func_CloseContainer(hCon); hCon = NULL;
+	}
+
+	if (hDev)
+	{
+#if USE_SELF_MUTEX
+		SDSCReleaseMutex(hMutex);
+#else
+		func_UnlockDev(hDev);
+#endif
+		func_DisConnectDev(hDev); hDev = NULL;
+	}
+
+	if (ghInst)
+	{
+#if defined(USE_FREE_GHINST)
+		FreeLibrary(ghInst);//释放Dll函数
+		ghInst = NULL;
+#endif
+	}
+
+	return ulRet;
+}
+
+unsigned int SMB_DEV_SM2SignDigestProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, unsigned int ulDataLen, PECCSIGNATUREBLOB pSignature)
+{
+	HINSTANCE ghInst = NULL;
+	unsigned int ulRet = 0;
+
+	FUNC_NAME_DECLARE(func_, ECCSignData, );
+
+	DEVHANDLE hDev = NULL;
+	HAPPLICATION hAPP = NULL;
+	HCONTAINER hCon = NULL;
+
+	OPST_HANDLE_ARGS * handleArgs = args;
+
+	if (handleArgs)
+	{
+		ghInst = (HINSTANCE)handleArgs->ghInst;
+		hDev = handleArgs->hDev;
+		hAPP = handleArgs->hAPP;
+		hCon = handleArgs->hCon;
+	}
+	else
+	{
+		return EErr_SMB_FAIL;
+	}
+
+	if (!ghInst)
+	{
+		ulRet = EErr_SMB_DLL_PATH;
+		goto err;
+	}
+
+	FUNC_NAME_INIT(func_, ECCSignData, );
+
+	{
+		if (hCon)
+		{
+			ulRet = func_ECCSignData(hCon, pbData, ulDataLen, pSignature);
+			if (0 != ulRet)
+			{
+				goto err;
+			}
+		}
+		else
+		{
+			ulRet = EErr_SMB_FAIL;
+		}
+	}
+
+err:
+
+	return ulRet;
+}
+
+unsigned int SMB_DEV_SM2SignFinalize(OPST_HANDLE_ARGS * args)
+{
+	HINSTANCE ghInst = NULL;
+	unsigned int ulRet = 0;
+
+	FUNC_NAME_DECLARE(func_, DisConnectDev, );
+	FUNC_NAME_DECLARE(func_, CloseApplication, );
+	FUNC_NAME_DECLARE(func_, CloseContainer, );
+	FUNC_NAME_DECLARE(func_, UnlockDev, );
+
+	DEVHANDLE hDev = NULL;
+	HAPPLICATION hAPP = NULL;
+	HCONTAINER hCon = NULL;
+
+	OPST_HANDLE_ARGS * handleArgs = args;
+
+
+	if (handleArgs)
+	{
+		ghInst = (HINSTANCE)handleArgs->ghInst;
+		hDev = handleArgs->hDev;
+		hAPP = handleArgs->hAPP;
+		hCon = handleArgs->hCon;
+	}
+	else
+	{
+		return EErr_SMB_FAIL;
+	}
+
+	if (!ghInst)
+	{
+		ulRet = EErr_SMB_DLL_PATH;
+		goto err;
+	}
+
+	FUNC_NAME_INIT(func_, DisConnectDev, );
+	FUNC_NAME_INIT(func_, CloseApplication, );
+	FUNC_NAME_INIT(func_, CloseContainer, );
+	FUNC_NAME_INIT(func_, UnlockDev, );
+
+err:
+
+	if (hCon)
+	{
+		func_CloseContainer(hCon); hCon = NULL;
+	}
+
+	if (hAPP)
+	{
+		func_CloseApplication(hAPP); hAPP = NULL;
+	}
+
+	if (hDev)
+	{
+#if USE_SELF_MUTEX
+		SDSCReleaseMutex(hMutex);
+#else
+		func_UnlockDev(hDev);
+#endif
+		func_DisConnectDev(hDev); hDev = NULL;
+	}
+
+	if (ghInst)
+	{
+#if defined(USE_FREE_GHINST)
+		FreeLibrary(ghInst);//释放Dll函数
+		ghInst = NULL;
+#endif
+	}
+
+	return ulRet;
+}
+
+unsigned int SMB_DEV_SM2SignDigestProcessByCertAttr(SMB_CS_CertificateAttr * pCertAttr, BYTE *pbData, unsigned int ulDataLen, PECCSIGNATUREBLOB pSignature)
+{
+	OPST_HANDLE_ARGS args = { 0 };
+	OPST_HANDLE_ARGS argsZERO = { 0 };
+	unsigned int ulRet = 0;
+
+	ulRet = SMB_DEV_ArgsGet(pCertAttr, &args);
+	if (0 != ulRet)
+	{
+		goto err;
+	}
+
+	if (0 == memcmp(&args, &argsZERO, sizeof(OPST_HANDLE_ARGS)))
+	{
+		ulRet = SMB_DEV_SM2SignInitialize(pCertAttr, &args);
+
+		SMB_DEV_ArgsPut(pCertAttr, &args);
+
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+	}
+
+
+	ulRet = SMB_DEV_SM2SignDigestProcessInner(&args, pbData, ulDataLen, pSignature);
+	if (SAR_FAIL == ulRet)
+	{
+		SMB_DEV_SM2SignFinalize(&args);
+		memcpy(&args, &argsZERO, sizeof(OPST_HANDLE_ARGS));
+		ulRet = SMB_DEV_SM2SignInitialize(pCertAttr, &args);
+
+		SMB_DEV_ArgsPut(pCertAttr, &args);
+
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+
+		ulRet = SMB_DEV_SM2SignDigestProcessInner(&args, pbData, ulDataLen, pSignature);
+
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+	}
+
+err:
+	if (ulRet)
+	{
+		SMB_DEV_SM2SignFinalize(&args);
+		SMB_DEV_ArgsClr();
+	}
+
+	return ulRet;
+}
+
+
+

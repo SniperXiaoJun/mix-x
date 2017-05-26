@@ -591,5 +591,3 @@ err:
 
 	return crv;
 }
-
-
