@@ -143,6 +143,7 @@ err:
 	if (stmt) {
 		sqlite3_reset(stmt);
 		sqlite3_finalize(stmt);
+		stmt = NULL;
 	}
 
 	sqlite3_close(sdb);
@@ -187,6 +188,7 @@ int sdb_Begin(SDB *sdb)
 	if (stmt) {
 		sqlite3_reset(stmt);
 		sqlite3_finalize(stmt);
+		stmt = NULL;
 	}
 
 err:
@@ -263,6 +265,7 @@ err:
 	if (stmt) {
 		sqlite3_reset(stmt);
 		sqlite3_finalize(stmt);
+		stmt = NULL;
 	}
 	UNLOCK_SQLITE();
 	return sqlerr;
@@ -343,6 +346,7 @@ err:
 	if (stmt) {
 		sqlite3_reset(stmt);
 		sqlite3_finalize(stmt);
+		stmt = NULL;
 	}
 	UNLOCK_SQLITE();
 
@@ -468,6 +472,7 @@ err:
 	if (stmt) {
 		sqlite3_reset(stmt);
 		sqlite3_finalize(stmt);
+		stmt = NULL;
 	}
 	UNLOCK_SQLITE();
 
@@ -722,6 +727,7 @@ err:
 	if (stmt) {
 		sqlite3_reset(stmt);
 		sqlite3_finalize(stmt);
+		stmt = NULL;
 	}
 	UNLOCK_SQLITE();
 
@@ -1056,6 +1062,7 @@ int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned int u
 	if (stmt) {
 		sqlite3_reset(stmt);
 		sqlite3_finalize(stmt);
+		stmt = NULL;
 	}
 
 	sprintf(data_value, "delete from table_certificate where id=%d", pCertCtx->uiContentID);
@@ -1088,6 +1095,7 @@ err:
 	if (stmt) {
 		sqlite3_reset(stmt);
 		sqlite3_finalize(stmt);
+		stmt = NULL;
 	}
 	UNLOCK_SQLITE();
 
@@ -1177,6 +1185,7 @@ int sdb_DelCtxFromDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx)
 	if (stmt) {
 		sqlite3_reset(stmt);
 		sqlite3_finalize(stmt);
+		stmt = NULL;
 	}
 
 	sprintf(data_value, "delete from table_certificate where id=%d", pCertCtx->uiContentID);
@@ -1209,6 +1218,7 @@ err:
 	if (stmt) {
 		sqlite3_reset(stmt);
 		sqlite3_finalize(stmt);
+		stmt = NULL;
 	}
 	UNLOCK_SQLITE();
 
@@ -1296,6 +1306,7 @@ int sdb_ClrAllCtxFromDB(SDB *sdb)
 	if (stmt) {
 		sqlite3_reset(stmt);
 		sqlite3_finalize(stmt);
+		stmt = NULL;
 	}
 
 	sprintf(data_value, "delete from table_certificate where id>%d", 0);
@@ -1328,6 +1339,7 @@ err:
 	if (stmt) {
 		sqlite3_reset(stmt);
 		sqlite3_finalize(stmt);
+		stmt = NULL;
 	}
 	UNLOCK_SQLITE();
 
