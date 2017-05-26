@@ -62,7 +62,7 @@ unsigned int OPF_Bin2Str(const unsigned char *pbIN,unsigned int uiINLen,char *pb
 }
 
 
-// Ìí¼ÓÒÑ·ÖÅäµÄÄÚ´æÖ¸Õëµ½ÁÐ±í
+// æ·»åŠ å·²åˆ†é…çš„å†…å­˜æŒ‡é’ˆåˆ°åˆ—è¡¨
 unsigned int OPF_AddMallocedHandleNodeDataToLink(OPST_HANDLE_NODE * * ppstHeader, void * pvNodeData)
 {
 	OPST_HANDLE_NODE * ptr = NULL;
@@ -82,7 +82,7 @@ unsigned int OPF_AddMallocedHandleNodeDataToLink(OPST_HANDLE_NODE * * ppstHeader
 	return 0;
 }
 
-// ÊÍ·ÅÖ¸¶¨µÄÖ¸ÕëÄÚ´æËùÔÚÁÐ±íµÄ½ÚµãÒÔ¼°Ö¸Õë±¾Éí
+// é‡Šæ”¾æŒ‡å®šçš„æŒ‡é’ˆå†…å­˜æ‰€åœ¨åˆ—è¡¨çš„èŠ‚ç‚¹ä»¥åŠæŒ‡é’ˆæœ¬èº«
 unsigned int OPF_DelAndFreeHandleNodeDataFromLink(OPST_HANDLE_NODE * * ppstHeader,  void * pvNodeData)
 {
 	OPST_HANDLE_NODE * ptr = 0, * ptr2free = 0;
@@ -99,11 +99,12 @@ unsigned int OPF_DelAndFreeHandleNodeDataFromLink(OPST_HANDLE_NODE * * ppstHeade
 		return -1;
 	}
 
-	// Í·½Úµã
+	// å¤´èŠ‚ç‚¹
 	if (pvNodeData == ptr->ptr_data)
 	{
 		ptr2free = ptr;
 		ptr = ptr->ptr_next;
+		free(ptr2free->ptr_data);
 		free(ptr2free);
 		* ppstHeader = ptr;
 	}
@@ -154,6 +155,47 @@ unsigned int OPF_ClearExistHandleNodeDataFromLink(OPST_HANDLE_NODE * * ppstHeade
 	while(* ppstHeader)
 	{
 		OPF_DelAndFreeHandleNodeDataFromLink(ppstHeader,  * ppstHeader);
+	}
+
+	return 0;
+}
+
+unsigned int OPF_DelNoFreeHandleNodeDataFromLink(OPST_HANDLE_NODE * * ppstHeader, void * pvNodeData)
+{
+	OPST_HANDLE_NODE * ptr = 0, *ptr2free = 0;
+
+	if (!ppstHeader || !pvNodeData)
+	{
+		return -1;
+	}
+
+	ptr = *ppstHeader;
+
+	if (!(*ppstHeader))
+	{
+		return -1;
+	}
+
+	// å¤´èŠ‚ç‚¹
+	if (pvNodeData == ptr->ptr_data)
+	{
+		ptr2free = ptr;
+		ptr = ptr->ptr_next;
+		free(ptr2free);
+		*ppstHeader = ptr;
+	}
+	else
+	{
+		while (ptr)
+		{
+			if (pvNodeData == ptr->ptr_next->ptr_data)
+			{
+				ptr2free = ptr->ptr_next;
+				ptr->ptr_next = ptr2free->ptr_next;
+				free(ptr2free);
+			}
+			ptr = ptr->ptr_next;
+		}
 	}
 
 	return 0;

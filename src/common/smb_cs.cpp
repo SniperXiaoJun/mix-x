@@ -781,9 +781,7 @@ unsigned int SMB_UTIL_SetCtxVendor(SMB_CS_CertificateContext *pCertCtx, unsigned
 		pCertCtx->stAttr.stVendorData.data = (unsigned char *)malloc(pCertCtx->stAttr.stVendorData.length);
 		memcpy(pCertCtx->stAttr.stVendorData.data, pVendor, pCertCtx->stAttr.stVendorData.length);
 	}
-
 err:
-
 	return ulRet;
 }
 
@@ -791,11 +789,98 @@ unsigned int SMB_CS_FreeCtx(SMB_CS_CertificateContext *pCertCtx)
 {
 	if (pCertCtx)
 	{
+		if (pCertCtx->stContent.data)
+		{
+			free(pCertCtx->stContent.data);
+			pCertCtx->stContent.data = NULL;
+		}
 
+		if (pCertCtx->stAttr.stSKFName.data)
+		{
+			free(pCertCtx->stAttr.stSKFName.data);
+			pCertCtx->stAttr.stSKFName.data = NULL;
+		}
 
+		if (pCertCtx->stAttr.stDeviceName.data)
+		{
+			free(pCertCtx->stAttr.stDeviceName.data);
+			pCertCtx->stAttr.stDeviceName.data = NULL;
+		}
+
+		if (pCertCtx->stAttr.stApplicationName.data)
+		{
+			free(pCertCtx->stAttr.stApplicationName.data);
+			pCertCtx->stAttr.stApplicationName.data = NULL;
+		}
+
+		if (pCertCtx->stAttr.stContainerName.data)
+		{
+			free(pCertCtx->stAttr.stContainerName.data);
+			pCertCtx->stAttr.stContainerName.data = NULL;
+		}
+
+		if (pCertCtx->stAttr.stCommonName.data)
+		{
+			free(pCertCtx->stAttr.stCommonName.data);
+			pCertCtx->stAttr.stCommonName.data = NULL;
+		}
+
+		if (pCertCtx->stAttr.stSubject.data)
+		{
+			free(pCertCtx->stAttr.stSubject.data);
+			pCertCtx->stAttr.stSubject.data = NULL;
+		}
+
+		if (pCertCtx->stAttr.stIssue.data)
+		{
+			free(pCertCtx->stAttr.stIssue.data);
+			pCertCtx->stAttr.stIssue.data = NULL;
+		}
+
+		if (pCertCtx->stAttr.stPublicKey.data)
+		{
+			free(pCertCtx->stAttr.stPublicKey.data);
+			pCertCtx->stAttr.stPublicKey.data = NULL;
+		}
+
+		if (pCertCtx->stAttr.stSerialNumber.data)
+		{
+			free(pCertCtx->stAttr.stSerialNumber.data);
+			pCertCtx->stAttr.stSerialNumber.data = NULL;
+		}
+
+		if (pCertCtx->stAttr.stSubjectKeyID.data)
+		{
+			free(pCertCtx->stAttr.stSubjectKeyID.data);
+			pCertCtx->stAttr.stSubjectKeyID.data = NULL;
+		}
+
+		if (pCertCtx->stAttr.stIssueKeyID.data)
+		{
+			free(pCertCtx->stAttr.stIssueKeyID.data);
+			pCertCtx->stAttr.stIssueKeyID.data = NULL;
+		}
+
+		if (pCertCtx->stAttr.stVendorData.data)
+		{
+			free(pCertCtx->stAttr.stVendorData.data);
+			pCertCtx->stAttr.stVendorData.data = NULL;
+		}
+
+		free(pCertCtx);
 		pCertCtx = NULL;
 	}
 
 	return 0;
 }
 
+unsigned int SMB_CS_FreeCtx_NODE(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
+{
+	while (*ppCertCtxNodeHeader)
+	{
+		SMB_CS_FreeCtx((*ppCertCtxNodeHeader)->ptr_data);
+		OPF_DelNoFreeHandleNodeDataFromLink((OPST_HANDLE_NODE**)ppCertCtxNodeHeader, *ppCertCtxNodeHeader);
+	}
+
+	return 0;
+}

@@ -132,6 +132,11 @@ extern "C" {
 	COMMON_API unsigned int SMB_CS_EnumCtxsFromDB(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiStoreID);
 
 	/*
+	释放证书上下文
+	*/
+	COMMON_API unsigned int SMB_CS_FreeCtx_NODE(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader);
+
+	/*
 	从数据库遍历SKF名称
 	*/
 	COMMON_API unsigned int SMB_CS_EnumSKF(char * pszSKFNames, unsigned int * puiSKFNamesLen);

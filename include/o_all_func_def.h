@@ -122,6 +122,7 @@ extern "C" {
 	// 单向列表操作
 	COMMON_API unsigned int OPF_AddMallocedHandleNodeDataToLink(OPST_HANDLE_NODE * * ppstHeader, void * pvNodeData);
 	COMMON_API unsigned int OPF_DelAndFreeHandleNodeDataFromLink(OPST_HANDLE_NODE * * ppstHeader,  void * pvNodeData);
+	COMMON_API unsigned int OPF_DelNoFreeHandleNodeDataFromLink(OPST_HANDLE_NODE * * ppstHeader, void * pvNodeData);
 	COMMON_API unsigned int OPF_CheckExistHandleNodeDataFromLink(OPST_HANDLE_NODE * * ppstHeader,  void * pvNodeData);
 	COMMON_API unsigned int OPF_ClearExistHandleNodeDataFromLink(OPST_HANDLE_NODE * * ppstHeader);
 
