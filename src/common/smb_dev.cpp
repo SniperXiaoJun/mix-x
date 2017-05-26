@@ -1876,22 +1876,6 @@ err:
 	return ulRet;
 }
 
-
-
-unsigned int SMB_DEV_IsSM2RootCert(BYTE* pbCert, unsigned int ulCertLen, unsigned int * bIRoot)
-{
-	unsigned int ulRet = 0;
-
-	*bIRoot = 0; // 不为根证
-
-err:
-
-
-	return ulRet;
-}
-
-
-
 #if (defined(WIN32) || defined(WINDOWS)) && 0
 #include "Cryptuiapi.h"
 unsigned int SMB_UI_UIDlgViewContext(BYTE* pbCert, unsigned int ulCertLen)

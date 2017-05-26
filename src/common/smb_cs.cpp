@@ -40,7 +40,7 @@ static const char ROLLBACK_CMD[] = "ROLLBACK TRANSACTION;";
 static const char CHECK_TABLE_CMD[] = "SELECT ALL * FROM %s LIMIT 0;";
 static const char *CREATE_TABLE_CMD[] =
 { "CREATE TABLE if not exists table_certificate (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, content, store_type, id_attr);"
-, "CREATE TABLE if not exists table_certificate_attr (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, cert_alg_type, cert_use_type, skf_name, device_name, application_ame, container_name, common_name, subject, isuue, public_key, serial_number, vendor_data, subject_keyid, isuue_keyid, verify, not_before, not_after);"
+, "CREATE TABLE if not exists table_certificate_attr (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, cert_alg_type, cert_use_type, skf_name, device_name, application_ame, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid, isuue_keyid, vendor_data, verify, not_before, not_after);"
 , "CREATE TABLE if not exists table_skf (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name, path, signtype);"
 , "CREATE TABLE if not exists table_pid_vid (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, pid, vid);"
 , "CREATE TABLE if not exists table_product (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name, id_skf, id_pid_vid);"
@@ -1007,4 +1007,370 @@ unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, uns
 err:
 
 	return ulRet;
+}
+
+unsigned int SMB_CS_EnumCtxsFromDB(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiStoreID)
+{
+	return SMB_CS_FindCtxsFromDB(NULL, ppCertCtxNodeHeader, uiStoreID);
+}
+
+
+int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned int uiStoreID)
+{
+	sqlite3_stmt *stmt = NULL;
+	int sqlerr = SQLITE_OK;
+	int retry = 0;
+	int i = 0;
+	char data_value[BUFFER_LEN_1K] = { 0 };
+	unsigned int data_len = 0;
+
+
+	LOCK_SQLITE();
+
+	sprintf(data_value, "delete from table_certificate_attr where id=%d", pCertCtx->uiAttrID);
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, data_value, -1, &stmt, NULL);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+
+	do {
+		sqlerr = sqlite3_step(stmt);
+
+		if (sqlerr == SQLITE_BUSY) {
+			sqlite3_sleep(SDB_BUSY_RETRY_TIME);
+		}
+
+		if (sqlerr == SQLITE_DONE)
+		{
+			sqlerr = SQLITE_OK;
+		}
+
+		if (sqlerr == SQLITE_ROW)
+		{
+
+		}
+
+	} while (!sdb_done(sqlerr, &retry));
+
+	if (stmt) {
+		sqlite3_reset(stmt);
+		sqlite3_finalize(stmt);
+	}
+
+	sprintf(data_value, "delete from table_certificate where id=%d", pCertCtx->uiContentID);
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, data_value, -1, &stmt, NULL);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+
+	do {
+		sqlerr = sqlite3_step(stmt);
+
+		if (sqlerr == SQLITE_BUSY) {
+			sqlite3_sleep(SDB_BUSY_RETRY_TIME);
+		}
+
+		if (sqlerr == SQLITE_DONE)
+		{
+			sqlerr = SQLITE_OK;
+		}
+
+		if (sqlerr == SQLITE_ROW)
+		{
+
+		}
+
+	} while (!sdb_done(sqlerr, &retry));
+
+err:
+	if (stmt) {
+		sqlite3_reset(stmt);
+		sqlite3_finalize(stmt);
+	}
+	UNLOCK_SQLITE();
+
+	if (!sqlerr)
+	{
+
+	}
+
+	return sqlerr;
+}
+
+unsigned int SMB_CS_AddCtxToDB(SMB_CS_CertificateContext *pCertCtx, unsigned int uiStoreID)
+{
+
+	unsigned int ulRet = -1;
+	char data_value[BUFFER_LEN_1K] = { 0 };
+	unsigned int data_len = 0;
+	int crv = 0;
+	SDB sdb = { 0 };
+
+	sdb.sdb_path = smb_db_path;
+
+	crv = sdb_Begin(&sdb);
+	if (crv)
+	{
+		goto err;
+	}
+
+	crv = sdb_AddCtxToDB(&sdb, pCertCtx, uiStoreID);
+	if (crv)
+	{
+		goto err;
+	}
+
+err:
+
+	if (crv)
+	{
+		sdb_Abort(&sdb);
+	}
+	else
+	{
+		sdb_Commit(&sdb);
+	}
+
+	return crv;
+}
+
+int sdb_DelCtxFromDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx)
+{
+	sqlite3_stmt *stmt = NULL;
+	int sqlerr = SQLITE_OK;
+	int retry = 0;
+	int i = 0;
+	char data_value[BUFFER_LEN_1K] = { 0 };
+	unsigned int data_len = 0;
+
+	
+	LOCK_SQLITE();
+
+	sprintf(data_value, "delete from table_certificate_attr where id=%d", pCertCtx->uiAttrID);
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, data_value, -1, &stmt, NULL);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+
+	do {
+		sqlerr = sqlite3_step(stmt);
+
+		if (sqlerr == SQLITE_BUSY) {
+			sqlite3_sleep(SDB_BUSY_RETRY_TIME);
+		}
+
+		if (sqlerr == SQLITE_DONE)
+		{
+			sqlerr = SQLITE_OK;
+		}
+
+		if (sqlerr == SQLITE_ROW)
+		{
+
+		}
+
+	} while (!sdb_done(sqlerr, &retry));
+
+	if (stmt) {
+		sqlite3_reset(stmt);
+		sqlite3_finalize(stmt);
+	}
+
+	sprintf(data_value, "delete from table_certificate where id=%d", pCertCtx->uiContentID);
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, data_value, -1, &stmt, NULL);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+
+	do {
+		sqlerr = sqlite3_step(stmt);
+
+		if (sqlerr == SQLITE_BUSY) {
+			sqlite3_sleep(SDB_BUSY_RETRY_TIME);
+		}
+
+		if (sqlerr == SQLITE_DONE)
+		{
+			sqlerr = SQLITE_OK;
+		}
+
+		if (sqlerr == SQLITE_ROW)
+		{
+
+		}
+
+	} while (!sdb_done(sqlerr, &retry));
+
+err:
+	if (stmt) {
+		sqlite3_reset(stmt);
+		sqlite3_finalize(stmt);
+	}
+	UNLOCK_SQLITE();
+
+	if (!sqlerr)
+	{
+
+	}
+
+	return sqlerr;
+}
+
+unsigned int SMB_CS_DelCtxFromDB(SMB_CS_CertificateContext *pCertCtx)
+{
+	char data_value[BUFFER_LEN_1K] = { 0 };
+	unsigned int data_len = 0;
+	int crv = 0;
+	SDB sdb = { 0 };
+
+	sdb.sdb_path = smb_db_path;
+
+	crv = sdb_Begin(&sdb);
+	if (crv)
+	{
+		goto err;
+	}
+
+	crv = sdb_DelCtxFromDB(&sdb, pCertCtx);
+	if (crv)
+	{
+		goto err;
+	}
+err:
+
+	if (crv)
+	{
+		sdb_Abort(&sdb);
+	}
+	else
+	{
+		sdb_Commit(&sdb);
+	}
+
+	return crv;
+}
+
+
+int sdb_ClrAllCtxFromDB(SDB *sdb)
+{
+	sqlite3_stmt *stmt = NULL;
+	int sqlerr = SQLITE_OK;
+	int retry = 0;
+	int i = 0;
+	char data_value[BUFFER_LEN_1K] = { 0 };
+	unsigned int data_len = 0;
+
+
+	LOCK_SQLITE();
+
+	sprintf(data_value, "delete from table_certificate_attr where id>%d", 0);
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, data_value, -1, &stmt, NULL);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+
+	do {
+		sqlerr = sqlite3_step(stmt);
+
+		if (sqlerr == SQLITE_BUSY) {
+			sqlite3_sleep(SDB_BUSY_RETRY_TIME);
+		}
+
+		if (sqlerr == SQLITE_DONE)
+		{
+			sqlerr = SQLITE_OK;
+		}
+
+		if (sqlerr == SQLITE_ROW)
+		{
+
+		}
+
+	} while (!sdb_done(sqlerr, &retry));
+
+	if (stmt) {
+		sqlite3_reset(stmt);
+		sqlite3_finalize(stmt);
+	}
+
+	sprintf(data_value, "delete from table_certificate where id>%d", 0);
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, data_value, -1, &stmt, NULL);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+
+	do {
+		sqlerr = sqlite3_step(stmt);
+
+		if (sqlerr == SQLITE_BUSY) {
+			sqlite3_sleep(SDB_BUSY_RETRY_TIME);
+		}
+
+		if (sqlerr == SQLITE_DONE)
+		{
+			sqlerr = SQLITE_OK;
+		}
+
+		if (sqlerr == SQLITE_ROW)
+		{
+
+		}
+
+	} while (!sdb_done(sqlerr, &retry));
+
+err:
+	if (stmt) {
+		sqlite3_reset(stmt);
+		sqlite3_finalize(stmt);
+	}
+	UNLOCK_SQLITE();
+
+	if (!sqlerr)
+	{
+
+	}
+
+	return sqlerr;
+}
+
+unsigned int SMB_CS_ClrAllCtxFromDB()
+{
+	unsigned int ulRet = -1;
+	char data_value[BUFFER_LEN_1K] = { 0 };
+	unsigned int data_len = 0;
+	int crv = 0;
+	SDB sdb = { 0 };
+
+	sdb.sdb_path = smb_db_path;
+
+	crv = sdb_Begin(&sdb);
+	if (crv)
+	{
+		goto err;
+	}
+
+	crv = sdb_ClrAllCtxFromDB(&sdb);
+	if (crv)
+	{
+		goto err;
+	}
+
+err:
+
+	if (crv)
+	{
+		sdb_Abort(&sdb);
+	}
+	else
+	{
+		sdb_Commit(&sdb);
+	}
+
+	return crv;
 }

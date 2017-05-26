@@ -98,6 +98,8 @@ typedef struct _SMB_CS_CertificateContext
 {
 	SMB_CS_CertificateAttr     stAttr;      // 证书属性
 	SMB_CS_CertificateContent  stContent;   // 证书内容
+	int uiContentID;
+	int uiAttrID;
 }SMB_CS_CertificateContext;
 
 typedef struct _SMB_CS_CertificateContext_NODE
@@ -161,7 +163,7 @@ extern "C" {
 	/*
 	清空数据库
 	*/
-	COMMON_API unsigned int SMB_CS_ClrAllFromDB();
+	COMMON_API unsigned int SMB_CS_ClrAllCtxFromDB();
 
 	/*
 	从数据库查找证书
@@ -197,8 +199,6 @@ extern "C" {
 	通过证书获取上下文
 	*/
 	COMMON_API unsigned int SMB_CS_GetCtxByCert(SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen);
-
-
 
 	/*
 	工具类xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
