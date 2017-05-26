@@ -3,10 +3,13 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "sqlite3.h"
 #include "smcert.h"
 #include "o_all_func_def.h"
+#include "certificate_items_parse.h"
+#include "openssl_func_def.h"
 
 /*
 defines
@@ -883,4 +886,125 @@ unsigned int SMB_CS_FreeCtx_NODE(SMB_CS_CertificateContext_NODE **ppCertCtxNodeH
 	}
 
 	return 0;
+}
+
+
+unsigned int SMB_CS_GetCtxByCert(SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen)
+{
+	return 0;
+}
+
+
+unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, unsigned int uiCertLen)
+{
+	unsigned int ulRet = 0;
+
+	unsigned int ulAlgType = 0;
+
+	CertificateItemParse certParse;
+
+	SMB_CS_CertificateContext *ctx = NULL;
+
+	SMB_CS_CertificateContext_NODE * ctxHeader;
+
+	certParse.setCertificate(pbCert, uiCertLen);
+	certParse.parse();
+
+	ulAlgType = certParse.m_iKeyAlg;
+
+
+	// 创建上下文 
+	SMB_CS_CreateCtx(&ctx, pbCert, uiCertLen);
+
+	if (!ctx)
+	{
+		ulRet = EErr_SMB_CREATE_CERT_CONTEXT;
+		goto err;
+	}
+	// TIME
+	if (CERT_VERIFY_TIME_FLAG & ulFlag)
+	{
+		time_t time_now;
+		time(&time_now);
+
+		if (time_now > certParse.m_tNotAfter || time_now < certParse.m_tNotBefore)
+		{
+			ulRet = EErr_SMB_VERIFY_TIME;
+			goto err;
+		}
+	}
+	// SIGN CERT
+	if (CERT_VERIFY_CHAIN_FLAG & ulFlag)
+	{
+		// 查找颁发者证书
+		SMB_CS_CertificateFindAttr findAttr = { 0 };
+
+		findAttr.uiFindFlag = 7;
+
+		SMB_CS_FindCtxsFromDB(&findAttr, &ctxHeader, 1);
+
+		if (NULL != ctxHeader)
+		{
+			// 验证颁发者证书
+			if (0 == memcmp(ctxHeader->ptr_data->stContent.data, pbCert, uiCertLen))
+			{
+
+			}
+			else
+			{
+				// 验证上级证书
+				ulRet = SMB_UTIL_VerifyCert(ulFlag, ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length);
+				if (ulRet)
+				{
+					goto err;
+				}
+			}
+			switch (ulAlgType)
+			{
+			case CERT_ALG_RSA_FLAG:
+			{
+				ulRet = OpenSSL_VerifyCert(pbCert, uiCertLen, ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length);
+				if (ulRet)
+				{
+					ulRet = EErr_SMB_VERIFY_CERT;
+					goto err;
+				}
+				else
+				{
+					ulRet = 0;
+				}
+				break;
+			}
+			case CERT_ALG_SM2_FLAG:
+			{
+				ulRet = OpenSSL_SM2VerifyCert(pbCert, uiCertLen, 0, ctxHeader->ptr_data->stAttr.stPublicKey.data + 4, 32, ctxHeader->ptr_data->stAttr.stPublicKey.data + 4 + 32, 32);
+				if (ulRet)
+				{
+					ulRet = EErr_SMB_VERIFY_CERT;
+					goto err;
+				}
+				else
+				{
+					ulRet = 0;
+				}
+				break;
+			}
+			default:
+				break;
+			}
+		}
+		else
+		{
+			ulRet = EErr_SMB_NO_CERT_CHAIN;
+			goto err;
+		}
+	}
+	//CRL
+	if (CERT_VERIFY_CRL_FLAG & ulFlag)
+	{
+
+	}
+err:
+
+	return ulRet;
 }

@@ -18,7 +18,6 @@ FILE(GLOB
   ${CMAKE_SOURCE_DIR}/common/modp_b64.c 
   ${CMAKE_SOURCE_DIR}/common/o_all_func_def.c 
   ${CMAKE_SOURCE_DIR}/common/openssl_func_def.c 
-  ${CMAKE_SOURCE_DIR}/common/smb_dev.c 
   )
 
 FILE(GLOB 

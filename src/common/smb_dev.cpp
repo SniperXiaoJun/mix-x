@@ -11,6 +11,12 @@
 #include "SKFError.h"
 #include "certificate_items_parse.h"
 
+#if USE_SELF_MUTEX
+#include "SDSCMutex.h"
+static char mutex_buffer[25] = "mutex_smc_interface";
+HANDLE hMutex = 0;
+#endif
+
 typedef struct _OPST_HANDLE_ARGS {
 	void*ghInst;
 	void*hDev;
@@ -1206,7 +1212,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 					{
 						if (ulVerifyFlag)
 						{
-							ulRet = SMB_DEV_VerifyCert(ulVerifyFlag, pTmp, nValueLen);
+							ulRet = SMB_UTIL_VerifyCert(ulVerifyFlag, pTmp, nValueLen);
 
 							if (ulRet)
 							{
@@ -1299,7 +1305,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 					{
 						if (ulVerifyFlag)
 						{
-							ulRet = SMB_DEV_VerifyCert(ulVerifyFlag, pTmp, nValueLen);
+							ulRet = SMB_UTIL_VerifyCert(ulVerifyFlag, pTmp, nValueLen);
 
 							if (ulRet)
 							{
@@ -1445,120 +1451,6 @@ err:
 	{
 		free(pTmp);
 	}
-
-	return ulRet;
-}
-
-unsigned int SMB_DEV_VerifyCert(unsigned int ulFlag, BYTE* pbCert, unsigned int uiCertLen)
-{
-	unsigned int ulRet = 0;
-
-	unsigned int ulAlgType = 0;
-
-	CertificateItemParse certParse;
-
-	SMB_CS_CertificateContext *ctx = NULL;
-
-	SMB_CS_CertificateContext_NODE * ctxHeader;
-
-	certParse.setCertificate(pbCert, uiCertLen);
-	certParse.parse();
-
-	ulAlgType = certParse.m_iKeyAlg;
-
-
-	// 创建上下文 
-	SMB_CS_CreateCtx(&ctx, pbCert, uiCertLen);
-		
-	if (!ctx)
-	{
-		ulRet = EErr_SMB_CREATE_CERT_CONTEXT;
-		goto err;
-	}
-	// TIME
-	if (CERT_VERIFY_TIME_FLAG & ulFlag)
-	{
-		time_t time_now;
-		time(&time_now);
-
-		if (time_now > certParse.m_tNotAfter || time_now < certParse.m_tNotBefore)
-		{
-			ulRet = EErr_SMB_VERIFY_TIME;
-			goto err;
-		}
-	}
-	// SIGN CERT
-	if (CERT_VERIFY_CHAIN_FLAG & ulFlag)
-	{
-		// 查找颁发者证书
-		SMB_CS_CertificateFindAttr findAttr = {0};
-
-		findAttr.uiFindFlag = 7;
-
-		SMB_CS_FindCtxsFromDB(&findAttr, &ctxHeader, 1);
-
-		if (NULL != ctxHeader)
-		{
-			// 验证颁发者证书
-			if (0 == memcmp(ctxHeader->ptr_data->stContent.data, pbCert, uiCertLen))
-			{
-
-			}
-			else
-			{
-				// 验证上级证书
-				ulRet = SMB_DEV_VerifyCert(ulFlag, ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length);
-				if (ulRet)
-				{
-					goto err;
-				}
-			}
-			switch (ulAlgType)
-			{
-			case CERT_ALG_RSA_FLAG:
-			{
-				ulRet = OpenSSL_VerifyCert(pbCert, uiCertLen, ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length);
-				if (ulRet)
-				{
-					ulRet = EErr_SMB_VERIFY_CERT;
-					goto err;
-				}
-				else
-				{
-					ulRet = 0;
-				}
-				break;
-			}
-			case CERT_ALG_SM2_FLAG:
-			{
-				ulRet = OpenSSL_SM2VerifyCert(pbCert, uiCertLen, 0, ctxHeader->ptr_data->stAttr.stPublicKey.data + 4, 32, ctxHeader->ptr_data->stAttr.stPublicKey.data + 4 + 32, 32);
-				if (ulRet)
-				{
-					ulRet = EErr_SMB_VERIFY_CERT;
-					goto err;
-				}
-				else
-				{
-					ulRet = 0;
-				}
-				break;
-			}
-			default:
-				break;
-			}
-		}
-		else
-		{
-			ulRet = EErr_SMB_NO_CERT_CHAIN;
-			goto err;
-		}
-	}
-	//CRL
-	if (CERT_VERIFY_CRL_FLAG & ulFlag)
-	{
-
-	}
-err:
 
 	return ulRet;
 }
@@ -1999,4 +1891,314 @@ err:
 }
 
 
+
+#if (defined(WIN32) || defined(WINDOWS)) && 0
+#include "Cryptuiapi.h"
+unsigned int SMB_UI_UIDlgViewContext(BYTE* pbCert, unsigned int ulCertLen)
+{
+	//2.获取CertContext
+	PCCERT_CONTEXT pCertContext = NULL;
+	unsigned int ulRet = 0;
+
+	pCertContext = CertCreateCertificateContext(X509_ASN_ENCODING, pbCert, ulCertLen);
+
+	if (NULL == pCertContext)
+	{
+		ulRet = EErr_SMB_CREATE_CERT_CONTEXT;
+		goto err;
+	}
+
+	CryptUIDlgViewContext(CERT_STORE_CERTIFICATE_CONTEXT, pCertContext, GetForegroundWindow(), NULL, 0, NULL);
+
+err:
+	if (pCertContext)
+	{
+		CertFreeCertificateContext(pCertContext);
+	}
+
+	return ulRet;
+}
+#endif
+
+COMMON_API unsigned int SMB_DEV_SM2GetAgreementKey(
+	_In_ SMB_CS_CertificateAttr *pCertAttr,
+	_In_ ULONG ulAlgId,
+	_Out_ ECCPUBLICKEYBLOB *pTempECCPubKeyBlobA,
+	_In_ BYTE* pbIDA,
+	_In_ ULONG ulIDALen,
+	_In_ ECCPUBLICKEYBLOB *pECCPubKeyBlobB,
+	_In_ ECCPUBLICKEYBLOB *pTempECCPubKeyBlobB,
+	_In_ BYTE* pbIDB,
+	_In_ ULONG ulIDBLen,
+	_Out_ BYTE *pbAgreementKey,
+	_Inout_ ULONG *pulAgreementKeyLen,
+	_In_ char * pszPIN,
+	_Inout_ ULONG * puiRetryCount)
+{
+	HINSTANCE ghInst = NULL;
+
+	/*
+	SKF函数地址
+	*/
+
+	FUNC_NAME_DECLARE(func_, EnumDev, );
+	FUNC_NAME_DECLARE(func_, ConnectDev, );
+	FUNC_NAME_DECLARE(func_, DisConnectDev, );
+	FUNC_NAME_DECLARE(func_, ChangePIN, );
+	FUNC_NAME_DECLARE(func_, OpenApplication, );
+	FUNC_NAME_DECLARE(func_, CloseApplication, );
+	FUNC_NAME_DECLARE(func_, EnumApplication, );
+	FUNC_NAME_DECLARE(func_, ExportCertificate, );
+	FUNC_NAME_DECLARE(func_, EnumContainer, );
+	FUNC_NAME_DECLARE(func_, OpenContainer, );
+	FUNC_NAME_DECLARE(func_, CloseContainer, );
+	FUNC_NAME_DECLARE(func_, VerifyPIN, );
+	FUNC_NAME_DECLARE(func_, GetContainerType, );
+	FUNC_NAME_DECLARE(func_, ECCSignData, );
+	FUNC_NAME_DECLARE(func_, ECCVerify, );
+	FUNC_NAME_DECLARE(func_, ExtECCVerify, );
+	FUNC_NAME_DECLARE(func_, GetDevInfo, );
+	FUNC_NAME_DECLARE(func_, LockDev, );
+	FUNC_NAME_DECLARE(func_, UnlockDev, );
+
+	FUNC_NAME_DECLARE(func_, GenerateKeyWithECCEx, );
+	FUNC_NAME_DECLARE(func_, GenerateAgreementDataWithECC, );
+	FUNC_NAME_DECLARE(func_, GenerateAgreementDataWithECCEx, );
+	FUNC_NAME_DECLARE(func_, GenerateAgreementDataAndKeyWithECCEx, );
+
+	unsigned int ulRet = 0;
+
+
+	unsigned int dllPathLen = BUFFER_LEN_1K;
+	char dllPathValue[BUFFER_LEN_1K] = { 0 };
+
+	DEVHANDLE hDev = NULL;
+	HAPPLICATION hAPP = NULL;
+	HCONTAINER hCon = NULL;
+	HANDLE hAgreementHandle = NULL;
+
+	ulRet = SMB_CS_ReadSKFPath((char *)pCertAttr->stSKFName.data, dllPathValue, &dllPathLen);
+
+	if (0 != ulRet)
+	{
+		ulRet = EErr_SMB_DLL_REG_PATH;
+		goto err;
+	}
+
+#if defined(USE_LOAD_LIBRARY)
+	ghInst = LoadLibraryA(dllPathValue);//动态加载Dll
+#else
+	ghInst = SMB_DEV_LoadLibrary(dllPathValue);
+#endif
+
+	if (!ghInst)
+	{
+		ulRet = EErr_SMB_DLL_PATH;
+		goto err;
+	}
+
+	FUNC_NAME_INIT(func_, EnumDev, );
+	FUNC_NAME_INIT(func_, ConnectDev, );
+	FUNC_NAME_INIT(func_, DisConnectDev, );
+	FUNC_NAME_INIT(func_, ChangePIN, );
+	FUNC_NAME_INIT(func_, OpenApplication, );
+	FUNC_NAME_INIT(func_, CloseApplication, );
+	FUNC_NAME_INIT(func_, EnumApplication, );
+	FUNC_NAME_INIT(func_, ExportCertificate, );
+	FUNC_NAME_INIT(func_, EnumContainer, );
+	FUNC_NAME_INIT(func_, OpenContainer, );
+	FUNC_NAME_INIT(func_, CloseContainer, );
+	FUNC_NAME_INIT(func_, VerifyPIN, );
+	FUNC_NAME_INIT_GetContainerType(func_, GetContainerType, );
+	FUNC_NAME_INIT(func_, ECCSignData, );
+
+	FUNC_NAME_INIT(func_, GenerateKeyWithECCEx, );
+	FUNC_NAME_INIT(func_, GenerateAgreementDataWithECC, );
+	FUNC_NAME_INIT(func_, GenerateAgreementDataWithECCEx, );
+	FUNC_NAME_INIT(func_, GenerateAgreementDataAndKeyWithECCEx, );
+
+	FUNC_NAME_INIT(func_, LockDev, );
+	FUNC_NAME_INIT(func_, UnlockDev, );
+
+	{
+		ulRet = func_ConnectDev((char*)pCertAttr->stDeviceName.data, &hDev);
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+
+#if USE_SELF_MUTEX
+		if (ulRet = SDSCWaitMutex(mutex_buffer, INFINITE, &hMutex))
+		{
+			goto err;
+		}
+#else
+		ulRet = func_LockDev(hDev, 0xFFFFFFFF);
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+#endif
+
+		ulRet = func_OpenApplication(hDev, (char *)pCertAttr->stApplicationName.data, &hAPP);
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+
+		ulRet = func_VerifyPIN(hAPP, 1, pszPIN, puiRetryCount);
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+
+		ulRet = func_OpenContainer(hAPP, (char*)pCertAttr->stContainerName.data, &hCon);
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+
+#if  0
+		//send
+		ulRet = func_GenerateAgreementDataWithECCEx(hCon, ulAlgId, pTempECCPubKeyBlobA, pbIDA, ulIDALen, &hAgreementHandle);
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+
+		ulRet = func_GenerateKeyWithECCEx(hAgreementHandle, pECCPubKeyBlobB, pTempECCPubKeyBlobB, pbIDB, ulIDBLen, pbAgreementKey, pulAgreementKeyLen);
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+#else
+		//re
+		ulRet = func_GenerateAgreementDataAndKeyWithECCEx(hCon, ulAlgId, pECCPubKeyBlobB, pTempECCPubKeyBlobB, pTempECCPubKeyBlobA, pbIDB, ulIDBLen, pbIDA, ulIDALen, pbAgreementKey, pulAgreementKeyLen);
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+#endif
+		ulRet = func_CloseContainer(hCon);
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+
+		ulRet = func_CloseApplication(hAPP);
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+
+#if USE_SELF_MUTEX
+		SDSCReleaseMutex(hMutex);
+#else
+		func_UnlockDev(hDev);
+#endif
+
+		ulRet = func_DisConnectDev(hDev); hDev = NULL;
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+	}
+
+err:
+
+	if (hDev)
+	{
+#if USE_SELF_MUTEX
+		SDSCReleaseMutex(hMutex);
+#else
+		func_UnlockDev(hDev);
+#endif
+		func_DisConnectDev(hDev); hDev = NULL;
+	}
+
+	if (ghInst)
+	{
+#if defined(USE_FREE_GHINST)
+		FreeLibrary(ghInst);//释放Dll函数
+		ghInst = NULL;
+#endif
+	}
+
+	return ulRet;
+}
+
+COMMON_API unsigned int SMB_DEV_SM2GetAgreementKeyEx(
+	_In_ BYTE* pbCert,
+	_In_ unsigned int ulCertLen,
+	_In_ int ulAlgId,
+	_Out_ BYTE* pbTempECCPubKeyBlobA,
+	_Inout_ int *pulTempECCPubKeyBlobALen,
+	_In_ BYTE* pbIDA,
+	_In_ int ulIDALen,
+	_In_ BYTE* pbECCPubKeyBlobB,
+	_In_ int  ulECCPubKeyBlobBLen,
+	_In_ BYTE* pbTempECCPubKeyBlobB,
+	_In_ int  ulTempECCPubKeyBlobBLen,
+	_In_ BYTE* pbIDB,
+	_In_ int ulIDBLen,
+	_Out_ BYTE *pbAgreementKey,
+	_Inout_ ULONG *pulAgreementKeyLen,
+	_In_ char * pszPIN,
+	_Inout_ ULONG * puiRetryCount)
+{
+	SMB_CS_CertificateContext *pCertCtx = NULL;
+
+	ECCPUBLICKEYBLOB  pTempECCPubKeyBlobA = { 0 };
+	ECCPUBLICKEYBLOB  pECCPubKeyBlobB = { 0 };
+	ECCPUBLICKEYBLOB  pTempECCPubKeyBlobB = { 0 };
+	ECCPUBLICKEYBLOB  pTemp = { 0 };
+
+	unsigned int		uiRet = 0;
+
+	unsigned int		uiECCBitLen = 256;
+	unsigned int		uiECCLen = uiECCBitLen / 8;
+
+	uiRet = SMB_CS_GetCtxByCert(&pCertCtx, pbCert, ulCertLen);
+	if (0 != uiRet)
+	{
+		return uiRet;
+	}
+	pCertCtx->stAttr.ucCertUsageType = 2;
+
+	//04 + X + Y
+	pECCPubKeyBlobB.BitLen = uiECCBitLen;
+	memcpy(pECCPubKeyBlobB.XCoordinate + 64 - uiECCLen, pbECCPubKeyBlobB + 1, uiECCLen);
+	memcpy(pECCPubKeyBlobB.YCoordinate + 64 - uiECCLen, pbECCPubKeyBlobB + 1 + uiECCLen, uiECCLen);
+
+	pTempECCPubKeyBlobB.BitLen = uiECCBitLen;
+	memcpy(pTempECCPubKeyBlobB.XCoordinate + 64 - uiECCLen, pbTempECCPubKeyBlobB + 1, uiECCLen);
+	memcpy(pTempECCPubKeyBlobB.YCoordinate + 64 - uiECCLen, pbTempECCPubKeyBlobB + 1 + uiECCLen, uiECCLen);
+
+	uiRet = SMB_DEV_SM2GetAgreementKey(&(pCertCtx->stAttr), ulAlgId, &pTempECCPubKeyBlobA, pbIDA, ulIDALen,
+		&pECCPubKeyBlobB, &pTempECCPubKeyBlobB, pbIDB, ulIDBLen,
+		pbAgreementKey, pulAgreementKeyLen, pszPIN, puiRetryCount);
+	if (0 != uiRet)
+	{
+		return uiRet;
+	}
+
+	if (NULL == pbTempECCPubKeyBlobA)
+	{
+		*pulTempECCPubKeyBlobALen = 0x41;
+		return uiRet;
+	}
+
+	if ((*pulTempECCPubKeyBlobALen) < 0x41)
+	{
+		*pulTempECCPubKeyBlobALen = 0x41;
+		return EErr_SMB_MEM_LES;
+	}
+
+	*pulTempECCPubKeyBlobALen = 0x41;
+	memcpy(pbTempECCPubKeyBlobA, "\x04", 1);
+	memcpy(pbTempECCPubKeyBlobA + 1, pTempECCPubKeyBlobA.XCoordinate + 64 - uiECCLen, uiECCLen);
+	memcpy(pbTempECCPubKeyBlobA + 1 + uiECCLen, pTempECCPubKeyBlobA.YCoordinate + 64 - uiECCLen, uiECCLen);
+
+	return uiRet;
+}
 
