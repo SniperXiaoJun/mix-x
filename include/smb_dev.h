@@ -7,48 +7,48 @@
 #include "SKFInterface.h"
 
 
-// Ö¤Êé(ÃÜÔ¿ÀàÐÍ±êÖ¾) ¿ÉÒÔ×ö°´Î»Óë²Ù×÷
+// è¯ä¹¦(å¯†é’¥ç±»åž‹æ ‡å¿—) å¯ä»¥åšæŒ‰ä½ä¸Žæ“ä½œ
 typedef enum _SMB_DEV_CERT_ALG_FLAG
 {
-	CERT_ALG_RSA_FLAG = 0x00000001,		// RSAÖ¤Êé
-	CERT_ALG_SM2_FLAG = 0x00000002,		// SM2Ö¤Êé
+	CERT_ALG_RSA_FLAG = 0x00000001,		// RSAè¯ä¹¦
+	CERT_ALG_SM2_FLAG = 0x00000002,		// SM2è¯ä¹¦
 
 }SMB_DEV_CERT_ALG_TYPE;
 
-// Ö¤Êé(Ç©Ãû|¼ÓÃÜ±êÖ¾) ¿ÉÒÔ×ö°´Î»Óë²Ù×÷
+// è¯ä¹¦(ç­¾å|åŠ å¯†æ ‡å¿—) å¯ä»¥åšæŒ‰ä½ä¸Žæ“ä½œ
 typedef enum _SMB_DEV_CERT_USAGE_FLAG
 {
-	CERT_SIGN_FLAG = 0x00000001,		// Ç©ÃûÖ¤Êé
-	CERT_EX_FLAG = 0x00000002,		// ¼ÓÃÜÖ¤Êé
+	CERT_SIGN_FLAG = 0x00000001,		// ç­¾åè¯ä¹¦
+	CERT_EX_FLAG = 0x00000002,		// åŠ å¯†è¯ä¹¦
 
 }SMB_DEV_CERT_USAGE_FLAG;
 
-// Ö¤Êé(ÑéÖ¤±êÖ¾) ¿ÉÒÔ×ö°´Î»Óë²Ù×÷
+// è¯ä¹¦(éªŒè¯æ ‡å¿—) å¯ä»¥åšæŒ‰ä½ä¸Žæ“ä½œ
 typedef enum _SMB_DEV_CERT_VERIFY_FLAG
 {
-	CERT_NOT_VERIFY_FLAG = 0x00000000,		// ²»ÑéÖ¤
-	CERT_VERIFY_TIME_FLAG = 0x00000001,		// Ê¹ÓÃ±¾µØµ±Ç°Ê±¼äÑéÖ¤ÓÐÐ§ÆÚ
-	CERT_VERIFY_CHAIN_FLAG = 0x00000002,		// ÑéÖ¤Ö¤ÊéÁ´ÒÔ¼°Ç©Ãû
-	CERT_VERIFY_CRL_FLAG = 0x00000004,		// ÉÐÎ´ÊµÏÖ
+	CERT_NOT_VERIFY_FLAG = 0x00000000,		// ä¸éªŒè¯
+	CERT_VERIFY_TIME_FLAG = 0x00000001,		// ä½¿ç”¨æœ¬åœ°å½“å‰æ—¶é—´éªŒè¯æœ‰æ•ˆæœŸ
+	CERT_VERIFY_CHAIN_FLAG = 0x00000002,		// éªŒè¯è¯ä¹¦é“¾ä»¥åŠç­¾å
+	CERT_VERIFY_CRL_FLAG = 0x00000004,		// å°šæœªå®žçŽ°
 
 }SMB_DEV_CERT_VERIFY_FLAG;
 
-// ÑéÖ¤½á¹û
+// éªŒè¯ç»“æžœ
 typedef enum _SMB_DEV_CERT_VERIFY_RESULT_FLAG
 {
-	CERT_VERIFY_RESULT_FLAG_OK = 0x00000000,		// ÑéÖ¤³É¹¦
-	CERT_VERIFY_RESULT_TIME_INVALID = 0x00000001,		// ²»ÔÚÓÐÐ§ÆÚ
-	CERT_VERIFY_RESULT_CHAIN_INVALID = 0x00000002,		// Ö¤ÊéÁ´Òì³£
-	CERT_VERIFY_RESULT_SIGN_INVALID = 0x00000003,		// ·Ç·¨ÓÃ»§Ö¤Êé
-	CERT_VERIFY_RESULT_CRL_INVALID = 0x00000004,		// ÉÐÎ´¼ÓÈë
+	CERT_VERIFY_RESULT_FLAG_OK = 0x00000000,		// éªŒè¯æˆåŠŸ
+	CERT_VERIFY_RESULT_TIME_INVALID = 0x00000001,		// ä¸åœ¨æœ‰æ•ˆæœŸ
+	CERT_VERIFY_RESULT_CHAIN_INVALID = 0x00000002,		// è¯ä¹¦é“¾å¼‚å¸¸
+	CERT_VERIFY_RESULT_SIGN_INVALID = 0x00000003,		// éžæ³•ç”¨æˆ·è¯ä¹¦
+	CERT_VERIFY_RESULT_CRL_INVALID = 0x00000004,		// å°šæœªåŠ å…¥
 
 }SMB_DEV_CERT_VERIFY_RESULT_FLAG;
 
 
 typedef enum _SMB_DEV_CERT_FILTER_FLAG
 {
-	CERT_FILTER_FLAG_FALSE = 0x00000000,		// ²»¹ýÂË
-	CERT_FILTER_FLAG_TRUE = 0x00000001,		// ¹ýÂË
+	CERT_FILTER_FLAG_FALSE = 0x00000000,		// ä¸è¿‡æ»¤
+	CERT_FILTER_FLAG_TRUE = 0x00000001,		// è¿‡æ»¤
 }SMB_DEV_CERT_FILTER_FLAG;
 
 
@@ -57,65 +57,65 @@ extern "C" {
 #endif
 
 	/*
-	¹¦ÄÜÃû³Æ:	Í¨¹ýSKFÃ¶¾ÙÖ¤Êé
-	º¯ÊýÃû³Æ:	SMB_DEV_EnumCertBySKF
-	ÊäÈë²ÎÊý:
-		pszSKFName SKF¿â(±ØÐëÖ¸¶¨)
+	åŠŸèƒ½åç§°:	é€šè¿‡SKFæžšä¸¾è¯ä¹¦
+	å‡½æ•°åç§°:	SMB_DEV_EnumCertBySKF
+	è¾“å…¥å‚æ•°:
+		pszSKFName SKFåº“(å¿…é¡»æŒ‡å®š)
 		uiKeyFlag
-		Ö¤Êé(ÃÜÔ¿ÀàÐÍ±êÖ¾) ¿ÉÒÔ×ö°´Î»Óë²Ù×÷
-		²Î¼û SMB_DEV_CERT_ALG_FLAG
+		è¯ä¹¦(å¯†é’¥ç±»åž‹æ ‡å¿—) å¯ä»¥åšæŒ‰ä½ä¸Žæ“ä½œ
+		å‚è§ SMB_DEV_CERT_ALG_FLAG
 		uiSignFlag
-		Ö¤Êé(Ç©Ãû|¼ÓÃÜ±êÖ¾) ¿ÉÒÔ×ö°´Î»Óë²Ù×÷
-		²Î¼û SMB_DEV_CERT_SIGN_FLAG
+		è¯ä¹¦(ç­¾å|åŠ å¯†æ ‡å¿—) å¯ä»¥åšæŒ‰ä½ä¸Žæ“ä½œ
+		å‚è§ SMB_DEV_CERT_SIGN_FLAG
 		uiVerifyFlag
-		Ö¤Êé(ÑéÖ¤±êÖ¾) ¿ÉÒÔ×ö°´Î»Óë²Ù×÷
-		²Î¼û SMB_DEV_CERT_VERIFY_FLAG
-		Êä³ö²ÎÊý:
-		pvCertsValue	¶àÖ¤Êé´®
-		puiCertsLen		³¤¶È
-	·µ»ØÖµ: 0:³É¹¦ ÆäËû:´íÎóÂë
+		è¯ä¹¦(éªŒè¯æ ‡å¿—) å¯ä»¥åšæŒ‰ä½ä¸Žæ“ä½œ
+		å‚è§ SMB_DEV_CERT_VERIFY_FLAG
+		è¾“å‡ºå‚æ•°:
+		pvCertsValue	å¤šè¯ä¹¦ä¸²
+		puiCertsLen		é•¿åº¦
+	è¿”å›žå€¼: 0:æˆåŠŸ å…¶ä»–:é”™è¯¯ç 
 	*/
 	COMMON_API unsigned int SMB_DEV_EnumCertBySKF(const char*pszSKFName, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiKeyFlag, unsigned int uiSignFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag);
 
 	/*
-	¹¦ÄÜÃû³Æ:	Ã¶¾ÙÖ¤Êé
-	º¯ÊýÃû³Æ:	SMB_DEV_EnumCert
-	ÊäÈë²ÎÊý:
+	åŠŸèƒ½åç§°:	æžšä¸¾è¯ä¹¦
+	å‡½æ•°åç§°:	SMB_DEV_EnumCert
+	è¾“å…¥å‚æ•°:
 		uiKeyFlag
-		Ö¤Êé(ÃÜÔ¿ÀàÐÍ±êÖ¾) ¿ÉÒÔ×ö°´Î»Óë²Ù×÷
-		²Î¼û SMB_DEV_CERT_ALG_FLAG
+		è¯ä¹¦(å¯†é’¥ç±»åž‹æ ‡å¿—) å¯ä»¥åšæŒ‰ä½ä¸Žæ“ä½œ
+		å‚è§ SMB_DEV_CERT_ALG_FLAG
 		uiSignFlag
-		Ö¤Êé(Ç©Ãû|¼ÓÃÜ±êÖ¾) ¿ÉÒÔ×ö°´Î»Óë²Ù×÷
-		²Î¼û SMB_DEV_CERT_SIGN_FLAG
+		è¯ä¹¦(ç­¾å|åŠ å¯†æ ‡å¿—) å¯ä»¥åšæŒ‰ä½ä¸Žæ“ä½œ
+		å‚è§ SMB_DEV_CERT_SIGN_FLAG
 		uiVerifyFlag
-		Ö¤Êé(ÑéÖ¤±êÖ¾) ¿ÉÒÔ×ö°´Î»Óë²Ù×÷
-		²Î¼û SMB_DEV_CERT_VERIFY_FLAG
-		Êä³ö²ÎÊý:
-		pvCertsValue	¶àÖ¤Êé´®
-		puiCertsLen		³¤¶È
-	·µ»ØÖµ: 0:³É¹¦ ÆäËû:´íÎóÂë
+		è¯ä¹¦(éªŒè¯æ ‡å¿—) å¯ä»¥åšæŒ‰ä½ä¸Žæ“ä½œ
+		å‚è§ SMB_DEV_CERT_VERIFY_FLAG
+		è¾“å‡ºå‚æ•°:
+		pvCertsValue	å¤šè¯ä¹¦ä¸²
+		puiCertsLen		é•¿åº¦
+	è¿”å›žå€¼: 0:æˆåŠŸ å…¶ä»–:é”™è¯¯ç 
 	*/
 	COMMON_API unsigned int SMB_DEV_EnumCert(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiKeyFlag, unsigned int uiSignFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag);
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÐÞ¸ÄÃÜÂëÍ¨¹ýÖ¤ÊéÊôÐÔ£¨Ç©ÃûÖ¤Êé´ú±íÉè±¸£©
-	º¯ÊýÃû³Æ:	SMB_DEV_ChangePINByCertAttr
-	ÊäÈë²ÎÊý:
-	pCertAttr Ö¤ÊéÊôÐÔ// SMC½Ó¿Ú²éÕÒ³öÀ´Ö®ºóµÄ½á¹¹Ìå
-	pszPIN	ÃÜÂë
-	pbDataÊý¾Ý
-	uiDataLen ³¤¶È
-	Êä³ö²ÎÊý:
-	pSignature Ç©ÃûÖµ
-	puiRetryCount ÖØÊÔ´ÎÊý
-	·µ»ØÖµ:
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÐÞ¸ÄÃÜÂë
+	åŠŸèƒ½åç§°:	ä¿®æ”¹å¯†ç é€šè¿‡è¯ä¹¦å±žæ€§ï¼ˆç­¾åè¯ä¹¦ä»£è¡¨è®¾å¤‡ï¼‰
+	å‡½æ•°åç§°:	SMB_DEV_ChangePINByCertAttr
+	è¾“å…¥å‚æ•°:
+	pCertAttr è¯ä¹¦å±žæ€§// SMCæŽ¥å£æŸ¥æ‰¾å‡ºæ¥ä¹‹åŽçš„ç»“æž„ä½“
+	pszPIN	å¯†ç 
+	pbDataæ•°æ®
+	uiDataLen é•¿åº¦
+	è¾“å‡ºå‚æ•°:
+	pSignature ç­¾åå€¼
+	puiRetryCount é‡è¯•æ¬¡æ•°
+	è¿”å›žå€¼:
+	å¤±è´¥ï¼š
+	åŠŸèƒ½æè¿°:	ä¿®æ”¹å¯†ç 
 	*/
 	COMMON_API unsigned int SMB_DEV_ChangePINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsigned int uiPINType, const char*pszOldPin, const char*pszNewPin, ULONG *puiRetryCount);
 
 	/*
-	Í¨¹ýÖ¤ÊéÃèÊöÊôÐÔ»ñÈ¡¼ÓÃÜÖ¤Êé
+	é€šè¿‡è¯ä¹¦æè¿°å±žæ€§èŽ·å–åŠ å¯†è¯ä¹¦
 	*/
 	COMMON_API unsigned int SMB_DEV_FindEnCertificateByCertAttr(
 		_In_ SMB_CS_CertificateAttr *pCertDescProperty, _Out_ unsigned char *pbCert, _Inout_ unsigned int *puiCertLen
@@ -124,47 +124,47 @@ extern "C" {
 	COMMON_API unsigned int SMB_DEV_SM2SignDigestProcessByCertAttr(SMB_CS_CertificateAttr*pCertAttr, BYTE *pbData, unsigned int uiDataLen, PECCSIGNATUREBLOB pSignature);
 
 	/*
-	¹¦ÄÜÃû³Æ:	»ñÈ¡Éè±¸ÐÅÏ¢
-	º¯ÊýÃû³Æ:	SMB_DEV_GetDevInfoByCertAttr
-	ÊäÈë²ÎÊý:
-	pCertAttr Ö¤ÊéÊôÐÔ// SMC½Ó¿Ú²éÕÒ³öÀ´Ö®ºóµÄ½á¹¹Ìå
-	Êä³ö²ÎÊý:
-	pDevInfo Éè±¸ÐÅÏ¢
-	·µ»ØÖµ:
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÐÞ¸ÄÃÜÂë
+	åŠŸèƒ½åç§°:	èŽ·å–è®¾å¤‡ä¿¡æ¯
+	å‡½æ•°åç§°:	SMB_DEV_GetDevInfoByCertAttr
+	è¾“å…¥å‚æ•°:
+	pCertAttr è¯ä¹¦å±žæ€§// SMCæŽ¥å£æŸ¥æ‰¾å‡ºæ¥ä¹‹åŽçš„ç»“æž„ä½“
+	è¾“å‡ºå‚æ•°:
+	pDevInfo è®¾å¤‡ä¿¡æ¯
+	è¿”å›žå€¼:
+	å¤±è´¥ï¼š
+	åŠŸèƒ½æè¿°:	ä¿®æ”¹å¯†ç 
 	*/
 	COMMON_API unsigned int SMB_DEV_GetDevInfoByCertAttr(SMB_CS_CertificateAttr*pCertAttr, DEVINFO *pDevInfo);
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÑéÖ¤Éè±¸ÃÜÂëÍ¨¹ýÖ¤ÊéÊôÐÔ£¨Ç©ÃûÖ¤Êé´ú±íÉè±¸£©
-	º¯ÊýÃû³Æ:	SMB_DEV_VerifyPINByCertAttr
-	ÊäÈë²ÎÊý:
-	pCertAttr Ö¤ÊéÊôÐÔ// SMC½Ó¿Ú²éÕÒ³öÀ´Ö®ºóµÄ½á¹¹Ìå
-	uiPINType ¹ÜÀíÔ±/ÓÃ»§
-	pszPIN	ÃÜÂë
-	Êä³ö²ÎÊý:
-	puiRetryCount ÖØÊÔ´ÎÊý
-	·µ»ØÖµ:
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÑéÖ¤Éè±¸ÃÜÂëÍ¨¹ýÖ¤ÊéÊôÐÔ
+	åŠŸèƒ½åç§°:	éªŒè¯è®¾å¤‡å¯†ç é€šè¿‡è¯ä¹¦å±žæ€§ï¼ˆç­¾åè¯ä¹¦ä»£è¡¨è®¾å¤‡ï¼‰
+	å‡½æ•°åç§°:	SMB_DEV_VerifyPINByCertAttr
+	è¾“å…¥å‚æ•°:
+	pCertAttr è¯ä¹¦å±žæ€§// SMCæŽ¥å£æŸ¥æ‰¾å‡ºæ¥ä¹‹åŽçš„ç»“æž„ä½“
+	uiPINType ç®¡ç†å‘˜/ç”¨æˆ·
+	pszPIN	å¯†ç 
+	è¾“å‡ºå‚æ•°:
+	puiRetryCount é‡è¯•æ¬¡æ•°
+	è¿”å›žå€¼:
+	å¤±è´¥ï¼š
+	åŠŸèƒ½æè¿°:	éªŒè¯è®¾å¤‡å¯†ç é€šè¿‡è¯ä¹¦å±žæ€§
 	*/
 	COMMON_API unsigned int SMB_DEV_VerifyPINByCertAttr(SMB_CS_CertificateAttr*pCertAttr, unsigned int uiPINType, char*pszPin, ULONG *puiRetryCount);
 
 	/*
-	¹¦ÄÜÃû³Æ:	SM2Ö¤ÊéÇ©Ãû
-	º¯ÊýÃû³Æ:	SMB_DEV_SM2SignDigest
-	ÊäÈë²ÎÊý:
-	pCertAttr Ö¤ÊéÊôÐÔ// SMC½Ó¿Ú²éÕÒ³öÀ´Ö®ºóµÄ½á¹¹Ìå
-	pszPIN	ÃÜÂë
-	pbDataÊý¾Ý
-	uiDataLen ³¤¶È
-	Êä³ö²ÎÊý:
-	pSignature Ç©ÃûÖµ
-	puiRetryCount ÖØÊÔ´ÎÊý
-	·µ»ØÖµ:
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÐÞ¸ÄÃÜÂë
+	åŠŸèƒ½åç§°:	SM2è¯ä¹¦ç­¾å
+	å‡½æ•°åç§°:	SMB_DEV_SM2SignDigest
+	è¾“å…¥å‚æ•°:
+	pCertAttr è¯ä¹¦å±žæ€§// SMCæŽ¥å£æŸ¥æ‰¾å‡ºæ¥ä¹‹åŽçš„ç»“æž„ä½“
+	pszPIN	å¯†ç 
+	pbDataæ•°æ®
+	uiDataLen é•¿åº¦
+	è¾“å‡ºå‚æ•°:
+	pSignature ç­¾åå€¼
+	puiRetryCount é‡è¯•æ¬¡æ•°
+	è¿”å›žå€¼:
+	å¤±è´¥ï¼š
+	åŠŸèƒ½æè¿°:	ä¿®æ”¹å¯†ç 
 	*/
 	COMMON_API unsigned int SMB_DEV_SM2SignDigestByCertAttr(
 		SMB_CS_CertificateAttr *pCertAttr,
@@ -174,106 +174,93 @@ extern "C" {
 		PECCSIGNATUREBLOB pSignature, ULONG *puiRetryCount);
 
 	/*
-	¹¦ÄÜÃû³Æ:	SM2¹«Ô¿ÑéÖ¤
-	º¯ÊýÃû³Æ:	SMB_DEV_SM2VerifyDigest
-	ÊäÈë²ÎÊý:
-	pszDevName Éè±¸Ãû£¨Ê¹ÓÃÕßCN£©
-	pSM2PubKeyBlob	¹«Ô¿
-	pbDataÊý¾Ý
-	uiDataLen ³¤¶È
-	pSignature Ç©ÃûÖµ
-	Êä³ö²ÎÊý:
-	·µ»ØÖµ:
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÐÞ¸ÄÃÜÂë
+	åŠŸèƒ½åç§°:	SM2å…¬é’¥éªŒè¯
+	å‡½æ•°åç§°:	SMB_DEV_SM2VerifyDigest
+	è¾“å…¥å‚æ•°:
+	pszDevName è®¾å¤‡åï¼ˆä½¿ç”¨è€…CNï¼‰
+	pSM2PubKeyBlob	å…¬é’¥
+	pbDataæ•°æ®
+	uiDataLen é•¿åº¦
+	pSignature ç­¾åå€¼
+	è¾“å‡ºå‚æ•°:
+	è¿”å›žå€¼:
+	å¤±è´¥ï¼š
+	åŠŸèƒ½æè¿°:	ä¿®æ”¹å¯†ç 
 	*/
 	COMMON_API unsigned int SMB_DEV_SM2VerifyDigest(ECCPUBLICKEYBLOB *pSM2PubKeyBlob, BYTE *pbData, ULONG uiDataLen, PECCSIGNATUREBLOB pSignature);
 
 
 	/*
-	¹¦ÄÜÃèÊö:	Ö¤Êé»ñÈ¡ÊôÐÔÐÅÏ¢
-	ÊäÈë²ÎÊý:
-	pbCert[IN]:		ÊäÈëÖ¤ÊéÄÚÈÝ,DER±àÂë
-	uiCertLen[IN]:	ÊäÈëÖ¤ÊéÄÚÈÝ³¤¶È¡£
-	Êä³ö²ÎÊý:
-	pCertAttr	Ö¤ÊéÊôÐÔ
-	·µ»ØÖµ		0£º³É¹¦¡£
-	ÆäËû£º ´íÎóÂë
-
+	åŠŸèƒ½æè¿°:	éªŒè¯è¯ä¹¦çš„åˆæ³•æ€§
+	å‚æ•°:
+	pszSKFName SKFåº“(NULL ä»£è¡¨å…¨éƒ¨SKFåº“)
+	uiVerifyFlag
+	è¯ä¹¦(éªŒè¯æ ‡å¿—) å¯ä»¥åšæŒ‰ä½ä¸Žæ“ä½œ
+	å‚è§ SMB_DEV_CERT_VERIFY_FLAG
+	pbCert[IN]:è¾“å…¥è¯ä¹¦å†…å®¹,DERç¼–ç 
+	uiCertLen[IN]:è¾“å…¥è¯ä¹¦å†…å®¹é•¿åº¦ã€‚
+	è¿”å›žå€¼		0ï¼šæˆåŠŸã€‚
+	å…¶ä»–ï¼š é”™è¯¯ç 
 	*/
-	COMMON_API unsigned int SMB_DEV_FillCertAttr(SMB_CS_CertificateContext * pCertContext);
+	COMMON_API unsigned int SMB_DEV_VerifyCert(unsigned int uiFlag, BYTE *pbCert, unsigned int uiCertLen);
 
 	/*
-	¹¦ÄÜÃèÊö:	ÑéÖ¤Ö¤ÊéµÄºÏ·¨ÐÔ
-	²ÎÊý:
-	pszSKFName SKF¿â(NULL ´ú±íÈ«²¿SKF¿â)
+	åŠŸèƒ½æè¿°:	éªŒè¯æ ¹è¯ä¹¦çš„åˆæ³•æ€§
+	å‚æ•°:
 	uiVerifyFlag
-	Ö¤Êé(ÑéÖ¤±êÖ¾) ¿ÉÒÔ×ö°´Î»Óë²Ù×÷
-	²Î¼û SMB_DEV_CERT_VERIFY_FLAG
-	pbCert[IN]:ÊäÈëÖ¤ÊéÄÚÈÝ,DER±àÂë
-	uiCertLen[IN]:ÊäÈëÖ¤ÊéÄÚÈÝ³¤¶È¡£
-	·µ»ØÖµ		0£º³É¹¦¡£
-	ÆäËû£º ´íÎóÂë
-	*/
-	COMMON_API unsigned int SMB_DEV_VerifyCert(unsigned int uiFlag, unsigned int uiAlgType, BYTE *pbCert, unsigned int uiCertLen);
-
-	/*
-	¹¦ÄÜÃèÊö:	ÑéÖ¤¸ùÖ¤ÊéµÄºÏ·¨ÐÔ
-	²ÎÊý:
+	(éªŒè¯æ ‡å¿—) å¯ä»¥åšæŒ‰ä½ä¸Žæ“ä½œ
 	uiVerifyFlag
-	(ÑéÖ¤±êÖ¾) ¿ÉÒÔ×ö°´Î»Óë²Ù×÷
-	uiVerifyFlag
-	Ö¤Êé(ÑéÖ¤±êÖ¾) ¿ÉÒÔ×ö°´Î»Óë²Ù×÷
-	²Î¼û SMB_DEV_CERT_VERIFY_FLAG
-	pbCert[IN]:ÊäÈëÖ¤ÊéÄÚÈÝ,DER±àÂë
-	uiCertLen[IN]:ÊäÈëÖ¤ÊéÄÚÈÝ³¤¶È¡£
-	·µ»ØÖµ		0£º³É¹¦¡£
-	ÆäËû£º ´íÎóÂë
+	è¯ä¹¦(éªŒè¯æ ‡å¿—) å¯ä»¥åšæŒ‰ä½ä¸Žæ“ä½œ
+	å‚è§ SMB_DEV_CERT_VERIFY_FLAG
+	pbCert[IN]:è¾“å…¥è¯ä¹¦å†…å®¹,DERç¼–ç 
+	uiCertLen[IN]:è¾“å…¥è¯ä¹¦å†…å®¹é•¿åº¦ã€‚
+	è¿”å›žå€¼		0ï¼šæˆåŠŸã€‚
+	å…¶ä»–ï¼š é”™è¯¯ç 
 	*/
 	COMMON_API unsigned int SMB_DEV_VerifyRootCert(unsigned int uiVerifyFlag, unsigned int uiAlgType, BYTE *pbCert, unsigned int uiCertLen);
 
 
 	/*
-	¹¦ÄÜÃèÊö:	ÏÔÊ¾Ö¤Êé
-	ÊäÈë²ÎÊý:
-	pbCert[IN]:		ÊäÈëÖ¤ÊéÄÚÈÝ,DER±àÂë
-	uiCertLen[IN]:	ÊäÈëÖ¤ÊéÄÚÈÝ³¤¶È¡£
-	·µ»ØÖµ		0£º³É¹¦¡£
-	ÆäËû£º		´íÎóÂë
+	åŠŸèƒ½æè¿°:	æ˜¾ç¤ºè¯ä¹¦
+	è¾“å…¥å‚æ•°:
+	pbCert[IN]:		è¾“å…¥è¯ä¹¦å†…å®¹,DERç¼–ç 
+	uiCertLen[IN]:	è¾“å…¥è¯ä¹¦å†…å®¹é•¿åº¦ã€‚
+	è¿”å›žå€¼		0ï¼šæˆåŠŸã€‚
+	å…¶ä»–ï¼š		é”™è¯¯ç 
 	*/
 	COMMON_API unsigned int SMB_DEV_UIDlgViewContext(BYTE *pbCert, unsigned int uiCertLen);
 
 	/*
-	¹¦ÄÜÃèÊö:	µ¼Èë¸ùÖ¤Êé
-	ÊäÈë²ÎÊý:
-	pbCert[IN]:		ÊäÈëÖ¤ÊéÄÚÈÝ,DER±àÂë
-	uiCertLen[IN]:	ÊäÈëÖ¤ÊéÄÚÈÝ³¤¶È¡£
-	Êä³ö²ÎÊý£º
-	puiAlgType Ëã·¨ÀàÐÍ
-	·µ»ØÖµ		0£º³É¹¦¡£
+	åŠŸèƒ½æè¿°:	å¯¼å…¥æ ¹è¯ä¹¦
+	è¾“å…¥å‚æ•°:
+	pbCert[IN]:		è¾“å…¥è¯ä¹¦å†…å®¹,DERç¼–ç 
+	uiCertLen[IN]:	è¾“å…¥è¯ä¹¦å†…å®¹é•¿åº¦ã€‚
+	è¾“å‡ºå‚æ•°ï¼š
+	puiAlgType ç®—æ³•ç±»åž‹
+	è¿”å›žå€¼		0ï¼šæˆåŠŸã€‚
 
-	ÆäËû£º		´íÎóÂë
+	å…¶ä»–ï¼š		é”™è¯¯ç 
 	*/
 	COMMON_API unsigned int SMB_DEV_ImportCaCert(BYTE*pbCert, unsigned int uiCertLen, unsigned int*puiAlgType);
 
 	/*
-	¹¦ÄÜÃèÊö:	ÊÇ·ñÊÇ¸ùÖ¤Êé
-	ÊäÈë²ÎÊý:
-	pbCert[IN]:		ÊäÈëÖ¤ÊéÄÚÈÝ,DER±àÂë
-	uiCertLen[IN]:	ÊäÈëÖ¤ÊéÄÚÈÝ³¤¶È¡£
-	·µ»ØÖµ		0£º³É¹¦¡£
-	ÆäËû£º		´íÎóÂë
+	åŠŸèƒ½æè¿°:	æ˜¯å¦æ˜¯æ ¹è¯ä¹¦
+	è¾“å…¥å‚æ•°:
+	pbCert[IN]:		è¾“å…¥è¯ä¹¦å†…å®¹,DERç¼–ç 
+	uiCertLen[IN]:	è¾“å…¥è¯ä¹¦å†…å®¹é•¿åº¦ã€‚
+	è¿”å›žå€¼		0ï¼šæˆåŠŸã€‚
+	å…¶ä»–ï¼š		é”™è¯¯ç 
 	*/
 	COMMON_API unsigned int SMB_DEV_IsSM2RootCert(BYTE *pbCert, unsigned int uiCertLen, unsigned int*bIRoot);
 
 	/*
-	¹¦ÄÜÃèÊö:	²éÕÒÉÏ¼¶CAÖ¤Êé
-	ÊäÈë²ÎÊý:
-	pbCert[IN]:		ÊäÈëÖ¤ÊéÄÚÈÝ,DER±àÂë
-	uiCertLen[IN]:	ÊäÈëÖ¤ÊéÄÚÈÝ³¤¶È¡£
-	Êä³ö²ÎÊý£º
-	·µ»ØÖµ		0£º³É¹¦¡£
-	ÆäËû£º		´íÎóÂë
+	åŠŸèƒ½æè¿°:	æŸ¥æ‰¾ä¸Šçº§CAè¯ä¹¦
+	è¾“å…¥å‚æ•°:
+	pbCert[IN]:		è¾“å…¥è¯ä¹¦å†…å®¹,DERç¼–ç 
+	uiCertLen[IN]:	è¾“å…¥è¯ä¹¦å†…å®¹é•¿åº¦ã€‚
+	è¾“å‡ºå‚æ•°ï¼š
+	è¿”å›žå€¼		0ï¼šæˆåŠŸã€‚
+	å…¶ä»–ï¼š		é”™è¯¯ç 
 	*/
 	COMMON_API unsigned int SMB_DEV_FindSM2CACert(BYTE *pbCert, unsigned int uiCertLen,
 		BYTE *pbCACert, unsigned int*uiCACertLen
@@ -316,46 +303,46 @@ extern "C" {
 		_Inout_ int*puiRetryCount);
 
 	/*
-	¹¦ÄÜÃû³Æ:	Ã¶¾ÙÉè±¸
-	º¯ÊýÃû³Æ:	SMB_DEV_EnumDev
-	ÊäÈë²ÎÊý:
-	Êä³ö²ÎÊý:
-	pszDevsName		¶à×Ö·û´®£¬±íÊ¾¶à¸öÉè±¸Ãû,²»Í¬µÄÉè±¸ÃûÖ®¼äÒÔ0x00¼ä¸ô£¬ÒÔ0x0000±íÊ¾¶à×Ö·û´®½áÊø
-	puiDevsNameLen	·µ»Ø¶à×Ö·û´®³¤¶È
-	·µ»ØÖµ:
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	Ã¶¾ÙÉè±¸
+	åŠŸèƒ½åç§°:	æžšä¸¾è®¾å¤‡
+	å‡½æ•°åç§°:	SMB_DEV_EnumDev
+	è¾“å…¥å‚æ•°:
+	è¾“å‡ºå‚æ•°:
+	pszDevsName		å¤šå­—ç¬¦ä¸²ï¼Œè¡¨ç¤ºå¤šä¸ªè®¾å¤‡å,ä¸åŒçš„è®¾å¤‡åä¹‹é—´ä»¥0x00é—´éš”ï¼Œä»¥0x0000è¡¨ç¤ºå¤šå­—ç¬¦ä¸²ç»“æŸ
+	puiDevsNameLen	è¿”å›žå¤šå­—ç¬¦ä¸²é•¿åº¦
+	è¿”å›žå€¼:
+	å¤±è´¥ï¼š
+	åŠŸèƒ½æè¿°:	æžšä¸¾è®¾å¤‡
 	*/
 	COMMON_API unsigned int SMB_DEV_EnumDev(char *pszDevsName, unsigned int *puiDevsNameLen);
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÐÞ¸ÄÃÜÂë£¨Ç©ÃûÖ¤Êé´ú±íÉè±¸£©
-	º¯ÊýÃû³Æ:	SMB_DEV_ChangePIN
-	ÊäÈë²ÎÊý:
-	pszDevName Éè±¸Ãû£¨Ê¹ÓÃÕßCN£©
-	uiPINType	ÀàÐÍ
-	pszOldPin ¾ÉÃÜÂë
-	pszNewPin ÐÂÃÜÂë
-	puiRetryCount ÖØÊÔ´ÎÊý
-	Êä³ö²ÎÊý:
-	·µ»ØÖµ:
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÐÞ¸ÄÃÜÂë
+	åŠŸèƒ½åç§°:	ä¿®æ”¹å¯†ç ï¼ˆç­¾åè¯ä¹¦ä»£è¡¨è®¾å¤‡ï¼‰
+	å‡½æ•°åç§°:	SMB_DEV_ChangePIN
+	è¾“å…¥å‚æ•°:
+	pszDevName è®¾å¤‡åï¼ˆä½¿ç”¨è€…CNï¼‰
+	uiPINType	ç±»åž‹
+	pszOldPin æ—§å¯†ç 
+	pszNewPin æ–°å¯†ç 
+	puiRetryCount é‡è¯•æ¬¡æ•°
+	è¾“å‡ºå‚æ•°:
+	è¿”å›žå€¼:
+	å¤±è´¥ï¼š
+	åŠŸèƒ½æè¿°:	ä¿®æ”¹å¯†ç 
 	*/
 	COMMON_API unsigned int SMB_DEV_ChangePIN(const char *pszDevName, unsigned int uiPINType, const char *pszOldPin, const char*pszNewPin, ULONG *puiRetryCount);
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÑéÖ¤Éè±¸ÃÜÂë£¨Ç©ÃûÖ¤Êé´ú±íÉè±¸£©
-	º¯ÊýÃû³Æ:	SMB_DEV_VerifyPIN
-	ÊäÈë²ÎÊý:
-	pszDevName Éè±¸Ãû³Æ
-	uiPINType ¹ÜÀíÔ±/ÓÃ»§
-	pszPIN	ÃÜÂë
-	Êä³ö²ÎÊý:
-	puiRetryCount ÖØÊÔ´ÎÊý
-	·µ»ØÖµ:
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÑéÖ¤Éè±¸ÃÜÂë
+	åŠŸèƒ½åç§°:	éªŒè¯è®¾å¤‡å¯†ç ï¼ˆç­¾åè¯ä¹¦ä»£è¡¨è®¾å¤‡ï¼‰
+	å‡½æ•°åç§°:	SMB_DEV_VerifyPIN
+	è¾“å…¥å‚æ•°:
+	pszDevName è®¾å¤‡åç§°
+	uiPINType ç®¡ç†å‘˜/ç”¨æˆ·
+	pszPIN	å¯†ç 
+	è¾“å‡ºå‚æ•°:
+	puiRetryCount é‡è¯•æ¬¡æ•°
+	è¿”å›žå€¼:
+	å¤±è´¥ï¼š
+	åŠŸèƒ½æè¿°:	éªŒè¯è®¾å¤‡å¯†ç 
 	*/
 	COMMON_API unsigned int SMB_DEV_VerifyPIN(const char *pszDevName, unsigned int uiPINType, char *pszPin, ULONG *puiRetryCount);
 #ifdef __cplusplus

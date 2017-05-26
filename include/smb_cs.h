@@ -7,51 +7,55 @@
 
 typedef struct _SMB_CS_Data
 {
-	unsigned char *data;            // Êı¾İ
-	unsigned int length;            // ³¤¶È
+	unsigned char *data;            // æ•°æ®
+	unsigned int length;            // é•¿åº¦
 }SMB_CS_Data;
 
 typedef struct _SMB_CS_CertificateAttr
 {
-	SMB_CS_Data stSKFName;			// SKF½Ó¿ÚÃû³Æ
-	SMB_CS_Data stDeviceName;			// Éè±¸Ãû³Æ
-	SMB_CS_Data stApplicationName;	// Ó¦ÓÃÃû³Æ
-	SMB_CS_Data stContainerName;		// ÈİÆ÷Ãû³Æ
-	SMB_CS_Data stCommonName;		    // Í¨ÓÃÃû ÏÔÊ¾Éè±¸Ãû
-	SMB_CS_Data stSubject;    		// Ö÷ÌâÏî
-	SMB_CS_Data stIssue;              // °ä·¢Õß
-	SMB_CS_Data stPublicKey;          // ¹«Ô¿
-	SMB_CS_Data stSerialNumber;       // ĞòÁĞºÅ
-	SMB_CS_Data stVendorData;         // ÓÃ»§×Ô¶¨ÒåÊı¾İ
-	unsigned char ucCertAlgType;	// Ö¤ÊéÀàĞÍ
-	unsigned char ucCertUsageType;	// Ç©Ãû¼ÓÃÜ 1 Ç©Ãû 2 ¼ÓÃÜ 3 Ç©Ãû¼ÓÃÜ
-	unsigned int ulVerify;			// ÑéÖ¤½á¹û WTF_CERT_VERIFY_RESULT_FLAG
-	unsigned long long ulNotBefore;	// ÆğÊ¼
-	unsigned long long ulNotAfter;	// ½ØÖ¹
+	SMB_CS_Data stSKFName;			// SKFæ¥å£åç§°
+	SMB_CS_Data stDeviceName;		// è®¾å¤‡åç§°
+	SMB_CS_Data stApplicationName;	// åº”ç”¨åç§°
+	SMB_CS_Data stContainerName;	// å®¹å™¨åç§°
+	SMB_CS_Data stCommonName;		// é€šç”¨å æ˜¾ç¤ºè®¾å¤‡å
+	SMB_CS_Data stSubject;    		// ä¸»é¢˜é¡¹
+	SMB_CS_Data stIssue;            // é¢å‘è€…
+	SMB_CS_Data stPublicKey;        // å…¬é’¥
+	SMB_CS_Data stSerialNumber;     // åºåˆ—å·
+	SMB_CS_Data stSubjectKeyID;     // ä½¿ç”¨è€…å¯†é’¥æ ‡è¯†
+	SMB_CS_Data stIssueKeyID;       // é¢å‘è€…å¯†é’¥æ ‡è¯†
+	SMB_CS_Data stVendorData;       // ç”¨æˆ·è‡ªå®šä¹‰æ•°æ®
+	unsigned char ucCertAlgType;	// è¯ä¹¦ç±»å‹
+	unsigned char ucCertUsageType;	// ç­¾ååŠ å¯† 1 ç­¾å 2 åŠ å¯† 3 ç­¾ååŠ å¯†
+	unsigned int ulVerify;			// éªŒè¯ç»“æœ WTF_CERT_VERIFY_RESULT_FLAG
+	unsigned long long ulNotBefore;	// èµ·å§‹
+	unsigned long long ulNotAfter;	// æˆªæ­¢
 }SMB_CS_CertificateAttr;
 
 typedef struct _SMB_CS_CertificateFindAttr
 {
-	unsigned int uiFindFlag;        // ²éÕÒ±ê¼Ç ÒÔÏÂÑ¡Ïî°´Î»»ò 1 2 4 8 16 32 64 128 ... Ö§³Ö4*8=32¸ö²éÕÒÏî 32Óë×éºÏ²éÕÒ
-	unsigned char ucCertAlgType;	// Ö¤ÊéÀàĞÍ
-	unsigned char ucCertUsageType;	// Ç©Ãû¼ÓÃÜ
-	SMB_CS_Data stSubject;    		// Ö÷ÌâÏî
-	SMB_CS_Data stIsuue;              // °ä·¢Õß
-	SMB_CS_Data stPublicKey;          // ¹«Ô¿
-	SMB_CS_Data stSerialNumber;       // ĞòÁĞºÅ
-	SMB_CS_Data stVendorData;         // ÓÃ»§×Ô¶¨ÒåÊı¾İ
+	unsigned int uiFindFlag;        // æŸ¥æ‰¾æ ‡è®° ä»¥ä¸‹é€‰é¡¹æŒ‰ä½æˆ– 1 2 4 8 16 32 64 128 ... æ”¯æŒ4*8=32ä¸ªæŸ¥æ‰¾é¡¹ 32ä¸ç»„åˆæŸ¥æ‰¾
+	unsigned char ucCertAlgType;	// è¯ä¹¦ç±»å‹
+	unsigned char ucCertUsageType;	// ç­¾ååŠ å¯†
+	SMB_CS_Data stSubject;    		// ä¸»é¢˜é¡¹
+	SMB_CS_Data stIsuue;            // é¢å‘è€…
+	SMB_CS_Data stPublicKey;        // å…¬é’¥
+	SMB_CS_Data stSerialNumber;     // åºåˆ—å·
+	SMB_CS_Data stSubjectKeyID;     // ä½¿ç”¨è€…å¯†é’¥æ ‡è¯†
+	SMB_CS_Data stIssueKeyID;       // é¢å‘è€…å¯†é’¥æ ‡è¯†
+	SMB_CS_Data stVendorData;       // ç”¨æˆ·è‡ªå®šä¹‰æ•°æ®
 }SMB_CS_CertificateFindAttr;
 
 typedef struct _SMB_CS_CertificateContent
 {
-	unsigned char *data;            // Êı¾İ
-	unsigned int length;            // ³¤¶È
+	unsigned char *data;            // æ•°æ®
+	unsigned int length;            // é•¿åº¦
 }SMB_CS_CertificateContent;
 
 typedef struct _SMB_CS_CertificateContext
 {
-	SMB_CS_CertificateAttr     stAttr;      // Ö¤ÊéÊôĞÔ
-	SMB_CS_CertificateContent  stContent;   // Ö¤ÊéÄÚÈİ
+	SMB_CS_CertificateAttr     stAttr;      // è¯ä¹¦å±æ€§
+	SMB_CS_CertificateContent  stContent;   // è¯ä¹¦å†…å®¹
 }SMB_CS_CertificateContext;
 
 typedef struct _SMB_CS_CertificateContext_NODE
@@ -62,29 +66,29 @@ typedef struct _SMB_CS_CertificateContext_NODE
 
 typedef enum _EErr_SMB
 {
-	EErr_SMB_OK,									// ³É¹¦
-													// SKFERROR 0x0A000001-0x0A000032				// SKF´íÎóÂë·¶Î§
-													// HRESULT  0x00000000-0x00015301				// Î¢Èí´íÎóÂë·¶Î§
-													// HRESULT  0x8000FFFF-0x802A010A				// Î¢Èí´íÎóÂë·¶Î§
-													// HRESULT  .....								// Î¢Èí´íÎóÂë·¶Î§
+	EErr_SMB_OK,									// æˆåŠŸ
+													// SKFERROR 0x0A000001-0x0A000032				// SKFé”™è¯¯ç èŒƒå›´
+													// HRESULT  0x00000000-0x00015301				// å¾®è½¯é”™è¯¯ç èŒƒå›´
+													// HRESULT  0x8000FFFF-0x802A010A				// å¾®è½¯é”™è¯¯ç èŒƒå›´
+													// HRESULT  .....								// å¾®è½¯é”™è¯¯ç èŒƒå›´
 
-													EErr_SMB_BASE = 0xF000FFFF,						// ÆğÊ¼´íÎóÂë
-													EErr_SMB_DLL_REG_PATH,							// ×¢²áÂ·¾¶
-													EErr_SMB_DLL_PATH,								// »ñÈ¡º¯ÊıµØÖ·Ê§°Ü
-													EErr_SMB_NO_APP,								// Ã»ÓĞÓ¦ÓÃ
-													EErr_SMB_CREATE_STORE,							// ´´½¨´æ´¢ÇøÊ§°Ü
-													EErr_SMB_OPEN_STORE,							// ´ò¿ª´æ´¢ÇøÊ§°Ü
-													EErr_SMB_NO_CERT_CHAIN,							// Ã»ÓĞÖ¤ÊéÁ´
-													EErr_SMB_EXPORT_PUK,							// µ¼³ö¹«Ô¿Ê§°Ü
-													EErr_SMB_VERIFY_CERT,							// ÑéÖ¤Ö¤ÊéÇ©ÃûÊ§°Ü
-													EErr_SMB_VERIFY_TIME,							// ÑéÖ¤Ö¤ÊéÓĞĞ§ÆÚÊ§°Ü
-													EErr_SMB_CREATE_CERT_CONTEXT,					// ´´½¨Ö¤ÊéÉÏÏÂÎÄ
-													EErr_SMB_ADD_CERT_TO_STORE,						// ±£´æÖ¤Êé
-													EErr_SMB_NO_RIGHT,								// Ã»ÓĞÈ¨ÏŞ
-													EErr_SMB_SET_CERT_CONTEXT_PROPERTY,				// ÉèÖÃÊôĞÔ
-													EErr_SMB_INVALIDARG,                            // ²ÎÊı´íÎó
-													EErr_SMB_MEM_LES,                               // ÄÚ´æ²»×ã
-													EErr_SMB_INVALID_ARG,                           // ²ÎÊı´íÎó
+													EErr_SMB_BASE = 0xF000FFFF,						// èµ·å§‹é”™è¯¯ç 
+													EErr_SMB_DLL_REG_PATH,							// æ³¨å†Œè·¯å¾„
+													EErr_SMB_DLL_PATH,								// è·å–å‡½æ•°åœ°å€å¤±è´¥
+													EErr_SMB_NO_APP,								// æ²¡æœ‰åº”ç”¨
+													EErr_SMB_CREATE_STORE,							// åˆ›å»ºå­˜å‚¨åŒºå¤±è´¥
+													EErr_SMB_OPEN_STORE,							// æ‰“å¼€å­˜å‚¨åŒºå¤±è´¥
+													EErr_SMB_NO_CERT_CHAIN,							// æ²¡æœ‰è¯ä¹¦é“¾
+													EErr_SMB_EXPORT_PUK,							// å¯¼å‡ºå…¬é’¥å¤±è´¥
+													EErr_SMB_VERIFY_CERT,							// éªŒè¯è¯ä¹¦ç­¾åå¤±è´¥
+													EErr_SMB_VERIFY_TIME,							// éªŒè¯è¯ä¹¦æœ‰æ•ˆæœŸå¤±è´¥
+													EErr_SMB_CREATE_CERT_CONTEXT,					// åˆ›å»ºè¯ä¹¦ä¸Šä¸‹æ–‡
+													EErr_SMB_ADD_CERT_TO_STORE,						// ä¿å­˜è¯ä¹¦
+													EErr_SMB_NO_RIGHT,								// æ²¡æœ‰æƒé™
+													EErr_SMB_SET_CERT_CONTEXT_PROPERTY,				// è®¾ç½®å±æ€§
+													EErr_SMB_INVALIDARG,                            // å‚æ•°é”™è¯¯
+													EErr_SMB_MEM_LES,                               // å†…å­˜ä¸è¶³
+													EErr_SMB_INVALID_ARG,                           // å‚æ•°é”™è¯¯
 													EErr_SMB_FAIL = -1,
 
 }EErr_SMB;
@@ -93,59 +97,68 @@ typedef enum _EErr_SMB
 extern "C" {
 #endif
 	/*
-	´´½¨Ö¤ÊéÉÏÏÂÎÄ
+	åˆ›å»ºè¯ä¹¦ä¸Šä¸‹æ–‡
 	*/
-	COMMON_API unsigned int SMB_CS_CreateCtx(SMB_CS_CertificateContext *pCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen);
+	COMMON_API unsigned int SMB_CS_CreateCtx(SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen);
 
 	/*
-	ÉèÖÃÓÃ»§×Ô¶¨ÒåÊı¾İ
+	é‡Šæ”¾è¯ä¹¦ä¸Šä¸‹æ–‡
 	*/
-	COMMON_API unsigned int SMB_CS_SetCtxVendor(SMB_CS_CertificateContext *pCertCtx, unsigned char *pVendor, unsigned int uiVendorLen);
+	COMMON_API unsigned int SMB_CS_FreeCtx(SMB_CS_CertificateContext *pCertCtx);
 
 	/*
-	ÊÍ·ÅÖ¤ÊéÉÏÏÂÎÄ
+	æ·»åŠ è¯ä¹¦åˆ°æ•°æ®åº“
 	*/
-	COMMON_API unsigned int SMB_CS_FreeCtx(SMB_CS_CertificateContext *pCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen);
+	COMMON_API unsigned int SMB_CS_AddCtxToDB(SMB_CS_CertificateContext *pCertCtx, unsigned int uiStoreID);
 
 	/*
-	Ìí¼ÓÖ¤Êéµ½Êı¾İ¿â
-	*/
-	COMMON_API unsigned int SMB_CS_AddCtxToDB(SMB_CS_CertificateContext *pCertCtx);
-
-	/*
-	´ÓÊı¾İ¿âÉ¾³ıÖ¤ÊéÉÏ
+	ä»æ•°æ®åº“åˆ é™¤è¯ä¹¦ä¸Š
 	*/
 	COMMON_API unsigned int SMB_CS_DelCtxFromDB(SMB_CS_CertificateContext *pCertCtx);
 
 	/*
-	Çå¿ÕÊı¾İ¿â
+	æ¸…ç©ºæ•°æ®åº“
 	*/
 	COMMON_API unsigned int SMB_CS_ClrAllFromDB();
 
 	/*
-	´ÓÊı¾İ¿â²éÕÒÖ¤Êé
+	ä»æ•°æ®åº“æŸ¥æ‰¾è¯ä¹¦
 	*/
-	COMMON_API unsigned int SMB_CS_FindCtxsFromDB(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader);
+	COMMON_API unsigned int SMB_CS_FindCtxsFromDB(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiStoreID);
 
 	/*
-	´ÓÊı¾İ¿â±éÀúÖ¤Êé
+	ä»æ•°æ®åº“éå†è¯ä¹¦
 	*/
-	COMMON_API unsigned int SMB_CS_EnumCtxsFromDB(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader);
+	COMMON_API unsigned int SMB_CS_EnumCtxsFromDB(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiStoreID);
 
 	/*
-	´ÓÊı¾İ¿â±éÀúSKFÃû³Æ
+	ä»æ•°æ®åº“éå†SKFåç§°
 	*/
 	COMMON_API unsigned int SMB_CS_EnumSKF(char * pszSKFNames, unsigned int * puiSKFNamesLen);
 
 	/*
-	´ÓÊı¾İ¿â¶ÁÈ¡SKFÂ·¾¶
+	ä»æ•°æ®åº“è¯»å–SKFè·¯å¾„
 	*/
 	COMMON_API unsigned int SMB_CS_ReadSKFPath(const char * pszSKFName, char * pszDllPath, unsigned int *puiDllPathLen);
 	
 	/*
-	´ÓÊı¾İ¿â¶ÁÈ¡SKFÇ©ÃûÀàĞÍ
+	ä»æ•°æ®åº“è¯»å–SKFç­¾åç±»å‹
 	*/
 	COMMON_API unsigned int SMB_CS_ReadSKFSignType(const char * pszSKFName, char * pszSignType, unsigned int *puiSignTypeLen);
+
+
+	/*
+	å·¥å…·ç±»xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+	*/
+	/*
+	å¡«å……è¯ä¹¦å±æ€§
+	*/
+	COMMON_API unsigned int SMB_UTIL_FillCertAttr(SMB_CS_CertificateContext * pCertContext);
+
+	/*
+	è®¾ç½®ç”¨æˆ·è‡ªå®šä¹‰æ•°æ®
+	*/
+	COMMON_API unsigned int SMB_UTIL_SetCtxVendor(SMB_CS_CertificateContext *pCertCtx, unsigned char *pVendor, unsigned int uiVendorLen);
 
 #ifdef __cplusplus
 }

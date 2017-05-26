@@ -3,12 +3,13 @@
 #include <map>
 #include <string>
 
+#include "time.h"
 #include "openssl_func_def.h"
 #include "o_all_func_def.h"
 #include "smcert.h"
 #include "FILE_LOG.h"
 #include "SKFError.h"
-
+#include "certificate_items_parse.h"
 
 typedef struct _OPST_HANDLE_ARGS {
 	void*ghInst;
@@ -188,7 +189,7 @@ unsigned int SMB_DEV_ChangePINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsi
 	HINSTANCE ghInst = NULL;
 
 	/*
-	SKF∫Ø ˝µÿ÷∑
+	SKFÂáΩÊï∞Âú∞ÂùÄ
 	*/
 
 	FUNC_NAME_DECLARE(func_, EnumDev, );
@@ -233,7 +234,7 @@ unsigned int SMB_DEV_ChangePINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsi
 	}
 
 #if defined(USE_LOAD_LIBRARY)
-	ghInst = LoadLibraryA(dllPathValue);//∂ØÃ¨º”‘ÿDll
+	ghInst = LoadLibraryA(dllPathValue);//Âä®ÊÄÅÂä†ËΩΩDll
 #else
 	ghInst = SMB_DEV_LoadLibrary(dllPathValue);
 #endif
@@ -326,7 +327,7 @@ err:
 	if (ghInst)
 	{
 #if defined(USE_FREE_GHINST)
-		FreeLibrary(ghInst);// Õ∑≈Dll∫Ø ˝
+		FreeLibrary(ghInst);//ÈáäÊîæDllÂáΩÊï∞
 		ghInst = NULL;
 #endif
 	}
@@ -340,7 +341,7 @@ unsigned int SMB_DEV_GetDevInfoByCertAttr(SMB_CS_CertificateAttr *pCertAttr, DEV
 	HINSTANCE ghInst = NULL;
 
 	/*
-	SKF∫Ø ˝µÿ÷∑
+	SKFÂáΩÊï∞Âú∞ÂùÄ
 	*/
 
 	FUNC_NAME_DECLARE(func_, EnumDev, );
@@ -376,7 +377,7 @@ unsigned int SMB_DEV_GetDevInfoByCertAttr(SMB_CS_CertificateAttr *pCertAttr, DEV
 	DEVHANDLE hDev = NULL;
 	HAPPLICATION hAPP = NULL;
 
-	// ∂¡»°¬∑æ∂
+	// ËØªÂèñË∑ØÂæÑ
 	ulRet = SMB_CS_ReadSKFPath((char *)pCertAttr->stSKFName.data, dllPathValue, &dllPathLen);
 
 	if (0 != ulRet)
@@ -386,7 +387,7 @@ unsigned int SMB_DEV_GetDevInfoByCertAttr(SMB_CS_CertificateAttr *pCertAttr, DEV
 	}
 
 #if defined(USE_LOAD_LIBRARY)
-	ghInst = LoadLibraryA(dllPathValue);//∂ØÃ¨º”‘ÿDll
+	ghInst = LoadLibraryA(dllPathValue);//Âä®ÊÄÅÂä†ËΩΩDll
 #else
 	ghInst = SMB_DEV_LoadLibrary(dllPathValue);
 #endif
@@ -414,7 +415,7 @@ unsigned int SMB_DEV_GetDevInfoByCertAttr(SMB_CS_CertificateAttr *pCertAttr, DEV
 	FUNC_NAME_INIT(func_, LockDev, );
 	FUNC_NAME_INIT(func_, UnlockDev, );
 
-	// ªÒ»°…Ë±∏–≈œ¢
+	// Ëé∑ÂèñËÆæÂ§á‰ø°ÊÅØ
 	{
 
 
@@ -470,7 +471,7 @@ err:
 	if (ghInst)
 	{
 #if defined(USE_FREE_GHINST)
-		FreeLibrary(ghInst);// Õ∑≈Dll∫Ø ˝
+		FreeLibrary(ghInst);//ÈáäÊîæDllÂáΩÊï∞
 		ghInst = NULL;
 #endif
 	}
@@ -484,7 +485,7 @@ unsigned int SMB_DEV_VerifyPINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsi
 	HINSTANCE ghInst = NULL;
 
 	/*
-	SKF∫Ø ˝µÿ÷∑
+	SKFÂáΩÊï∞Âú∞ÂùÄ
 	*/
 
 	FUNC_NAME_DECLARE(func_, EnumDev, );
@@ -529,7 +530,7 @@ unsigned int SMB_DEV_VerifyPINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsi
 	}
 
 #if defined(USE_LOAD_LIBRARY)
-	ghInst = LoadLibraryA(dllPathValue);//∂ØÃ¨º”‘ÿDll
+	ghInst = LoadLibraryA(dllPathValue);//Âä®ÊÄÅÂä†ËΩΩDll
 #else
 	ghInst = SMB_DEV_LoadLibrary(dllPathValue);
 #endif
@@ -624,7 +625,7 @@ err:
 	if (ghInst)
 	{
 #if defined(USE_FREE_GHINST)
-		FreeLibrary(ghInst);// Õ∑≈Dll∫Ø ˝
+		FreeLibrary(ghInst);//ÈáäÊîæDllÂáΩÊï∞
 		ghInst = NULL;
 #endif
 	}
@@ -643,7 +644,7 @@ unsigned int SMB_DEV_SM2SignDigestByCertAttr(
 	HINSTANCE ghInst = NULL;
 
 	/*
-	SKF∫Ø ˝µÿ÷∑
+	SKFÂáΩÊï∞Âú∞ÂùÄ
 	*/
 
 	FUNC_NAME_DECLARE(func_, EnumDev, );
@@ -696,7 +697,7 @@ unsigned int SMB_DEV_SM2SignDigestByCertAttr(
 	SMB_CS_ReadSKFSignType((char *)pCertAttr->stSKFName.data, signTypeValue, &signTypeLen);
 
 #if defined(USE_LOAD_LIBRARY)
-	ghInst = LoadLibraryA(dllPathValue);//∂ØÃ¨º”‘ÿDll
+	ghInst = LoadLibraryA(dllPathValue);//Âä®ÊÄÅÂä†ËΩΩDll
 #else
 	ghInst = SMB_DEV_LoadLibrary(dllPathValue);
 #endif
@@ -793,7 +794,7 @@ err:
 	if (ghInst)
 	{
 #if defined(USE_FREE_GHINST)
-		FreeLibrary(ghInst);// Õ∑≈Dll∫Ø ˝
+		FreeLibrary(ghInst);//ÈáäÊîæDllÂáΩÊï∞
 		ghInst = NULL;
 #endif
 	}
@@ -809,7 +810,7 @@ unsigned int SMB_DEV_FindEnCertificateByCertAttr(
 	HINSTANCE ghInst = NULL;
 
 	/*
-	SKF∫Ø ˝µÿ÷∑
+	SKFÂáΩÊï∞Âú∞ÂùÄ
 	*/
 
 	FUNC_NAME_DECLARE(func_, EnumDev, );
@@ -855,7 +856,7 @@ unsigned int SMB_DEV_FindEnCertificateByCertAttr(
 	}
 
 #if defined(USE_LOAD_LIBRARY)
-	ghInst = LoadLibraryA(dllPathValue);//∂ØÃ¨º”‘ÿDll
+	ghInst = LoadLibraryA(dllPathValue);//Âä®ÊÄÅÂä†ËΩΩDll
 #else
 	ghInst = SMB_DEV_LoadLibrary(dllPathValue);
 #endif
@@ -953,7 +954,7 @@ err:
 	if (ghInst)
 	{
 #if defined(USE_FREE_GHINST)
-		FreeLibrary(ghInst);// Õ∑≈Dll∫Ø ˝
+		FreeLibrary(ghInst);//ÈáäÊîæDllÂáΩÊï∞
 		ghInst = NULL;
 #endif
 	}
@@ -1001,7 +1002,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 	HINSTANCE ghInst = NULL;
 
 	/*
-	SKF∫Ø ˝µÿ÷∑
+	SKFÂáΩÊï∞Âú∞ÂùÄ
 	*/
 
 	FUNC_NAME_DECLARE(func_, EnumDev, );
@@ -1071,7 +1072,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 	}
 
 #if defined(USE_LOAD_LIBRARY)
-	ghInst = LoadLibraryA(dllPathValue);//∂ØÃ¨º”‘ÿDll
+	ghInst = LoadLibraryA(dllPathValue);//Âä®ÊÄÅÂä†ËΩΩDll
 #else
 	ghInst = SMB_DEV_LoadLibrary(dllPathValue);
 #endif
@@ -1178,7 +1179,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 					goto err;
 				}
 
-				//1±Ì æŒ™RSA»›∆˜£¨Œ™2±Ì æŒ™ECC»›∆˜
+				//1Ë°®Á§∫‰∏∫RSAÂÆπÂô®Ôºå‰∏∫2Ë°®Á§∫‰∏∫ECCÂÆπÂô®
 				ulRet = func_GetContainerType(hCon, &ulContainerType);
 				if (ulRet)
 				{
@@ -1205,7 +1206,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 					{
 						if (ulVerifyFlag)
 						{
-							ulRet = SMB_DEV_VerifyCert(ulVerifyFlag, ulContainerType, pTmp, nValueLen);
+							ulRet = SMB_DEV_VerifyCert(ulVerifyFlag, pTmp, nValueLen);
 
 							if (ulRet)
 							{
@@ -1267,7 +1268,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 							pCertCtx->stAttr.stContainerName.data = (unsigned char *)malloc(pCertCtx->stAttr.stContainerName.length);
 							memcpy(pCertCtx->stAttr.stContainerName.data, ptrContainer, pCertCtx->stAttr.stContainerName.length);
 
-							pCertCtx->stAttr.ucCertUsageType = 1; //	«©√˚º”√‹
+							pCertCtx->stAttr.ucCertUsageType = 1; //	Á≠æÂêçÂä†ÂØÜ
 
 							pCertCtx->stAttr.ucCertAlgType = ulContainerType; // RSA SM2
 
@@ -1277,7 +1278,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 					}
 					else if (0x0A00001C == ulRet)
 					{
-						// ÷§ ÈŒ¥∑¢œ÷
+						// ËØÅ‰π¶Êú™ÂèëÁé∞
 						ulRet = 0;
 					}
 					else
@@ -1298,7 +1299,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 					{
 						if (ulVerifyFlag)
 						{
-							ulRet = SMB_DEV_VerifyCert(ulVerifyFlag, ulContainerType, pTmp, nValueLen);
+							ulRet = SMB_DEV_VerifyCert(ulVerifyFlag, pTmp, nValueLen);
 
 							if (ulRet)
 							{
@@ -1359,7 +1360,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 							pCertCtx->stAttr.stContainerName.data = (unsigned char *)malloc(pCertCtx->stAttr.stContainerName.length);
 							memcpy(pCertCtx->stAttr.stContainerName.data, ptrContainer, pCertCtx->stAttr.stContainerName.length);
 
-							pCertCtx->stAttr.ucCertUsageType = 2; //	«©√˚º”√‹
+							pCertCtx->stAttr.ucCertUsageType = 2; //	Á≠æÂêçÂä†ÂØÜ
 
 							pCertCtx->stAttr.ucCertAlgType = ulContainerType; // RSA SM2
 
@@ -1368,7 +1369,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 					}
 					else if (0x0A00001C == ulRet)
 					{
-						// ÷§ ÈŒ¥∑¢œ÷
+						// ËØÅ‰π¶Êú™ÂèëÁé∞
 						ulRet = 0;
 					}
 					else
@@ -1417,7 +1418,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 
 	for (pCtxNode = *ppCertCtxNodeHeader; pCtxNode; pCtxNode = pCtxNode->ptr_next)
 	{
-		SMB_DEV_FillCertAttr(pCtxNode->ptr_data);
+		SMB_UTIL_FillCertAttr(pCtxNode->ptr_data);
 	}
 
 	ulRet = 0;
@@ -1435,7 +1436,7 @@ err:
 	if (ghInst)
 	{
 #if defined(USE_FREE_GHINST)
-		FreeLibrary(ghInst);// Õ∑≈Dll∫Ø ˝
+		FreeLibrary(ghInst);//ÈáäÊîæDllÂáΩÊï∞
 		ghInst = NULL;
 #endif
 	}
@@ -1448,77 +1449,115 @@ err:
 	return ulRet;
 }
 
-
-
-unsigned int SMB_DEV_FillCertAttr(SMB_CS_CertificateContext * pCertCtx)
+unsigned int SMB_DEV_VerifyCert(unsigned int ulFlag, BYTE* pbCert, unsigned int uiCertLen)
 {
 	unsigned int ulRet = 0;
-	if (NULL == pCertCtx)
+
+	unsigned int ulAlgType = 0;
+
+	CertificateItemParse certParse;
+
+	SMB_CS_CertificateContext *ctx = NULL;
+
+	SMB_CS_CertificateContext_NODE * ctxHeader;
+
+	certParse.setCertificate(pbCert, uiCertLen);
+	certParse.parse();
+
+	ulAlgType = certParse.m_iKeyAlg;
+
+
+	// ÂàõÂª∫‰∏ä‰∏ãÊñá 
+	SMB_CS_CreateCtx(&ctx, pbCert, uiCertLen);
+		
+	if (!ctx)
 	{
+		ulRet = EErr_SMB_CREATE_CERT_CONTEXT;
 		goto err;
 	}
-	else
+	// TIME
+	if (CERT_VERIFY_TIME_FLAG & ulFlag)
 	{
-		// ÷§ Èµƒ Ù–‘
-		char data_info_value[1024] = { 0 };
-		int data_info_len = 0;
+		time_t time_now;
+		time(&time_now);
 
-		WT_SetMyCert(pCertCtx->stContent.data, pCertCtx->stContent.length);
-
-		memset(data_info_value, 0, 1024);
-		WT_GetCertInfo(CERT_SERIALNUMBER, 0, data_info_value, &data_info_len);
-		pCertCtx->stAttr.stSerialNumber.length = strlen(data_info_value) + 1;
-		pCertCtx->stAttr.stSerialNumber.data = (unsigned char *)malloc(pCertCtx->stAttr.stSerialNumber.length);
-		memcpy(pCertCtx->stAttr.stSerialNumber.data, data_info_value, pCertCtx->stAttr.stSerialNumber.length);
-
-		memset(data_info_value, 0, 1024);
-		WT_GetCertInfo(CERT_ISSUER_DN, -1, data_info_value, &data_info_len);
-		pCertCtx->stAttr.stIssue.length = strlen(data_info_value) + 1;
-		pCertCtx->stAttr.stIssue.data = (unsigned char *)malloc(pCertCtx->stAttr.stIssue.length);
-		memcpy(pCertCtx->stAttr.stIssue.data, data_info_value, pCertCtx->stAttr.stIssue.length);
-
-		memset(data_info_value, 0, 1024);
-		WT_GetCertInfo(CERT_SUBJECT_DN, -1, data_info_value, &data_info_len);
-		pCertCtx->stAttr.stSubject.length = strlen(data_info_value) + 1;
-		pCertCtx->stAttr.stSubject.data = (unsigned char *)malloc(pCertCtx->stAttr.stSubject.length);
-		memcpy(pCertCtx->stAttr.stSubject.data, data_info_value, pCertCtx->stAttr.stSubject.length);
-
-		memset(data_info_value, 0, 1024);
-		WT_GetCertInfo(CERT_SUBJECT_DN, NID_COMMONNAME, data_info_value, &data_info_len);
-		pCertCtx->stAttr.stCommonName.length = strlen(data_info_value) + 1;
-		pCertCtx->stAttr.stCommonName.data = (unsigned char *)malloc(pCertCtx->stAttr.stCommonName.length);
-		memcpy(pCertCtx->stAttr.stCommonName.data, data_info_value, pCertCtx->stAttr.stCommonName.length);
-
-		WT_ClearCert();
+		if (time_now > certParse.m_tNotAfter || time_now < certParse.m_tNotBefore)
+		{
+			ulRet = EErr_SMB_VERIFY_TIME;
+			goto err;
+		}
 	}
-
-err:
-
-	return ulRet;
-
-}
-
-
-unsigned int SMB_DEV_VerifyCert(unsigned int ulFlag, unsigned int ulAlgType, BYTE* pbCert, unsigned int ulCertLen)
-{
-	unsigned int ulRet = 0;
-
-	switch (ulAlgType)
+	// SIGN CERT
+	if (CERT_VERIFY_CHAIN_FLAG & ulFlag)
 	{
-	case CERT_ALG_RSA_FLAG:
+		// Êü•ÊâæÈ¢ÅÂèëËÄÖËØÅ‰π¶
+		SMB_CS_CertificateFindAttr findAttr = {0};
+
+		findAttr.uiFindFlag = 7;
+
+		SMB_CS_FindCtxsFromDB(&findAttr, &ctxHeader, 1);
+
+		if (NULL != ctxHeader)
+		{
+			// È™åËØÅÈ¢ÅÂèëËÄÖËØÅ‰π¶
+			if (0 == memcmp(ctxHeader->ptr_data->stContent.data, pbCert, uiCertLen))
+			{
+
+			}
+			else
+			{
+				// È™åËØÅ‰∏äÁ∫ßËØÅ‰π¶
+				ulRet = SMB_DEV_VerifyCert(ulFlag, ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length);
+				if (ulRet)
+				{
+					goto err;
+				}
+			}
+			switch (ulAlgType)
+			{
+			case CERT_ALG_RSA_FLAG:
+			{
+				ulRet = OpenSSL_VerifyCert(pbCert, uiCertLen, ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length);
+				if (ulRet)
+				{
+					ulRet = EErr_SMB_VERIFY_CERT;
+					goto err;
+				}
+				else
+				{
+					ulRet = 0;
+				}
+				break;
+			}
+			case CERT_ALG_SM2_FLAG:
+			{
+				ulRet = OpenSSL_SM2VerifyCert(pbCert, uiCertLen, 0, ctxHeader->ptr_data->stAttr.stPublicKey.data + 4, 32, ctxHeader->ptr_data->stAttr.stPublicKey.data + 4 + 32, 32);
+				if (ulRet)
+				{
+					ulRet = EErr_SMB_VERIFY_CERT;
+					goto err;
+				}
+				else
+				{
+					ulRet = 0;
+				}
+				break;
+			}
+			default:
+				break;
+			}
+		}
+		else
+		{
+			ulRet = EErr_SMB_NO_CERT_CHAIN;
+			goto err;
+		}
+	}
+	//CRL
+	if (CERT_VERIFY_CRL_FLAG & ulFlag)
 	{
 
 	}
-	break;
-	case CERT_ALG_SM2_FLAG:
-	{
-
-	}
-	break;
-	default:
-		break;
-	}
-
 err:
 
 	return ulRet;
@@ -1545,7 +1584,7 @@ unsigned int SMB_DEV_EnumCert(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHead
 			continue;
 		}
 	}
-	
+
 	ulRet = 0;
 
 	return ulRet;
@@ -1557,7 +1596,7 @@ unsigned int SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr * pCertAttr, OPST_
 	HINSTANCE ghInst = NULL;
 
 	/*
-	SKF∫Ø ˝µÿ÷∑
+	SKFÂáΩÊï∞Âú∞ÂùÄ
 	*/
 
 	FUNC_NAME_DECLARE(func_, EnumDev, );
@@ -1607,7 +1646,7 @@ unsigned int SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr * pCertAttr, OPST_
 	}
 
 #if defined(USE_LOAD_LIBRARY)
-	ghInst = LoadLibraryA(dllPathValue);//∂ØÃ¨º”‘ÿDll
+	ghInst = LoadLibraryA(dllPathValue);//Âä®ÊÄÅÂä†ËΩΩDll
 #else
 	ghInst = SMB_DEV_LoadLibrary(dllPathValue);
 #endif
@@ -1719,7 +1758,7 @@ unsigned int SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr * pCertAttr, OPST_
 		if (0 != ulRet)
 		{
 			goto err;
-		}
+	}
 
 #if USE_SELF_MUTEX
 		SDSCReleaseMutex(hMutex);
@@ -1732,7 +1771,7 @@ unsigned int SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr * pCertAttr, OPST_
 		{
 			goto err;
 		}
-	}
+}
 
 err:
 
@@ -1754,13 +1793,13 @@ err:
 	if (ghInst)
 	{
 #if defined(USE_FREE_GHINST)
-		FreeLibrary(ghInst);// Õ∑≈Dll∫Ø ˝
+		FreeLibrary(ghInst);//ÈáäÊîæDllÂáΩÊï∞
 		ghInst = NULL;
 #endif
 	}
 
 	return ulRet;
-}
+	}
 
 unsigned int SMB_DEV_SM2SignDigestProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, unsigned int ulDataLen, PECCSIGNATUREBLOB pSignature)
 {
@@ -1880,13 +1919,13 @@ err:
 	if (ghInst)
 	{
 #if defined(USE_FREE_GHINST)
-		FreeLibrary(ghInst);// Õ∑≈Dll∫Ø ˝
+		FreeLibrary(ghInst);//ÈáäÊîæDllÂáΩÊï∞
 		ghInst = NULL;
 #endif
 	}
 
 	return ulRet;
-}
+	}
 
 unsigned int SMB_DEV_SM2SignDigestProcessByCertAttr(SMB_CS_CertificateAttr * pCertAttr, BYTE *pbData, unsigned int ulDataLen, PECCSIGNATUREBLOB pSignature)
 {
@@ -1941,6 +1980,20 @@ err:
 		SMB_DEV_SM2SignFinalize(&args);
 		SMB_DEV_ArgsClr();
 	}
+
+	return ulRet;
+}
+
+
+
+unsigned int SMB_DEV_IsSM2RootCert(BYTE* pbCert, unsigned int ulCertLen, unsigned int * bIRoot)
+{
+	unsigned int ulRet = 0;
+
+	*bIRoot = 0; // ‰∏ç‰∏∫Ê†πËØÅ
+
+err:
+
 
 	return ulRet;
 }

@@ -26,6 +26,7 @@ FILE(GLOB
   ${CMAKE_SOURCE_DIR}/common/smb_dev.cpp
   ${CMAKE_SOURCE_DIR}/common/smb_cs.cpp
   ${CMAKE_SOURCE_DIR}/common/smcert.cpp
+  ${CMAKE_SOURCE_DIR}/common/certificate_items_parse.cpp
  )
 
 LINK_DIRECTORIES(

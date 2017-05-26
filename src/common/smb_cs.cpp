@@ -1,7 +1,12 @@
-#include "smb_cs.h"
-#include "sqlite3.h"
+﻿#include "smb_cs.h"
 
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "sqlite3.h"
+#include "smcert.h"
+#include "o_all_func_def.h"
 
 /*
 defines
@@ -591,3 +596,206 @@ err:
 
 	return crv;
 }
+
+
+unsigned int SMB_CS_CreateCtx(SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen)
+{
+	SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
+
+	if (!pCertCtx)
+	{
+		goto err;
+	}
+
+	memset(pCertCtx, 0, sizeof(SMB_CS_CertificateContext));
+
+	pCertCtx->stContent.length = uiCertificateLen;
+	pCertCtx->stContent.data = (unsigned char *)malloc(pCertCtx->stContent.length);
+	memcpy(pCertCtx->stContent.data, pCertificate, pCertCtx->stContent.length);
+
+	SMB_UTIL_FillCertAttr(pCertCtx);
+err:
+
+	*ppCertCtx = pCertCtx;
+
+	return 0;
+}
+
+unsigned int SMB_UTIL_FillCertAttr(SMB_CS_CertificateContext * pCertCtx)
+{
+	unsigned int ulRet = 0;
+	if (NULL == pCertCtx)
+	{
+		goto err;
+	}
+	else
+	{
+		// 证书的属性
+		char data_info_value[1024] = { 0 };
+		int data_info_len = 0;
+
+		WT_SetMyCert(pCertCtx->stContent.data, pCertCtx->stContent.length);
+
+		memset(data_info_value, 0, 1024);
+		WT_GetCertInfo(CERT_SERIALNUMBER, 0, data_info_value, &data_info_len);
+		pCertCtx->stAttr.stSerialNumber.length = strlen(data_info_value) + 1;
+		pCertCtx->stAttr.stSerialNumber.data = (unsigned char *)malloc(pCertCtx->stAttr.stSerialNumber.length);
+		memcpy(pCertCtx->stAttr.stSerialNumber.data, data_info_value, pCertCtx->stAttr.stSerialNumber.length);
+
+		memset(data_info_value, 0, 1024);
+		WT_GetCertInfo(CERT_ISSUER_DN, -1, data_info_value, &data_info_len);
+		pCertCtx->stAttr.stIssue.length = strlen(data_info_value) + 1;
+		pCertCtx->stAttr.stIssue.data = (unsigned char *)malloc(pCertCtx->stAttr.stIssue.length);
+		memcpy(pCertCtx->stAttr.stIssue.data, data_info_value, pCertCtx->stAttr.stIssue.length);
+
+		memset(data_info_value, 0, 1024);
+		WT_GetCertInfo(CERT_SUBJECT_DN, -1, data_info_value, &data_info_len);
+		pCertCtx->stAttr.stSubject.length = strlen(data_info_value) + 1;
+		pCertCtx->stAttr.stSubject.data = (unsigned char *)malloc(pCertCtx->stAttr.stSubject.length);
+		memcpy(pCertCtx->stAttr.stSubject.data, data_info_value, pCertCtx->stAttr.stSubject.length);
+
+		memset(data_info_value, 0, 1024);
+		WT_GetCertInfo(CERT_SUBJECT_DN, NID_COMMONNAME, data_info_value, &data_info_len);
+		pCertCtx->stAttr.stCommonName.length = strlen(data_info_value) + 1;
+		pCertCtx->stAttr.stCommonName.data = (unsigned char *)malloc(pCertCtx->stAttr.stCommonName.length);
+		memcpy(pCertCtx->stAttr.stCommonName.data, data_info_value, pCertCtx->stAttr.stCommonName.length);
+
+		WT_ClearCert();
+	}
+
+err:
+
+	return ulRet;
+
+}
+
+int sdb_FindCtxsFromDB(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiStoreID)
+{
+	sqlite3_stmt *stmt = NULL;
+	int sqlerr = SQLITE_OK;
+	int retry = 0;
+	int i = 0;
+	char data_value[BUFFER_LEN_1K] = { 0 };
+	unsigned int data_len = 0;
+
+	LOCK_SQLITE();
+
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", -1, &stmt, NULL);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+
+	do {
+		sqlerr = sqlite3_step(stmt);
+
+		if (sqlerr == SQLITE_BUSY) {
+			sqlite3_sleep(SDB_BUSY_RETRY_TIME);
+		}
+
+		if (sqlerr == SQLITE_DONE)
+		{
+			sqlerr = SQLITE_OK;
+		}
+
+		if (sqlerr == SQLITE_ROW)
+		{
+			SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
+
+			memset(pCertCtx, 0, sizeof(SMB_CS_CertificateContext));
+
+			pCertCtx->stContent.length = sqlite3_column_bytes(stmt, 1);
+			pCertCtx->stContent.data = (unsigned char *)malloc(pCertCtx->stContent.length);
+			memcpy(pCertCtx->stContent.data, (char *)sqlite3_column_blob(stmt, 1), pCertCtx->stContent.length);
+
+			SMB_UTIL_FillCertAttr(pCertCtx);
+
+			OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppCertCtxNodeHeader, (void *)pCertCtx);
+		}
+
+	} while (!sdb_done(sqlerr, &retry));
+
+err:
+	if (stmt) {
+		sqlite3_reset(stmt);
+		sqlite3_finalize(stmt);
+	}
+	UNLOCK_SQLITE();
+
+	if (!sqlerr)
+	{
+
+	}
+
+	return sqlerr;
+}
+
+unsigned int SMB_CS_FindCtxsFromDB(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiStoreID)
+{
+	unsigned int ulRet = -1;
+	char data_value[BUFFER_LEN_1K] = { 0 };
+	unsigned int data_len = 0;
+	int crv = 0;
+	SDB sdb = { 0 };
+
+	sdb.sdb_path = smb_db_path;
+
+	crv = sdb_Begin(&sdb);
+	if (crv)
+	{
+		goto err;
+	}
+
+	crv = sdb_FindCtxsFromDB(&sdb, pCertificateFindAttr, ppCertCtxNodeHeader, uiStoreID);
+	if (crv)
+	{
+		goto err;
+	}
+
+err:
+
+	if (crv)
+	{
+		sdb_Abort(&sdb);
+	}
+	else
+	{
+		sdb_Commit(&sdb);
+	}
+
+	return crv;
+}
+
+
+
+unsigned int SMB_UTIL_SetCtxVendor(SMB_CS_CertificateContext *pCertCtx, unsigned char *pVendor, unsigned int uiVendorLen)
+{
+	unsigned int ulRet = 0;
+	if (NULL == pCertCtx)
+	{
+		goto err;
+	}
+	else
+	{
+		pCertCtx->stAttr.stVendorData.length = uiVendorLen;
+		pCertCtx->stAttr.stVendorData.data = (unsigned char *)malloc(pCertCtx->stAttr.stVendorData.length);
+		memcpy(pCertCtx->stAttr.stVendorData.data, pVendor, pCertCtx->stAttr.stVendorData.length);
+	}
+
+err:
+
+	return ulRet;
+}
+
+unsigned int SMB_CS_FreeCtx(SMB_CS_CertificateContext *pCertCtx)
+{
+	if (pCertCtx)
+	{
+
+
+		pCertCtx = NULL;
+	}
+
+	return 0;
+}
+

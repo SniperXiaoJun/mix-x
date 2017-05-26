@@ -1008,6 +1008,11 @@ extern "C" {
 		unsigned char *pbP7BContent, unsigned int *puiP7BContentLen
 		);
 
+	COMMON_API unsigned int OpenSSL_VerifyCert(
+		const unsigned char *pbX509Cert, unsigned int uiX509CertLen,
+		const unsigned char *pbPublicKey, unsigned int uiPublicKeyLen
+	);
+
 #ifdef __cplusplus
 }
 #endif
