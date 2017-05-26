@@ -6,52 +6,6 @@
 #include "smb_cs.h"
 #include "SKFInterface.h"
 
-
-// 证书(密钥类型标志) 可以做按位与操作
-typedef enum _SMB_DEV_CERT_ALG_FLAG
-{
-	CERT_ALG_RSA_FLAG = 0x00000001,		// RSA证书
-	CERT_ALG_SM2_FLAG = 0x00000002,		// SM2证书
-
-}SMB_DEV_CERT_ALG_TYPE;
-
-// 证书(签名|加密标志) 可以做按位与操作
-typedef enum _SMB_DEV_CERT_USAGE_FLAG
-{
-	CERT_SIGN_FLAG = 0x00000001,		// 签名证书
-	CERT_EX_FLAG = 0x00000002,		// 加密证书
-
-}SMB_DEV_CERT_USAGE_FLAG;
-
-// 证书(验证标志) 可以做按位与操作
-typedef enum _SMB_DEV_CERT_VERIFY_FLAG
-{
-	CERT_NOT_VERIFY_FLAG = 0x00000000,		// 不验证
-	CERT_VERIFY_TIME_FLAG = 0x00000001,		// 使用本地当前时间验证有效期
-	CERT_VERIFY_CHAIN_FLAG = 0x00000002,		// 验证证书链以及签名
-	CERT_VERIFY_CRL_FLAG = 0x00000004,		// 尚未实现
-
-}SMB_DEV_CERT_VERIFY_FLAG;
-
-// 验证结果
-typedef enum _SMB_DEV_CERT_VERIFY_RESULT_FLAG
-{
-	CERT_VERIFY_RESULT_FLAG_OK = 0x00000000,		// 验证成功
-	CERT_VERIFY_RESULT_TIME_INVALID = 0x00000001,		// 不在有效期
-	CERT_VERIFY_RESULT_CHAIN_INVALID = 0x00000002,		// 证书链异常
-	CERT_VERIFY_RESULT_SIGN_INVALID = 0x00000003,		// 非法用户证书
-	CERT_VERIFY_RESULT_CRL_INVALID = 0x00000004,		// 尚未加入
-
-}SMB_DEV_CERT_VERIFY_RESULT_FLAG;
-
-
-typedef enum _SMB_DEV_CERT_FILTER_FLAG
-{
-	CERT_FILTER_FLAG_FALSE = 0x00000000,		// 不过滤
-	CERT_FILTER_FLAG_TRUE = 0x00000001,		// 过滤
-}SMB_DEV_CERT_FILTER_FLAG;
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -191,36 +145,6 @@ extern "C" {
 
 
 	/*
-	功能描述:	验证证书的合法性
-	参数:
-	pszSKFName SKF库(NULL 代表全部SKF库)
-	uiVerifyFlag
-	证书(验证标志) 可以做按位与操作
-	参见 SMB_DEV_CERT_VERIFY_FLAG
-	pbCert[IN]:输入证书内容,DER编码
-	uiCertLen[IN]:输入证书内容长度。
-	返回值		0：成功。
-	其他： 错误码
-	*/
-	COMMON_API unsigned int SMB_DEV_VerifyCert(unsigned int uiFlag, BYTE *pbCert, unsigned int uiCertLen);
-
-	/*
-	功能描述:	验证根证书的合法性
-	参数:
-	uiVerifyFlag
-	(验证标志) 可以做按位与操作
-	uiVerifyFlag
-	证书(验证标志) 可以做按位与操作
-	参见 SMB_DEV_CERT_VERIFY_FLAG
-	pbCert[IN]:输入证书内容,DER编码
-	uiCertLen[IN]:输入证书内容长度。
-	返回值		0：成功。
-	其他： 错误码
-	*/
-	COMMON_API unsigned int SMB_DEV_VerifyRootCert(unsigned int uiVerifyFlag, unsigned int uiAlgType, BYTE *pbCert, unsigned int uiCertLen);
-
-
-	/*
 	功能描述:	显示证书
 	输入参数:
 	pbCert[IN]:		输入证书内容,DER编码
@@ -228,45 +152,7 @@ extern "C" {
 	返回值		0：成功。
 	其他：		错误码
 	*/
-	COMMON_API unsigned int SMB_DEV_UIDlgViewContext(BYTE *pbCert, unsigned int uiCertLen);
-
-	/*
-	功能描述:	导入根证书
-	输入参数:
-	pbCert[IN]:		输入证书内容,DER编码
-	uiCertLen[IN]:	输入证书内容长度。
-	输出参数：
-	puiAlgType 算法类型
-	返回值		0：成功。
-
-	其他：		错误码
-	*/
-	COMMON_API unsigned int SMB_DEV_ImportCaCert(BYTE*pbCert, unsigned int uiCertLen, unsigned int*puiAlgType);
-
-	/*
-	功能描述:	是否是根证书
-	输入参数:
-	pbCert[IN]:		输入证书内容,DER编码
-	uiCertLen[IN]:	输入证书内容长度。
-	返回值		0：成功。
-	其他：		错误码
-	*/
-	COMMON_API unsigned int SMB_DEV_IsSM2RootCert(BYTE *pbCert, unsigned int uiCertLen, unsigned int*bIRoot);
-
-	/*
-	功能描述:	查找上级CA证书
-	输入参数:
-	pbCert[IN]:		输入证书内容,DER编码
-	uiCertLen[IN]:	输入证书内容长度。
-	输出参数：
-	返回值		0：成功。
-	其他：		错误码
-	*/
-	COMMON_API unsigned int SMB_DEV_FindSM2CACert(BYTE *pbCert, unsigned int uiCertLen,
-		BYTE *pbCACert, unsigned int*uiCACertLen
-	);
-
-
+	COMMON_API unsigned int SMB_UI_UIDlgViewContext(BYTE *pbCert, unsigned int uiCertLen);
 
 	COMMON_API unsigned int SMB_DEV_SM2GetAgreementKey(
 		_In_ SMB_CS_CertificateAttr*pCertAttr,
@@ -280,7 +166,7 @@ extern "C" {
 		_In_ ULONG ulIDBLen,
 		_Out_ BYTE *pbAgreementKey,
 		_Inout_ ULONG *pulAgreementKeyLen,
-		_In_ const char*pszPIN,
+		_In_ char*pszPIN,
 		_Inout_ ULONG*puiRetryCount);
 
 	COMMON_API unsigned int SMB_DEV_SM2GetAgreementKeyEx(
@@ -298,9 +184,9 @@ extern "C" {
 		_In_ BYTE *pbIDB,
 		_In_ int uiIDBLen,
 		_Out_ BYTE *pbAgreementKey,
-		_Inout_ int *puiAgreementKeyLen,
+		_Inout_ ULONG *puiAgreementKeyLen,
 		_In_ const char*pszPIN,
-		_Inout_ int*puiRetryCount);
+		_Inout_ ULONG*puiRetryCount);
 
 	/*
 	功能名称:	枚举设备

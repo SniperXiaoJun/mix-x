@@ -2,8 +2,50 @@
 #ifndef _SMB_CS_API_H_
 #define _SMB_CS_API_H_
 
-
 #include "common.h"
+
+// 证书(验证标志) 可以做按位与操作
+typedef enum _SMB_CERT_VERIFY_FLAG
+{
+	CERT_NOT_VERIFY_FLAG = 0x00000000,		// 不验证
+	CERT_VERIFY_TIME_FLAG = 0x00000001,		// 使用本地当前时间验证有效期
+	CERT_VERIFY_CHAIN_FLAG = 0x00000002,		// 验证证书链以及签名
+	CERT_VERIFY_CRL_FLAG = 0x00000004,		// 尚未实现
+
+}SMB_CERT_VERIFY_FLAG;
+
+// 验证结果
+typedef enum _SMB_CERT_VERIFY_RESULT_FLAG
+{
+	CERT_VERIFY_RESULT_FLAG_OK = 0x00000000,		// 验证成功
+	CERT_VERIFY_RESULT_TIME_INVALID = 0x00000001,		// 不在有效期
+	CERT_VERIFY_RESULT_CHAIN_INVALID = 0x00000002,		// 证书链异常
+	CERT_VERIFY_RESULT_SIGN_INVALID = 0x00000003,		// 非法用户证书
+	CERT_VERIFY_RESULT_CRL_INVALID = 0x00000004,		// 尚未加入
+
+}SMB_CERT_VERIFY_RESULT_FLAG;
+
+// 证书(密钥类型标志) 可以做按位与操作
+typedef enum _SMB_CERT_ALG_FLAG
+{
+	CERT_ALG_RSA_FLAG = 0x00000001,		// RSA证书
+	CERT_ALG_SM2_FLAG = 0x00000002,		// SM2证书
+
+}SMB_CERT_ALG_TYPE;
+
+// 证书(签名|加密标志) 可以做按位与操作
+typedef enum _SMB_CERT_USAGE_FLAG
+{
+	CERT_SIGN_FLAG = 0x00000001,		// 签名证书
+	CERT_EX_FLAG = 0x00000002,		// 加密证书
+
+}SMB_CERT_USAGE_FLAG;
+
+typedef enum _SMB_CERT_FILTER_FLAG
+{
+	CERT_FILTER_FLAG_FALSE = 0x00000000,		// 不过滤
+	CERT_FILTER_FLAG_TRUE = 0x00000001,		// 过滤
+}SMB_CERT_FILTER_FLAG;
 
 typedef struct _SMB_CS_Data
 {
@@ -151,6 +193,12 @@ extern "C" {
 	*/
 	COMMON_API unsigned int SMB_CS_ReadSKFSignType(const char * pszSKFName, char * pszSignType, unsigned int *puiSignTypeLen);
 
+	/*
+	通过证书获取上下文
+	*/
+	COMMON_API unsigned int SMB_CS_GetCtxByCert(SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen);
+
+
 
 	/*
 	工具类xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -164,6 +212,11 @@ extern "C" {
 	设置用户自定义数据
 	*/
 	COMMON_API unsigned int SMB_UTIL_SetCtxVendor(SMB_CS_CertificateContext *pCertCtx, unsigned char *pVendor, unsigned int uiVendorLen);
+
+	/*
+	验证证书的合法性
+	*/
+	COMMON_API unsigned int SMB_UTIL_VerifyCert(unsigned int uiFlag, unsigned char *pbCert, unsigned int uiCertLen);
 
 #ifdef __cplusplus
 }
