@@ -79,13 +79,15 @@ typedef struct _SMB_CS_CertificateFindAttr
 	unsigned int uiFindFlag;        // 查找标记 以下选项按位或 1 2 4 8 16 32 64 128 ... 支持4*8=32个查找项 32与组合查找
 	unsigned char ucCertAlgType;	// 证书类型
 	unsigned char ucCertUsageType;	// 签名加密
+	unsigned char ucStoreType;      // 存储类型
 	SMB_CS_Data stSubject;    		// 主题项
-	SMB_CS_Data stIsuue;            // 颁发者
+	SMB_CS_Data stIssue;            // 颁发者
 	SMB_CS_Data stPublicKey;        // 公钥
 	SMB_CS_Data stSerialNumber;     // 序列号
 	SMB_CS_Data stSubjectKeyID;     // 使用者密钥标识
 	SMB_CS_Data stIssueKeyID;       // 颁发者密钥标识
 	SMB_CS_Data stVendorData;       // 用户自定义数据
+	
 }SMB_CS_CertificateFindAttr;
 
 typedef struct _SMB_CS_CertificateContent
@@ -100,6 +102,7 @@ typedef struct _SMB_CS_CertificateContext
 	SMB_CS_CertificateContent  stContent;   // 证书内容
 	int uiContentID;
 	int uiAttrID;
+	unsigned char ucStoreType;
 }SMB_CS_CertificateContext;
 
 typedef struct _SMB_CS_CertificateContext_NODE
@@ -153,7 +156,7 @@ extern "C" {
 	/*
 	添加证书到数据库
 	*/
-	COMMON_API unsigned int SMB_CS_AddCtxToDB(SMB_CS_CertificateContext *pCertCtx, unsigned int uiStoreID);
+	COMMON_API unsigned int SMB_CS_AddCtxToDB(SMB_CS_CertificateContext *pCertCtx, unsigned char ucStoreType);
 
 	/*
 	从数据库删除证书上
@@ -168,12 +171,12 @@ extern "C" {
 	/*
 	从数据库查找证书
 	*/
-	COMMON_API unsigned int SMB_CS_FindCtxsFromDB(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiStoreID);
+	COMMON_API unsigned int SMB_CS_FindCtxsFromDB(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader);
 
 	/*
 	从数据库遍历证书
 	*/
-	COMMON_API unsigned int SMB_CS_EnumCtxsFromDB(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiStoreID);
+	COMMON_API unsigned int SMB_CS_EnumCtxsFromDB(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char ucStoreType);
 
 	/*
 	释放证书上下文

@@ -10,6 +10,7 @@
 #include "o_all_func_def.h"
 #include "certificate_items_parse.h"
 #include "openssl_func_def.h"
+#include <math.h>
 
 /*
 defines
@@ -677,7 +678,177 @@ err:
 
 }
 
-int sdb_FindCtxsFromDB(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiStoreID)
+int sdb_FillCtx(SMB_CS_CertificateContext **ppCertCtx, SMB_CS_CertificateFindAttr *pCertificateFindAttr, sqlite3_stmt *stmt)
+{
+	SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
+
+	memset(pCertCtx, 0, sizeof(SMB_CS_CertificateContext));
+
+
+	//id content, store_type, id_attr,
+	//cert_alg_type, cert_use_type, skf_name, device_name, application_ame, 
+	//container_name, common_name, subject, isuue, public_key, serial_number, 
+	//subject_keyid, isuue_keyid, vendor_data, verify, not_before, not_after
+
+	int pos = -1;
+
+	pos += 1;
+	pCertCtx->uiContentID = sqlite3_column_int(stmt, pos);
+
+	pos += 1;
+	pCertCtx->stContent.length = sqlite3_column_bytes(stmt, pos);
+	pCertCtx->stContent.data = (unsigned char *)malloc(pCertCtx->stContent.length);
+	memcpy(pCertCtx->stContent.data, (char *)sqlite3_column_blob(stmt, pos), pCertCtx->stContent.length);
+
+	pos += 1;
+	pCertCtx->ucStoreType = sqlite3_column_int(stmt, pos);
+
+	pos += 1;
+	pCertCtx->uiAttrID = sqlite3_column_int(stmt, pos);
+
+	pos += 1;
+	pCertCtx->stAttr.ucCertAlgType = sqlite3_column_int(stmt, pos);
+
+	pos += 1;
+	pCertCtx->stAttr.ucCertUsageType = sqlite3_column_int(stmt, pos);
+
+	pos += 1;
+	pCertCtx->stAttr.stSKFName.length = sqlite3_column_bytes(stmt, pos);
+	pCertCtx->stAttr.stSKFName.data = (unsigned char *)malloc(pCertCtx->stAttr.stSKFName.length);
+	memcpy(pCertCtx->stAttr.stSKFName.data, (char *)sqlite3_column_blob(stmt, pos), pCertCtx->stAttr.stSKFName.length);
+
+	pos += 1;
+	pCertCtx->stAttr.stDeviceName.length = sqlite3_column_bytes(stmt, pos);
+	pCertCtx->stAttr.stDeviceName.data = (unsigned char *)malloc(pCertCtx->stAttr.stDeviceName.length);
+	memcpy(pCertCtx->stAttr.stDeviceName.data, (char *)sqlite3_column_blob(stmt, pos), pCertCtx->stAttr.stDeviceName.length);
+
+	pos += 1;
+	pCertCtx->stAttr.stApplicationName.length = sqlite3_column_bytes(stmt, pos);
+	pCertCtx->stAttr.stApplicationName.data = (unsigned char *)malloc(pCertCtx->stAttr.stApplicationName.length);
+	memcpy(pCertCtx->stAttr.stApplicationName.data, (char *)sqlite3_column_blob(stmt, pos), pCertCtx->stAttr.stApplicationName.length);
+
+	pos += 1;
+	pCertCtx->stAttr.stContainerName.length = sqlite3_column_bytes(stmt, pos);
+	pCertCtx->stAttr.stContainerName.data = (unsigned char *)malloc(pCertCtx->stAttr.stContainerName.length);
+	memcpy(pCertCtx->stAttr.stContainerName.data, (char *)sqlite3_column_blob(stmt, pos), pCertCtx->stAttr.stContainerName.length);
+
+	pos += 1;
+	pCertCtx->stAttr.stCommonName.length = sqlite3_column_bytes(stmt, pos);
+	pCertCtx->stAttr.stCommonName.data = (unsigned char *)malloc(pCertCtx->stAttr.stCommonName.length);
+	memcpy(pCertCtx->stAttr.stCommonName.data, (char *)sqlite3_column_blob(stmt, pos), pCertCtx->stAttr.stCommonName.length);
+
+	pos += 1;
+	pCertCtx->stAttr.stSubject.length = sqlite3_column_bytes(stmt, pos);
+	pCertCtx->stAttr.stSubject.data = (unsigned char *)malloc(pCertCtx->stAttr.stSubject.length);
+	memcpy(pCertCtx->stAttr.stSubject.data, (char *)sqlite3_column_blob(stmt, pos), pCertCtx->stAttr.stSubject.length);
+
+	pos += 1;
+	pCertCtx->stAttr.stIssue.length = sqlite3_column_bytes(stmt, pos);
+	pCertCtx->stAttr.stIssue.data = (unsigned char *)malloc(pCertCtx->stAttr.stIssue.length);
+	memcpy(pCertCtx->stAttr.stIssue.data, (char *)sqlite3_column_blob(stmt, pos), pCertCtx->stAttr.stIssue.length);
+
+	pos += 1;
+	pCertCtx->stAttr.stPublicKey.length = sqlite3_column_bytes(stmt, pos);
+	pCertCtx->stAttr.stPublicKey.data = (unsigned char *)malloc(pCertCtx->stAttr.stPublicKey.length);
+	memcpy(pCertCtx->stAttr.stPublicKey.data, (char *)sqlite3_column_blob(stmt, pos), pCertCtx->stAttr.stPublicKey.length);
+
+	pos += 1;
+	pCertCtx->stAttr.stSerialNumber.length = sqlite3_column_bytes(stmt, pos);
+	pCertCtx->stAttr.stSerialNumber.data = (unsigned char *)malloc(pCertCtx->stAttr.stSerialNumber.length);
+	memcpy(pCertCtx->stAttr.stSerialNumber.data, (char *)sqlite3_column_blob(stmt, pos), pCertCtx->stAttr.stSerialNumber.length);
+
+	pos += 1;
+	pCertCtx->stAttr.stSubjectKeyID.length = sqlite3_column_bytes(stmt, pos);
+	pCertCtx->stAttr.stSubjectKeyID.data = (unsigned char *)malloc(pCertCtx->stAttr.stSubjectKeyID.length);
+	memcpy(pCertCtx->stAttr.stSubjectKeyID.data, (char *)sqlite3_column_blob(stmt, pos), pCertCtx->stAttr.stSubjectKeyID.length);
+
+	pos += 1;
+	pCertCtx->stAttr.stIssueKeyID.length = sqlite3_column_bytes(stmt, pos);
+	pCertCtx->stAttr.stIssueKeyID.data = (unsigned char *)malloc(pCertCtx->stAttr.stIssueKeyID.length);
+	memcpy(pCertCtx->stAttr.stIssueKeyID.data, (char *)sqlite3_column_blob(stmt, pos), pCertCtx->stAttr.stIssueKeyID.length);
+
+	pos += 1;
+	pCertCtx->stAttr.stVendorData.length = sqlite3_column_bytes(stmt, pos);
+	pCertCtx->stAttr.stVendorData.data = (unsigned char *)malloc(pCertCtx->stAttr.stVendorData.length);
+	memcpy(pCertCtx->stAttr.stVendorData.data, (char *)sqlite3_column_blob(stmt, pos), pCertCtx->stAttr.stVendorData.length);
+
+
+	pos += 1;
+	pCertCtx->stAttr.ulVerify = sqlite3_column_int(stmt, pos);
+
+
+	pos += 1;
+	pCertCtx->stAttr.ulNotBefore = sqlite3_column_int64(stmt, pos);
+
+
+	pos += 1;
+	pCertCtx->stAttr.ulNotAfter = sqlite3_column_int64(stmt, pos);
+
+
+	if (NULL == pCertificateFindAttr)
+	{
+		*ppCertCtx = pCertCtx;
+	}
+	else
+	{
+		bool bExist = true;
+
+		if ((pCertificateFindAttr->uiFindFlag& 1) && pCertCtx->stAttr.ucCertAlgType != pCertificateFindAttr->ucCertAlgType)
+		{
+			bExist = false;
+		}
+		if ((pCertificateFindAttr->uiFindFlag& 2) && pCertCtx->stAttr.ucCertUsageType != pCertificateFindAttr->ucCertUsageType)
+		{
+			bExist = false;
+		}
+		if ((pCertificateFindAttr->uiFindFlag & 4) && pCertCtx->ucStoreType != pCertificateFindAttr->ucStoreType)
+		{
+			bExist = false;
+		}
+		if ((pCertificateFindAttr->uiFindFlag& 8) && 0 != memcmp(pCertCtx->stAttr.stSubject.data, pCertificateFindAttr->stSubject.data, pCertificateFindAttr->stSubject.length))
+		{
+			bExist = false;
+		}
+		if ((pCertificateFindAttr->uiFindFlag & 16) && 0 != memcmp(pCertCtx->stAttr.stIssue.data, pCertificateFindAttr->stIssue.data, pCertificateFindAttr->stIssue.length))
+		{
+			bExist = false;
+		}
+		if ((pCertificateFindAttr->uiFindFlag & 32) && 0 != memcmp(pCertCtx->stAttr.stPublicKey.data, pCertificateFindAttr->stPublicKey.data, pCertificateFindAttr->stPublicKey.length))
+		{
+			bExist = false;
+		}
+		if ((pCertificateFindAttr->uiFindFlag & 64) && 0 != memcmp(pCertCtx->stAttr.stSerialNumber.data, pCertificateFindAttr->stSerialNumber.data, pCertificateFindAttr->stSerialNumber.length))
+		{
+			bExist = false;
+		}
+		if ((pCertificateFindAttr->uiFindFlag & 128) && 0 != memcmp(pCertCtx->stAttr.stSubjectKeyID.data, pCertificateFindAttr->stSubjectKeyID.data, pCertificateFindAttr->stSubjectKeyID.length))
+		{
+			bExist = false;
+		}
+		if ((pCertificateFindAttr->uiFindFlag & 256) && 0 != memcmp(pCertCtx->stAttr.stIssueKeyID.data, pCertificateFindAttr->stIssueKeyID.data, pCertificateFindAttr->stIssueKeyID.length))
+		{
+			bExist = false;
+		}
+		if ((pCertificateFindAttr->uiFindFlag & 512) && 0 != memcmp(pCertCtx->stAttr.stVendorData.data, pCertificateFindAttr->stVendorData.data, pCertificateFindAttr->stVendorData.length))
+		{
+			bExist = false;
+		}
+
+		if (bExist)
+		{
+			*ppCertCtx = pCertCtx;
+		}
+		else
+		{
+			SMB_CS_FreeCtx(pCertCtx);
+			*ppCertCtx = NULL;
+		}
+	}
+
+	return 0;
+}
+
+int sdb_FindCtxsFromDB(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
 {
 	sqlite3_stmt *stmt = NULL;
 	int sqlerr = SQLITE_OK;
@@ -688,7 +859,9 @@ int sdb_FindCtxsFromDB(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAtt
 
 	LOCK_SQLITE();
 
-	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", -1, &stmt, NULL);
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select a.id as id content, store_type, id_attr, "
+		"cert_alg_type, cert_use_type, skf_name, device_name, application_ame, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid, isuue_keyid, vendor_data, verify, not_before, not_after "
+		"from table_certificate as a,table_certificate as b where a.attr_id=b.id; ", -1, &stmt, NULL);
 	if (sqlerr != SQLITE_OK)
 	{
 		goto err;
@@ -708,14 +881,8 @@ int sdb_FindCtxsFromDB(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAtt
 
 		if (sqlerr == SQLITE_ROW)
 		{
-			SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
-
-			memset(pCertCtx, 0, sizeof(SMB_CS_CertificateContext));
-
-			pCertCtx->stContent.length = sqlite3_column_bytes(stmt, 1);
-			pCertCtx->stContent.data = (unsigned char *)malloc(pCertCtx->stContent.length);
-			memcpy(pCertCtx->stContent.data, (char *)sqlite3_column_blob(stmt, 1), pCertCtx->stContent.length);
-
+			SMB_CS_CertificateContext *pCertCtx = NULL;
+			sdb_FillCtx(&pCertCtx, pCertificateFindAttr,stmt);
 			OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppCertCtxNodeHeader, (void *)pCertCtx);
 		}
 
@@ -737,7 +904,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_FindCtxsFromDB(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiStoreID)
+unsigned int SMB_CS_FindCtxsFromDB(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
 {
 	unsigned int ulRet = -1;
 	char data_value[BUFFER_LEN_1K] = { 0 };
@@ -753,7 +920,7 @@ unsigned int SMB_CS_FindCtxsFromDB(SMB_CS_CertificateFindAttr *pCertificateFindA
 		goto err;
 	}
 
-	crv = sdb_FindCtxsFromDB(&sdb, pCertificateFindAttr, ppCertCtxNodeHeader, uiStoreID);
+	crv = sdb_FindCtxsFromDB(&sdb, pCertificateFindAttr, ppCertCtxNodeHeader);
 	if (crv)
 	{
 		goto err;
@@ -932,15 +1099,8 @@ unsigned int sdb_GetCtxByCert(SDB *sdb, SMB_CS_CertificateContext **ppCertCtx, u
 
 		if (sqlerr == SQLITE_ROW)
 		{
-			SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
-
-			memset(pCertCtx, 0, sizeof(SMB_CS_CertificateContext));
-
-			pCertCtx->stContent.length = sqlite3_column_bytes(stmt, 1);
-			pCertCtx->stContent.data = (unsigned char *)malloc(pCertCtx->stContent.length);
-			memcpy(pCertCtx->stContent.data, (char *)sqlite3_column_blob(stmt, 1), pCertCtx->stContent.length);
-
-
+			SMB_CS_CertificateContext *pCertCtx = NULL;
+			sdb_FillCtx(&pCertCtx, NULL, stmt);
 		}
 
 	} while (!sdb_done(sqlerr, &retry));
@@ -1044,7 +1204,7 @@ unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, uns
 
 		findAttr.uiFindFlag = 7;
 
-		SMB_CS_FindCtxsFromDB(&findAttr, &ctxHeader, 1);
+		SMB_CS_FindCtxsFromDB(&findAttr, &ctxHeader);
 
 		if (NULL != ctxHeader)
 		{
@@ -1112,13 +1272,17 @@ err:
 	return ulRet;
 }
 
-unsigned int SMB_CS_EnumCtxsFromDB(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiStoreID)
+unsigned int SMB_CS_EnumCtxsFromDB(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char ucStoreType)
 {
-	return SMB_CS_FindCtxsFromDB(NULL, ppCertCtxNodeHeader, uiStoreID);
+	SMB_CS_CertificateFindAttr findAttr;
+
+	findAttr.ucStoreType = ucStoreType;
+
+	return SMB_CS_FindCtxsFromDB(&findAttr, ppCertCtxNodeHeader);
 }
 
 
-int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned int uiStoreID)
+int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned char ucStoreType)
 {
 	sqlite3_stmt *stmt = NULL;
 	int sqlerr = SQLITE_OK;
@@ -1320,7 +1484,7 @@ int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned int u
 		goto err;
 	}
 	//$store_type
-	sqlerr = sqlite3_bind_int(stmt, 2, uiStoreID);
+	sqlerr = sqlite3_bind_int(stmt, 2, ucStoreType);
 	if (sqlerr != SQLITE_OK)
 	{
 		goto err;
@@ -1367,7 +1531,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_AddCtxToDB(SMB_CS_CertificateContext *pCertCtx, unsigned int uiStoreID)
+unsigned int SMB_CS_AddCtxToDB(SMB_CS_CertificateContext *pCertCtx, unsigned char ucStoreType)
 {
 
 	unsigned int ulRet = -1;
@@ -1384,7 +1548,7 @@ unsigned int SMB_CS_AddCtxToDB(SMB_CS_CertificateContext *pCertCtx, unsigned int
 		goto err;
 	}
 
-	crv = sdb_AddCtxToDB(&sdb, pCertCtx, uiStoreID);
+	crv = sdb_AddCtxToDB(&sdb, pCertCtx, ucStoreType);
 	if (crv)
 	{
 		goto err;
