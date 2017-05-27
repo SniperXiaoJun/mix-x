@@ -77,16 +77,16 @@ typedef struct _SMB_CS_CertificateAttr
 typedef struct _SMB_CS_CertificateFindAttr
 {
 	unsigned int uiFindFlag;        // 查找标记 以下选项按位或 1 2 4 8 16 32 64 128 ... 支持4*8=32个查找项 32与组合查找
-	unsigned char ucCertAlgType;	// 证书类型
-	unsigned char ucCertUsageType;	// 签名加密
-	unsigned char ucStoreType;      // 存储类型
-	SMB_CS_Data stSubject;    		// 主题项
-	SMB_CS_Data stIssue;            // 颁发者
-	SMB_CS_Data stPublicKey;        // 公钥
-	SMB_CS_Data stSerialNumber;     // 序列号
-	SMB_CS_Data stSubjectKeyID;     // 使用者密钥标识
-	SMB_CS_Data stIssueKeyID;       // 颁发者密钥标识
-	SMB_CS_Data stVendorData;       // 用户自定义数据
+	unsigned char ucCertAlgType;	// 证书类型 1
+	unsigned char ucCertUsageType;	// 签名加密 2
+	unsigned char ucStoreType;      // 存储类型 4
+	SMB_CS_Data stSubject;    		// 主题项   8
+	SMB_CS_Data stIssue;            // 颁发者   16
+	SMB_CS_Data stPublicKey;        // 公钥     32
+	SMB_CS_Data stSerialNumber;     // 序列号   64
+	SMB_CS_Data stSubjectKeyID;     // 使用者密钥标识  128
+	SMB_CS_Data stIssueKeyID;       // 颁发者密钥标识  256
+	SMB_CS_Data stVendorData;       // 用户自定义数据  512
 	
 }SMB_CS_CertificateFindAttr;
 

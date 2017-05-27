@@ -1202,6 +1202,10 @@ unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, uns
 		// 查找颁发者证书
 		SMB_CS_CertificateFindAttr findAttr = { 0 };
 
+		findAttr.uiFindFlag = 128;
+
+		findAttr.stSubjectKeyID.data = (unsigned char*)certParse.m_strIssueKeyID.c_str();
+		findAttr.stSubjectKeyID.length = certParse.m_strIssueKeyID.size();
 		findAttr.uiFindFlag = 7;
 
 		SMB_CS_FindCtxsFromDB(&findAttr, &ctxHeader);

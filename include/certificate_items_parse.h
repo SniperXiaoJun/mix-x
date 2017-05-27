@@ -77,6 +77,8 @@ public:
 	std::string m_strSubject;
 	std::string m_strIssueCN;
 	std::string m_strSubjectCN;
+	std::string m_strIssueKeyID;
+	std::string stSubjectKeyID;
 
 	time_t m_tNotBefore;
 	time_t m_tNotAfter;
