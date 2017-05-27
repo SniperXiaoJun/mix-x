@@ -716,8 +716,6 @@ int sdb_FindCtxsFromDB(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAtt
 			pCertCtx->stContent.data = (unsigned char *)malloc(pCertCtx->stContent.length);
 			memcpy(pCertCtx->stContent.data, (char *)sqlite3_column_blob(stmt, 1), pCertCtx->stContent.length);
 
-			SMB_UTIL_FillCertAttr(pCertCtx);
-
 			OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppCertCtxNodeHeader, (void *)pCertCtx);
 		}
 
@@ -894,10 +892,109 @@ unsigned int SMB_CS_FreeCtx_NODE(SMB_CS_CertificateContext_NODE **ppCertCtxNodeH
 	return 0;
 }
 
+unsigned int sdb_GetCtxByCert(SDB *sdb, SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen)
+{
+	sqlite3_stmt *stmt = NULL;
+	int sqlerr = SQLITE_OK;
+	int retry = 0;
+	int i = 0;
+	char data_value[BUFFER_LEN_1K] = { 0 };
+	unsigned int data_len = 0;
+
+	LOCK_SQLITE();
+
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select a.id as id content, store_type, id_attr, "
+		"cert_alg_type, cert_use_type, skf_name, device_name, application_ame, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid, isuue_keyid, vendor_data, verify, not_before, not_after "
+		"from table_certificate as a,table_certificate as b where a.attr_id=b.id and content=$content limit(0,1); ", -1, &stmt, NULL);
+
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+
+	sqlerr = sqlite3_bind_blob(stmt, 1, pCertificate, uiCertificateLen, SQLITE_STATIC);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+
+	do {
+		sqlerr = sqlite3_step(stmt);
+
+		if (sqlerr == SQLITE_BUSY) {
+			sqlite3_sleep(SDB_BUSY_RETRY_TIME);
+		}
+
+		if (sqlerr == SQLITE_DONE)
+		{
+			sqlerr = SQLITE_OK;
+		}
+
+		if (sqlerr == SQLITE_ROW)
+		{
+			SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
+
+			memset(pCertCtx, 0, sizeof(SMB_CS_CertificateContext));
+
+			pCertCtx->stContent.length = sqlite3_column_bytes(stmt, 1);
+			pCertCtx->stContent.data = (unsigned char *)malloc(pCertCtx->stContent.length);
+			memcpy(pCertCtx->stContent.data, (char *)sqlite3_column_blob(stmt, 1), pCertCtx->stContent.length);
+
+
+		}
+
+	} while (!sdb_done(sqlerr, &retry));
+
+err:
+	if (stmt) {
+		sqlite3_reset(stmt);
+		sqlite3_finalize(stmt);
+		stmt = NULL;
+	}
+	UNLOCK_SQLITE();
+
+	if (!sqlerr)
+	{
+
+	}
+
+	return sqlerr;
+}
 
 unsigned int SMB_CS_GetCtxByCert(SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen)
 {
-	return 0;
+	unsigned int ulRet = -1;
+	char data_value[BUFFER_LEN_1K] = { 0 };
+	unsigned int data_len = 0;
+	int crv = 0;
+	SDB sdb = { 0 };
+
+	sdb.sdb_path = smb_db_path;
+
+	crv = sdb_Begin(&sdb);
+	if (crv)
+	{
+		goto err;
+	}
+
+	crv = sdb_GetCtxByCert(&sdb, ppCertCtx, pCertificate, uiCertificateLen);
+	if (crv)
+	{
+		goto err;
+	}
+
+err:
+
+	if (crv)
+	{
+		sdb_Abort(&sdb);
+	}
+	else
+	{
+		sdb_Commit(&sdb);
+	}
+
+	return crv;
 }
 
 
@@ -1027,14 +1124,127 @@ int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned int u
 	int sqlerr = SQLITE_OK;
 	int retry = 0;
 	int i = 0;
-	char data_value[BUFFER_LEN_1K] = { 0 };
-	unsigned int data_len = 0;
-
+	int attr_id = 0;
 
 	LOCK_SQLITE();
 
-	sprintf(data_value, "delete from table_certificate_attr where id=%d", pCertCtx->uiAttrID);
-	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, data_value, -1, &stmt, NULL);
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "INSERT INTO "
+		"table_certificate_attr(cert_alg_type, cert_use_type, skf_name, device_name, application_ame, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid, isuue_keyid, vendor_data, verify, not_before, not_after) "
+		"VALUES($cert_alg_type, $cert_use_type, $skf_name, $device_name, $application_ame, $container_name, $common_name, $subject, $isuue, $public_key, $serial_number, $subject_keyid, $isuue_keyid, $vendor_data, $verify, $not_before, $not_after);", -1, &stmt, NULL);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	// $cert_alg_type, 
+	sqlerr = sqlite3_bind_int(stmt, 1, pCertCtx->stAttr.ucCertAlgType);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$cert_use_type, 
+	sqlerr = sqlite3_bind_int(stmt, 2, pCertCtx->stAttr.ucCertUsageType);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$skf_name, 
+	sqlerr = sqlite3_bind_blob(stmt, 3, pCertCtx->stAttr.stSKFName.data,
+		pCertCtx->stAttr.stSKFName.length, SQLITE_STATIC);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$device_name, 
+	sqlerr = sqlite3_bind_blob(stmt, 4, pCertCtx->stAttr.stDeviceName.data,
+		pCertCtx->stAttr.stDeviceName.length, SQLITE_STATIC);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$application_ame, 
+	sqlerr = sqlite3_bind_blob(stmt, 5, pCertCtx->stAttr.stApplicationName.data,
+		pCertCtx->stAttr.stApplicationName.length, SQLITE_STATIC);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$container_name, 
+	sqlerr = sqlite3_bind_blob(stmt, 6, pCertCtx->stAttr.stContainerName.data,
+		pCertCtx->stAttr.stContainerName.length, SQLITE_STATIC);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$common_name, 
+	sqlerr = sqlite3_bind_blob(stmt, 7, pCertCtx->stAttr.stCommonName.data,
+		pCertCtx->stAttr.stCommonName.length, SQLITE_STATIC);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$subject, 
+	sqlerr = sqlite3_bind_blob(stmt, 8, pCertCtx->stAttr.stSubject.data,
+		pCertCtx->stAttr.stSubject.length, SQLITE_STATIC);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$isuue, 
+	sqlerr = sqlite3_bind_blob(stmt, 9, pCertCtx->stAttr.stIssue.data,
+		pCertCtx->stAttr.stIssue.length, SQLITE_STATIC);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$public_key, 
+	sqlerr = sqlite3_bind_blob(stmt, 10, pCertCtx->stAttr.stPublicKey.data,
+		pCertCtx->stAttr.stPublicKey.length, SQLITE_STATIC);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$serial_number, 
+	sqlerr = sqlite3_bind_blob(stmt, 11, pCertCtx->stAttr.stSerialNumber.data,
+		pCertCtx->stAttr.stSerialNumber.length, SQLITE_STATIC);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$subject_keyid, 
+	sqlerr = sqlite3_bind_blob(stmt, 12, pCertCtx->stAttr.stSubjectKeyID.data,
+		pCertCtx->stAttr.stSubjectKeyID.length, SQLITE_STATIC);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$isuue_keyid, 
+	sqlerr = sqlite3_bind_blob(stmt, 13, pCertCtx->stAttr.stIssueKeyID.data,
+		pCertCtx->stAttr.stIssueKeyID.length, SQLITE_STATIC);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$vendor_data,
+	sqlerr = sqlite3_bind_blob(stmt, 14, pCertCtx->stAttr.stVendorData.data,
+		pCertCtx->stAttr.stVendorData.length, SQLITE_STATIC);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$verify, 
+	sqlerr = sqlite3_bind_int64(stmt, 15, pCertCtx->stAttr.ulVerify);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$not_before, 
+	sqlerr = sqlite3_bind_int64(stmt, 16, pCertCtx->stAttr.ulNotBefore);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$not_after
+	sqlerr = sqlite3_bind_int64(stmt, 17, pCertCtx->stAttr.ulNotAfter);
 	if (sqlerr != SQLITE_OK)
 	{
 		goto err;
@@ -1065,8 +1275,58 @@ int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned int u
 		stmt = NULL;
 	}
 
-	sprintf(data_value, "delete from table_certificate where id=%d", pCertCtx->uiContentID);
-	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, data_value, -1, &stmt, NULL);
+	//adfsasdfadsf
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select max(id) from table_skf;", -1, &stmt, NULL);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+
+	do {
+		sqlerr = sqlite3_step(stmt);
+
+		if (sqlerr == SQLITE_BUSY) {
+			sqlite3_sleep(SDB_BUSY_RETRY_TIME);
+		}
+
+		if (sqlerr == SQLITE_DONE)
+		{
+			sqlerr = SQLITE_OK;
+		}
+
+		if (sqlerr == SQLITE_ROW)
+		{
+			attr_id = sqlite3_column_int(stmt, 0);
+		}
+
+	} while (!sdb_done(sqlerr, &retry));
+	if (stmt) {
+		sqlite3_reset(stmt);
+		sqlite3_finalize(stmt);
+		stmt = NULL;
+	}
+
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "INSERT INTO "
+		"table_certificate (content, store_type, id_attr) "
+		"values ($content, $store_type, $id_attr);", -1, &stmt, NULL);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$content
+	sqlerr = sqlite3_bind_blob(stmt, 1, pCertCtx->stContent.data, pCertCtx->stContent.length, SQLITE_STATIC);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$store_type
+	sqlerr = sqlite3_bind_int(stmt, 2, uiStoreID);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+	//$id_attr
+	sqlerr = sqlite3_bind_int(stmt, 2, attr_id);
 	if (sqlerr != SQLITE_OK)
 	{
 		goto err;
