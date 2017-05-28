@@ -691,7 +691,30 @@ unsigned int SMB_UTIL_FillCertAttr(SMB_CS_CertificateContext * pCertCtx)
 
 		WT_ClearCert();
 
+		{
+			CertificateItemParse certParse;
 
+			certParse.setCertificate(pCertCtx->stContent.data, pCertCtx->stContent.length);
+			certParse.parse();
+
+			if (pCertCtx->stAttr.stSubjectKeyID.data)
+			{
+				free(pCertCtx->stAttr.stSubjectKeyID.data);
+				pCertCtx->stAttr.stSubjectKeyID.data = NULL;
+			}
+			pCertCtx->stAttr.stSubjectKeyID.length = certParse.m_strSubjectKeyID.size();
+			pCertCtx->stAttr.stSubjectKeyID.data = (unsigned char *)malloc(pCertCtx->stAttr.stSubjectKeyID.length);
+			memcpy(pCertCtx->stAttr.stSubjectKeyID.data, certParse.m_strSubjectKeyID.c_str(), pCertCtx->stAttr.stSubjectKeyID.length);
+
+			if (pCertCtx->stAttr.stIssueKeyID.data)
+			{
+				free(pCertCtx->stAttr.stIssueKeyID.data);
+				pCertCtx->stAttr.stIssueKeyID.data = NULL;
+			}
+			pCertCtx->stAttr.stIssueKeyID.length = certParse.m_strSubjectKeyID.size();
+			pCertCtx->stAttr.stIssueKeyID.data = (unsigned char *)malloc(pCertCtx->stAttr.stIssueKeyID.length);
+			memcpy(pCertCtx->stAttr.stIssueKeyID.data, certParse.m_strSubjectKeyID.c_str(), pCertCtx->stAttr.stIssueKeyID.length);
+		}
 	}
 
 err:
@@ -1234,7 +1257,6 @@ unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, uns
 
 		findAttr.stSubjectKeyID.data = (unsigned char*)certParse.m_strIssueKeyID.c_str();
 		findAttr.stSubjectKeyID.length = certParse.m_strIssueKeyID.size();
-		findAttr.uiFindFlag = 7;
 
 		SMB_CS_FindCtxsFromDB(&findAttr, &ctxHeader);
 
