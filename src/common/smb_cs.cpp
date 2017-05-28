@@ -647,29 +647,51 @@ unsigned int SMB_UTIL_FillCertAttr(SMB_CS_CertificateContext * pCertCtx)
 
 		memset(data_info_value, 0, 1024);
 		WT_GetCertInfo(CERT_SERIALNUMBER, 0, data_info_value, &data_info_len);
+		if (pCertCtx->stAttr.stSerialNumber.data)
+		{
+			free(pCertCtx->stAttr.stSerialNumber.data);
+			pCertCtx->stAttr.stSerialNumber.data = NULL;
+		}
 		pCertCtx->stAttr.stSerialNumber.length = strlen(data_info_value) + 1;
 		pCertCtx->stAttr.stSerialNumber.data = (unsigned char *)malloc(pCertCtx->stAttr.stSerialNumber.length);
 		memcpy(pCertCtx->stAttr.stSerialNumber.data, data_info_value, pCertCtx->stAttr.stSerialNumber.length);
 
 		memset(data_info_value, 0, 1024);
 		WT_GetCertInfo(CERT_ISSUER_DN, -1, data_info_value, &data_info_len);
+		if (pCertCtx->stAttr.stIssue.data)
+		{
+			free(pCertCtx->stAttr.stIssue.data);
+			pCertCtx->stAttr.stIssue.data = NULL;
+		}
 		pCertCtx->stAttr.stIssue.length = strlen(data_info_value) + 1;
 		pCertCtx->stAttr.stIssue.data = (unsigned char *)malloc(pCertCtx->stAttr.stIssue.length);
 		memcpy(pCertCtx->stAttr.stIssue.data, data_info_value, pCertCtx->stAttr.stIssue.length);
 
 		memset(data_info_value, 0, 1024);
 		WT_GetCertInfo(CERT_SUBJECT_DN, -1, data_info_value, &data_info_len);
+		if (pCertCtx->stAttr.stSubject.data)
+		{
+			free(pCertCtx->stAttr.stSubject.data);
+			pCertCtx->stAttr.stSubject.data = NULL;
+		}
 		pCertCtx->stAttr.stSubject.length = strlen(data_info_value) + 1;
 		pCertCtx->stAttr.stSubject.data = (unsigned char *)malloc(pCertCtx->stAttr.stSubject.length);
 		memcpy(pCertCtx->stAttr.stSubject.data, data_info_value, pCertCtx->stAttr.stSubject.length);
 
 		memset(data_info_value, 0, 1024);
 		WT_GetCertInfo(CERT_SUBJECT_DN, NID_COMMONNAME, data_info_value, &data_info_len);
+		if (pCertCtx->stAttr.stCommonName.data)
+		{
+			free(pCertCtx->stAttr.stCommonName.data);
+			pCertCtx->stAttr.stCommonName.data = NULL;
+		}
 		pCertCtx->stAttr.stCommonName.length = strlen(data_info_value) + 1;
 		pCertCtx->stAttr.stCommonName.data = (unsigned char *)malloc(pCertCtx->stAttr.stCommonName.length);
 		memcpy(pCertCtx->stAttr.stCommonName.data, data_info_value, pCertCtx->stAttr.stCommonName.length);
 
 		WT_ClearCert();
+
+
 	}
 
 err:
@@ -951,6 +973,12 @@ unsigned int SMB_UTIL_SetCtxVendor(SMB_CS_CertificateContext *pCertCtx, unsigned
 	}
 	else
 	{
+		if (pCertCtx->stAttr.stVendorData.data)
+		{
+			free(pCertCtx->stAttr.stVendorData.data);
+			pCertCtx->stAttr.stVendorData.data = NULL;
+		}
+
 		pCertCtx->stAttr.stVendorData.length = uiVendorLen;
 		pCertCtx->stAttr.stVendorData.data = (unsigned char *)malloc(pCertCtx->stAttr.stVendorData.length);
 		memcpy(pCertCtx->stAttr.stVendorData.data, pVendor, pCertCtx->stAttr.stVendorData.length);

@@ -209,7 +209,7 @@ extern "C" {
 	/*
 	填充证书属性
 	*/
-	COMMON_API unsigned int SMB_UTIL_FillCertAttr(SMB_CS_CertificateContext * pCertContext);
+	COMMON_API unsigned int SMB_UTIL_FillCertAttr(SMB_CS_CertificateContext * pCertCtx);
 
 	/*
 	设置用户自定义数据
