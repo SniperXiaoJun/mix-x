@@ -34,16 +34,6 @@ LINK_DIRECTORIES(
 
 #add_subdirectory(x_itemx)
 
-add_library(
-  dbcs
-
-  dbcs.cpp
-
-  ${ARCH_SOURCES}
-  
-#  $<TARGET_OBJECTS:x_itemx>
-)
-
 add_executable(
   x_dbcs
 

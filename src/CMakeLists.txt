@@ -28,4 +28,5 @@ add_subdirectory(dbcs)
 ##
 add_subdirectory(x_test)
 add_subdirectory(x_commontools)
+add_subdirectory(x_md5)
 
