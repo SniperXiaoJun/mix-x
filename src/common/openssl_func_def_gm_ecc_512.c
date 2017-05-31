@@ -1167,7 +1167,7 @@ unsigned int OpenSSL_GMECC512GenCSRWithPubkey(const OPST_USERINFO *pstUserInfo,
 
 	ptr_out = pbCSR;
 #if defined(MIX_BORINGSSL)
-
+	X509_ALGOR_set_md(req->sig_alg, EVP_get_digestbynid(NID_sm2sign_with_sm3));
 #else
 	X509_ALGOR_set0(req->req_info->pubkey->algor,
 		OBJ_txt2obj("1.2.840.10045.2.1",OBJ_NAME_TYPE_PKEY_METH)
@@ -1285,7 +1285,8 @@ unsigned int OpenSSL_GMECC512GenRootCert(const unsigned char * pbCSR,unsigned in
 	//cleanup the extension code if any custom extensions have been added
 	X509V3_EXT_cleanup();
 #if defined(MIX_BORINGSSL)
-
+	X509_ALGOR_set_md(x509->sig_alg, EVP_get_digestbynid(NID_sm2sign_with_sm3));
+	X509_ALGOR_set_md(x509->cert_info->signature, EVP_get_digestbynid(NID_sm2sign_with_sm3));
 #else
 	X509_ALGOR_set0(x509->cert_info->key->algor,
 		OBJ_txt2obj("1.2.840.10045.2.1",OBJ_NAME_TYPE_PKEY_METH)
@@ -1467,7 +1468,8 @@ unsigned int OpenSSL_GMECC512GenCert(const unsigned char * pbCSR,unsigned int ui
 	if(strlen(strExtKeyUsage))
 		Add_Ext(x509, x509, NID_ext_key_usage, strExtKeyUsage);
 #if defined(MIX_BORINGSSL)
-
+	X509_ALGOR_set_md(x509->sig_alg, EVP_get_digestbynid(NID_sm2sign_with_sm3));
+	X509_ALGOR_set_md(x509->cert_info->signature, EVP_get_digestbynid(NID_sm2sign_with_sm3));
 #else
 	X509_ALGOR_set0(x509->cert_info->key->algor,
 		OBJ_txt2obj("1.2.840.10045.2.1",OBJ_NAME_TYPE_PKEY_METH)
@@ -1647,7 +1649,8 @@ unsigned int OpenSSL_GMECC512GenCertEX(const unsigned char * pbCSR,unsigned int 
 	if(strlen(strExtKeyUsage))
 		Add_Ext(x509, x509, NID_ext_key_usage, strExtKeyUsage);
 #if defined(MIX_BORINGSSL)
-
+	X509_ALGOR_set_md(x509->sig_alg, EVP_get_digestbynid(NID_sm2sign_with_sm3));
+	X509_ALGOR_set_md(x509->cert_info->signature, EVP_get_digestbynid(NID_sm2sign_with_sm3));
 #else
 	X509_ALGOR_set0(x509->cert_info->key->algor,
 		OBJ_txt2obj("1.2.840.10045.2.1",OBJ_NAME_TYPE_PKEY_METH)
@@ -2153,12 +2156,17 @@ unsigned int OpenSSL_GMECC512GenCRL(const OPST_CRL * pstCRLList, unsigned int ui
 	//	goto err;
 	//printf("sign crl\n");
 
+#if defined(MIX_BORINGSSL)
+	X509_ALGOR_set_md(crl->sig_alg, EVP_get_digestbynid(NID_sm2sign_with_sm3));
+	X509_ALGOR_set_md(crl->crl->sig_alg, EVP_get_digestbynid(NID_sm2sign_with_sm3));
+#else
 	X509_ALGOR_set0(crl->sig_alg,
-		OBJ_txt2obj("1.2.156.10197.1.501",0), 
+		OBJ_txt2obj("1.2.156.10197.1.501", 0),
 		V_ASN1_UNDEF, 0);
 	X509_ALGOR_set0(crl->crl->sig_alg,
-		OBJ_txt2obj("1.2.156.10197.1.501",0), 
+		OBJ_txt2obj("1.2.156.10197.1.501", 0),
 		V_ASN1_UNDEF, 0);
+#endif
 
 	*puiCRLLen = i2d_X509_CRL(crl, &out_ptr);
 

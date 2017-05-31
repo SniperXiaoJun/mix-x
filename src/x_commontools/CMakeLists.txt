@@ -18,7 +18,10 @@ FILE(GLOB
   ${CMAKE_SOURCE_DIR}/common/o_all_func_def.c 
   ${CMAKE_SOURCE_DIR}/common/openssl_func_def.c 
   ${CMAKE_SOURCE_DIR}/common/openssl_func_def_gm_ecc_512.c)
-FILE(GLOB common_cpps "${CMAKE_SOURCE_DIR}/common/*.cpp")
+FILE(GLOB 
+  common_cpps
+  ${CMAKE_SOURCE_DIR}/common/encode_switch.cpp 
+  )
 
 LINK_DIRECTORIES(
   ${CMAKE_SOURCE_DIR}/../lib
@@ -35,4 +38,3 @@ ADD_EXECUTABLE(
 )
 
 TARGET_LINK_LIBRARIES(x_commontools mix_bssl)
-TARGET_LINK_LIBRARIES(x_commontools swsds)
