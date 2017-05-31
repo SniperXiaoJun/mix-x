@@ -5,11 +5,11 @@ LINK_DIRECTORIES(
 )
 
 add_executable(
-  x_md5
+  x_digest
 
-  x_md5.cpp
+  x_digest.c
 )
 
-target_link_libraries(x_md5 mix_bssl)
-add_dependencies(x_all x_md5)
+target_link_libraries(x_digest mix_bssl)
+add_dependencies(x_all x_digest)
 
