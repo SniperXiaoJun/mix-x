@@ -1,4 +1,4 @@
-// CommonToolsDlgDigitalE.cpp : ÊµÏÖÎÄ¼ş
+// CommonToolsDlgDigitalE.cpp : å®ç°æ–‡ä»¶
 //
 
 #include "stdafx.h"
@@ -15,7 +15,7 @@
 #include "gm-ecc-512.h"
 extern E_KEY_ALG_TYPE g_KeyAlgType;
 
-// CommonToolsDlgDigitalE ¶Ô»°¿ò
+// CommonToolsDlgDigitalE å¯¹è¯æ¡†
 
 IMPLEMENT_DYNAMIC(CommonToolsDlgDigitalE, CDialogEx)
 
@@ -42,12 +42,12 @@ BEGIN_MESSAGE_MAP(CommonToolsDlgDigitalE, CDialogEx)
 END_MESSAGE_MAP()
 
 
-// CommonToolsDlgDigitalE ÏûÏ¢´¦Àí³ÌĞò
+// CommonToolsDlgDigitalE æ¶ˆæ¯å¤„ç†ç¨‹åº
 
 
 void CommonToolsDlgDigitalE::OnBnClickedCancel()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	//CDialogEx::OnOK();
 	char data_value_key[BUFFER_LEN_1K * 4] = {0};
 	wchar_t data_value_tmp[BUFFER_LEN_1K * 4] = {0};
@@ -75,7 +75,7 @@ void CommonToolsDlgDigitalE::OnBnClickedCancel()
 
 			if (ulRet)
 			{
-				MessageBox(L"²Ù×÷Ê§°Ü£¡");
+				MessageBox(L"æ“ä½œå¤±è´¥ï¼");
 			}
 		}
 	}
@@ -90,7 +90,7 @@ void CommonToolsDlgDigitalE::OnBnClickedCancel()
 
 			if (ulRet)
 			{
-				MessageBox(L"²Ù×÷Ê§°Ü£¡");
+				MessageBox(L"æ“ä½œå¤±è´¥ï¼");
 			}
 		}
 	}

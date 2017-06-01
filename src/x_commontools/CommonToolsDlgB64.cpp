@@ -1,4 +1,4 @@
-// CommonToolsDlgB64.cpp : ÊµÏÖÎÄ¼ş
+// CommonToolsDlgB64.cpp : å®ç°æ–‡ä»¶
 //
 
 #include "stdafx.h"
@@ -11,7 +11,7 @@
 #include "FILE_LOG.h"
 #include "encode_switch.h"
 #include "o_all_func_def.h"
-// CommonToolsDlgB64 ¶Ô»°¿ò
+// CommonToolsDlgB64 å¯¹è¯æ¡†
 
 IMPLEMENT_DYNAMIC(CommonToolsDlgB64, CDialogEx)
 
@@ -47,53 +47,53 @@ BEGIN_MESSAGE_MAP(CommonToolsDlgB64, CDialogEx)
 END_MESSAGE_MAP()
 
 
-// CommonToolsDlgB64 ÏûÏ¢´¦Àí³ÌĞò
+// CommonToolsDlgB64 æ¶ˆæ¯å¤„ç†ç¨‹åº
 
 
 void CommonToolsDlgB64::OnBnClickedRadio1()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	m_iSelIN = E_INPUT_TYPE_FILE;
 }
 
 
 void CommonToolsDlgB64::OnBnClickedRadio2()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	m_iSelIN = E_INPUT_TYPE_CHAR;
 }
 
 
 void CommonToolsDlgB64::OnBnClickedRadio3()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	m_iSelIN = E_INPUT_TYPE_HEX;
 }
 
 
 void CommonToolsDlgB64::OnBnClickedRadio4()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	m_iSelOUT = E_OUTPUT_TYPE_FILE;
 }
 
 
 void CommonToolsDlgB64::OnBnClickedRadio5()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	m_iSelOUT = E_OUTPUT_TYPE_CHAR;
 }
 
 
 void CommonToolsDlgB64::OnBnClickedRadio6()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	m_iSelOUT = E_OUTPUT_TYPE_HEX;
 }
 
 void CommonToolsDlgB64::OnBnClickedOk()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	//CDialogEx::OnOK();
 
 	unsigned char data_value_in[BUFFER_LEN_1K * 4] = { 0 };
@@ -131,7 +131,7 @@ void CommonToolsDlgB64::OnBnClickedOk()
 	break;
 	default:
 	{
-		MessageBox(L"Ñ¡ÔñÀàĞÍ", L"ÌáÊ¾");
+		MessageBox(L"é€‰æ‹©ç±»å‹", L"æç¤º");
 
 		return;
 	}
@@ -157,7 +157,7 @@ void CommonToolsDlgB64::OnBnClickedOk()
 	break;
 	default:
 	{
-		MessageBox(L"Ñ¡ÔñÀàĞÍ", L"ÌáÊ¾");
+		MessageBox(L"é€‰æ‹©ç±»å‹", L"æç¤º");
 
 		return;
 	}
@@ -168,7 +168,7 @@ void CommonToolsDlgB64::OnBnClickedOk()
 
 void CommonToolsDlgB64::OnBnClickedCancel()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	// CDialogEx::OnCancel();
 
 	unsigned char data_value_in[BUFFER_LEN_1K * 4] = { 0 };
@@ -206,7 +206,7 @@ void CommonToolsDlgB64::OnBnClickedCancel()
 	break;
 	default:
 	{
-		MessageBox(L"Ñ¡ÔñÀàĞÍ", L"ÌáÊ¾");
+		MessageBox(L"é€‰æ‹©ç±»å‹", L"æç¤º");
 
 		return;
 	}
@@ -232,7 +232,7 @@ void CommonToolsDlgB64::OnBnClickedCancel()
 	break;
 	default:
 	{
-		MessageBox(L"Ñ¡ÔñÀàĞÍ", L"ÌáÊ¾");
+		MessageBox(L"é€‰æ‹©ç±»å‹", L"æç¤º");
 
 		return;
 	}

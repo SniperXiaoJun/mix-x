@@ -1,4 +1,4 @@
-// CommonToolsDlgChar.cpp : ÊµÏÖÎÄ¼ş
+// CommonToolsDlgChar.cpp : å®ç°æ–‡ä»¶
 //
 
 #include "stdafx.h"
@@ -11,7 +11,7 @@
 #include "o_all_func_def.h"
 #include "encode_switch.h"
 
-// CommonToolsDlgChar ¶Ô»°¿ò
+// CommonToolsDlgChar å¯¹è¯æ¡†
 
 IMPLEMENT_DYNAMIC(CommonToolsDlgChar, CDialogEx)
 
@@ -46,12 +46,12 @@ BEGIN_MESSAGE_MAP(CommonToolsDlgChar, CDialogEx)
 END_MESSAGE_MAP()
 
 
-// CommonToolsDlgChar ÏûÏ¢´¦Àí³ÌĞò
+// CommonToolsDlgChar æ¶ˆæ¯å¤„ç†ç¨‹åº
 
 
 void CommonToolsDlgChar::OnBnClickedOk()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	// CDialogEx::OnOK();
 
 	unsigned char data_value_in[BUFFER_LEN_1K * 4] = { 0 };
@@ -89,7 +89,7 @@ void CommonToolsDlgChar::OnBnClickedOk()
 	break;
 	default:
 	{
-		MessageBox(L"Ñ¡ÔñÀàĞÍ", L"ÌáÊ¾");
+		MessageBox(L"é€‰æ‹©ç±»å‹", L"æç¤º");
 
 		return;
 	}
@@ -115,7 +115,7 @@ void CommonToolsDlgChar::OnBnClickedOk()
 	break;
 	default:
 	{
-		MessageBox(L"Ñ¡ÔñÀàĞÍ", L"ÌáÊ¾");
+		MessageBox(L"é€‰æ‹©ç±»å‹", L"æç¤º");
 
 		return;
 	}
@@ -126,7 +126,7 @@ void CommonToolsDlgChar::OnBnClickedOk()
 
 void CommonToolsDlgChar::OnBnClickedCancel()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	//CDialogEx::OnCancel();
 
 	unsigned char data_value_in[BUFFER_LEN_1K * 4] = { 0 };
@@ -158,7 +158,7 @@ void CommonToolsDlgChar::OnBnClickedCancel()
 	break;
 	default:
 	{
-		MessageBox(L"Ñ¡ÔñÀàĞÍ", L"ÌáÊ¾");
+		MessageBox(L"é€‰æ‹©ç±»å‹", L"æç¤º");
 
 		return;
 	}
@@ -184,7 +184,7 @@ void CommonToolsDlgChar::OnBnClickedCancel()
 	break;
 	default:
 	{
-		MessageBox(L"Ñ¡ÔñÀàĞÍ", L"ÌáÊ¾");
+		MessageBox(L"é€‰æ‹©ç±»å‹", L"æç¤º");
 
 		return;
 	}
@@ -195,41 +195,41 @@ void CommonToolsDlgChar::OnBnClickedCancel()
 
 void CommonToolsDlgChar::OnBnClickedRadio1()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	m_iSelIN = E_INPUT_TYPE_FILE;
 }
 
 
 void CommonToolsDlgChar::OnBnClickedRadio2()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	m_iSelIN = E_INPUT_TYPE_CHAR;
 }
 
 
 void CommonToolsDlgChar::OnBnClickedRadio3()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	m_iSelIN = E_INPUT_TYPE_HEX;
 }
 
 
 void CommonToolsDlgChar::OnBnClickedRadio4()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	m_iSelOUT = E_OUTPUT_TYPE_FILE;
 }
 
 
 void CommonToolsDlgChar::OnBnClickedRadio5()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	m_iSelOUT = E_OUTPUT_TYPE_CHAR;
 }
 
 
 void CommonToolsDlgChar::OnBnClickedRadio6()
 {
-	// TODO: ÔÚ´ËÌí¼Ó¿Ø¼şÍ¨Öª´¦Àí³ÌĞò´úÂë
+	// TODO: åœ¨æ­¤æ·»åŠ æ§ä»¶é€šçŸ¥å¤„ç†ç¨‹åºä»£ç 
 	m_iSelOUT = E_OUTPUT_TYPE_HEX;
 }

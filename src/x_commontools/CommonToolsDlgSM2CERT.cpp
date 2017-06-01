@@ -207,7 +207,7 @@ void CommonToolsDlgSM2CERT::OnBnClickedCancel()
 	unsigned int data_len_out_hex = BUFFER_LEN_1K * 4;
 
 	unsigned char sn[BUFFER_LEN_1K * 4] = { 0 };
-	unsigned int sn_len = 0;
+	unsigned int sn_len = BUFFER_LEN_1K * 4;
 
 	OpenSSL_Initialize();
 
