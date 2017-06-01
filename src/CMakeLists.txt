@@ -29,3 +29,5 @@ add_subdirectory(dbcs)
 add_subdirectory(x_test)
 add_subdirectory(x_commontools)
 add_subdirectory(x_digest)
+add_subdirectory(x_process_get)
+
