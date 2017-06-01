@@ -1,4 +1,4 @@
-// CommonToolsDlgChar.cpp : 实现文件
+﻿// CommonToolsDlgChar.cpp : 实现文件
 //
 
 #include "stdafx.h"

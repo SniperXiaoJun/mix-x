@@ -1,4 +1,4 @@
-// CommonToolsDlgDigitalE.cpp : 实现文件
+﻿// CommonToolsDlgDigitalE.cpp : 实现文件
 //
 
 #include "stdafx.h"

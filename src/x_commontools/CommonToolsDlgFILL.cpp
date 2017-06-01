@@ -1,4 +1,4 @@
-// CommonToolsDlgFILL.cpp : 实现文件
+﻿// CommonToolsDlgFILL.cpp : 实现文件
 //
 
 #include "stdafx.h"

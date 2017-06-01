@@ -1,4 +1,4 @@
-// CommonToolsDlgBit.cpp : 实现文件
+﻿// CommonToolsDlgBit.cpp : 实现文件
 //
 
 #include "stdafx.h"

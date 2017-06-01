@@ -2431,7 +2431,16 @@ short Add_Ext(X509 *cert, X509 * root, int nid, char *value)
 {
 
 #if defined(MIX_BORINGSSL)
+	X509_EXTENSION *ex;
+	X509V3_CTX ctx;
+	X509V3_set_ctx(&ctx, root, cert, NULL, NULL, 0);
 
+	ex = X509V3_EXT_nconf_nid(NULL, &ctx, nid, value);
+	if (!ex)
+		return -1;
+
+	X509_add_ext(cert, ex, -1);
+	X509_EXTENSION_free(ex);
 #else
 	X509_EXTENSION *ex;
 	X509V3_CTX ctx;

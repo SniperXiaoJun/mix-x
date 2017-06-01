@@ -1,4 +1,4 @@
-// CommonToolsDlgB64.cpp : 实现文件
+﻿// CommonToolsDlgB64.cpp : 实现文件
 //
 
 #include "stdafx.h"
