@@ -31,4 +31,4 @@ add_subdirectory(x_commontools)
 add_subdirectory(x_digest)
 add_subdirectory(x_process_get)
 add_subdirectory(x_ip_get)
-
+add_subdirectory(x_file_log)
