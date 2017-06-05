@@ -27,31 +27,53 @@ using namespace std;
 
 bool getPublicIp(string& ip)
 {
-	int    sock;
-	char **pptr = NULL;
-	struct sockaddr_in    destAddr;
-	struct hostent    *ptr = NULL;
-	char destIP[128];
+	char peer[] = "GET / HTTP/1.1\r\n"
+		"Host:ip.dnsexit.com\r\n\r\n";
+	SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
+	sockaddr_in addr;
+	char text[600] = { 0 };
+	int i = 0;
 
-	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (-1 == sock) {
 		perror("creat socket failed");
 		return false;
 	}
-	memset((void *)&destAddr, 0, sizeof(destAddr));
-	destAddr.sin_family = AF_INET;
-	destAddr.sin_port = htons(80);
-	ptr = gethostbyname("www.ip138.com");
+
+	hostent *ptr = gethostbyname("ip.dnsexit.com");//获取主机地址  
+
 	if (NULL == ptr) {
 		perror("gethostbyname error");
 		return false;
 	}
-	for (pptr = ptr->h_addr_list; NULL != *pptr; ++pptr) {
-		inet_ntop(ptr->h_addrtype, *pptr, destIP, sizeof(destIP));
-		printf("addr:%s\n", destIP);
-		ip = destIP;
-		return true;
+
+	addr.sin_addr = *(in_addr*)ptr->h_addr_list[0];//使用地址列表的第一个进行连接，实际上也只有这一个  
+	addr.sin_family = 2;
+	addr.sin_port = htons(80);//http的80端口  
+	if (-1 == connect(sock, (sockaddr*)&addr, sizeof(sockaddr_in)))
+	{
+		perror("connect error");
+		return false;
 	}
+
+	if (-1 == send(sock, peer, sizeof(peer), 0))
+	{
+		perror("send error");
+		return false;
+	}
+
+	if (-1 == recv(sock, text, sizeof(text), 0))
+	{
+		perror("recv error");
+		return false;
+	}
+
+	while (text[i] != '\n' || text[i + 1] != '\r')//去掉前面的信息  
+		i++;
+
+	ip = &text[i + 5];//得到ip地址开始位置，复制到字符串ip中  
+
+	closesocket(sock);
+
 	return true;
 }
 
