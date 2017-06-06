@@ -1,4 +1,4 @@
-
+﻿
 #ifndef _SMB_CS_API_H_
 #define _SMB_CS_API_H_
 
@@ -132,8 +132,7 @@ typedef enum _EErr_SMB
 													EErr_SMB_CREATE_CERT_CONTEXT,					// 创建证书上下文
 													EErr_SMB_ADD_CERT_TO_STORE,						// 保存证书
 													EErr_SMB_NO_RIGHT,								// 没有权限
-													EErr_SMB_SET_CERT_CONTEXT_PROPERTY,				// 设置属性
-													EErr_SMB_INVALIDARG,                            // 参数错误
+													EErr_SMB_SET_CERT_CONTEXT_PROPERTY,				// 设置属性                        // 参数错误
 													EErr_SMB_MEM_LES,                               // 内存不足
 													EErr_SMB_INVALID_ARG,                           // 参数错误
 													EErr_SMB_FAIL = -1,
@@ -154,7 +153,7 @@ extern "C" {
 	COMMON_API unsigned int SMB_CS_FreeCtx(SMB_CS_CertificateContext *pCertCtx);
 
 	/*
-	添加证书到数据库
+	添加证书到数据库 ucStoreType 1:CA&ROOT 2:USER
 	*/
 	COMMON_API unsigned int SMB_CS_AddCtxToDB(SMB_CS_CertificateContext *pCertCtx, unsigned char ucStoreType);
 
@@ -220,6 +219,20 @@ extern "C" {
 	验证证书的合法性
 	*/
 	COMMON_API unsigned int SMB_UTIL_VerifyCert(unsigned int uiFlag, unsigned char *pbCert, unsigned int uiCertLen);
+
+	/*
+	导入CA&ROOT证书
+	*/
+	COMMON_API unsigned int  SMB_UTIL_ImportCaCert(unsigned char *pbCert, unsigned int ulCertLen, unsigned int *pulAlgType);
+
+	/*
+	数据库初始化
+	*/
+	int SMB_DB_Init();
+	/*
+	数据库路径初始化
+	*/
+	int SMB_DB_Path_Init();
 
 #ifdef __cplusplus
 }

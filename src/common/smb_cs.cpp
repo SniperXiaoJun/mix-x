@@ -615,9 +615,11 @@ err:
 unsigned int SMB_CS_CreateCtx(SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen)
 {
 	SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
+	unsigned int uiRet = -1;
 
 	if (!pCertCtx)
 	{
+		uiRet = EErr_SMB_INVALID_ARG;
 		goto err;
 	}
 
@@ -627,12 +629,15 @@ unsigned int SMB_CS_CreateCtx(SMB_CS_CertificateContext **ppCertCtx, unsigned ch
 	pCertCtx->stContent.data = (unsigned char *)malloc(pCertCtx->stContent.length);
 	memcpy(pCertCtx->stContent.data, pCertificate, pCertCtx->stContent.length);
 
-	SMB_UTIL_FillCertAttr(pCertCtx);
+	uiRet = SMB_UTIL_FillCertAttr(pCertCtx);
+	if (0 != uiRet)
+	{
+		goto err;
+	}
+	*ppCertCtx = pCertCtx;
 err:
 
-	*ppCertCtx = pCertCtx;
-
-	return 0;
+	return uiRet;
 }
 
 unsigned int SMB_UTIL_FillCertAttr(SMB_CS_CertificateContext * pCertCtx)
@@ -644,6 +649,36 @@ unsigned int SMB_UTIL_FillCertAttr(SMB_CS_CertificateContext * pCertCtx)
 	}
 	else
 	{
+		{
+			CertificateItemParse certParse;
+
+			if (0 != certParse.setCertificate(pCertCtx->stContent.data, pCertCtx->stContent.length))
+			{
+				ulRet = EErr_SMB_INVALID_ARG;
+				goto err;
+			}
+
+			certParse.parse();
+
+			if (pCertCtx->stAttr.stSubjectKeyID.data)
+			{
+				free(pCertCtx->stAttr.stSubjectKeyID.data);
+				pCertCtx->stAttr.stSubjectKeyID.data = NULL;
+			}
+			pCertCtx->stAttr.stSubjectKeyID.length = certParse.m_strSubjectKeyID.size();
+			pCertCtx->stAttr.stSubjectKeyID.data = (unsigned char *)malloc(pCertCtx->stAttr.stSubjectKeyID.length);
+			memcpy(pCertCtx->stAttr.stSubjectKeyID.data, certParse.m_strSubjectKeyID.c_str(), pCertCtx->stAttr.stSubjectKeyID.length);
+
+			if (pCertCtx->stAttr.stIssueKeyID.data)
+			{
+				free(pCertCtx->stAttr.stIssueKeyID.data);
+				pCertCtx->stAttr.stIssueKeyID.data = NULL;
+			}
+			pCertCtx->stAttr.stIssueKeyID.length = certParse.m_strSubjectKeyID.size();
+			pCertCtx->stAttr.stIssueKeyID.data = (unsigned char *)malloc(pCertCtx->stAttr.stIssueKeyID.length);
+			memcpy(pCertCtx->stAttr.stIssueKeyID.data, certParse.m_strSubjectKeyID.c_str(), pCertCtx->stAttr.stIssueKeyID.length);
+		}
+
 		// 证书的属性
 		char data_info_value[1024] = { 0 };
 		int data_info_len = 0;
@@ -696,30 +731,7 @@ unsigned int SMB_UTIL_FillCertAttr(SMB_CS_CertificateContext * pCertCtx)
 
 		WT_ClearCert();
 
-		{
-			CertificateItemParse certParse;
-
-			certParse.setCertificate(pCertCtx->stContent.data, pCertCtx->stContent.length);
-			certParse.parse();
-
-			if (pCertCtx->stAttr.stSubjectKeyID.data)
-			{
-				free(pCertCtx->stAttr.stSubjectKeyID.data);
-				pCertCtx->stAttr.stSubjectKeyID.data = NULL;
-			}
-			pCertCtx->stAttr.stSubjectKeyID.length = certParse.m_strSubjectKeyID.size();
-			pCertCtx->stAttr.stSubjectKeyID.data = (unsigned char *)malloc(pCertCtx->stAttr.stSubjectKeyID.length);
-			memcpy(pCertCtx->stAttr.stSubjectKeyID.data, certParse.m_strSubjectKeyID.c_str(), pCertCtx->stAttr.stSubjectKeyID.length);
-
-			if (pCertCtx->stAttr.stIssueKeyID.data)
-			{
-				free(pCertCtx->stAttr.stIssueKeyID.data);
-				pCertCtx->stAttr.stIssueKeyID.data = NULL;
-			}
-			pCertCtx->stAttr.stIssueKeyID.length = certParse.m_strSubjectKeyID.size();
-			pCertCtx->stAttr.stIssueKeyID.data = (unsigned char *)malloc(pCertCtx->stAttr.stIssueKeyID.length);
-			memcpy(pCertCtx->stAttr.stIssueKeyID.data, certParse.m_strSubjectKeyID.c_str(), pCertCtx->stAttr.stIssueKeyID.length);
-		}
+		
 	}
 
 err:
@@ -1226,7 +1238,12 @@ unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, uns
 
 	SMB_CS_CertificateContext_NODE * ctxHeader;
 
-	certParse.setCertificate(pbCert, uiCertLen);
+	if (0 != certParse.setCertificate(pbCert, uiCertLen))
+	{
+		ulRet = EErr_SMB_INVALID_ARG;
+		goto err;
+	}
+
 	certParse.parse();
 
 	ulAlgType = certParse.m_iKeyAlg;
@@ -1498,8 +1515,7 @@ int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned char 
 		stmt = NULL;
 	}
 
-	//adfsasdfadsf
-	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select max(id) from table_skf;", -1, &stmt, NULL);
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select max(id) from table_certificate_attr;", -1, &stmt, NULL);
 	if (sqlerr != SQLITE_OK)
 	{
 		goto err;
@@ -1549,7 +1565,7 @@ int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned char 
 		goto err;
 	}
 	//$id_attr
-	sqlerr = sqlite3_bind_int(stmt, 2, attr_id);
+	sqlerr = sqlite3_bind_int(stmt, 3, attr_id);
 	if (sqlerr != SQLITE_OK)
 	{
 		goto err;
@@ -1592,7 +1608,6 @@ err:
 
 unsigned int SMB_CS_AddCtxToDB(SMB_CS_CertificateContext *pCertCtx, unsigned char ucStoreType)
 {
-
 	unsigned int ulRet = -1;
 	char data_value[BUFFER_LEN_1K] = { 0 };
 	unsigned int data_len = 0;
@@ -1902,4 +1917,37 @@ int SMB_DB_Path_Init()
 	}
 
 	return 0;
+}
+
+
+
+unsigned int  SMB_UTIL_ImportCaCert(unsigned char *pbCert, unsigned int ulCertLen, unsigned int *pulAlgType)
+{
+	unsigned int ulRet = 0;
+
+	SMB_CS_CertificateContext * ctx = NULL;
+
+	SMB_DB_Init();
+
+	if (0 != SMB_CS_CreateCtx(&ctx, pbCert, ulCertLen))
+	{
+		ulRet = EErr_SMB_CREATE_CERT_CONTEXT;
+		goto err;
+	}
+
+	if (0 != SMB_CS_AddCtxToDB(ctx, 1))
+	{
+		ulRet = EErr_SMB_ADD_CERT_TO_STORE;
+		goto err;
+	}
+
+	ulRet = EErr_SMB_OK; // success
+
+err:
+	if (ctx)
+	{
+		SMB_CS_FreeCtx(ctx);
+	}
+
+	return ulRet;
 }

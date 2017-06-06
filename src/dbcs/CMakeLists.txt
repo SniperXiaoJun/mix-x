@@ -47,3 +47,17 @@ TARGET_LINK_LIBRARIES(x_dbcs mix_bssl)
 
 add_dependencies(x_all x_dbcs)
 
+
+add_executable(
+  x_dbcs_install_ca_cert
+
+  x_dbcs_install_ca_cert.cpp
+  ${common_cs} 
+  ${common_cpps} 
+)
+
+target_link_libraries(x_dbcs_install_ca_cert sqlite3)
+TARGET_LINK_LIBRARIES(x_dbcs_install_ca_cert mix_bssl)
+
+add_dependencies(x_all x_dbcs)
+

@@ -304,7 +304,7 @@ int CertificateItemParse::parse()
 			for (i = 0; i < akeyid->keyid->length; i++)
 			{
 				char keyid[8] = { 0 };
-				sprintf(keyid, "%x ", akeyid->keyid->data[i]);
+				sprintf(keyid, "%02x", akeyid->keyid->data[i]);
 				strcat(data_value_tmp, keyid);
 			}
 
@@ -315,15 +315,15 @@ int CertificateItemParse::parse()
 			int i = 0;
 			int crit = 0;
 
-			AUTHORITY_KEYID *akeyid = NULL;
+			ASN1_OCTET_STRING *akeyid = NULL;
 
-			akeyid = (AUTHORITY_KEYID*)X509_get_ext_d2i(m_pX509, NID_subject_key_identifier, &crit, NULL);
+			akeyid = (ASN1_OCTET_STRING*)X509_get_ext_d2i(m_pX509, NID_subject_key_identifier, &crit, NULL);
 
 			memset(data_value_tmp, 0, sizeof(data_value_tmp));
-			for (i = 0; i < akeyid->keyid->length; i++)
+			for (i = 0; i < akeyid->length; i++)
 			{
 				char keyid[8] = { 0 };
-				sprintf(keyid, "%x ", akeyid->keyid->data[i]);
+				sprintf(keyid, "%02x", akeyid->data[i]);
 				strcat(data_value_tmp, keyid);
 			}
 
