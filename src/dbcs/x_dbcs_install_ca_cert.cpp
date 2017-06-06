@@ -75,5 +75,9 @@ int main(int argc, char * argv[])
 
 	filesearch(path, 1);
 
+	SMB_CS_CertificateContext_NODE *header = NULL;
+
+	SMB_CS_EnumCtxsFromDB(&header,1);
+
 	return 0;
 }

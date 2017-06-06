@@ -921,9 +921,9 @@ int sdb_FindCtxsFromDB(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAtt
 
 	LOCK_SQLITE();
 
-	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select a.id as id content, store_type, id_attr, "
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select a.id as id, content, store_type, id_attr, "
 		"cert_alg_type, cert_use_type, skf_name, device_name, application_ame, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid, isuue_keyid, vendor_data, verify, not_before, not_after "
-		"from table_certificate as a,table_certificate as b where a.attr_id=b.id; ", -1, &stmt, NULL);
+		"from table_certificate as a,table_certificate_attr as b where a.id_attr=b.id; ", -1, &stmt, NULL);
 	if (sqlerr != SQLITE_OK)
 	{
 		goto err;
@@ -1140,7 +1140,7 @@ unsigned int sdb_GetCtxByCert(SDB *sdb, SMB_CS_CertificateContext **ppCertCtx, u
 
 	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select a.id as id content, store_type, id_attr, "
 		"cert_alg_type, cert_use_type, skf_name, device_name, application_ame, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid, isuue_keyid, vendor_data, verify, not_before, not_after "
-		"from table_certificate as a,table_certificate as b where a.attr_id=b.id and content=$content limit(0,1); ", -1, &stmt, NULL);
+		"from table_certificate as a,table_certificate as b where a.id_attr=b.id and content=$content limit(0,1); ", -1, &stmt, NULL);
 
 	if (sqlerr != SQLITE_OK)
 	{
@@ -1354,6 +1354,8 @@ unsigned int SMB_CS_EnumCtxsFromDB(SMB_CS_CertificateContext_NODE **ppCertCtxNod
 
 	findAttr.ucStoreType = ucStoreType;
 
+	findAttr.uiFindFlag = 4;
+
 	return SMB_CS_FindCtxsFromDB(&findAttr, ppCertCtxNodeHeader);
 }
 
@@ -1364,7 +1366,7 @@ int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned char 
 	int sqlerr = SQLITE_OK;
 	int retry = 0;
 	int i = 0;
-	int attr_id = 0;
+	int id_attr = 0;
 
 	LOCK_SQLITE();
 
@@ -1535,7 +1537,7 @@ int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned char 
 
 		if (sqlerr == SQLITE_ROW)
 		{
-			attr_id = sqlite3_column_int(stmt, 0);
+			id_attr = sqlite3_column_int(stmt, 0);
 		}
 
 	} while (!sdb_done(sqlerr, &retry));
@@ -1565,7 +1567,7 @@ int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned char 
 		goto err;
 	}
 	//$id_attr
-	sqlerr = sqlite3_bind_int(stmt, 3, attr_id);
+	sqlerr = sqlite3_bind_int(stmt, 3, id_attr);
 	if (sqlerr != SQLITE_OK)
 	{
 		goto err;
