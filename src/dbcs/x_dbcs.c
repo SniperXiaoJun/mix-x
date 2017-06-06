@@ -1,9 +1,9 @@
 
-int SMB_DB_Init(char *sdb_path);
+int SMB_DB_Init();
 
 int main()
 {
-	SMB_DB_Init("smb.db");
+	SMB_DB_Init();
 
 	return 0;
 }

@@ -33,7 +33,7 @@ typedef struct SDB {
 vars
 */
 
-char *smb_db_path = NULL;
+char smb_db_path[BUFFER_LEN_1K] = {0};
 
 static const char BEGIN_CMD[] = "BEGIN IMMEDIATE TRANSACTION;";
 static const char COMMIT_CMD[] = "COMMIT TRANSACTION;";
@@ -62,7 +62,8 @@ functions declar
 #ifdef __cplusplus
 extern "C" {
 #endif
-	int SMB_DB_Init(char *sdb_path);
+	int SMB_DB_Init();
+	int SMB_DB_Path_Init();
 #ifdef __cplusplus
 }
 #endif
@@ -272,12 +273,16 @@ err:
 	return sqlerr;
 }
 
-int SMB_DB_Init(char *sdb_path)
+
+
+int SMB_DB_Init()
 {
 	int crv = 0;
 	SDB sdb = {0};
 
-	sdb.sdb_path = sdb_path;
+	SMB_DB_Path_Init();
+
+	sdb.sdb_path = smb_db_path;
 
 	crv = sdb_Begin(&sdb);
 	if (crv)
@@ -1863,4 +1868,38 @@ err:
 	}
 
 	return crv;
+}
+
+
+
+#if defined(WIN32) || defined(WINDOWS)
+#include <Windows.h>
+#else
+strcpy(smb_db_path, "/home/");
+#endif
+
+int SMB_DB_Path_Init()
+{
+	char data_value_zero[BUFFER_LEN_1K] = { 0 };
+	int i = 0;
+
+	if (0 == memcmp(data_value_zero, smb_db_path, sizeof(data_value_zero)))
+	{
+#if defined(WIN32) || defined(WINDOWS)
+		GetModuleFileNameA(NULL, smb_db_path, 1024);
+		for (i = strlen(smb_db_path); i > 0; i--)
+		{
+			if ('\\'== smb_db_path[i])
+			{
+				smb_db_path[i+1] = '\0';
+				break;
+			}
+		}
+		strcpy(smb_db_path + strlen(smb_db_path), "smb_cs.db");
+#else
+		strcpy(smb_db_path, "/home/smb_cs.db");
+#endif
+	}
+
+	return 0;
 }
