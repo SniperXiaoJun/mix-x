@@ -79,5 +79,7 @@ int main(int argc, char * argv[])
 
 	SMB_CS_EnumCtxsFromDB(&header,1);
 
+	SMB_CS_FreeCtx_NODE(&header);
+
 	return 0;
 }

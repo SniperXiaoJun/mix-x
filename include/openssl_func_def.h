@@ -1010,7 +1010,7 @@ extern "C" {
 
 	COMMON_API unsigned int OpenSSL_VerifyCert(
 		const unsigned char *pbX509Cert, unsigned int uiX509CertLen,
-		const unsigned char *pbPublicKey, unsigned int uiPublicKeyLen
+		const unsigned char *pbX509CaCert, unsigned int uiX509CaCertLen
 	);
 
 #ifdef __cplusplus
