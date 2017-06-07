@@ -1,0 +1,35 @@
+LIBRARY	"smb_no_ui"
+
+EXPORTS
+	SMB_CS_CreateCtx
+	SMB_CS_FreeCtx
+	SMB_CS_AddCtxToDB
+	SMB_CS_DelCtxFromDB
+	SMB_CS_ClrAllCtxFromDB
+	SMB_CS_FindCtxsFromDB
+	SMB_CS_EnumCtxsFromDB
+	SMB_CS_FreeCtx_NODE
+	SMB_CS_EnumSKF
+	SMB_CS_ReadSKFPath
+	SMB_CS_ReadSKFSignType
+	SMB_CS_GetCtxByCert
+	SMB_UTIL_FillCertAttr
+	SMB_UTIL_SetCtxVendor
+	SMB_UTIL_VerifyCert
+	SMB_UTIL_ImportCaCert
+	SMB_DB_Init
+	SMB_DB_Path_Init
+
+	SMB_DEV_EnumCertBySKF
+	SMB_DEV_EnumCert
+	SMB_DEV_ChangePINByCertAttr
+	SMB_DEV_FindEnCertificateByCertAttr
+	SMB_DEV_SM2SignDigestProcessByCertAttr
+	SMB_DEV_GetDevInfoByCertAttr
+	SMB_DEV_VerifyPINByCertAttr
+	SMB_DEV_SM2SignDigestByCertAttr
+	SMB_DEV_SM2VerifyDigest
+
+	WT_SetMyCert
+	WT_GetCertInfo
+	WT_ClearCert

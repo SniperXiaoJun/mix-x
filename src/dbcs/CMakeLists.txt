@@ -34,6 +34,19 @@ LINK_DIRECTORIES(
 
 #add_subdirectory(x_itemx)
 
+ADD_LIBRARY(
+  smb_no_ui SHARED
+  
+  smb_no_ui.def
+  ${common_cs} 
+  ${common_cpps} 
+)
+
+target_link_libraries(smb_no_ui sqlite3)
+TARGET_LINK_LIBRARIES(smb_no_ui mix_bssl)
+
+add_dependencies(x_all smb_no_ui)
+
 add_executable(
   x_dbcs
 
@@ -52,12 +65,14 @@ add_executable(
   x_dbcs_install_ca_cert
 
   x_dbcs_install_ca_cert.cpp
-  ${common_cs} 
-  ${common_cpps} 
+ # ${common_cs} 
+ # ${common_cpps} 
 )
 
-target_link_libraries(x_dbcs_install_ca_cert sqlite3)
-TARGET_LINK_LIBRARIES(x_dbcs_install_ca_cert mix_bssl)
+#target_link_libraries(x_dbcs_install_ca_cert sqlite3)
+#TARGET_LINK_LIBRARIES(x_dbcs_install_ca_cert mix_bssl)
+
+TARGET_LINK_LIBRARIES(x_dbcs_install_ca_cert smb_no_ui)
 
 add_dependencies(x_all x_dbcs)
 
@@ -66,14 +81,15 @@ add_executable(
   x_dbcs_enum_certs
 
   x_dbcs_enum_certs.cpp
-  ${common_cs} 
-  ${common_cpps} 
+  #${common_cs} 
+  #${common_cpps} 
 )
 
-target_link_libraries(x_dbcs_enum_certs sqlite3)
-TARGET_LINK_LIBRARIES(x_dbcs_enum_certs mix_bssl)
-#TARGET_LINK_LIBRARIES(x_dbcs_enum_certs QtCore)
-#TARGET_LINK_LIBRARIES(x_dbcs_enum_certs QtGui)
-#TARGET_LINK_LIBRARIES(x_dbcs_enum_certs SMB_QTUI)
+target_link_libraries(x_dbcs_enum_certs smb_no_ui)
+#TARGET_LINK_LIBRARIES(x_dbcs_enum_certs mix_bssl)
+TARGET_LINK_LIBRARIES(x_dbcs_enum_certs SMB_QTUI)
 
-add_dependencies(x_all x_dbcs)
+
+
+
+

@@ -14,7 +14,7 @@ unsigned int SHOW_ALL_CERTS(SMB_CS_CertificateContext_NODE *ppCertCtxNodeHeader)
 {
 	while (ppCertCtxNodeHeader)
 	{
-		//SMB_QTUI_ShowUI(ppCertCtxNodeHeader->ptr_data->stContent.data, ppCertCtxNodeHeader->ptr_data->stContent.length);
+		SMB_QTUI_ShowUI(ppCertCtxNodeHeader->ptr_data->stContent.data, ppCertCtxNodeHeader->ptr_data->stContent.length);
 		ppCertCtxNodeHeader = ppCertCtxNodeHeader->ptr_next;
 	}
 
