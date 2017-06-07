@@ -72,5 +72,8 @@ add_executable(
 
 target_link_libraries(x_dbcs_enum_certs sqlite3)
 TARGET_LINK_LIBRARIES(x_dbcs_enum_certs mix_bssl)
+#TARGET_LINK_LIBRARIES(x_dbcs_enum_certs QtCore)
+#TARGET_LINK_LIBRARIES(x_dbcs_enum_certs QtGui)
+#TARGET_LINK_LIBRARIES(x_dbcs_enum_certs SMB_QTUI)
 
 add_dependencies(x_all x_dbcs)
