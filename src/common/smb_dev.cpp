@@ -1061,7 +1061,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 
 	DEVHANDLE hDev = NULL;
 
-	if (0 == *ppCertCtxNodeHeader)
+	if (0 == ppCertCtxNodeHeader)
 	{
 		ulRet = EErr_SMB_INVALID_ARG;
 		goto err;

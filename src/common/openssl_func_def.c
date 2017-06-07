@@ -4710,8 +4710,8 @@ unsigned int OpenSSL_VerifyCert(
 
 	if (EVP_PKEY_EC == pk->type)
 	{
-		OpenSSL_CertGetPubkey(pbX509Cert, uiX509CertLen, public_key, &public_key_len);
-		rv = OpenSSL_SM2VerifyCert(pbX509Cert, uiX509CertLen, 0, public_key + 4, 32, public_key + 4 + 32, 32);
+		OpenSSL_CertGetPubkey(pbX509CaCert, uiX509CaCertLen, public_key, &public_key_len);
+		rv = OpenSSL_SM2VerifyCert(pbX509Cert, uiX509CertLen, 0, public_key + 1, 32, public_key + 1 + 32, 32);
 	}
 	else
 	{

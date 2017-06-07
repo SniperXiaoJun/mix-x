@@ -139,7 +139,10 @@ static int sdb_complete(sqlite3 *sdb, const char *cmd)
 
 	} while (!sdb_done(sqlerr, &retry));
 
-	/* Pending BEGIN TRANSACTIONS Can move forward at this point. */
+	if (sqlerr == SQLITE_ROW)
+	{
+		sqlerr = SQLITE_OK;
+	}
 err:
 
 	if (stmt) {
@@ -187,14 +190,17 @@ int sdb_Begin(SDB *sdb)
 
 	} while (!sdb_done(sqlerr, &retry));
 
+	if (sqlerr == SQLITE_ROW)
+	{
+		sqlerr = SQLITE_OK;
+	}
+
+err:
 	if (stmt) {
 		sqlite3_reset(stmt);
 		sqlite3_finalize(stmt);
 		stmt = NULL;
 	}
-
-err:
-
 
 	if (sqlerr == SQLITE_OK) {
 
@@ -317,7 +323,7 @@ int sdb_EnumSKF(SDB *sdb, char * pszSKFNames, unsigned int * puiSKFNamesLen)
 	int retry = 0;
 	int i = 0;
 	char data_value[BUFFER_LEN_1K] = { 0 };
-	unsigned int data_len = 0;
+	unsigned int data_len_real = 0;
 
 	LOCK_SQLITE();
 
@@ -341,12 +347,20 @@ int sdb_EnumSKF(SDB *sdb, char * pszSKFNames, unsigned int * puiSKFNamesLen)
 
 		if (sqlerr == SQLITE_ROW)
 		{
-			memcpy(data_value + data_len, (char *)sqlite3_column_blob(stmt, 1), sqlite3_column_bytes(stmt, 1));
+			memcpy(data_value + data_len_real, (char *)sqlite3_column_blob(stmt, 1), sqlite3_column_bytes(stmt, 1));
 
-			data_len += sqlite3_column_bytes(stmt, 1);
+			data_len_real += sqlite3_column_bytes(stmt, 1);
+
+			data_value[data_len_real] = '\0';
+			data_len_real += 1;
 		}
 
 	} while (!sdb_done(sqlerr, &retry));
+
+	if (sqlerr == SQLITE_ROW)
+	{
+		sqlerr = SQLITE_OK;
+	}
 
 err:
 	if (stmt) {
@@ -360,18 +374,18 @@ err:
 	{
 		if (NULL == pszSKFNames)
 		{
-			*puiSKFNamesLen = data_len;
+			*puiSKFNamesLen = data_len_real;
 			sqlerr = 0;
 		}
-		else if (*puiSKFNamesLen < data_len)
+		else if (*puiSKFNamesLen < data_len_real)
 		{
-			*puiSKFNamesLen = data_len;
+			*puiSKFNamesLen = data_len_real;
 			sqlerr = EErr_SMB_MEM_LES;
 		}
 		else
 		{
-			*puiSKFNamesLen = data_len;
-			memcpy(pszSKFNames, data_value, data_len);
+			*puiSKFNamesLen = data_len_real;
+			memcpy(pszSKFNames, data_value, data_len_real);
 			sqlerr = 0;
 		}
 	}
@@ -383,7 +397,7 @@ unsigned int SMB_CS_EnumSKF(char * pszSKFNames, unsigned int *puiSKFNamesLen)
 {
 	unsigned int ulRet = -1;
 	char data_value[BUFFER_LEN_1K] = { 0 };
-	unsigned int data_len = 0;
+	unsigned int data_len = BUFFER_LEN_1K;
 	int crv = 0;
 	SDB sdb = { 0 };
 
@@ -439,7 +453,7 @@ int sdb_ReadSKFValue(SDB *sdb, const char * pszName, char * pszValue, unsigned i
 	int retry = 0;
 	int i = 0;
 	char data_value[BUFFER_LEN_1K] = { 0 };
-	unsigned int data_len = 0;
+	unsigned int data_len_real = 0;
 
 	LOCK_SQLITE();
 
@@ -465,14 +479,19 @@ int sdb_ReadSKFValue(SDB *sdb, const char * pszName, char * pszValue, unsigned i
 		{
 			if (0 == strcmp((char *)sqlite3_column_blob(stmt, 1), pszName))
 			{
-				memcpy(data_value + data_len, (char *)sqlite3_column_blob(stmt, pos), sqlite3_column_bytes(stmt, pos));
+				memcpy(data_value + data_len_real, (char *)sqlite3_column_blob(stmt, pos), sqlite3_column_bytes(stmt, pos));
 
-				data_len += sqlite3_column_bytes(stmt, pos);
+				data_len_real += sqlite3_column_bytes(stmt, pos);
 				break;
 			}
 		}
 
 	} while (!sdb_done(sqlerr, &retry));
+
+	if (sqlerr == SQLITE_ROW)
+	{
+		sqlerr = SQLITE_OK;
+	}
 
 err:
 	if (stmt) {
@@ -486,18 +505,18 @@ err:
 	{
 		if (NULL == pszValue)
 		{
-			*puiValueLen = data_len;
+			*puiValueLen = data_len_real;
 			sqlerr = 0;
 		}
-		else if (*puiValueLen < data_len)
+		else if (*puiValueLen < data_len_real)
 		{
-			*puiValueLen = data_len;
+			*puiValueLen = data_len_real;
 			sqlerr = EErr_SMB_MEM_LES;
 		}
 		else
 		{
-			*puiValueLen = data_len;
-			memcpy(pszValue, data_value, data_len);
+			*puiValueLen = data_len_real;
+			memcpy(pszValue, data_value, data_len_real);
 			sqlerr = 0;
 		}
 	}
@@ -509,7 +528,7 @@ unsigned int SMB_CS_ReadSKFPath(const char * pszSKFName, char * pszDllPath, unsi
 {
 	unsigned int ulRet = -1;
 	char data_value[BUFFER_LEN_1K] = { 0 };
-	unsigned int data_len = 0;
+	unsigned int data_len = BUFFER_LEN_1K;
 	int crv = 0;
 	SDB sdb = { 0 };
 
@@ -562,7 +581,7 @@ unsigned int SMB_CS_ReadSKFSignType(const char * pszSKFName, char * pszSignType,
 {
 	unsigned int ulRet = -1;
 	char data_value[BUFFER_LEN_1K] = { 0 };
-	unsigned int data_len = 0;
+	unsigned int data_len = BUFFER_LEN_1K;
 	int crv = 0;
 	SDB sdb = { 0 };
 
@@ -916,8 +935,6 @@ int sdb_FindCtxsFromDB(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAtt
 	int sqlerr = SQLITE_OK;
 	int retry = 0;
 	int i = 0;
-	char data_value[BUFFER_LEN_1K] = { 0 };
-	unsigned int data_len = 0;
 
 	LOCK_SQLITE();
 
@@ -950,6 +967,11 @@ int sdb_FindCtxsFromDB(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAtt
 
 	} while (!sdb_done(sqlerr, &retry));
 
+	if (sqlerr == SQLITE_ROW)
+	{
+		sqlerr = SQLITE_OK;
+	}
+
 err:
 	if (stmt) {
 		sqlite3_reset(stmt);
@@ -969,8 +991,6 @@ err:
 unsigned int SMB_CS_FindCtxsFromDB(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
 {
 	unsigned int ulRet = -1;
-	char data_value[BUFFER_LEN_1K] = { 0 };
-	unsigned int data_len = 0;
 	int crv = 0;
 	SDB sdb = { 0 };
 
@@ -1121,7 +1141,7 @@ unsigned int SMB_CS_FreeCtx_NODE(SMB_CS_CertificateContext_NODE **ppCertCtxNodeH
 	while (*ppCertCtxNodeHeader)
 	{
 		SMB_CS_FreeCtx((*ppCertCtxNodeHeader)->ptr_data);
-		OPF_DelNoFreeHandleNodeDataFromLink((OPST_HANDLE_NODE**)ppCertCtxNodeHeader, *ppCertCtxNodeHeader);
+		OPF_DelNoFreeHandleNodeDataFromLink((OPST_HANDLE_NODE**)ppCertCtxNodeHeader, (*ppCertCtxNodeHeader)->ptr_data);
 	}
 
 	return 0;
@@ -1133,8 +1153,6 @@ unsigned int sdb_GetCtxByCert(SDB *sdb, SMB_CS_CertificateContext **ppCertCtx, u
 	int sqlerr = SQLITE_OK;
 	int retry = 0;
 	int i = 0;
-	char data_value[BUFFER_LEN_1K] = { 0 };
-	unsigned int data_len = 0;
 
 	LOCK_SQLITE();
 
@@ -1173,6 +1191,11 @@ unsigned int sdb_GetCtxByCert(SDB *sdb, SMB_CS_CertificateContext **ppCertCtx, u
 
 	} while (!sdb_done(sqlerr, &retry));
 
+	if (sqlerr == SQLITE_ROW)
+	{
+		sqlerr = SQLITE_OK;
+	}
+
 err:
 	if (stmt) {
 		sqlite3_reset(stmt);
@@ -1192,8 +1215,6 @@ err:
 unsigned int SMB_CS_GetCtxByCert(SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen)
 {
 	unsigned int ulRet = -1;
-	char data_value[BUFFER_LEN_1K] = { 0 };
-	unsigned int data_len = 0;
 	int crv = 0;
 	SDB sdb = { 0 };
 
@@ -1236,7 +1257,7 @@ unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, uns
 
 	SMB_CS_CertificateContext *ctx = NULL;
 
-	SMB_CS_CertificateContext_NODE * ctxHeader;
+	SMB_CS_CertificateContext_NODE * ctxHeader = NULL;
 
 	if (0 != certParse.setCertificate(pbCert, uiCertLen))
 	{
@@ -1316,7 +1337,9 @@ unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, uns
 			}
 			case CERT_ALG_SM2_FLAG:
 			{
-				ulRet = OpenSSL_SM2VerifyCert(pbCert, uiCertLen, 0, ctxHeader->ptr_data->stAttr.stPublicKey.data + 4, 32, ctxHeader->ptr_data->stAttr.stPublicKey.data + 4 + 32, 32);
+				OpenSSL_Initialize();
+
+				ulRet = OpenSSL_VerifyCert(pbCert, uiCertLen, ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length);
 				if (ulRet)
 				{
 					ulRet = EErr_SMB_VERIFY_CERT;
@@ -1344,6 +1367,16 @@ unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, uns
 
 	}
 err:
+
+	if (NULL != ctx)
+	{
+		SMB_CS_FreeCtx(ctx);
+	}
+
+	if (NULL != ctxHeader)
+	{
+		SMB_CS_FreeCtx_NODE(&ctxHeader);
+	}
 
 	return ulRet;
 }
@@ -1511,6 +1544,11 @@ int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned char 
 
 	} while (!sdb_done(sqlerr, &retry));
 
+	if (sqlerr == SQLITE_ROW)
+	{
+		sqlerr = SQLITE_OK;
+	}
+
 	if (stmt) {
 		sqlite3_reset(stmt);
 		sqlite3_finalize(stmt);
@@ -1592,6 +1630,11 @@ int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned char 
 
 	} while (!sdb_done(sqlerr, &retry));
 
+	if (sqlerr == SQLITE_ROW)
+	{
+		sqlerr = SQLITE_OK;
+	}
+
 err:
 	if (stmt) {
 		sqlite3_reset(stmt);
@@ -1611,8 +1654,6 @@ err:
 unsigned int SMB_CS_AddCtxToDB(SMB_CS_CertificateContext *pCertCtx, unsigned char ucStoreType)
 {
 	unsigned int ulRet = -1;
-	char data_value[BUFFER_LEN_1K] = { 0 };
-	unsigned int data_len = 0;
 	int crv = 0;
 	SDB sdb = { 0 };
 
@@ -1651,9 +1692,8 @@ int sdb_DelCtxFromDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx)
 	int retry = 0;
 	int i = 0;
 	char data_value[BUFFER_LEN_1K] = { 0 };
-	unsigned int data_len = 0;
+	unsigned int data_len = BUFFER_LEN_1K;
 
-	
 	LOCK_SQLITE();
 
 	sprintf(data_value, "delete from table_certificate_attr where id=%d", pCertCtx->uiAttrID);
@@ -1714,6 +1754,11 @@ int sdb_DelCtxFromDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx)
 
 	} while (!sdb_done(sqlerr, &retry));
 
+	if (sqlerr == SQLITE_ROW)
+	{
+		sqlerr = SQLITE_OK;
+	}
+
 err:
 	if (stmt) {
 		sqlite3_reset(stmt);
@@ -1732,8 +1777,6 @@ err:
 
 unsigned int SMB_CS_DelCtxFromDB(SMB_CS_CertificateContext *pCertCtx)
 {
-	char data_value[BUFFER_LEN_1K] = { 0 };
-	unsigned int data_len = 0;
 	int crv = 0;
 	SDB sdb = { 0 };
 
@@ -1772,7 +1815,7 @@ int sdb_ClrAllCtxFromDB(SDB *sdb)
 	int retry = 0;
 	int i = 0;
 	char data_value[BUFFER_LEN_1K] = { 0 };
-	unsigned int data_len = 0;
+	unsigned int data_len = BUFFER_LEN_1K;
 
 
 	LOCK_SQLITE();
@@ -1835,6 +1878,11 @@ int sdb_ClrAllCtxFromDB(SDB *sdb)
 
 	} while (!sdb_done(sqlerr, &retry));
 
+	if (sqlerr == SQLITE_ROW)
+	{
+		sqlerr = SQLITE_OK;
+	}
+
 err:
 	if (stmt) {
 		sqlite3_reset(stmt);
@@ -1855,7 +1903,7 @@ unsigned int SMB_CS_ClrAllCtxFromDB()
 {
 	unsigned int ulRet = -1;
 	char data_value[BUFFER_LEN_1K] = { 0 };
-	unsigned int data_len = 0;
+	unsigned int data_len = BUFFER_LEN_1K;
 	int crv = 0;
 	SDB sdb = { 0 };
 
