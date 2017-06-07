@@ -87,7 +87,7 @@ add_executable(
 
 target_link_libraries(x_dbcs_enum_certs smb_no_ui)
 #TARGET_LINK_LIBRARIES(x_dbcs_enum_certs mix_bssl)
-TARGET_LINK_LIBRARIES(x_dbcs_enum_certs SMB_QTUI)
+TARGET_LINK_LIBRARIES(x_dbcs_enum_certs SMB_QTUIDLL)
 
 
 

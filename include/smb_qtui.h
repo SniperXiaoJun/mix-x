@@ -1,10 +1,12 @@
 #ifndef QT_UILIB_H
 #define QT_UILIB_H
 
+#include "common.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-	int SMB_QTUI_ShowUI(unsigned char *pCertContent, unsigned int uiCertContentLen);
+	COMMON_API int SMB_QTUI_ShowUI(unsigned char *pCertContent, unsigned int uiCertContentLen);
 #ifdef __cplusplus
 }
 #endif

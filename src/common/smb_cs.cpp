@@ -693,9 +693,9 @@ unsigned int SMB_UTIL_FillCertAttr(SMB_CS_CertificateContext * pCertCtx)
 				free(pCertCtx->stAttr.stIssueKeyID.data);
 				pCertCtx->stAttr.stIssueKeyID.data = NULL;
 			}
-			pCertCtx->stAttr.stIssueKeyID.length = certParse.m_strSubjectKeyID.size();
+			pCertCtx->stAttr.stIssueKeyID.length = certParse.m_strIssueKeyID.size();
 			pCertCtx->stAttr.stIssueKeyID.data = (unsigned char *)malloc(pCertCtx->stAttr.stIssueKeyID.length);
-			memcpy(pCertCtx->stAttr.stIssueKeyID.data, certParse.m_strSubjectKeyID.c_str(), pCertCtx->stAttr.stIssueKeyID.length);
+			memcpy(pCertCtx->stAttr.stIssueKeyID.data, certParse.m_strIssueKeyID.c_str(), pCertCtx->stAttr.stIssueKeyID.length);
 		}
 
 		// 证书的属性
