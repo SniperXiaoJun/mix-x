@@ -286,260 +286,6 @@ string WTF_GetDevAllCerts(const char * pszDevName, int Expire){
 	return WTF_GetCurrentCerts(Expire);
 }
 
-string WTF_GetAllDevs()
-{
-	Json::Value values;
-
-	void * data_value = NULL;
-	unsigned int data_len = 0;
-	SK_CERT_CONTENT * pCertContent = NULL;
-	int i = 0;
-	unsigned int ulRet;
-
-	DEVINFO * pDevInfo = (DEVINFO*)malloc(sizeof(DEVINFO) + 8);
-
-	data_value = malloc(BUFFER_LEN_1K * BUFFER_LEN_1K);
-	data_len = BUFFER_LEN_1K * BUFFER_LEN_1K;
-
-	ulRet = WTF_EnumCert(NULL, data_value, &data_len,
-		CERT_ALG_SM2_FLAG, // SM2
-		CERT_SIGN_FLAG, // 签名
-		CERT_VERIFY_TIME_FLAG ,// 验证有效期
-		CERT_FILTER_FLAG_FALSE);
-
-	if (ulRet)
-	{
-
-	}
-	else
-	{
-		for (pCertContent = (SK_CERT_CONTENT *)data_value;(char *)pCertContent < (char *)data_value + data_len;pCertContent=(SK_CERT_CONTENT*)((BYTE *)pCertContent+pCertContent->nValueLen+sizeof(SK_CERT_CONTENT)) )
-		{
-			Json::Value item;
-
-			// name重命名  ---->nickName
-			item["devNickName"] = pCertContent->stProperty.szCommonName;
-
-			memset(pDevInfo, 0, sizeof(DEVINFO));
-
-			WTF_GetDevInfoByCertProperty(&(pCertContent->stProperty),pDevInfo);
-
-			item["versionMajor"] = pDevInfo->Version.major;
-			item["versionMinor"] = pDevInfo->Version.minor;
-
-			item["manufacturer"] = pDevInfo->Manufacturer;
-			item["issuer"] = pDevInfo->Issuer;
-			item["label"] = pDevInfo->Label;
-			item["serialNumber"] = pDevInfo->SerialNumber;
-
-			item["hwVersionMajor"] = pDevInfo->HWVersion.major;
-			item["hwVersionMinor"] = pDevInfo->HWVersion.minor;
-
-			item["firmwareVersionMajor"] = pDevInfo->FirmwareVersion.major;
-			item["firmwareVersionMinor"] = pDevInfo->FirmwareVersion.minor;
-
-			item["algSymCap"] = (int)pDevInfo->AlgSymCap;
-			item["algAsymCap"] = (int)pDevInfo->AlgAsymCap;
-			item["algHashCap"] = (int)pDevInfo->AlgHashCap;
-			item["devAuthAlgId"] = (int)pDevInfo->DevAuthAlgId;
-			item["totalSpace"] = (int)pDevInfo->TotalSpace;
-			item["freeSpace"] = (int)pDevInfo->FreeSpace;
-
-			// 以后会修改对应的代码以适应项目调整
-			if(1)
-			{
-				WCHAR * manufacturer = NULL;
-
-				if (0 == memcmp(pDevInfo->Manufacturer,"HB",strlen(pDevInfo->Manufacturer)) || 0 == memcmp(pDevInfo->Manufacturer,"HB",strlen(pDevInfo->Manufacturer)))
-				{
-					manufacturer = L"恒宝股份";
-				}
-				else if(0 == memcmp(pDevInfo->Manufacturer,"WD",strlen(pDevInfo->Manufacturer)) || 0 == memcmp(pDevInfo->Manufacturer,"WD",strlen(pDevInfo->Manufacturer)))
-				{
-					//manufacturer= L"握奇";
-					manufacturer= L"民生U宝";
-				}
-				else if(0 == memcmp(pDevInfo->Manufacturer,"FT",strlen(pDevInfo->Manufacturer)) || 0 == memcmp(pDevInfo->Manufacturer,"FT",strlen(pDevInfo->Manufacturer)))
-				{
-					manufacturer = L"飞天诚信";
-				}
-				else
-				{
-					manufacturer = L"其他";
-				}
-
-				item["manufacturer"] = utf8_encode(manufacturer);
-			}
-
-			values.append(item);
-		}
-	}
-
-	free(data_value);
-
-	if (pDevInfo)
-	{
-		free(pDevInfo);
-	}
-
-	return values.toStyledString();
-}
-
-string WTF_GetDevSignCert(const char * pszDevName)
-{
-	Json::Value values;
-	
-	void * data_value = NULL;
-	unsigned int data_len = 0;
-	SK_CERT_CONTENT * pCertContent = NULL;
-	int i = 0;
-	unsigned int ulRet;
-
-	DEVINFO * pDevInfo = (DEVINFO*)malloc(sizeof(DEVINFO) + 8);
-
-	data_value = malloc(BUFFER_LEN_1K * BUFFER_LEN_1K);
-	data_len = BUFFER_LEN_1K * BUFFER_LEN_1K;
-
-	ulRet = WTF_EnumCert(pszDevName, data_value, &data_len,
-		CERT_ALG_SM2_FLAG, // SM2
-		CERT_SIGN_FLAG, // 签名
-		CERT_VERIFY_TIME_FLAG ,// 验证有效期
-		CERT_FILTER_FLAG_FALSE);
-
-	if (ulRet)
-	{
-
-	}
-	else
-	{
-		for (pCertContent = (SK_CERT_CONTENT *)data_value;(char *)pCertContent < (char *)data_value + data_len;pCertContent=(SK_CERT_CONTENT*)((BYTE *)pCertContent+pCertContent->nValueLen+sizeof(SK_CERT_CONTENT)) )
-		{
-			Json::Value item;
-
-			// name重命名  ---->nickName
-			item["devNickName"] = pCertContent->stProperty.szCommonName;
-
-			memset(pDevInfo, 0, sizeof(DEVINFO));
-
-			WTF_GetDevInfoByCertProperty(&(pCertContent->stProperty),pDevInfo);
-
-			item["versionMajor"] = pDevInfo->Version.major;
-			item["versionMinor"] = pDevInfo->Version.minor;
-
-			item["manufacturer"] = pDevInfo->Manufacturer;
-			item["issuer"] = pDevInfo->Issuer;
-			item["label"] = pDevInfo->Label;
-			item["serialNumber"] = pDevInfo->SerialNumber;
-
-			item["hwVersionMajor"] = pDevInfo->HWVersion.major;
-			item["hwVersionMinor"] = pDevInfo->HWVersion.minor;
-
-			item["firmwareVersionMajor"] = pDevInfo->FirmwareVersion.major;
-			item["firmwareVersionMinor"] = pDevInfo->FirmwareVersion.minor;
-
-			item["algSymCap"] = (int)pDevInfo->AlgSymCap;
-			item["algAsymCap"] = (int)pDevInfo->AlgAsymCap;
-			item["algHashCap"] = (int)pDevInfo->AlgHashCap;
-			item["devAuthAlgId"] = (int)pDevInfo->DevAuthAlgId;
-			item["totalSpace"] = (int)pDevInfo->TotalSpace;
-			item["freeSpace"] = (int)pDevInfo->FreeSpace;
-
-			if (0 == pCertContent->stProperty.ulVerify)
-			{
-				unsigned long long timeLocal = 0;
-				unsigned long long daysLeft = 0;
-
-				GetLocalTime_T(&timeLocal);
-
-				daysLeft = (pCertContent->stProperty.ulNotAfter - timeLocal)/24/60/60;
-
-				if (daysLeft < 30)
-				{
-					std::wostringstream oss; 
-
-					oss<< L"证书还有";
-
-					oss<<(int)daysLeft;
-
-					oss<< L"天过期，请进行证书更新！";
-
-					item["expire_msg"] = utf8_encode(oss.str()); 
-					item["expiration_status"] = EXPIRATION_STATUS_LEFT_IN_EXPIRE;
-				}
-				else
-				{
-					item["expire_msg"] = utf8_encode(L"证书有效！");
-					item["expiration_status"] = EXPIRATION_STATUS_IN;
-				}
-			}
-			else
-			{
-				item["expire_msg"] =  utf8_encode(L"证书不在有效期！");
-				item["expiration_status"] = EXPIRATION_STATUS_OUT;
-			}
-
-			// 以后会修改对应的代码以适应项目调整
-			if(1)
-			{
-				WCHAR * manufacturer = NULL;
-
-				if (0 == memcmp(pDevInfo->Manufacturer,"HB",strlen(pDevInfo->Manufacturer)) || 0 == memcmp(pDevInfo->Manufacturer,"HB",strlen(pDevInfo->Manufacturer)))
-				{
-					manufacturer = L"恒宝股份";
-				}
-				else if(0 == memcmp(pDevInfo->Manufacturer,"WD",strlen(pDevInfo->Manufacturer)) || 0 == memcmp(pDevInfo->Manufacturer,"WD",strlen(pDevInfo->Manufacturer)))
-				{
-					//manufacturer= L"握奇";
-					manufacturer= L"民生U宝";
-				}
-				else if(0 == memcmp(pDevInfo->Manufacturer,"FT",strlen(pDevInfo->Manufacturer)) || 0 == memcmp(pDevInfo->Manufacturer,"FT",strlen(pDevInfo->Manufacturer)))
-				{
-					manufacturer = L"飞天诚信";
-				}
-				else
-				{
-					manufacturer = L"其他";
-				}
-
-				item["manufacturer"] = utf8_encode(manufacturer);
-			}
-
-			// b64 fomat encode certcontent
-			{
-				const char * data_value_in = (const char *)pCertContent;
-				size_t data_len_in = sizeof(SK_CERT_CONTENT) + pCertContent->nValueLen;
-
-				size_t data_len_out = modp_b64_encode_len(data_len_in);
-				char * data_value_out = (char * )malloc(data_len_out);
-
-				memset(data_value_out, 0, data_len_out);
-
-				data_len_out = modp_b64_encode(data_value_out,data_value_in, data_len_in);
-
-				item["certContentB64String"] = data_value_out;
-
-				free(data_value_out);
-			}
-
-			values.append(item);
-
-			//last_ukey_number++;
-		}
-	}
-	
-
-	
-
-	free(data_value);
-
-	if (pDevInfo)
-	{
-		free(pDevInfo);
-	}
-
-	return values.toStyledString();
-}
-
 #include <sstream>
 
 string WTF_ChangeDevPassword(const std::string strDevName,const std::string strOldPassword, const std::string strNewPassword){
@@ -584,150 +330,10 @@ string WTF_VerifyDevPassword(const std::string strDevName,const std::string strP
 	return result.toStyledString();
 }
 
-string WTF_ChangeDevPasswordBySignCertPropB64(const std::string strSignCertPropB64,const std::string strOldPassword, const std::string strNewPassword){
-	
-	unsigned int ulRetry = 0;
-	unsigned int ulRet = 0;
-
-	SK_CERT_DESC_PROPERTY * pCertProp = NULL;
-
-	// b64 fomat decode certcontent
-
-	const char * data_value_in = (const char *)strSignCertPropB64.c_str();
-	size_t data_len_in = strlen(strSignCertPropB64.c_str());
-
-	size_t data_len_out = modp_b64_decode_len(data_len_in);
-	char * data_value_out = (char * )malloc(data_len_out);
-
-	memset(data_value_out, 0, data_len_out);
-
-	data_len_out = modp_b64_decode(data_value_out,data_value_in, data_len_in);
-
-	pCertProp = (SK_CERT_DESC_PROPERTY *)data_value_out;
-	
-	ulRet = ::WTF_ChangePINByCertProperty(pCertProp, 1, strOldPassword.c_str(), strNewPassword.c_str(), &ulRetry);
-
-	std::wstringstream msg;
-	if (ulRet){
-		msg << L"修改密码失败，剩余次数:" << ulRetry;
-	} 
-	else {
-		msg << L"修改密码成功！";
-	}
-
-	Json::Value result;
-
-	result["success"] = ulRet?FALSE:TRUE;
-	result["msg"] = utf8_encode(msg.str());
-	result["retryCount"] = ulRetry;
-
-	if (pCertProp)
-	{
-		free(pCertProp);
-	}
-
-	return result.toStyledString();
-}
-
-string WTF_VerifyDevPasswordBySignCertPropB64(const std::string strSignCertPropB64,const std::string strPassword){
-
-	unsigned int ulRetry = 0;
-	unsigned int ulRet = 0;
-
-	SK_CERT_DESC_PROPERTY * pCertProp = NULL;
-
-	// b64 fomat decode certcontent
-
-	const char * data_value_in = (const char *)strSignCertPropB64.c_str();
-	size_t data_len_in = strlen(strSignCertPropB64.c_str());
-
-	size_t data_len_out = modp_b64_decode_len(data_len_in);
-	char * data_value_out = (char * )malloc(data_len_out);
-
-	memset(data_value_out, 0, data_len_out);
-
-	data_len_out = modp_b64_decode(data_value_out,data_value_in, data_len_in);
-
-	pCertProp = (SK_CERT_DESC_PROPERTY *)data_value_out;
-
-	ulRet = ::WTF_VerifyPINByCertProperty(pCertProp, 1, strPassword.c_str(), &ulRetry);
-
-	std::wstringstream msg;
-	if (ulRet){
-		msg << L"验证密码失败，剩余次数:" << ulRetry;
-	} 
-	else {
-		msg << L"验证密码成功！";
-	}
-
-	Json::Value result;
-
-	result["success"] = ulRet?FALSE:TRUE;
-	result["msg"] = utf8_encode(msg.str());
-	result["retryCount"] = ulRetry;
-
-	if (pCertProp)
-	{
-		free(pCertProp);
-	}
-
-	return result.toStyledString();
-}
-
-string WTF_VerifyDevPasswordBySignCertPropB64(const std::string strSignCertPropB64,CallBackCfcaGetEncryptPIN GetEncryptPIN, void * pArgs){
-
-	unsigned int ulRetry = 0;
-	unsigned int ulRet = 0;
-
-	SK_CERT_DESC_PROPERTY * pCertProp = NULL;
-
-	// b64 fomat decode certcontent
-
-	const char * data_value_in = (const char *)strSignCertPropB64.c_str();
-	size_t data_len_in = strlen(strSignCertPropB64.c_str());
-
-	size_t data_len_out = modp_b64_decode_len(data_len_in);
-	char * data_value_out = (char * )malloc(data_len_out);
-
-	memset(data_value_out, 0, data_len_out);
-
-	data_len_out = modp_b64_decode(data_value_out,data_value_in, data_len_in);
-
-	pCertProp = (SK_CERT_DESC_PROPERTY *)data_value_out;
-
-	ulRet = 0; //::WTF_VerifyPINByCertPropertyForHengBao(pCertProp, 1, GetEncryptPIN, pArgs, &ulRetry);
-
-	std::wstringstream msg;
-	if (ulRet){
-		msg << L"验证密码失败，剩余次数:" << ulRetry;
-	} 
-	else {
-		msg << L"验证密码成功！";
-	}
-
-	Json::Value result;
-
-	result["success"] = ulRet?FALSE:TRUE;
-	result["msg"] = utf8_encode(msg.str());
-	result["retryCount"] = ulRetry;
-	result["ulRet"] = ulRet;
-
-	if (pCertProp)
-	{
-		free(pCertProp);
-	}
-
-	return result.toStyledString();
-}
-
-extern unsigned int __stdcall UI_ShowCert(SK_CERT_CONTENT * pCertContent);
-
 string WTF_ShowCert(const std::string strCertContentB64)
 {
 	unsigned int ulRetry = 0;
 	unsigned int ulRet = 0;
-
-	SK_CERT_CONTENT * pCertContent = NULL;
 
 	// b64 fomat decode certcontent
 
@@ -741,28 +347,16 @@ string WTF_ShowCert(const std::string strCertContentB64)
 
 	data_len_out = modp_b64_decode(data_value_out,data_value_in, data_len_in);
 
-	pCertContent = (SK_CERT_CONTENT *)data_value_out;
-
-	switch(pCertContent->stProperty.nType)
-	{
-		case CERT_ALG_RSA_FLAG:
-			WTF_UIDlgViewContext((BYTE *)pCertContent+sizeof(SK_CERT_CONTENT),pCertContent->nValueLen);
-			break;
-		case CERT_ALG_SM2_FLAG:
-			UI_ShowCert(pCertContent);
-			break;
-		default:
-			break;
-	}
+	SMB_QTUI_ShowUI((unsigned char*)data_value_out, data_len_out);
 
 	Json::Value result;
 
 	result["success"] = ulRet?FALSE:TRUE;
 	result["msg"] = "";
 
-	if (pCertContent)
+	if (data_value_out)
 	{
-		free(pCertContent);
+		free(data_value_out);
 	}
 
 	return result.toStyledString();
@@ -1314,7 +908,7 @@ std::string WTF_ReadCurrentCerts(int Expire)
 			Json::Value itemDevInfo;
 			Json::Value itemDevCerts = Json::Value(Json::arrayValue); // 1 device's certs
 
-			itemDevInfo["devNickName"] = pCertContent->stProperty.szCommonName;
+			itemDevInfo["devNickName"] = pCertCtxNode->ptr_data->stAttr.stCommonName;
 
 			itemDevInfo["devFrom"] = "skf";
 
@@ -1343,21 +937,21 @@ std::string WTF_ReadCurrentCerts(int Expire)
 			itemDevInfo["totalSpace"] = (int)pDevInfo->TotalSpace;
 			itemDevInfo["freeSpace"] = (int)pDevInfo->FreeSpace;
 
-			ptrDevOri = pCertContent->stProperty.szDeviceName;
+			ptrDevOri = pCertCtxNode->ptr_data->stAttr.stDeviceName;
 
 			for (;(char *)pCertContent < (char *)data_value + data_len;pCertContent=(SK_CERT_CONTENT*)((BYTE *)pCertContent+pCertContent->nValueLen+sizeof(SK_CERT_CONTENT)) )
 			{
-				if ( 0 != strcmp(ptrDevOri,pCertContent->stProperty.szDeviceName))
+				if ( 0 != strcmp(ptrDevOri,pCertCtxNode->ptr_data->stAttr.stDeviceName))
 				{
 					break;
 				}
 				
 				Json::Value item;
 
-				item["skfName"] = pCertContent->stProperty.szSKFName;
-				item["deviceName"] = pCertContent->stProperty.szDeviceName;
-				item["applicationName"] = pCertContent->stProperty.szApplicationName;
-				item["containerName"] = pCertContent->stProperty.szContainerName;
+				item["skfName"] = pCertCtxNode->ptr_data->stAttr.stSKFName;
+				item["deviceName"] = pCertCtxNode->ptr_data->stAttr.stDeviceName;
+				item["applicationName"] = pCertCtxNode->ptr_data->stAttr.stApplicationName;
+				item["containerName"] = pCertCtxNode->ptr_data->stAttr.stContainerName;
 
 				// 证书的属性
 				char data_info_value[1024] = {0};
@@ -1377,7 +971,7 @@ std::string WTF_ReadCurrentCerts(int Expire)
 				WT_GetCertInfo(CERT_SUBJECT_DN, NID_COMMONNAME, data_info_value, &data_info_len);
 				item["subject"] = data_info_value;
 
-				item["commonName"] = pCertContent->stProperty.szCommonName;
+				item["commonName"] = pCertCtxNode->ptr_data->stAttr.stCommonName;
 
 				memset(data_info_value, 0, 1024);
 				WT_GetCertInfo(CERT_NOTBEFORE, 0, data_info_value, &data_info_len);
@@ -1694,48 +1288,44 @@ std::string WTF_ReadCurrentCerts(int Expire)
 	// 通过设备获取证书
 	void * data_value = NULL;
 	unsigned int data_len = 0;
-	SK_CERT_CONTENT * pCertContent = NULL;
+	SMB_CS_CertificateContext_NODE *header = NULL;
+	SMB_CS_CertificateContext_NODE *pCertCtxNode = NULL;
 	int i = 0;
 	unsigned int ulRet;
 
 	DEVINFO * pDevInfo = (DEVINFO*)malloc(sizeof(DEVINFO) + 8);
 
+	SMB_DB_Init();
+
 	data_value = malloc(BUFFER_LEN_1K * BUFFER_LEN_1K);
 	data_len = BUFFER_LEN_1K * BUFFER_LEN_1K;
-	
-	ulRet = WTF_EnumCertInternal("hbcmbc", data_value, &data_len,
-		CERT_ALG_RSA_FLAG | CERT_ALG_SM2_FLAG, // RSA SM2
-		CERT_SIGN_FLAG | CERT_EX_FLAG, // 签名加密
+
+	ulRet = SMB_DEV_EnumCert(&header, CERT_ALG_SM2_FLAG | CERT_ALG_RSA_FLAG,
+		CERT_SIGN_FLAG | CERT_EX_FLAG, // Ç©Ãû
 		CERT_VERIFY_TIME_FLAG | CERT_VERIFY_CHAIN_FLAG | CERT_VERIFY_CRL_FLAG,
 		CERT_FILTER_FLAG_FALSE);
-	
-	FILE_LOG_FMT(file_log_name, "func=%s thread=%d line=%d watch=%d", __FUNCTION__, GetCurrentThreadId(), __LINE__, ulRet);
-	FILE_LOG_FMT(file_log_name, "func=%s thread=%d line=%d watch=%d", __FUNCTION__, GetCurrentThreadId(), __LINE__, data_len);
 
-	//ulRet = WTF_EnumCert(devName, data_value, &data_len,
-	//	CERT_ALG_RSA_FLAG | CERT_ALG_SM2_FLAG, // RSA SM2
-	//	CERT_SIGN_FLAG | CERT_EX_FLAG, // 签名加密
-	//	CERT_VERIFY_CHAIN_FLAG,
-	//	CERT_FILTER_FLAG_FALSE);
 	if(ulRet)
 	{
 		
 	}
 	else
 	{
-		for (pCertContent = (SK_CERT_CONTENT *)data_value;(char *)pCertContent < (char *)data_value + data_len;pCertContent=(SK_CERT_CONTENT*)((BYTE *)pCertContent+pCertContent->nValueLen+sizeof(SK_CERT_CONTENT)) )
+		pCertCtxNode = header;
+
+		while (pCertCtxNode)
 		{
 			Json::Value itemDev;
 			Json::Value itemDevInfo;
 			Json::Value itemDevCerts = Json::Value(Json::arrayValue); // 1 device's certs
 
-			itemDevInfo["devNickName"] = pCertContent->stProperty.szCommonName;
+			itemDevInfo["devNickName"] = (char*)pCertCtxNode->ptr_data->stAttr.stCommonName.data;
 
 			itemDevInfo["devFrom"] = "skf";
 
 			memset(pDevInfo, 0, sizeof(DEVINFO));
 
-			WTF_GetDevInfoByCertProperty(&(pCertContent->stProperty),pDevInfo);
+			SMB_DEV_GetDevInfoByCertAttr(&(pCertCtxNode->ptr_data->stAttr),pDevInfo);
 
 			itemDevInfo["versionMajor"] = pDevInfo->Version.major;
 			itemDevInfo["versionMinor"] = pDevInfo->Version.minor;
@@ -1758,27 +1348,27 @@ std::string WTF_ReadCurrentCerts(int Expire)
 			itemDevInfo["totalSpace"] = (int)pDevInfo->TotalSpace;
 			itemDevInfo["freeSpace"] = (int)pDevInfo->FreeSpace;
 
-			ptrDevOri = pCertContent->stProperty.szDeviceName;
+			ptrDevOri = (char*)pCertCtxNode->ptr_data->stAttr.stDeviceName.data;
 
-			for (;(char *)pCertContent < (char *)data_value + data_len;pCertContent=(SK_CERT_CONTENT*)((BYTE *)pCertContent+pCertContent->nValueLen+sizeof(SK_CERT_CONTENT)) )
+			while (pCertCtxNode)
 			{
-				if ( 0 != strcmp(ptrDevOri,pCertContent->stProperty.szDeviceName))
+				if ( 0 != strcmp(ptrDevOri, (char*)pCertCtxNode->ptr_data->stAttr.stDeviceName.data))
 				{
 					break;
 				}
 				
 				Json::Value item;
 
-				item["skfName"] = pCertContent->stProperty.szSKFName;
-				item["deviceName"] = pCertContent->stProperty.szDeviceName;
-				item["applicationName"] = pCertContent->stProperty.szApplicationName;
-				item["containerName"] = pCertContent->stProperty.szContainerName;
+				item["skfName"] = (char*)pCertCtxNode->ptr_data->stAttr.stSKFName.data;
+				item["deviceName"] = (char*)pCertCtxNode->ptr_data->stAttr.stDeviceName.data;
+				item["applicationName"] = (char*)pCertCtxNode->ptr_data->stAttr.stApplicationName.data;
+				item["containerName"] = (char*)pCertCtxNode->ptr_data->stAttr.stContainerName.data;
 
 				// 证书的属性
 				char data_info_value[1024] = {0};
 				int data_info_len = 0;
 
-				WT_SetMyCert(pCertContent->pbValue,pCertContent->nValueLen);
+				WT_SetMyCert(pCertCtxNode->ptr_data->stContent.data, pCertCtxNode->ptr_data->stContent.length);
 
 				memset(data_info_value, 0, 1024);
 				WT_GetCertInfo(CERT_SERIALNUMBER, 0, data_info_value, &data_info_len);
@@ -1792,7 +1382,7 @@ std::string WTF_ReadCurrentCerts(int Expire)
 				WT_GetCertInfo(CERT_SUBJECT_DN, NID_COMMONNAME, data_info_value, &data_info_len);
 				item["subject"] = data_info_value;
 
-				item["commonName"] = pCertContent->stProperty.szCommonName;
+				item["commonName"] = (char*)pCertCtxNode->ptr_data->stAttr.stCommonName.data;
 
 				memset(data_info_value, 0, 1024);
 				WT_GetCertInfo(CERT_NOTBEFORE, 0, data_info_value, &data_info_len);
@@ -1802,16 +1392,16 @@ std::string WTF_ReadCurrentCerts(int Expire)
 				WT_GetCertInfo(CERT_NOTAFTER, 0, data_info_value, &data_info_len);
 				item["notAfter"] = data_info_value;
 
-				item["signType"] = pCertContent->stProperty.bSignType;
-				item["verify"] = pCertContent->stProperty.ulVerify;
-				item["type"] = pCertContent->stProperty.nType;
+				item["signType"] = pCertCtxNode->ptr_data->stAttr.ucCertUsageType;
+				item["verify"] = pCertCtxNode->ptr_data->stAttr.ulVerify;
+				item["type"] = pCertCtxNode->ptr_data->stAttr.ucCertAlgType;
 
 				WT_ClearCert();
 
 				// b64 fomat encode certcontent
 				{
-					const char * data_value_in = (const char *)pCertContent;
-					size_t data_len_in = sizeof(SK_CERT_CONTENT) + pCertContent->nValueLen;
+					const char * data_value_in = (const char *)pCertCtxNode->ptr_data->stContent.data;
+					size_t data_len_in = pCertCtxNode->ptr_data->stContent.length;
 
 					size_t data_len_out = modp_b64_encode_len(data_len_in);
 					char * data_value_out = (char * )malloc(data_len_out);
@@ -1825,7 +1415,7 @@ std::string WTF_ReadCurrentCerts(int Expire)
 					free(data_value_out);
 				}
 
-				if (0 == pCertContent->stProperty.ulVerify)
+				if (0 == pCertCtxNode->ptr_data->stAttr.ulVerify)
 				{
 					unsigned long long timeLocal = 0;
 					unsigned long long daysLeft = 0;
@@ -1859,30 +1449,27 @@ std::string WTF_ReadCurrentCerts(int Expire)
 					item["expiration_status"] = EXPIRATION_STATUS_OUT;
 				}
 
-				itemDevCerts.append(item);  	
+				itemDevCerts.append(item);  
+				pCertCtxNode = pCertCtxNode->ptr_next;
 			}
 
 			itemDev = itemDevInfo;
 			itemDev["certs"] = itemDevCerts;
 			
 			All.append(itemDev);
-			/*cert["notAfter"] = pCertContent->stProperty.ulNotAfter;
-			cert["notBefore"] = pCertContent->stProperty.ulNotBefore;*/
+
+			pCertCtxNode = pCertCtxNode->ptr_next;
 		}
 
-		WTF_ClearStore(DEFAULT_SMC_STORE_SM2_USER_ID);
+		SMB_CS_ClrAllCtxFromDB();
 
-		for (pCertContent = (SK_CERT_CONTENT *)data_value;(char *)pCertContent < (char *)data_value + data_len;pCertContent=(SK_CERT_CONTENT*)((BYTE *)pCertContent+pCertContent->nValueLen+sizeof(SK_CERT_CONTENT)) )
+		pCertCtxNode = header;
+
+		while (pCertCtxNode)
 		{
-			//regist sm2 signcert to store
-			/*if ((pCertContent->stProperty.bSignType == TRUE) && (pCertContent->stProperty.nType == CERT_ALG_SM2_FLAG))*/
-			//regist sm2 certpair to store
-			if (pCertContent->stProperty.nType == CERT_ALG_SM2_FLAG)
-			{
-				SMC_ImportUserCert((BYTE*)pCertContent+sizeof(SK_CERT_CONTENT),pCertContent->nValueLen,&(pCertContent->stProperty));
-			}
+			SMB_CS_AddCtxToDB(pCertCtxNode->ptr_data,2);
+			pCertCtxNode = pCertCtxNode->ptr_next;
 		}
-
 	}
 
 	// this is rsa suit
@@ -2082,104 +1669,6 @@ std::string WTF_GetCurrentCerts(int Expire)
 	}
 	else
 	{
-//		{
-//			unsigned long ulRet = 0;
-//			PCCERT_CONTEXT certContext_OUT = NULL;
-//			HCERTSTORE hCertStore = NULL;
-//
-//			// 创建存储区
-//			ulRet = SMC_CertCreateSMCStores();
-//
-//			if (!ulRet)
-//			{
-//				ulRet = EErr_SMC_CREATE_STORE;
-//				goto err;
-//			}
-//
-//			// 打开存储区
-//			hCertStore = SMC_CertOpenStore(0,CERT_SYSTEM_STORE_CURRENT_USER, DEFAULT_SMC_STORE_SM2_USER_ID);
-//
-//			if (NULL == hCertStore)
-//			{
-//				ulRet = EErr_SMC_OPEN_STORE;
-//				goto err;
-//			}
-//
-//			// 枚举证书
-//			do 
-//			{
-//				unsigned int ulOutLen = 0;
-//				// 从第一个开始
-//				certContext_OUT = SMC_CertEnumCertificatesInStore(hCertStore, certContext_OUT);
-//
-//				// 获取ATTR
-//				if (NULL != certContext_OUT)
-//				{
-//					SK_CERT_DESC_PROPERTY * descProperty_OUT = NULL;
-//
-//					ulRet = SMC_CertGetCertificateContextProperty(certContext_OUT, CERT_DESC_PROP_ID, NULL,&ulOutLen);
-//
-//					descProperty_OUT = (SK_CERT_DESC_PROPERTY * )malloc(ulOutLen);
-//
-//					ulRet = SMC_CertGetCertificateContextProperty(certContext_OUT, CERT_DESC_PROP_ID, descProperty_OUT,&ulOutLen);
-//
-//					if (descProperty_OUT->bSignType == TRUE)
-//					{
-//						unsigned char digest[32] = {0};
-//						ECCSIGNATUREBLOB blob;
-//						OPST_HANDLE_ARGS args;
-//
-//						do 
-//						{
-//							ulRet = WTF_SM2SignDigestProcessV2(descProperty_OUT,digest,sizeof(digest),&blob);
-//
-//							if (0 != ulRet)
-//							{
-//								char bufferShow[1024] = {0};
-//
-//								sprintf(bufferShow,"签名失败错误码：%x！，是否重新签名？",ulRet);
-//
-//								if (IDYES == MessageBoxA(NULL,bufferShow, "提示", MB_ICONEXCLAMATION|MB_YESNO))
-//								{
-//
-//								}
-//								else
-//								{
-//									break;
-//								}
-//							}
-//							else
-//							{
-//								char bufferShow[1024] = {0};
-//
-//								sprintf(bufferShow,"签名成功！，是否重新签名？");
-//
-//								if (IDYES == MessageBoxA(NULL,bufferShow, "提示", MB_ICONEXCLAMATION|MB_YESNO))
-//								{
-//
-//								}
-//								else
-//								{
-//									break;
-//								}
-//							}
-//						} while (1);
-//					}
-//					
-//					free(descProperty_OUT);
-//
-//				}
-//			}while(certContext_OUT);
-//
-//			ulRet = 0;
-//err:
-//			if (hCertStore)
-//			{
-//				// 关闭存储区
-//				ulRet = SMC_CertCloseStore(hCertStore, CERT_CLOSE_STORE_CHECK_FLAG);
-//			}
-//		}
-
 		return g_CurrentCerts;
 	}
 }

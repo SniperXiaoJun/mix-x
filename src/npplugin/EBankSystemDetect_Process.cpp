@@ -45,24 +45,29 @@ int GetProcessCount(const char *processName, unsigned int *puiCountProcess)
 	{
 		memset(big_chars, 0, sizeof(big_chars));
 
-		for (i = 0; i < strlen(currentProcess.szExeFile); i++)
+		std::string currentProcessExeFile;
+
+#if defined(_UNICODE) || defined(UNICODE)
+		currentProcessExeFile = utf8_encode(currentProcess.szExeFile);
+#else
+		currentProcessExeFile = currentProcess.szExeFile;
+#endif
+		for (i = 0; i < currentProcessExeFile.size(); i++)
 		{
-			if (currentProcess.szExeFile[i]>= 'a' && currentProcess.szExeFile[i]<= 'z')
+			if (currentProcessExeFile.c_str()[i] >= 'a' && currentProcessExeFile.c_str()[i] <= 'z')
 			{
-				big_chars[i] = currentProcess.szExeFile[i] - 32;
+				big_chars[i] = currentProcessExeFile.c_str()[i] - 32;
 			}
 			else
 			{
-				big_chars[i] = currentProcess.szExeFile[i];
+				big_chars[i] = currentProcessExeFile.c_str()[i];
 			}
 		}
 
 		if (memcmp(big_chars, big_chars_process, strlen(big_chars_process)) == 0)
 		{
-			processNameCount++;
-			printf("PID=%5u    PName= %s\n", currentProcess.th32ProcessID, currentProcess.szExeFile); //遍历进程快照，轮流显示每个进程信息  
+			processNameCount++;	
 		}
-
 
 		bMore = Process32Next(hProcess, &currentProcess);    //遍历下一个  
 		countProcess++;

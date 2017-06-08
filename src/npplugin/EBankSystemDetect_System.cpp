@@ -145,20 +145,6 @@ char *w2c(char *pcstr,const wchar_t *pwstr, size_t len)
 	return pcstr ;
 }
 
-//将char* 转成wchar_t*的实现函数如下：
-
-//这是把asii字符转换为unicode字符，和上面相同的原理
-
-void c2w(wchar_t *pwstr,size_t len,const char *str)
-{
-	if(str)
-	{
-		//MultiByteToWideChar(CP_ACP, 0, (LPCTSTR)str, -1, NULL,0);   
-		memset(pwstr, 0, len * 2 + 2);   
-		MultiByteToWideChar(CP_ACP, 0, (LPCTSTR)str, -1, (LPWSTR)pwstr, len);   
-	}
-}
-
 // Convert a wide Unicode string to an UTF8 string
 static std::string utf8_encode(const std::wstring &wstr){
 	// when got a empty wstring, vs2010 will break on an asserting: string 
@@ -468,7 +454,7 @@ BOOL GetNtVersionNumbers(DWORD&dwMajorVer, DWORD& dwMinorVer,DWORD& dwBuildNumbe
 {
 	BOOL bRet= FALSE;
 	HMODULE hModNtdll= NULL;
-	if (hModNtdll= ::LoadLibrary("ntdll.dll"))
+	if (hModNtdll= ::LoadLibraryA("ntdll.dll"))
 	{
 		typedef void (WINAPI *pfRTLGETNTVERSIONNUMBERS)(DWORD*,DWORD*, DWORD*);
 		pfRTLGETNTVERSIONNUMBERS pfRtlGetNtVersionNumbers;
@@ -487,7 +473,7 @@ BOOL GetNtVersionNumbers(DWORD&dwMajorVer, DWORD& dwMinorVer,DWORD& dwBuildNumbe
 	return bRet;
 }
 
-bool GetUserSystemInfo(string & output){
+bool GetUserSystemInfo(wstring & output){
 	SYSTEM_INFO si;
 	OSVERSIONINFOEX osvi;
 	DWORD dwType; 
@@ -517,36 +503,36 @@ bool GetUserSystemInfo(string & output){
 	} 
 
 	output.clear();
-	output.append("Microsoft ");
+	output.append(L"Microsoft ");
 
 	// Test for the specific product. 
 	if (osvi.dwMajorVersion == 10)
 	{
-		output += "Windows 10 ";
+		output += L"Windows 10 ";
 	}
 	else if ( osvi.dwMajorVersion == 6 ){
 
 		if( osvi.dwMinorVersion == 0 ){
 			if( osvi.wProductType == VER_NT_WORKSTATION )
-				output += "Windows Vista ";
-			else output += "Windows Server 2008 ";
+				output += L"Windows Vista ";
+			else output += L"Windows Server 2008 ";
 		}  
 		else if ( osvi.dwMinorVersion == 1 ){
 			if( osvi.wProductType == VER_NT_WORKSTATION )
-				output +=  "Windows 7 ";
-			else output +=  "Windows Server 2008 R2 ";
+				output += L"Windows 7 ";
+			else output += L"Windows Server 2008 R2 ";
 		}  
 		else if (osvi.dwMinorVersion == 2){
 			if (osvi.wProductType == VER_NT_WORKSTATION)
-				output +=  "Windows 8 ";
+				output += L"Windows 8 ";
 			else
-				output +=  "Windows Server 2012 ";
+				output += L"Windows Server 2012 ";
 		}
 		else if (osvi.dwMinorVersion == 3){
 			if (osvi.wProductType == VER_NT_WORKSTATION)
-				output +=  "Windows 8.1 ";
+				output += L"Windows 8.1 ";
 			else
-				output +=  "Windows Server 2012 R2 ";
+				output += L"Windows Server 2012 R2 ";
 		}
 	} 
 
@@ -558,149 +544,149 @@ bool GetUserSystemInfo(string & output){
 
 	switch( dwType ){
 	case PRODUCT_ULTIMATE:
-		output +=  "Ultimate Edition";
+		output += L"Ultimate Edition";
 		break;
 	case PRODUCT_PROFESSIONAL:
-		output +=  "Professional";
+		output += L"Professional";
 		break;
 	case PRODUCT_HOME_PREMIUM:
-		output +=  "Home Premium Edition";
+		output += L"Home Premium Edition";
 		break;
 	case PRODUCT_HOME_BASIC:
-		output +=  "Home Basic Edition";
+		output += L"Home Basic Edition";
 		break;
 	case PRODUCT_ENTERPRISE:
-		output +=  "Enterprise Edition";
+		output += L"Enterprise Edition";
 		break;
 	case PRODUCT_BUSINESS:
-		output +=  "Business Edition";
+		output += L"Business Edition";
 		break;
 	case PRODUCT_STARTER:
-		output +=  "Starter Edition";
+		output += L"Starter Edition";
 		break;
 	case PRODUCT_CLUSTER_SERVER:
-		output +=  "Cluster Server Edition";
+		output += L"Cluster Server Edition";
 		break;
 	case PRODUCT_DATACENTER_SERVER:
-		output +=  "Datacenter Edition";
+		output += L"Datacenter Edition";
 		break;
 	case PRODUCT_DATACENTER_SERVER_CORE:
-		output +=  "Datacenter Edition (core installation)";
+		output += L"Datacenter Edition (core installation)";
 		break;
 	case PRODUCT_ENTERPRISE_SERVER:
-		output +=  "Enterprise Edition";
+		output += L"Enterprise Edition";
 		break;
 	case PRODUCT_ENTERPRISE_SERVER_CORE:
-		output +=  "Enterprise Edition (core installation)";
+		output += L"Enterprise Edition (core installation)";
 		break;
 	case PRODUCT_ENTERPRISE_SERVER_IA64:
-		output +=  "Enterprise Edition for Itanium-based Systems";
+		output += L"Enterprise Edition for Itanium-based Systems";
 		break;
 	case PRODUCT_SMALLBUSINESS_SERVER:
-		output +=  "Small Business Server";
+		output += L"Small Business Server";
 		break;
 	case PRODUCT_SMALLBUSINESS_SERVER_PREMIUM:
-		output +=  "Small Business Server Premium Edition";
+		output += L"Small Business Server Premium Edition";
 		break;
 	case PRODUCT_STANDARD_SERVER:
-		output +=  "Standard Edition";
+		output += L"Standard Edition";
 		break;
 	case PRODUCT_STANDARD_SERVER_CORE:
-		output +=  "Standard Edition (core installation)";
+		output += L"Standard Edition (core installation)";
 		break;
 	case PRODUCT_WEB_SERVER:
-		output +=  "Web Server Edition";
+		output += L"Web Server Edition";
 		break;
 	}
 
 	if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2 ){
 		if( GetSystemMetrics(SM_SERVERR2) )
-			output +=   "Windows Server 2003 R2, ";
+			output += L"Windows Server 2003 R2, ";
 		else if ( osvi.wSuiteMask & VER_SUITE_STORAGE_SERVER )
-			output +=   "Windows Storage Server 2003";
+			output += L"Windows Storage Server 2003";
 		else if ( osvi.wSuiteMask & VER_SUITE_WH_SERVER )
-			output +=   "Windows Home Server";
+			output += L"Windows Home Server";
 		else if( osvi.wProductType == VER_NT_WORKSTATION &&
 			si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_AMD64){
-				output +=   "Windows XP Professional x64 Edition";
-		} else output +=  "Windows Server 2003, ";  
+				output += L"Windows XP Professional x64 Edition";
+		} else output += L"Windows Server 2003, ";
 
 		// Test for the server type.
 		if ( osvi.wProductType != VER_NT_WORKSTATION ){
 			if ( si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_IA64 ){
 				if( osvi.wSuiteMask & VER_SUITE_DATACENTER )
-					output +=   "Datacenter Edition for Itanium-based Systems";
+					output += L"Datacenter Edition for Itanium-based Systems";
 				else if( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )
-					output +=   "Enterprise Edition for Itanium-based Systems";
+					output += L"Enterprise Edition for Itanium-based Systems";
 			}   
 			else if ( si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_AMD64 ){
 				if( osvi.wSuiteMask & VER_SUITE_DATACENTER )
-					output +=   "Datacenter x64 Edition";
+					output += L"Datacenter x64 Edition";
 				else if( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )
-					output +=   "Enterprise x64 Edition";
+					output += L"Enterprise x64 Edition";
 				else 
-					output +=   "Standard x64 Edition";
+					output += L"Standard x64 Edition";
 			}   
 			else {
 				if ( osvi.wSuiteMask & VER_SUITE_COMPUTE_SERVER )
-					output +=   "Compute Cluster Edition";
+					output += L"Compute Cluster Edition";
 				else if( osvi.wSuiteMask & VER_SUITE_DATACENTER )
-					output +=   "Datacenter Edition";
+					output += L"Datacenter Edition";
 				else if( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )
-					output +=   "Enterprise Edition";
+					output += L"Enterprise Edition";
 				else if ( osvi.wSuiteMask & VER_SUITE_BLADE )
-					output +=   "Web Edition";
+					output += L"Web Edition";
 				else 
-					output +=   "Standard Edition";
+					output += L"Standard Edition";
 			}
 		}
 	} 
 
 	if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1 ){
-		output +=  "Windows XP ";
+		output += L"Windows XP ";
 		if( osvi.wSuiteMask & VER_SUITE_PERSONAL )
-			output +=   "Home Edition";
+			output += L"Home Edition";
 		else 
-			output +=   "Professional";
+			output += L"Professional";
 	} 
 
 	if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0 ){
-		output +=  "Windows 2000 ";  
+		output += L"Windows 2000 ";
 		if ( osvi.wProductType == VER_NT_WORKSTATION ){
-			output +=   "Professional";
+			output += L"Professional";
 		}
 		else {
 			if( osvi.wSuiteMask & VER_SUITE_DATACENTER )
-				output +=   "Datacenter Server";
+				output += L"Datacenter Server";
 			else if( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )
-				output +=   "Advanced Server";
+				output += L"Advanced Server";
 			else 
-				output +=   "Server";
+				output += L"Server";
 		}
 	}
 
 	// Include service pack (if any) and build number. 
-	if(strlen(osvi.szCSDVersion) > 0) {
+	if(wcslen(osvi.szCSDVersion) > 0) {
 		output += osvi.szCSDVersion;
 	}
-	output +=  " (build ";
+	output += L" (build ";
 
 	{
-		char dataBuildNumber[BUFFER_LEN_1K]  = {0};
+		wchar_t dataBuildNumber[BUFFER_LEN_1K]  = {0};
 
-		sprintf(dataBuildNumber, "%d", osvi.dwBuildNumber);
+		wsprintf(dataBuildNumber, L"%d", osvi.dwBuildNumber);
 
 		output += dataBuildNumber;
 	}
 
-	output += ")"; 
+	output += L")";
 
 	// 32位，64位
 	if ( osvi.dwMajorVersion >= 6 ) {
 		if ( si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_AMD64 )
-			output +=   ", 64-bit";
+			output += L", 64-bit";
 		else if (si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_INTEL )
-			output +=  ", 32-bit";
+			output += L", 32-bit";
 	} 
 
 	return true; 
@@ -712,14 +698,14 @@ string WTF_GetSystemInfo()
 
 	Json::Value item;
 
-	string strData;
+	wstring strData;
 
 	bFlag = GetUserSystemInfo(strData);
 
 	if (bFlag)
 	{
 		item["success"] = TRUE;
-		item["sysinfo"] = strData;
+		item["sysinfo"] = utf8_encode(strData);
 		item["sec_level"] = TYPE_SEC_NORMAL;
 	}
 	else

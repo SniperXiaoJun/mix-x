@@ -39,7 +39,7 @@ class MixMutex
 #if defined(__linux__)
 		pthread_mutex_init(&m_mutex, mutex_name); 
 #else
-		m_mutex=CreateMutex(NULL,FALSE,mutex_name);
+		m_mutex=CreateMutexA(NULL,FALSE,mutex_name);
 #endif
 	}
     virtual ~MixMutex() { 

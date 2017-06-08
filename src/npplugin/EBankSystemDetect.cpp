@@ -306,14 +306,14 @@ string WTF_GetLocalFileVersion(string strPath)
 		BYTE     *pbVersionInfo=NULL;                 // 获取文件版本信息
 		VS_FIXEDFILEINFO    *pFileInfo=NULL; 
 		UINT                puLenFileInfo=0; 
-		dwSize=GetFileVersionInfoSize(strPath.c_str(), NULL);
+		dwSize=GetFileVersionInfoSizeA(strPath.c_str(), NULL);
 		pbVersionInfo=new BYTE[dwSize]; 
-		if(!GetFileVersionInfo(strPath.c_str(),0,dwSize,pbVersionInfo))
+		if(!GetFileVersionInfoA(strPath.c_str(),0,dwSize,pbVersionInfo))
 		{
 			delete[]pbVersionInfo; 
 			item["version"] = "null";
 		}
-		if (!VerQueryValue(pbVersionInfo,TEXT("\\"),(LPVOID*)&pFileInfo,&puLenFileInfo)) 
+		if (!VerQueryValueA(pbVersionInfo,"\\",(LPVOID*)&pFileInfo,&puLenFileInfo)) 
 		{ 
 			delete[]pbVersionInfo; 
 			item["version"] = "null";
@@ -403,7 +403,7 @@ unsigned int WTF_InstallApplication(string strAppPath,string strArgs, unsigned i
 	}
 
 	PROCESS_INFORMATION processInfo;
-	STARTUPINFO si;
+	STARTUPINFOA si;
 	ZeroMemory(&si, sizeof(STARTUPINFO));
 	si.cb = sizeof(STARTUPINFO);
 	si.hStdOutput =  hWrite;
@@ -411,7 +411,7 @@ unsigned int WTF_InstallApplication(string strAppPath,string strArgs, unsigned i
 	si.dwFlags = STARTF_USESHOWWINDOW|STARTF_USESTDHANDLES;
 
 	sprintf(szCmd, "cmd /c \"%s\" %s", strAppPath.c_str(), strArgs.c_str());
-	if(!CreateProcess(NULL, szCmd, NULL, NULL,TRUE,0,NULL,NULL,&si,&processInfo)){
+	if(!CreateProcessA(NULL, szCmd, NULL, NULL,TRUE,0,NULL,NULL,&si,&processInfo)){
 		return -1;
 	}
 
@@ -486,14 +486,14 @@ unsigned int WTF_RunApplication(string strAppPath,string strArgs)
 	unsigned int ulRet = -1;
 
 	PROCESS_INFORMATION processInfo;
-	STARTUPINFO si;
+	STARTUPINFOA si;
 	ZeroMemory(&si, sizeof(STARTUPINFO));
 	si.cb = sizeof(STARTUPINFO);
 	si.wShowWindow = SW_HIDE;
 	si.dwFlags = STARTF_USESHOWWINDOW|STARTF_USESTDHANDLES;
 
 	sprintf(szCmd, "cmd /c \"%s\" %s", strAppPath.c_str(), strArgs.c_str());
-	if(!CreateProcess(NULL, szCmd, NULL, NULL,TRUE,0,NULL,NULL,&si,&processInfo)){
+	if(!CreateProcessA(NULL, szCmd, NULL, NULL,TRUE,0,NULL,NULL,&si,&processInfo)){
 		return -1;
 	}
 

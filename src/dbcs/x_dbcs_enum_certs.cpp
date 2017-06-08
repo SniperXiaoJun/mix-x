@@ -10,12 +10,12 @@
 
 using namespace std;
 
-unsigned int SHOW_ALL_CERTS(SMB_CS_CertificateContext_NODE *ppCertCtxNodeHeader)
+unsigned int SHOW_ALL_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 {
-	while (ppCertCtxNodeHeader)
+	while (pCertCtxNode)
 	{
-		SMB_QTUI_ShowUI(ppCertCtxNodeHeader->ptr_data->stContent.data, ppCertCtxNodeHeader->ptr_data->stContent.length);
-		ppCertCtxNodeHeader = ppCertCtxNodeHeader->ptr_next;
+		SMB_QTUI_ShowUI(pCertCtxNode->ptr_data->stContent.data, pCertCtxNode->ptr_data->stContent.length);
+		pCertCtxNode = pCertCtxNode->ptr_next;
 	}
 
 	return 0;

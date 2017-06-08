@@ -1,96 +1,6 @@
-﻿#if 0
-
-#include "stdafx.h"
-#include "afxcmn.h"
-#include "json/json.h"
+﻿#include "json/json.h"
 #include "EBankSystemDetect.h"
 #include "FILE_LOG.h"
-#include "afxdialogex.h"
-#include "WTF_Interface.h"
-#include "common.h"
-
-string WTF_CheckHostFile(string strURL)  
-{  
-	CString strPath; 
-
-	CString strSystem, strWindows;  
-	BOOL bFlagExist = FALSE;
-
-	Json::Value item;
-	
-	char data_value_ip[BUFFER_LEN_1K] = {0};
-
-	::GetSystemDirectory(strSystem.GetBuffer(MAX_PATH), MAX_PATH);  
-	::GetWindowsDirectory(strWindows.GetBuffer(32), 32);  
-
-	strPath.Format("%s\\drivers\\etc\\hosts", strSystem);     
-
-	CStdioFile sf;     
-	CFileException e;   
-	CString strLine, strFile, strReal;
-	
-	bool bOpen = sf.Open(strPath, CFile::typeText|CFile::modeRead, &e);  
-
-	/*
-
-	if(bOpen)    
-	{         
-		while(sf.ReadString(strLine) != NULL)    
-		{
-			strFile += strLine;  
-			strFile += "\r\n";    
-			if(strLine.Trim().GetLength() == 0 || strLine.GetAt(0)=='#'|| strLine.GetAt(0)==';')  
-			{
-				continue;
-			}
-			else
-			{
-				strReal += strLine;
-				strReal += "\r\n";
-
-				char *strWeb =strLine.GetBuffer(strLine.GetLength());  
-				strLine.ReleaseBuffer(); 
-
-				if (const char * pos = strstr(strWeb,strURL.c_str()))
-				{
-					bFlagExist = TRUE;
-
-					strcpy(data_value_ip,strWeb);
-
-					data_value_ip[pos - strWeb - 1] = 0;
-				}
-				else
-				{
-
-				}
-
-			}
-
-		}  
-		sf.Close();  
-	}  
-	if (bFlagExist)  
-	{  
-		item["success"] = TRUE;
-		item["ip"] = data_value_ip;
-		item["url"] = strURL;
-		item["sec_level"] = TYPE_SEC_NORMAL;
-	}   
-	else  
-	{  
-		item["success"] = FALSE;
-		item["sec_level"] = TYPE_SEC_WARNING;
-	}  
-	*/
-	return item.toStyledString();
-} 
-
-
-#else
-#include "json/json.h"
-#include "EBankSystemDetect.h"
-#include "FILE_LOG.h"
-#include "WTF_Interface.h"
 #include "common.h"
 #include <iostream>
 #include <fstream>
@@ -123,8 +33,8 @@ string WTF_CheckHostFile(string strURL)
 	
 	char data_value_ip[BUFFER_LEN_1K] = {0};
 
-	::GetSystemDirectory(strSystem, MAX_PATH);  
-	::GetWindowsDirectory(strWindows, 32);
+	::GetSystemDirectoryA(strSystem, MAX_PATH);  
+	::GetWindowsDirectoryA(strWindows, 32);
 
 	strPath += strSystem;
 
@@ -203,8 +113,8 @@ string WTF_RepairHostFile(string strProName, string strKey)
 
 	char data_value_ip[BUFFER_LEN_1K] = {0};
 
-	::GetSystemDirectory(strSystem, MAX_PATH);  
-	::GetWindowsDirectory(strWindows, 32);
+	::GetSystemDirectoryA(strSystem, MAX_PATH);  
+	::GetWindowsDirectoryA(strWindows, 32);
 
 	strPath += strSystem;
 
@@ -326,6 +236,3 @@ string WTF_RepairHostFile(string strProName, string strKey)
 
 	return item.toStyledString();
 }
-
-
-#endif
