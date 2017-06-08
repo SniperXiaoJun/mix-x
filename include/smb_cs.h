@@ -165,7 +165,7 @@ extern "C" {
 	/*
 	清空数据库
 	*/
-	COMMON_API unsigned int SMB_CS_ClrAllCtxFromDB();
+	COMMON_API unsigned int SMB_CS_ClrAllCtxFromDB(unsigned char ucStoreType);
 
 	/*
 	从数据库查找证书
@@ -176,6 +176,11 @@ extern "C" {
 	从数据库遍历证书
 	*/
 	COMMON_API unsigned int SMB_CS_EnumCtxsFromDB(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char ucStoreType);
+
+	/*
+	从数据库删除证书上
+	*/
+	COMMON_API unsigned int SMB_CS_DelCtx_NODE_FromDB(SMB_CS_CertificateContext_NODE *pCertCtxNodeHeader);
 
 	/*
 	释放证书上下文
@@ -232,7 +237,7 @@ extern "C" {
 	/*
 	数据库路径初始化
 	*/
-	int SMB_DB_Path_Init();
+	int SMB_DB_Path_Init(char * pDbPath);
 
 #ifdef __cplusplus
 }
