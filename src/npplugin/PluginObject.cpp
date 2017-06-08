@@ -1230,7 +1230,7 @@ bool PluginObject::invoke(NPIdentifier methodName,
 			std::string strAppArgs(AppArgs.UTF8Characters, AppArgs.UTF8Length);
 			int iFlag =  NPVARIANT_TO_INT32(args[2]);
 
-			strAppPath = UTF8ToGBK(strAppPath);
+			//strAppPath = UTF8ToGBK(strAppPath);
 
 			// 线程参数
 			paramThread->paramThreadStringMap["AppPath"]=strAppPath;
@@ -1260,7 +1260,7 @@ bool PluginObject::invoke(NPIdentifier methodName,
 			std::string strAppArgs(AppArgs.UTF8Characters, AppArgs.UTF8Length);
 			int iFlag =  NPVARIANT_TO_INT32(args[2]);
 
-			strAppPath = UTF8ToGBK(strAppPath);
+			//strAppPath = UTF8ToGBK(strAppPath);
 
 			// 线程参数
 			paramThread->paramThreadStringMap["AppPath"]=strAppPath;
@@ -1335,7 +1335,7 @@ bool PluginObject::invoke(NPIdentifier methodName,
 
 			int iFlag =  NPVARIANT_TO_INT32(args[1]);
 
-			strCaCertPath = UTF8ToGBK(strCaCertPath);
+			//strCaCertPath = UTF8ToGBK(strCaCertPath);
 			// 线程参数
 			paramThread->paramThreadStringMap["CaCertPath"]=strCaCertPath;
 			paramThread->paramThreadIntMap["Flag"] = iFlag; 
@@ -1359,7 +1359,7 @@ bool PluginObject::invoke(NPIdentifier methodName,
 
 			NPString CaCertPath(NPVARIANT_TO_STRING(args[0])); 
 			std::string strCaCertPath(CaCertPath.UTF8Characters, CaCertPath.UTF8Length);
-			strCaCertPath = UTF8ToGBK(strCaCertPath);
+			//strCaCertPath = UTF8ToGBK(strCaCertPath);
 			// 线程参数
 			paramThread->paramThreadStringMap["CaCertPath"]=strCaCertPath;
 			paramThread->paramThreadIntMap["Flag"] = 1; 
@@ -1382,7 +1382,7 @@ bool PluginObject::invoke(NPIdentifier methodName,
 
 			NPString CaCertPath(NPVARIANT_TO_STRING(args[0])); 
 			std::string strCaCertPath(CaCertPath.UTF8Characters, CaCertPath.UTF8Length);
-			strCaCertPath = UTF8ToGBK(strCaCertPath);
+			//strCaCertPath = UTF8ToGBK(strCaCertPath);
 			// 线程参数
 			paramThread->paramThreadStringMap["CaCertPath"]=strCaCertPath;
 			paramThread->paramThreadIntMap["Flag"] = 2; 
@@ -1463,7 +1463,7 @@ bool PluginObject::invoke(NPIdentifier methodName,
 			NPString FilePath(NPVARIANT_TO_STRING(args[0])); 
 			std::string strFilePath(FilePath.UTF8Characters, FilePath.UTF8Length);
 
-			strFilePath = UTF8ToGBK(strFilePath);
+			//strFilePath = UTF8ToGBK(strFilePath);
 
 			// 线程参数
 			paramThread->paramThreadStringMap["FilePath"] = strFilePath;

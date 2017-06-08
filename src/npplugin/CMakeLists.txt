@@ -10,18 +10,11 @@ LINK_DIRECTORIES(
 
 FILE(GLOB 
   common_cs 
-  ${CMAKE_SOURCE_DIR}/common/FILE_LOG.c 
-  ${CMAKE_SOURCE_DIR}/common/modp_b64.c 
-  ${CMAKE_SOURCE_DIR}/common/o_all_func_def.c 
-  ${CMAKE_SOURCE_DIR}/common/openssl_func_def.c 
   )
 
 FILE(GLOB 
   common_cpps
-  ${CMAKE_SOURCE_DIR}/common/smb_dev.cpp
-  ${CMAKE_SOURCE_DIR}/common/smb_cs.cpp
-  ${CMAKE_SOURCE_DIR}/common/smcert.cpp
-  ${CMAKE_SOURCE_DIR}/common/certificate_items_parse.cpp
+  ${CMAKE_SOURCE_DIR}/common/encode_switch.cpp
  )
  
  FILE(GLOB 
@@ -42,20 +35,24 @@ FILE(GLOB
   ${CMAKE_SOURCE_DIR}/npplugin/Plugin.cpp
 
   ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect.cpp
-  #${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect_DeviceAndCert.cpp
+  ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect_DeviceAndCert.cpp
   ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect_Digest.cpp
   ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect_hosts.cpp
   ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect_Process.cpp
   ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect_System.cpp
+  ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect_Internet.cpp
+  
 
   ${CMAKE_SOURCE_DIR}/npplugin/GetPublicIPAddress.cpp
   ${CMAKE_SOURCE_DIR}/npplugin/TimeAPI.cpp
   ${CMAKE_SOURCE_DIR}/npplugin/msclient_api.cpp
+  ${CMAKE_SOURCE_DIR}/npplugin/CheckAPI.cpp
+  ${CMAKE_SOURCE_DIR}/npplugin/registry.cc
+  ${CMAKE_SOURCE_DIR}/npplugin/SSLCon.cpp
+  ${CMAKE_SOURCE_DIR}/npplugin/HttpConnect.cpp
   
  )
  
- 
-
 ADD_LIBRARY(
   npplugin SHARED
   
@@ -63,12 +60,14 @@ ADD_LIBRARY(
   
   ${npplugin_cpps}
   ${jsoncpp_cpps}
+  ${common_cpps}
 )
 
 target_link_libraries(npplugin sqlite3)
 TARGET_LINK_LIBRARIES(npplugin mix_bssl)
 TARGET_LINK_LIBRARIES(npplugin smb_no_ui)
-
+TARGET_LINK_LIBRARIES(npplugin Wininet)
+TARGET_LINK_LIBRARIES(npplugin Crypt32)
 
 
 
