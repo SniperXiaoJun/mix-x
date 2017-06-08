@@ -25,6 +25,7 @@ int main(int argc, char * argv[])
 {
 	SMB_CS_CertificateContext_NODE *header = NULL;
 
+	SMB_DB_Path_Init("smb_cs.db");
 	SMB_DB_Init();
 
 	SMB_DEV_EnumCert(&header, CERT_ALG_SM2_FLAG| CERT_ALG_RSA_FLAG,
