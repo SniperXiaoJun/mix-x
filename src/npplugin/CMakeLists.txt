@@ -1,0 +1,63 @@
+include_directories(../../include)
+include_directories(../../include/npapi)
+
+add_definitions(-DUNICODE -D_UNICODE -DNOCRYPT -DMIX_BORINGSSL)
+add_definitions(-DWIN32 -D_WINDOWS -DXP_WIN)
+
+LINK_DIRECTORIES(
+  ${CMAKE_SOURCE_DIR}/../lib
+)
+
+FILE(GLOB 
+  common_cs 
+  ${CMAKE_SOURCE_DIR}/common/FILE_LOG.c 
+  ${CMAKE_SOURCE_DIR}/common/modp_b64.c 
+  ${CMAKE_SOURCE_DIR}/common/o_all_func_def.c 
+  ${CMAKE_SOURCE_DIR}/common/openssl_func_def.c 
+  )
+
+FILE(GLOB 
+  common_cpps
+  ${CMAKE_SOURCE_DIR}/common/smb_dev.cpp
+  ${CMAKE_SOURCE_DIR}/common/smb_cs.cpp
+  ${CMAKE_SOURCE_DIR}/common/smcert.cpp
+  ${CMAKE_SOURCE_DIR}/common/certificate_items_parse.cpp
+ )
+ 
+ FILE(GLOB 
+  npplugin_cpps
+
+  ${CMAKE_SOURCE_DIR}/npplugin/Common/np_entry.cpp
+  ${CMAKE_SOURCE_DIR}/npplugin/Common/npn_gate.cpp
+  ${CMAKE_SOURCE_DIR}/npplugin/Common/npp_gate.cpp
+
+  ${CMAKE_SOURCE_DIR}/npplugin/PluginObject.cpp
+  ${CMAKE_SOURCE_DIR}/npplugin/Plugin.cpp
+
+  ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect.cpp
+  ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect_DeviceAndCert.cpp
+  ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect_Digest.cpp
+  ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect_hosts.cpp
+  ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect_Process.cpp
+  ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect_System.cpp
+  
+ )
+ 
+ 
+
+ADD_LIBRARY(
+  npplugin SHARED
+  
+  npplugin.def
+  
+  ${npplugin_cpps}
+)
+
+target_link_libraries(npplugin sqlite3)
+TARGET_LINK_LIBRARIES(npplugin mix_bssl)
+TARGET_LINK_LIBRARIES(npplugin smb_no_ui)
+
+
+
+
+
