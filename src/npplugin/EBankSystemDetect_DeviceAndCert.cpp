@@ -1307,8 +1307,6 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 			ptrDevOri = (char*)pCertCtxNode->ptr_data->stAttr.stDeviceName.data;
 
-			pCertCtxNode = pCertCtxNode->ptr_next;
-
 			while (pCertCtxNode)
 			{
 				if ( 0 != strcmp(ptrDevOri, (char*)pCertCtxNode->ptr_data->stAttr.stDeviceName.data))
@@ -1415,6 +1413,15 @@ std::string WTF_ReadCurrentCerts(int Expire)
 			itemDev["certs"] = itemDevCerts;
 			
 			All.append(itemDev);
+
+			if (NULL != pCertCtxNode)
+			{
+				pCertCtxNode = pCertCtxNode->ptr_next;
+			}
+			else
+			{
+
+			}
 		}
 
 		SMB_CS_ClrAllCtxFromDB(2);
