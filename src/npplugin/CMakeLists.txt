@@ -25,6 +25,13 @@ FILE(GLOB
  )
  
  FILE(GLOB 
+  jsoncpp_cpps
+  ${CMAKE_SOURCE_DIR}/jsoncpp/json_reader.cpp
+  ${CMAKE_SOURCE_DIR}/jsoncpp/json_value.cpp
+  ${CMAKE_SOURCE_DIR}/jsoncpp/json_writer.cpp
+ )
+
+ FILE(GLOB 
   npplugin_cpps
 
   ${CMAKE_SOURCE_DIR}/npplugin/Common/np_entry.cpp
@@ -40,6 +47,10 @@ FILE(GLOB
   ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect_hosts.cpp
   ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect_Process.cpp
   ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect_System.cpp
+
+  ${CMAKE_SOURCE_DIR}/npplugin/GetPublicIPAddress.cpp
+  ${CMAKE_SOURCE_DIR}/npplugin/TimeAPI.cpp
+  ${CMAKE_SOURCE_DIR}/npplugin/msclient_api.cpp
   
  )
  
@@ -51,6 +62,7 @@ ADD_LIBRARY(
   npplugin.def
   
   ${npplugin_cpps}
+  ${jsoncpp_cpps}
 )
 
 target_link_libraries(npplugin sqlite3)

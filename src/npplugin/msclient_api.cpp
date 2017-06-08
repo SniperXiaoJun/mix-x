@@ -1,18 +1,25 @@
 ﻿
 #include "msclient_api.h"
+
+#define __USE_STRUCT_DEFINE__
+#undef _UNICODE
+#undef UNICODE
+
 #include <Windows.h>
 #include <string>
-#include "registry.h"
-using namespace base;
 #include <stdio.h>
-#include "iphlpapi.h"
 #include <string>  
 #include <iostream> 
 #include <sstream>
 #include <fstream>
+
+#include "registry.h"
+#include "iphlpapi.h"
+
 #pragma comment(lib,"iphlpapi.lib") 
 #pragma comment(lib, "version.lib")
 using namespace std;  
+using namespace base;
 
 typedef void (WINAPI *PGNSI)(LPSYSTEM_INFO);
 typedef BOOL (WINAPI *PGPI)(DWORD, DWORD, DWORD, DWORD, PDWORD);
@@ -66,21 +73,47 @@ typedef struct _IDSECTOR
 	BYTE    bReserved[128];
 } IDSECTOR, *PIDSECTOR;
 
-//typedef struct _DRIVERSTATUS
-//{
-//	BYTE  bDriverError;  //  Error code from driver, or 0 if no error.
-//	BYTE  bIDEStatus;    //  Contents of IDE Error register.
-//	//  Only valid when bDriverError is SMART_IDE_ERROR.
-//	BYTE  bReserved[2];  //  Reserved for future expansion.
-//	DWORD  dwReserved[2];  //  Reserved for future expansion.
-//} DRIVERSTATUS, *PDRIVERSTATUS, *LPDRIVERSTATUS;
 
-//typedef struct _SENDCMDOUTPARAMS
-//{
-//	DWORD         cBufferSize;   //  Size of bBuffer in bytes
-//	DRIVERSTATUS  DriverStatus;  //  Driver status structure.
-//	BYTE          bBuffer[1];    //  Buffer of arbitrary length in which to store the data read from the                                                       // drive.
-//} SENDCMDOUTPARAMS, *PSENDCMDOUTPARAMS, *LPSENDCMDOUTPARAMS;
+#if defined(__USE_STRUCT_DEFINE__)
+typedef struct _DRIVERSTATUS
+{
+	BYTE  bDriverError;  //  Error code from driver, or 0 if no error.
+	BYTE  bIDEStatus;    //  Contents of IDE Error register.
+						 //  Only valid when bDriverError is SMART_IDE_ERROR.
+	BYTE  bReserved[2];  //  Reserved for future expansion.
+	DWORD  dwReserved[2];  //  Reserved for future expansion.
+} DRIVERSTATUS, *PDRIVERSTATUS, *LPDRIVERSTATUS;
+
+typedef struct _SENDCMDOUTPARAMS
+{
+	DWORD         cBufferSize;   //  Size of bBuffer in bytes
+	DRIVERSTATUS  DriverStatus;  //  Driver status structure.
+	BYTE          bBuffer[1];    //  Buffer of arbitrary length in which to store the data read from the                                                       // drive.
+} SENDCMDOUTPARAMS, *PSENDCMDOUTPARAMS, *LPSENDCMDOUTPARAMS;
+
+typedef struct _IDEREGS
+{
+	BYTE bFeaturesReg;       // Used for specifying SMART "commands".
+	BYTE bSectorCountReg;    // IDE sector count register
+	BYTE bSectorNumberReg;   // IDE sector number register
+	BYTE bCylLowReg;         // IDE low order cylinder value
+	BYTE bCylHighReg;        // IDE high order cylinder value
+	BYTE bDriveHeadReg;      // IDE drive/head register
+	BYTE bCommandReg;        // Actual IDE command.
+	BYTE bReserved;          // reserved for future use.  Must be zero.
+} IDEREGS, *PIDEREGS, *LPIDEREGS;
+
+typedef struct _SENDCMDINPARAMS
+{
+	DWORD     cBufferSize;   //  Buffer size in bytes
+	IDEREGS   irDriveRegs;   //  Structure with drive register values.
+	BYTE bDriveNumber;       //  Physical drive number to send 
+							 //  command to (0,1,2,3).
+	BYTE bReserved[3];       //  Reserved for future expansion.
+	DWORD     dwReserved[4]; //  For future use.
+	BYTE      bBuffer[1];    //  Input buffer.
+} SENDCMDINPARAMS, *PSENDCMDINPARAMS, *LPSENDCMDINPARAMS;
+#endif
 
 typedef struct _SRB_IO_CONTROL
 {
@@ -92,28 +125,6 @@ typedef struct _SRB_IO_CONTROL
 	ULONG Length;
 } SRB_IO_CONTROL, *PSRB_IO_CONTROL;
 
-//typedef struct _IDEREGS
-//{
-//	BYTE bFeaturesReg;       // Used for specifying SMART "commands".
-//	BYTE bSectorCountReg;    // IDE sector count register
-//	BYTE bSectorNumberReg;   // IDE sector number register
-//	BYTE bCylLowReg;         // IDE low order cylinder value
-//	BYTE bCylHighReg;        // IDE high order cylinder value
-//	BYTE bDriveHeadReg;      // IDE drive/head register
-//	BYTE bCommandReg;        // Actual IDE command.
-//	BYTE bReserved;          // reserved for future use.  Must be zero.
-//} IDEREGS, *PIDEREGS, *LPIDEREGS;
-
-//typedef struct _SENDCMDINPARAMS
-//{
-//	DWORD     cBufferSize;   //  Buffer size in bytes
-//	IDEREGS   irDriveRegs;   //  Structure with drive register values.
-//	BYTE bDriveNumber;       //  Physical drive number to send 
-//	//  command to (0,1,2,3).
-//	BYTE bReserved[3];       //  Reserved for future expansion.
-//	DWORD     dwReserved[4]; //  For future use.
-//	BYTE      bBuffer[1];    //  Input buffer.
-//} SENDCMDINPARAMS, *PSENDCMDINPARAMS, *LPSENDCMDINPARAMS;
 
 typedef struct _GETVERSIONOUTPARAMS
 {

@@ -4,7 +4,7 @@
 #include "CheckAPI.h"
 
 #include "HttpConnect.h"
-#include "API_TIME.h"
+#include "TimeAPI.h"
 
 #pragma comment(lib, "version.lib")
 

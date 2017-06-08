@@ -1,4 +1,4 @@
-ï»¿
+
 #ifndef __MSC_CLIENT_API_H__
 
 #define __MSC_CLIENT_API_H__
@@ -22,104 +22,104 @@ extern "C" {
 #endif
 
 	/*
-	åŠŸèƒ½åç§°:	è¿æ¥å®‰å…¨èŠ¯ç‰‡
-	å‡½æ•°åç§°:	MSCAPI_ConnextSecureElement
-	è¾“å…¥å‚æ•°:	
-	è¾“å‡ºå‚æ•°:	
+	¹¦ÄÜÃû³Æ:	Á¬½Ó°²È«Ğ¾Æ¬
+	º¯ÊıÃû³Æ:	MSCAPI_ConnextSecureElement
+	ÊäÈë²ÎÊı:	
+	Êä³ö²ÎÊı:	
 				
-	è¿”å›å€¼: 
-	å¤±è´¥ï¼š
-	åŠŸèƒ½æè¿°:	
+	·µ»ØÖµ: 
+	Ê§°Ü£º
+	¹¦ÄÜÃèÊö:	
 	*/
 	COMMON_API unsigned int MSCAPI_ConnectSecureElement(int iFlag);
 
 	/*
-	åŠŸèƒ½åç§°:	æ–­å¼€å®‰å…¨èŠ¯ç‰‡
-	å‡½æ•°åç§°:	MSCAPI_ConnextSecureElement
-	è¾“å…¥å‚æ•°:	
-	è¾“å‡ºå‚æ•°:	
+	¹¦ÄÜÃû³Æ:	¶Ï¿ª°²È«Ğ¾Æ¬
+	º¯ÊıÃû³Æ:	MSCAPI_ConnextSecureElement
+	ÊäÈë²ÎÊı:	
+	Êä³ö²ÎÊı:	
 
-	è¿”å›å€¼: 
-	å¤±è´¥ï¼š
-	åŠŸèƒ½æè¿°:	
+	·µ»ØÖµ: 
+	Ê§°Ü£º
+	¹¦ÄÜÃèÊö:	
 	*/
 	COMMON_API unsigned int MSCAPI_DisConnectSecureElement(int iFlag);
 
 	/*
-	åŠŸèƒ½åç§°:	è¯»å–å®‰å…¨èŠ¯ç‰‡åºåˆ—å·
-	å‡½æ•°åç§°:	MSCAPI_ReadSecureElementSerialNumber
-	è¾“å…¥å‚æ•°:	
-	è¾“å‡ºå‚æ•°:	
-				pszSN	   åºåˆ—å·å€¼
-				puiSNLen   åºåˆ—å·å€¼é•¿åº¦
-	è¿”å›å€¼: 
-	å¤±è´¥ï¼š
-	åŠŸèƒ½æè¿°:	
+	¹¦ÄÜÃû³Æ:	¶ÁÈ¡°²È«Ğ¾Æ¬ĞòÁĞºÅ
+	º¯ÊıÃû³Æ:	MSCAPI_ReadSecureElementSerialNumber
+	ÊäÈë²ÎÊı:	
+	Êä³ö²ÎÊı:	
+				pszSN	   ĞòÁĞºÅÖµ
+				puiSNLen   ĞòÁĞºÅÖµ³¤¶È
+	·µ»ØÖµ: 
+	Ê§°Ü£º
+	¹¦ÄÜÃèÊö:	
 	*/
 	COMMON_API unsigned int MSCAPI_ReadSecureElementSerialNumber(char * pszSN,unsigned int *puiSNLen, int iFlag);
 
 	/*
-	åŠŸèƒ½åç§°:	è¯»å–å®‰å…¨èŠ¯ç‰‡è¯ä¹¦
-	å‡½æ•°åç§°:	MSCAPI_ReadSecureElementCerts
-	è¾“å…¥å‚æ•°:	
-	è¾“å‡ºå‚æ•°:	
-				pszCerts	  è¯ä¹¦å†…å®¹
-				puiCertsLen      è¯ä¹¦é•¿åº¦
-	è¿”å›å€¼: 
-	å¤±è´¥ï¼š
-	åŠŸèƒ½æè¿°:	
+	¹¦ÄÜÃû³Æ:	¶ÁÈ¡°²È«Ğ¾Æ¬Ö¤Êé
+	º¯ÊıÃû³Æ:	MSCAPI_ReadSecureElementCerts
+	ÊäÈë²ÎÊı:	
+	Êä³ö²ÎÊı:	
+				pszCerts	  Ö¤ÊéÄÚÈİ
+				puiCertsLen      Ö¤Êé³¤¶È
+	·µ»ØÖµ: 
+	Ê§°Ü£º
+	¹¦ÄÜÃèÊö:	
 	*/
 	COMMON_API unsigned int MSCAPI_ReadSecureElementCerts(char * pszCerts,unsigned int *puiCertsLen, int iFlag);
 
 	/*
-	åŠŸèƒ½åç§°:	è¯»å–CPUåºåˆ—å·
-	å‡½æ•°åç§°:	MSCAPI_ReadCPUSerialNumber
-	è¾“å…¥å‚æ•°:	
-	è¾“å‡ºå‚æ•°:	
-				pszSN	   åºåˆ—å·å€¼
-				puiSNLen   åºåˆ—å·å€¼é•¿åº¦
-	è¿”å›å€¼: 
-	å¤±è´¥ï¼š
-	åŠŸèƒ½æè¿°:	
+	¹¦ÄÜÃû³Æ:	¶ÁÈ¡CPUĞòÁĞºÅ
+	º¯ÊıÃû³Æ:	MSCAPI_ReadCPUSerialNumber
+	ÊäÈë²ÎÊı:	
+	Êä³ö²ÎÊı:	
+				pszSN	   ĞòÁĞºÅÖµ
+				puiSNLen   ĞòÁĞºÅÖµ³¤¶È
+	·µ»ØÖµ: 
+	Ê§°Ü£º
+	¹¦ÄÜÃèÊö:	
 	*/
 	COMMON_API unsigned int MSCAPI_ReadCPUSerialNumber(char * pszSN,unsigned int *puiSNLen, int iFlag);
 
 	/*
-	åŠŸèƒ½åç§°:	è¯»å–ç¡¬ç›˜åºåˆ—å·
-	å‡½æ•°åç§°:	MSCAPI_ReadHardDiskSerialNumber
-	è¾“å…¥å‚æ•°:	
-	è¾“å‡ºå‚æ•°:	
-				pszSN	   åºåˆ—å·å€¼
-				puiSNLen   åºåˆ—å·å€¼é•¿åº¦
-	è¿”å›å€¼: 
-	å¤±è´¥ï¼š
-	åŠŸèƒ½æè¿°:	
+	¹¦ÄÜÃû³Æ:	¶ÁÈ¡Ó²ÅÌĞòÁĞºÅ
+	º¯ÊıÃû³Æ:	MSCAPI_ReadHardDiskSerialNumber
+	ÊäÈë²ÎÊı:	
+	Êä³ö²ÎÊı:	
+				pszSN	   ĞòÁĞºÅÖµ
+				puiSNLen   ĞòÁĞºÅÖµ³¤¶È
+	·µ»ØÖµ: 
+	Ê§°Ü£º
+	¹¦ÄÜÃèÊö:	
 	*/
 	COMMON_API unsigned int MSCAPI_ReadHardDiskSerialNumber(char * pszSN,unsigned int *puiSNLen, int iFlag);
 
 	/*
-	åŠŸèƒ½åç§°:	è¯»å–MACåœ°å€
-	å‡½æ•°åç§°:	MSCAPI_ReadHostMACAddress
-	è¾“å…¥å‚æ•°:	
-	è¾“å‡ºå‚æ•°:	
-				pszAddress	   åœ°å€å€¼
-				puiAddressLen   åœ°å€å€¼é•¿åº¦
-	è¿”å›å€¼: 
-	å¤±è´¥ï¼š
-	åŠŸèƒ½æè¿°:	
+	¹¦ÄÜÃû³Æ:	¶ÁÈ¡MACµØÖ·
+	º¯ÊıÃû³Æ:	MSCAPI_ReadHostMACAddress
+	ÊäÈë²ÎÊı:	
+	Êä³ö²ÎÊı:	
+				pszAddress	   µØÖ·Öµ
+				puiAddressLen   µØÖ·Öµ³¤¶È
+	·µ»ØÖµ: 
+	Ê§°Ü£º
+	¹¦ÄÜÃèÊö:	
 	*/
 	COMMON_API unsigned int MSCAPI_ReadHostMACAddress(char * pszAddress,unsigned int *puiAddressLen, int iFlag);
 
 	/*
-	åŠŸèƒ½åç§°:	è¯»å–ä¸»æœºIPåœ°å€
-	å‡½æ•°åç§°:	MSCAPI_ReadHostIPAddress
-	è¾“å…¥å‚æ•°:	
-	è¾“å‡ºå‚æ•°:	
-				pszAddress	   åœ°å€å€¼
-				puiAddressLen   åœ°å€å€¼é•¿åº¦
-	è¿”å›å€¼: 
-	å¤±è´¥ï¼š
-	åŠŸèƒ½æè¿°:	
+	¹¦ÄÜÃû³Æ:	¶ÁÈ¡Ö÷»úIPµØÖ·
+	º¯ÊıÃû³Æ:	MSCAPI_ReadHostIPAddress
+	ÊäÈë²ÎÊı:	
+	Êä³ö²ÎÊı:	
+				pszAddress	   µØÖ·Öµ
+				puiAddressLen   µØÖ·Öµ³¤¶È
+	·µ»ØÖµ: 
+	Ê§°Ü£º
+	¹¦ÄÜÃèÊö:	
 	*/
 	COMMON_API unsigned int MSCAPI_ReadHostIPAddress(char * pszAddress,unsigned int *puiAddressLen, int iFlag);
 
@@ -128,55 +128,55 @@ extern "C" {
 
 
 	/*
-	åŠŸèƒ½åç§°:	è®¡ç®—ç¡¬ä»¶ä¿¡æ¯HASHå€¼
-	å‡½æ•°åç§°:	MSCAPI_CalcHWInfoHash
-	è¾“å…¥å‚æ•°:	
-	è¾“å‡ºå‚æ•°:	
-				pszHash	   HASHå€¼
-				puiHashLen   HASHå€¼é•¿åº¦
-	è¿”å›å€¼: 
-	å¤±è´¥ï¼š
-	åŠŸèƒ½æè¿°:	
+	¹¦ÄÜÃû³Æ:	¼ÆËãÓ²¼şĞÅÏ¢HASHÖµ
+	º¯ÊıÃû³Æ:	MSCAPI_CalcHWInfoHash
+	ÊäÈë²ÎÊı:	
+	Êä³ö²ÎÊı:	
+				pszHash	   HASHÖµ
+				puiHashLen   HASHÖµ³¤¶È
+	·µ»ØÖµ: 
+	Ê§°Ü£º
+	¹¦ÄÜÃèÊö:	
 	*/
 	COMMON_API unsigned int MSCAPI_CalcHWInfoHash(char *pszCpuSN,char *pszMacSN, char *pszHostMacAddress, char *pszHostIPAddress,char * pszHash,unsigned int *puiHashLen, int iFlag);
 
 
 	/*
-	åŠŸèƒ½åç§°:	è¯»å–æ“ä½œç³»ç»Ÿç‰ˆæœ¬ä¿¡æ¯
-	å‡½æ•°åç§°:	MSCAPI_ReadSystemVersionInfo
-	è¾“å…¥å‚æ•°:	
-	è¾“å‡ºå‚æ•°:	
-				pszSysInfo	     ä¿¡æ¯å€¼
-				puiSysInfoLen    ä¿¡æ¯é•¿åº¦
-	è¿”å›å€¼: 
-	å¤±è´¥ï¼š
-	åŠŸèƒ½æè¿°:	
+	¹¦ÄÜÃû³Æ:	¶ÁÈ¡²Ù×÷ÏµÍ³°æ±¾ĞÅÏ¢
+	º¯ÊıÃû³Æ:	MSCAPI_ReadSystemVersionInfo
+	ÊäÈë²ÎÊı:	
+	Êä³ö²ÎÊı:	
+				pszSysInfo	     ĞÅÏ¢Öµ
+				puiSysInfoLen    ĞÅÏ¢³¤¶È
+	·µ»ØÖµ: 
+	Ê§°Ü£º
+	¹¦ÄÜÃèÊö:	
 	*/
 	COMMON_API unsigned int MSCAPI_ReadSystemVersionInfo(char * pszSysInfo,unsigned int *puiSysInfoLen, int iFlag);
 
 	/*
-	åŠŸèƒ½åç§°:	è¯»å–æµè§ˆå™¨ç‰ˆæœ¬ä¿¡æ¯
-	å‡½æ•°åç§°:	MSCAPI_ReadBrowserVersionInfo
-	è¾“å…¥å‚æ•°:	
-	è¾“å‡ºå‚æ•°:	
-				pszBrowserInfo	     ä¿¡æ¯å€¼
-				puiBrowserInfoLen    ä¿¡æ¯é•¿åº¦
-	è¿”å›å€¼: 
-	å¤±è´¥ï¼š
-	åŠŸèƒ½æè¿°:	
+	¹¦ÄÜÃû³Æ:	¶ÁÈ¡ä¯ÀÀÆ÷°æ±¾ĞÅÏ¢
+	º¯ÊıÃû³Æ:	MSCAPI_ReadBrowserVersionInfo
+	ÊäÈë²ÎÊı:	
+	Êä³ö²ÎÊı:	
+				pszBrowserInfo	     ĞÅÏ¢Öµ
+				puiBrowserInfoLen    ĞÅÏ¢³¤¶È
+	·µ»ØÖµ: 
+	Ê§°Ü£º
+	¹¦ÄÜÃèÊö:	
 	*/
 	COMMON_API unsigned int MSCAPI_ReadBrowserVersionInfo(char * pszBrowserInfo,unsigned int *puiBrowserInfoLen, int iFlag);
 
 	/*
-	åŠŸèƒ½åç§°:	è¯»å–å®¢æˆ·ç«¯ç‰ˆæœ¬ä¿¡æ¯
-	å‡½æ•°åç§°:	MSCAPI_ReadClientCSPInfo
-	è¾“å…¥å‚æ•°:	
-	è¾“å‡ºå‚æ•°:	
-				pszCSPInfo	     ä¿¡æ¯å€¼
-				puiCSPInfoLen    ä¿¡æ¯é•¿åº¦
-	è¿”å›å€¼: 
-	å¤±è´¥ï¼š
-	åŠŸèƒ½æè¿°:	
+	¹¦ÄÜÃû³Æ:	¶ÁÈ¡¿Í»§¶Ë°æ±¾ĞÅÏ¢
+	º¯ÊıÃû³Æ:	MSCAPI_ReadClientCSPInfo
+	ÊäÈë²ÎÊı:	
+	Êä³ö²ÎÊı:	
+				pszCSPInfo	     ĞÅÏ¢Öµ
+				puiCSPInfoLen    ĞÅÏ¢³¤¶È
+	·µ»ØÖµ: 
+	Ê§°Ü£º
+	¹¦ÄÜÃèÊö:	
 	*/
 	COMMON_API unsigned int MSCAPI_ReadClientCSPInfo(char * pszCSPInfo,unsigned int *puiCSPInfoLen, int iFlag);
 
