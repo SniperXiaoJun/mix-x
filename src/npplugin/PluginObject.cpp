@@ -421,8 +421,8 @@ namespace {
 		std::string strPassword = paramThread->paramThreadStringMap["Password"];
 		std::string strDeviceB64 = paramThread->paramThreadStringMap["deviceName"];
 
-		paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(
-			WTF_VerifyDevPasswordBySignCertPropB64(strDeviceB64,strPassword)) );
+		//paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(
+		//	WTF_VerifyDevPasswordBySignCertPropB64(strDeviceB64,strPassword)) );
 
 		//FreeThreadParamItem(paramThread);
 
@@ -463,8 +463,8 @@ namespace {
 		std::string strNewPassword = paramThread->paramThreadStringMap["newPassword"];
 		std::string strDeviceB64 = paramThread->paramThreadStringMap["deviceName"];
 
-		paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(
-			WTF_ChangeDevPasswordBySignCertPropB64(strDeviceB64,strOldPassword,strNewPassword)) );
+		//paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(
+		//	WTF_ChangeDevPasswordBySignCertPropB64(strDeviceB64,strOldPassword,strNewPassword)) );
 
 		//FreeThreadParamItem(paramThread);
 
@@ -478,7 +478,7 @@ namespace {
 		if (paramThread==NULL)
 			return false;
 		
-		paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(WTF_GetDevSignCert(NULL)) );
+		//paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(WTF_GetDevSignCert(NULL)) );
 		
 		//FreeThreadParamItem(paramThread);
 
@@ -1144,7 +1144,7 @@ bool PluginObject::invoke(NPIdentifier methodName,
 			std::string strPassword(Password.UTF8Characters, Password.UTF8Length);
 
 			// 线程参数
-			outString = WTF_VerifyDevPasswordBySignCertPropB64(strDevice,strPassword);
+			//outString = WTF_VerifyDevPasswordBySignCertPropB64(strDevice,strPassword);
 
 		}
 		else if (strcmp(name, kAddListenerSync )==0 ) {

@@ -17,6 +17,7 @@
 #include <setupapi.h>
 #include <algorithm>
 #include "TimeAPI.h"
+#include "Wincrypt.h"
 
 #define REGIST_CERT_AFTER_READ_CERT
 #define RE_HANDLE_AFTER_REGIST_CERT
@@ -135,12 +136,12 @@ err:
 	SP_DEVINFO_DATA sDevInfoData;  
 	sDevInfoData.cbSize = sizeof(SP_DEVINFO_DATA);   
 	std::string strText;  
-	TCHAR szDIS[MAX_PATH]; // Device Identification Strings,   
+	char szDIS[MAX_PATH]; // Device Identification Strings,   
 	DWORD nSize = 0 ;  
 	for(int i = 0; SetupDiEnumDeviceInfo(hDevInfo,i,&sDevInfoData); i++ )  
 	{  
 		nSize = 0;  
-		if ( !SetupDiGetDeviceInstanceId(hDevInfo, &sDevInfoData, szDIS, sizeof(szDIS), &nSize) )  
+		if ( !SetupDiGetDeviceInstanceIdA(hDevInfo, &sDevInfoData, szDIS, sizeof(szDIS), &nSize) )  
 		{  
 			goto err;
 		}  
@@ -153,7 +154,7 @@ err:
 		if(strDIS.substr( 0,3 ) == std::string("USB") )  
 		{  
 			strText += strDIS;  
-			strText += _T("\r\n");  
+			strText += "\r\n";  
 			int iVID_Pos = strstr(strDIS.c_str(),pVID) - strDIS.c_str();  
 			if( iVID_Pos == 8 )  
 			{  
@@ -288,48 +289,6 @@ string WTF_GetDevAllCerts(const char * pszDevName, int Expire){
 
 #include <sstream>
 
-string WTF_ChangeDevPassword(const std::string strDevName,const std::string strOldPassword, const std::string strNewPassword){
-	unsigned int ulRetry = 0;
-	unsigned int ulRet = ::WTF_ChangePIN(strDevName.c_str(), 1, strOldPassword.c_str(), strNewPassword.c_str(), &ulRetry);
-
-	std::wstringstream msg;
-	if (ulRet){
-		msg << L"修改密码失败，剩余次数:" << ulRetry;
-	} 
-	else {
-		msg << L"修改密码成功！";
-	}
-
-	Json::Value result;
-
-	result["success"] = ulRet?FALSE:TRUE;
-	result["msg"] = utf8_encode(msg.str());
-	result["retryCount"] = ulRetry;
-
-	return result.toStyledString();
-}
-
-string WTF_VerifyDevPassword(const std::string strDevName,const std::string strPassword){
-	unsigned int ulRetry = 0;
-	unsigned int ulRet = ::WTF_VerifyPIN(strDevName.c_str(), 1, strPassword.c_str(), &ulRetry);
-
-	std::wstringstream msg;
-	if (ulRet){
-		msg << L"验证密码失败，剩余次数:" << ulRetry;
-	} 
-	else {
-		msg << L"验证密码成功！";
-	}
-
-	Json::Value result;
-
-	result["success"] = ulRet?FALSE:TRUE;
-	result["msg"] = utf8_encode(msg.str());
-	result["retryCount"] = ulRetry;
-
-	return result.toStyledString();
-}
-
 string WTF_ShowCert(const std::string strCertContentB64)
 {
 	unsigned int ulRetry = 0;
@@ -419,9 +378,9 @@ string WTF_ListSKFDriver(list<string> strSKFList)
 		Json::Value item;
 
 		memset(version,0, 64);
-
+#if __FIRE_BUG__
 		ulRet = WTF_FindSKFDriver(i->c_str(),version);
-
+#endif
 		item["skf_name"] = *i;
 		item["skf_state"] = ulRet? FALSE:TRUE;
 
@@ -434,9 +393,6 @@ string WTF_ListSKFDriver(list<string> strSKFList)
 
 		values.append(item);
 	}
-
-
-
 
 	return values.toStyledString();
 }
@@ -472,12 +428,9 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int ulF
 		item["sec_level"] = TYPE_SEC_EXCEPT;
 		item["success"] = FALSE;
 
-		// 创建存储区
-		ulRet = SMC_CertCreateSMCStores();
-
 		if(TRUE != ulRet)
 		{
-			ulRet = EErr_SMC_CREATE_STORE;
+			ulRet = EErr_SMB_CREATE_STORE;
 			goto err;
 		}
 
@@ -497,22 +450,24 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int ulF
 					L"Ca"                            // The store name as a Unicode 
 					// string
 					);
+
+				if (NULL == hCertStore)
+				{
+					ulRet = EErr_SMB_OPEN_STORE;
+					goto err;
+				}
 			}
 			break;
 		case CERT_ALG_SM2_FLAG:
 			{
+#if __FIRE_BUG__
 				// 打开存储区
 				hCertStore = SMC_CertOpenStore(0,CERT_SYSTEM_STORE_CURRENT_USER, DEFAULT_SMC_STORE_SM2_ROOT_ID);
+#endif
 			}
 			break;
 		default:
 			break;
-		}
-
-		if (NULL == hCertStore)
-		{
-			ulRet = EErr_SMC_OPEN_STORE;
-			goto err;
 		}
 
 		switch(ulAlgType)
@@ -524,8 +479,10 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int ulF
 			break;
 		case CERT_ALG_SM2_FLAG:
 			{
+#if __FIRE_BUG__
 				certContext_CA = SMC_CertFindCertificateInStore(hCertStore,X509_ASN_ENCODING,CERT_FIND_CERT_ID,&id,NULL);
-			}
+#endif	
+		}
 			break;
 		default:
 			break;
@@ -533,14 +490,14 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int ulF
 
 		if (NULL == certContext_CA)
 		{
-			ulRet = EErr_SMC_NO_CERT_CHAIN;
+			ulRet = EErr_SMB_NO_CERT_CHAIN;
 			goto err;
 		}
 
 		if (ulFlag)
 		{
 			// 验证	CA
-			ulRet = WTF_VerifyCert(ulFlag,ulAlgType,certContext_CA->pbCertEncoded, certContext_CA->cbCertEncoded);
+			ulRet = SMB_UTIL_VerifyCert(ulFlag,certContext_CA->pbCertEncoded, certContext_CA->cbCertEncoded);
 
 			if (ulRet)
 			{
@@ -559,13 +516,13 @@ err:
 	// 释放上下文
 	if(certContext_CA)
 	{
-		SMC_CertFreeCertificateContext(certContext_CA);
+		CertFreeCertificateContext(certContext_CA);
 	}
 
 	if (hCertStore)
 	{
 		// 关闭存储区
-		::SMC_CertCloseStore(hCertStore, CERT_CLOSE_STORE_CHECK_FLAG);
+		CertCloseStore(hCertStore, CERT_CLOSE_STORE_CHECK_FLAG);
 	}
 
 	return item.toStyledString();
@@ -611,7 +568,7 @@ string WTF_InstallCaCert(list<string> strListCaCertPath, int ulFlag)
 			FILE_LOG_FMT(file_log_name, "%s %d %s", __FUNCTION__, __LINE__,"ulCaCertLen");
 			FILE_LOG_FMT(file_log_name, "%s %d %d", __FUNCTION__, __LINE__,ulCaCertLen);
 
-			ulRet = WTF_ImportCaCert(pbCaCert, ulCaCertLen, & ulAlgType);
+			ulRet = SMB_UTIL_ImportCaCert(pbCaCert, ulCaCertLen, &ulAlgType);
 
 			item["success"] = ulRet ? FALSE:TRUE;
 			item["algType"] = ulAlgType;
@@ -620,7 +577,7 @@ string WTF_InstallCaCert(list<string> strListCaCertPath, int ulFlag)
 			{
 				item["msg"] = ulAlgType==CERT_ALG_SM2_FLAG? utf8_encode(L"安装SM2证书文件成功"):utf8_encode(L"安装RSA证书文件成功");
 			}
-			else  if (EErr_SMC_NO_RIGHT == ulRet)
+			else  if (EErr_SMB_NO_RIGHT == ulRet)
 			{
 				item["msg"] = utf8_encode(L"未取得安装证书权限");
 				goto err;
@@ -785,13 +742,13 @@ std::string WTF_ReadCurrentCerts(int Expire)
 							case 0:
 								item["verify"] = CERT_VERIFY_RESULT_FLAG_OK;   // 未校验
 								break;
-							case EErr_SMC_VERIFY_TIME:
+							case EErr_SMB_VERIFY_TIME:
 								item["verify"] = CERT_VERIFY_RESULT_TIME_INVALID;
 								break;
-							case EErr_SMC_NO_CERT_CHAIN:
+							case EErr_SMB_NO_CERT_CHAIN:
 								item["verify"] = CERT_VERIFY_RESULT_CHAIN_INVALID;
 								break;
-							case EErr_SMC_VERIFY_CERT:
+							case EErr_SMB_VERIFY_CERT:
 								item["verify"] = CERT_VERIFY_RESULT_SIGN_INVALID;	
 								break;
 							default:
@@ -1194,13 +1151,13 @@ std::string WTF_ReadCurrentCerts(int Expire)
 							case 0:
 								item["verify"] = CERT_VERIFY_RESULT_FLAG_OK;   // 未校验
 								break;
-							case EErr_SMC_VERIFY_TIME:
+							case EErr_SMB_VERIFY_TIME:
 								item["verify"] = CERT_VERIFY_RESULT_TIME_INVALID;
 								break;
-							case EErr_SMC_NO_CERT_CHAIN:
+							case EErr_SMB_NO_CERT_CHAIN:
 								item["verify"] = CERT_VERIFY_RESULT_CHAIN_INVALID;
 								break;
-							case EErr_SMC_VERIFY_CERT:
+							case EErr_SMB_VERIFY_CERT:
 								item["verify"] = CERT_VERIFY_RESULT_SIGN_INVALID;	
 								break;
 							default:
@@ -1422,7 +1379,7 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 					GetLocalTime_T(&timeLocal);
 
-					daysLeft = (pCertContent->stProperty.ulNotAfter - timeLocal)/24/60/60;
+					daysLeft = (pCertCtxNode->ptr_data->stAttr.ulNotAfter - timeLocal)/24/60/60;
 
 					if (daysLeft < Expire)
 					{
@@ -1478,7 +1435,7 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 		DWORD dwErrCode = 0;
 
-		if (!CryptAcquireContext(&hCryptProv, NULL,
+		if (!CryptAcquireContextA(&hCryptProv, NULL,
 			"CMBC CSP V1.0", PROV_RSA_FULL, CRYPT_SILENT))
 		{
 			dwErrCode = GetLastError();
@@ -1573,17 +1530,17 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 						item["signType"] = TRUE; // 签名
 
-						switch(WTF_VerifyCert(CERT_VERIFY_TIME_FLAG | CERT_VERIFY_CHAIN_FLAG | CERT_VERIFY_CRL_FLAG,CERT_ALG_RSA_FLAG,(unsigned char *)szdata,ulCertLen)){
+						switch(SMB_UTIL_VerifyCert(CERT_VERIFY_TIME_FLAG | CERT_VERIFY_CHAIN_FLAG | CERT_VERIFY_CRL_FLAG,(unsigned char *)szdata,ulCertLen)){
 						case 0:
 							item["verify"] = CERT_VERIFY_RESULT_FLAG_OK;   // 未校验
 							break;
-						case EErr_SMC_VERIFY_TIME:
+						case EErr_SMB_VERIFY_TIME:
 							item["verify"] = CERT_VERIFY_RESULT_TIME_INVALID;
 							break;
-						case EErr_SMC_NO_CERT_CHAIN:
+						case EErr_SMB_NO_CERT_CHAIN:
 							item["verify"] = CERT_VERIFY_RESULT_CHAIN_INVALID;
 							break;
-						case EErr_SMC_VERIFY_CERT:
+						case EErr_SMB_VERIFY_CERT:
 							item["verify"] = CERT_VERIFY_RESULT_SIGN_INVALID;	
 							break;
 						default:
@@ -1597,16 +1554,13 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 						// b64 fomat encode certcontent
 						{
-							char * data_value_in = (char * )malloc(sizeof(SK_CERT_CONTENT) + ulCertLen);
-							size_t data_len_in = sizeof(SK_CERT_CONTENT) + ulCertLen;
+							char * data_value_in = (char * )malloc(+ ulCertLen);
+							size_t data_len_in =  ulCertLen;
 
 							size_t data_len_out = modp_b64_encode_len(data_len_in);
 							char * data_value_out = (char * )malloc(data_len_out);
 
-							((SK_CERT_CONTENT*)data_value_in)->stProperty.nType = 1; // RSA
-							((SK_CERT_CONTENT*)data_value_in)->nValueLen = ulCertLen;
-							memcpy(data_value_in+sizeof(SK_CERT_CONTENT),szdata,ulCertLen);
-
+							memcpy(data_value_in,szdata,ulCertLen);
 							memset(data_value_out, 0, data_len_out);
 							
 							data_len_out = modp_b64_encode(data_value_out,data_value_in, data_len_in);

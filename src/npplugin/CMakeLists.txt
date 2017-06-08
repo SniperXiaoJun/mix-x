@@ -15,6 +15,7 @@ FILE(GLOB
 FILE(GLOB 
   common_cpps
   ${CMAKE_SOURCE_DIR}/common/encode_switch.cpp
+  ${CMAKE_SOURCE_DIR}/common/o_all_func_def.c
  )
  
  FILE(GLOB 
@@ -66,8 +67,10 @@ ADD_LIBRARY(
 target_link_libraries(npplugin sqlite3)
 TARGET_LINK_LIBRARIES(npplugin mix_bssl)
 TARGET_LINK_LIBRARIES(npplugin smb_no_ui)
+TARGET_LINK_LIBRARIES(npplugin SMB_QTUI)
 TARGET_LINK_LIBRARIES(npplugin Wininet)
 TARGET_LINK_LIBRARIES(npplugin Crypt32)
+TARGET_LINK_LIBRARIES(npplugin SetupAPI)
 
 
 
