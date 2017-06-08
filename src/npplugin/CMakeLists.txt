@@ -34,6 +34,7 @@ FILE(GLOB
 
   ${CMAKE_SOURCE_DIR}/npplugin/PluginObject.cpp
   ${CMAKE_SOURCE_DIR}/npplugin/Plugin.cpp
+  ${CMAKE_SOURCE_DIR}/npplugin/npplugin.rc
 
   ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect.cpp
   ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect_DeviceAndCert.cpp

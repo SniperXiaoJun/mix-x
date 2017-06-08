@@ -71,13 +71,33 @@ void filesearch(string path, int layer)
 
 int main(int argc, char * argv[])
 {
+	SMB_DB_Path_Init("smb_cs.db");
+
 	std::string path = ".";
 
 	filesearch(path, 1);
 
 	SMB_CS_CertificateContext_NODE *header = NULL;
+	
+	SMB_CS_EnumCtxsFromDB(&header, 1);
 
-	SMB_CS_EnumCtxsFromDB(&header,1);
+	SMB_CS_CertificateContext_NODE *pCertCtxNode = header;
+
+	while (pCertCtxNode)
+	{
+		SMB_CS_AddCtxToDB(pCertCtxNode->ptr_data, 2);
+		pCertCtxNode = pCertCtxNode->ptr_next;
+	}
+
+	SMB_CS_ClrAllCtxFromDB(0);
+
+	SMB_CS_DelCtx_NODE_FromDB(header);
+
+	SMB_CS_FreeCtx_NODE(&header);
+
+	SMB_CS_EnumCtxsFromDB(&header, 2);
+
+	SMB_CS_DelCtx_NODE_FromDB(header);
 
 	SMB_CS_FreeCtx_NODE(&header);
 

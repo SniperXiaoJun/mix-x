@@ -1307,6 +1307,8 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 			ptrDevOri = (char*)pCertCtxNode->ptr_data->stAttr.stDeviceName.data;
 
+			pCertCtxNode = pCertCtxNode->ptr_next;
+
 			while (pCertCtxNode)
 			{
 				if ( 0 != strcmp(ptrDevOri, (char*)pCertCtxNode->ptr_data->stAttr.stDeviceName.data))
@@ -1405,20 +1407,17 @@ std::string WTF_ReadCurrentCerts(int Expire)
 					item["expire_msg"] =  utf8_encode(L"证书不在有效期！");
 					item["expiration_status"] = EXPIRATION_STATUS_OUT;
 				}
-
-				itemDevCerts.append(item);  
 				pCertCtxNode = pCertCtxNode->ptr_next;
+				itemDevCerts.append(item);  
 			}
 
 			itemDev = itemDevInfo;
 			itemDev["certs"] = itemDevCerts;
 			
 			All.append(itemDev);
-
-			pCertCtxNode = pCertCtxNode->ptr_next;
 		}
 
-		SMB_CS_ClrAllCtxFromDB();
+		SMB_CS_ClrAllCtxFromDB(2);
 
 		pCertCtxNode = header;
 

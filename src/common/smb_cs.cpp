@@ -63,7 +63,7 @@ functions declar
 extern "C" {
 #endif
 	int SMB_DB_Init();
-	int SMB_DB_Path_Init();
+	int SMB_DB_Path_Init(char * pDbPath);
 #ifdef __cplusplus
 }
 #endif
@@ -286,7 +286,7 @@ int SMB_DB_Init()
 	int crv = 0;
 	SDB sdb = {0};
 
-	SMB_DB_Path_Init();
+	SMB_DB_Path_Init(NULL);
 
 	sdb.sdb_path = smb_db_path;
 
@@ -1384,14 +1384,32 @@ err:
 unsigned int SMB_CS_EnumCtxsFromDB(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char ucStoreType)
 {
 	SMB_CS_CertificateFindAttr findAttr;
+	if (0 == ucStoreType)
+	{
+		findAttr.ucStoreType = 0;
+		findAttr.uiFindFlag = 0;
+	}
+	else
+	{
+		findAttr.ucStoreType = ucStoreType;
 
-	findAttr.ucStoreType = ucStoreType;
+		findAttr.uiFindFlag = 4;
+	}
 
-	findAttr.uiFindFlag = 4;
 
 	return SMB_CS_FindCtxsFromDB(&findAttr, ppCertCtxNodeHeader);
 }
 
+unsigned int SMB_CS_DelCtx_NODE_FromDB(SMB_CS_CertificateContext_NODE *pCertCtxNodeHeader)
+{
+	while (pCertCtxNodeHeader)
+	{
+		SMB_CS_DelCtxFromDB(pCertCtxNodeHeader->ptr_data);
+		pCertCtxNodeHeader = pCertCtxNodeHeader->ptr_next;
+	}
+
+	return 0;
+}
 
 int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned char ucStoreType)
 {
@@ -1807,132 +1825,31 @@ err:
 	return crv;
 }
 
-
-int sdb_ClrAllCtxFromDB(SDB *sdb)
+unsigned int SMB_CS_ClrAllCtxFromDB(unsigned char ucStoreType)
 {
-	sqlite3_stmt *stmt = NULL;
-	int sqlerr = SQLITE_OK;
-	int retry = 0;
-	int i = 0;
-	char data_value[BUFFER_LEN_1K] = { 0 };
-	unsigned int data_len = BUFFER_LEN_1K;
+	SMB_CS_CertificateContext_NODE *header = NULL;
 
-
-	LOCK_SQLITE();
-
-	sprintf(data_value, "delete from table_certificate_attr where id>%d", 0);
-	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, data_value, -1, &stmt, NULL);
-	if (sqlerr != SQLITE_OK)
+	if (ucStoreType > 0)
 	{
-		goto err;
-	}
+		SMB_CS_EnumCtxsFromDB(&header, ucStoreType);
 
-	do {
-		sqlerr = sqlite3_step(stmt);
+		SMB_CS_DelCtx_NODE_FromDB(header);
 
-		if (sqlerr == SQLITE_BUSY) {
-			sqlite3_sleep(SDB_BUSY_RETRY_TIME);
-		}
-
-		if (sqlerr == SQLITE_DONE)
-		{
-			sqlerr = SQLITE_OK;
-		}
-
-		if (sqlerr == SQLITE_ROW)
-		{
-
-		}
-
-	} while (!sdb_done(sqlerr, &retry));
-
-	if (stmt) {
-		sqlite3_reset(stmt);
-		sqlite3_finalize(stmt);
-		stmt = NULL;
-	}
-
-	sprintf(data_value, "delete from table_certificate where id>%d", 0);
-	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, data_value, -1, &stmt, NULL);
-	if (sqlerr != SQLITE_OK)
-	{
-		goto err;
-	}
-
-	do {
-		sqlerr = sqlite3_step(stmt);
-
-		if (sqlerr == SQLITE_BUSY) {
-			sqlite3_sleep(SDB_BUSY_RETRY_TIME);
-		}
-
-		if (sqlerr == SQLITE_DONE)
-		{
-			sqlerr = SQLITE_OK;
-		}
-
-		if (sqlerr == SQLITE_ROW)
-		{
-
-		}
-
-	} while (!sdb_done(sqlerr, &retry));
-
-	if (sqlerr == SQLITE_ROW)
-	{
-		sqlerr = SQLITE_OK;
-	}
-
-err:
-	if (stmt) {
-		sqlite3_reset(stmt);
-		sqlite3_finalize(stmt);
-		stmt = NULL;
-	}
-	UNLOCK_SQLITE();
-
-	if (!sqlerr)
-	{
-
-	}
-
-	return sqlerr;
-}
-
-unsigned int SMB_CS_ClrAllCtxFromDB()
-{
-	unsigned int ulRet = -1;
-	char data_value[BUFFER_LEN_1K] = { 0 };
-	unsigned int data_len = BUFFER_LEN_1K;
-	int crv = 0;
-	SDB sdb = { 0 };
-
-	sdb.sdb_path = smb_db_path;
-
-	crv = sdb_Begin(&sdb);
-	if (crv)
-	{
-		goto err;
-	}
-
-	crv = sdb_ClrAllCtxFromDB(&sdb);
-	if (crv)
-	{
-		goto err;
-	}
-
-err:
-
-	if (crv)
-	{
-		sdb_Abort(&sdb);
+		SMB_CS_FreeCtx_NODE(&header);
 	}
 	else
 	{
-		sdb_Commit(&sdb);
+		for (int i = 0; i < 4; i++)
+		{
+			SMB_CS_EnumCtxsFromDB(&header, i+1);
+
+			SMB_CS_DelCtx_NODE_FromDB(header);
+
+			SMB_CS_FreeCtx_NODE(&header);
+		}
 	}
 
-	return crv;
+	return 0;
 }
 
 
@@ -1943,29 +1860,43 @@ err:
 strcpy(smb_db_path, "/home/");
 #endif
 
-int SMB_DB_Path_Init()
+int SMB_DB_Path_Init(char *pDbPath)
 {
-	char data_value_zero[BUFFER_LEN_1K] = { 0 };
-	int i = 0;
-
-	if (0 == memcmp(data_value_zero, smb_db_path, sizeof(data_value_zero)))
+	if (NULL == pDbPath)
 	{
-#if defined(WIN32) || defined(WINDOWS)
-		GetModuleFileNameA(NULL, smb_db_path, 1024);
-		for (i = strlen(smb_db_path); i > 0; i--)
-		{
-			if ('\\'== smb_db_path[i])
-			{
-				smb_db_path[i+1] = '\0';
-				break;
-			}
-		}
-		strcpy(smb_db_path + strlen(smb_db_path), "smb_cs.db");
-#else
-		strcpy(smb_db_path, "/home/smb_cs.db");
-#endif
-	}
+		char data_value_zero[BUFFER_LEN_1K] = { 0 };
+		char smb_db_path_prefix[BUFFER_LEN_1K] = { 0 };
 
+		int i = 0;
+
+		if (0 == memcmp(data_value_zero, smb_db_path, sizeof(data_value_zero)))
+		{
+#if defined(WIN32) || defined(WINDOWS)
+			//无权限
+			GetModuleFileNameA(NULL, smb_db_path_prefix, 1024);
+			for (i = strlen(smb_db_path_prefix); i > 0; i--)
+			{
+				if ('\\' == smb_db_path_prefix[i])
+				{
+					break;
+				}
+			}
+
+			GetEnvironmentVariableA("APPDATA", smb_db_path, MAX_PATH);
+			strcat(smb_db_path, &smb_db_path_prefix[i]);
+			strcat(smb_db_path, ".smb_cs.db");
+
+			//strcpy(smb_db_path + strlen(smb_db_path), "smb_cs.db");
+#else
+			strcpy(smb_db_path, "/home/smb_cs.db");
+#endif
+		}
+	}
+	else
+	{
+		strcpy(smb_db_path, pDbPath);
+	}
+	
 	return 0;
 }
 
