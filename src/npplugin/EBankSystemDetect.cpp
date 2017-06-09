@@ -10,8 +10,6 @@
 
 std::string utf8_encode(const std::wstring &wstr);
 
-void c2w(wchar_t *pwstr,size_t len,const char *str);
-
 
 string WTF_GetFireWallInfo()
 {
@@ -56,16 +54,8 @@ string WTF_GetFireWallInfo()
 		string pszActiveState;
 
 		item["product_type"] = product.ulType == PROVIDER_FIREWALL? utf8_encode(L"防火墙"): utf8_encode(L"杀毒软件");
-		
-		//memset(wValue, 0, 2*1024);
-
-		//c2w(wValue,strlen(product.pDisplayName),product.pDisplayName);
-
+	
 		item["product_name"] = utf8_encode(product.pDisplayName);
-
-		//memset(wValue, 0, 2*1024);
-
-		//c2w(wValue,strlen(product.pCompanyName),product.pCompanyName);
 
 		item["company_name"] = utf8_encode(product.pCompanyName);
 
@@ -146,15 +136,7 @@ string WTF_GetAntivirusInfo()
 
 		item["product_type"] = product.ulType == PROVIDER_FIREWALL? utf8_encode(L"防火墙"): utf8_encode(L"杀毒软件");
 
-		//memset(wValue, 0, 2*1024);
-
-		//c2w(wValue,strlen(product.pDisplayName),product.pDisplayName);
-
 		item["product_name"] = utf8_encode(product.pDisplayName);
-
-		//memset(wValue, 0, 2*1024);
-
-		//c2w(wValue,strlen(product.pCompanyName),product.pCompanyName);
 
 		item["company_name"] = utf8_encode(product.pCompanyName);
 
