@@ -6,8 +6,6 @@
 #include "HttpConnect.h"
 #include "TimeAPI.h"
 
-#pragma comment(lib, "version.lib")
-
 std::string utf8_encode(const std::wstring &wstr);
 
 

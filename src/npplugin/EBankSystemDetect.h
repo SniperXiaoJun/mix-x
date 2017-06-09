@@ -12,7 +12,7 @@ typedef enum URL_TRUST_TYPE
 {
 	URL_TRUST_TYPE_YES = 0x02,		// 受信任站点
 	URL_TRUST_TYPE_NO = 0x04,		// 受限制站点
-};
+}URL_TRUST_TYPE;
 
 typedef enum TYPE_SAFE_LEVEL
 {

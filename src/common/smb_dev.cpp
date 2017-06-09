@@ -1876,7 +1876,7 @@ err:
 	return ulRet;
 }
 
-#if (defined(WIN32) || defined(WINDOWS)) && 0
+#if (defined(WIN32) || defined(WINDOWS))
 #include "Cryptuiapi.h"
 unsigned int SMB_UI_UIDlgViewContext(BYTE* pbCert, unsigned int ulCertLen)
 {
@@ -2186,3 +2186,118 @@ COMMON_API unsigned int SMB_DEV_SM2GetAgreementKeyEx(
 	return uiRet;
 }
 
+
+unsigned int SMB_DEV_FindSKFDriver(const char * pszSKFName, char * szVersion)
+{
+	HINSTANCE ghInst = NULL;
+
+	/*
+	SKF函数地址
+	*/
+
+	FUNC_NAME_DECLARE(func_, EnumDev, );
+	FUNC_NAME_DECLARE(func_, ConnectDev, );
+	FUNC_NAME_DECLARE(func_, DisConnectDev, );
+	FUNC_NAME_DECLARE(func_, ChangePIN, );
+	FUNC_NAME_DECLARE(func_, OpenApplication, );
+	FUNC_NAME_DECLARE(func_, CloseApplication, );
+	FUNC_NAME_DECLARE(func_, EnumApplication, );
+	FUNC_NAME_DECLARE(func_, ExportCertificate, );
+	FUNC_NAME_DECLARE(func_, EnumContainer, );
+	FUNC_NAME_DECLARE(func_, OpenContainer, );
+	FUNC_NAME_DECLARE(func_, CloseContainer, );
+	FUNC_NAME_DECLARE(func_, VerifyPIN, );
+	FUNC_NAME_DECLARE(func_, GetContainerType, );
+	FUNC_NAME_DECLARE(func_, ECCSignData, );
+	FUNC_NAME_DECLARE(func_, ECCVerify, );
+	FUNC_NAME_DECLARE(func_, ExtECCVerify, );
+	FUNC_NAME_DECLARE(func_, GetDevInfo, );
+	FUNC_NAME_DECLARE(func_, LockDev, );
+	FUNC_NAME_DECLARE(func_, UnlockDev, );
+
+	FUNC_NAME_DECLARE(func_, GenerateKeyWithECCEx, );
+	FUNC_NAME_DECLARE(func_, GenerateAgreementDataWithECC, );
+	FUNC_NAME_DECLARE(func_, GenerateAgreementDataWithECCEx, );
+	FUNC_NAME_DECLARE(func_, GenerateAgreementDataAndKeyWithECCEx, );
+
+	unsigned int ulRet = 0;
+	int i = 0; // certs
+
+	char * data_value = NULL;
+	char * pTmp = NULL;
+
+	unsigned int dllPathLen = BUFFER_LEN_1K;
+	char dllPathValue[BUFFER_LEN_1K] = { 0 };
+
+
+	DWORD    dwSize = 0;
+	BYTE     *pbVersionInfo = NULL;                 // 获取文件版本信息
+	VS_FIXEDFILEINFO    *pFileInfo = NULL;
+	UINT                puLenFileInfo = 0;
+
+	ulRet = SMB_CS_ReadSKFPath(pszSKFName, dllPathValue, &dllPathLen);
+
+	if (0 != ulRet)
+	{
+		ulRet = EErr_SMB_DLL_REG_PATH;
+		goto err;
+	}
+
+#if defined(USE_LOAD_LIBRARY)
+	ghInst = LoadLibraryA(dllPathValue);//动态加载Dll
+#else
+	ghInst = SMB_DEV_LoadLibrary(dllPathValue);
+#endif
+
+	if (!ghInst)
+	{
+		ulRet = EErr_SMB_DLL_PATH;
+		goto err;
+	}
+
+	FUNC_NAME_INIT(func_, EnumDev, );
+	FUNC_NAME_INIT(func_, ConnectDev, );
+	FUNC_NAME_INIT(func_, DisConnectDev, );
+	FUNC_NAME_INIT(func_, ChangePIN, );
+	FUNC_NAME_INIT(func_, OpenApplication, );
+	FUNC_NAME_INIT(func_, CloseApplication, );
+	FUNC_NAME_INIT(func_, EnumApplication, );
+	FUNC_NAME_INIT(func_, ExportCertificate, );
+	FUNC_NAME_INIT(func_, EnumContainer, );
+	FUNC_NAME_INIT(func_, OpenContainer, );
+	FUNC_NAME_INIT(func_, CloseContainer, );
+	FUNC_NAME_INIT(func_, VerifyPIN, );
+	FUNC_NAME_INIT_GetContainerType(func_, GetContainerType, );
+	FUNC_NAME_INIT(func_, GetDevInfo, );
+	FUNC_NAME_INIT(func_, LockDev, );
+	FUNC_NAME_INIT(func_, UnlockDev, );
+
+	dwSize = GetFileVersionInfoSizeA(dllPathValue, NULL);
+	pbVersionInfo = (BYTE *)malloc(dwSize);
+	if (!GetFileVersionInfoA(dllPathValue, 0, dwSize, pbVersionInfo))
+	{
+		goto err;
+	}
+	if (!VerQueryValueA(pbVersionInfo, "\\", (LPVOID*)&pFileInfo, &puLenFileInfo))
+	{
+		goto err;
+	}
+
+	sprintf(szVersion, "%d.%d.%d.%d", HIWORD(pFileInfo->dwFileVersionMS), LOWORD(pFileInfo->dwFileVersionMS), HIWORD(pFileInfo->dwFileVersionLS), LOWORD(pFileInfo->dwFileVersionLS));
+
+err:
+	if (ghInst)
+	{
+#if defined(USE_FREE_GHINST)
+		FreeLibrary(ghInst);//释放Dll函数
+		ghInst = NULL;
+#endif
+	}
+
+	if (pbVersionInfo)
+	{
+		free(pbVersionInfo);
+	}
+
+	return ulRet;
+}

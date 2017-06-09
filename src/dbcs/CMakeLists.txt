@@ -44,6 +44,9 @@ ADD_LIBRARY(
 
 target_link_libraries(smb_no_ui sqlite3)
 TARGET_LINK_LIBRARIES(smb_no_ui mix_bssl)
+TARGET_LINK_LIBRARIES(smb_no_ui Crypt32)
+TARGET_LINK_LIBRARIES(smb_no_ui Cryptui)
+TARGET_LINK_LIBRARIES(smb_no_ui version)
 
 add_dependencies(x_all smb_no_ui)
 

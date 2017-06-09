@@ -30,6 +30,8 @@ EXPORTS
 	SMB_DEV_VerifyPINByCertAttr
 	SMB_DEV_SM2SignDigestByCertAttr
 	SMB_DEV_SM2VerifyDigest
+	SMB_DEV_FindSKFDriver
+	SMB_UI_UIDlgViewContext
 
 	WT_SetMyCert
 	WT_GetCertInfo
@@ -48,3 +50,6 @@ EXPORTS
 
 	modp_b64_encode
 	modp_b64_decode
+
+	OPF_Str2Bin
+	OPF_Bin2Str

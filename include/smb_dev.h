@@ -154,6 +154,18 @@ extern "C" {
 	*/
 	COMMON_API unsigned int SMB_UI_UIDlgViewContext(BYTE *pbCert, unsigned int uiCertLen);
 
+	/*
+	功能描述:	查找SKF驱动
+	输入参数:
+	pszSKFName: 名称
+	szVersion:版本号
+	输出参数：
+	返回值		0：  成功。
+	其他：		错误码
+	*/
+	COMMON_API unsigned int SMB_DEV_FindSKFDriver(const char * pszSKFName, char * szVersion);
+
+
 	COMMON_API unsigned int SMB_DEV_SM2GetAgreementKey(
 		_In_ SMB_CS_CertificateAttr*pCertAttr,
 		_In_ ULONG ulAlgId,

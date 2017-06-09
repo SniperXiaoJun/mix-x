@@ -18,12 +18,9 @@
 #include <algorithm>
 #include "TimeAPI.h"
 #include "Wincrypt.h"
-
-#define REGIST_CERT_AFTER_READ_CERT
-#define RE_HANDLE_AFTER_REGIST_CERT
+#include "o_all_func_def.h"
 
 using namespace std;
-
 std::string g_CurrentCerts;
 
 //USB\VID_14D6&PID_3032\5&376ABA2D&0&9
@@ -378,9 +375,9 @@ string WTF_ListSKFDriver(list<string> strSKFList)
 		Json::Value item;
 
 		memset(version,0, 64);
-#if __FIRE_BUG__
-		ulRet = WTF_FindSKFDriver(i->c_str(),version);
-#endif
+
+		ulRet = SMB_DEV_FindSKFDriver(i->c_str(),version);
+
 		item["skf_name"] = *i;
 		item["skf_state"] = ulRet? FALSE:TRUE;
 
@@ -397,121 +394,130 @@ string WTF_ListSKFDriver(list<string> strSKFList)
 	return values.toStyledString();
 }
 
-extern "C" unsigned long OPF_Str2Bin(const char *ain_data_value,unsigned long ain_data_len,unsigned char *aout_data_value,unsigned long * aout_data_len);
-
 // 证书使用者密钥标示
 string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int ulFlag, unsigned int ulAlgType)
 {
 	unsigned int ulRet = 0;
 	unsigned int ulOutLen = 0;
-	CERT_PUBLIC_KEY_INFO certPublicKeyInfo = {0};
+	CERT_PUBLIC_KEY_INFO certPublicKeyInfo = { 0 };
 	HCERTSTORE hCertStore = NULL;
 	PCCERT_CONTEXT certContext_CA = NULL;
 	list<string>::iterator i;
-	unsigned char data_value_keyid[BUFFER_LEN_1K] = {0};
-	unsigned long data_len_keyid = BUFFER_LEN_1K;
+	unsigned char data_value_keyid[BUFFER_LEN_1K] = { 0 };
+	unsigned int data_len_keyid = BUFFER_LEN_1K;
 
 	CERT_ID id;
 
 	Json::Value item;
 
-	for(i = strListRootCertKeyIDHex.begin();  i != strListRootCertKeyIDHex.end(); ++i)
+	SMB_CS_CertificateContext_NODE * ctxHeader = NULL;
+
+	ulAlgType = CERT_ALG_SM2_FLAG;
+
+	switch (ulAlgType)
 	{
-		std::string strRootCertKeyIDHex = i->c_str();
-
-		id.dwIdChoice = CERT_ID_KEY_IDENTIFIER;
-		OPF_Str2Bin(strRootCertKeyIDHex.c_str(),strRootCertKeyIDHex.size(), data_value_keyid,&data_len_keyid);
-		id.KeyId.pbData = data_value_keyid;
-		id.KeyId.cbData = data_len_keyid;
-
-		item["chain_root_state"] = "not found";
-		item["sec_level"] = TYPE_SEC_EXCEPT;
-		item["success"] = FALSE;
-
-		if(TRUE != ulRet)
-		{
-			ulRet = EErr_SMB_CREATE_STORE;
-			goto err;
-		}
-
-		switch(ulAlgType)
-		{
 		case CERT_ALG_RSA_FLAG:
+		{
+			for (i = strListRootCertKeyIDHex.begin(); i != strListRootCertKeyIDHex.end(); ++i)
 			{
+				std::string strRootCertKeyIDHex = i->c_str();
+
+				id.dwIdChoice = CERT_ID_KEY_IDENTIFIER;
+				OPF_Str2Bin(strRootCertKeyIDHex.c_str(), strRootCertKeyIDHex.size(), data_value_keyid, &data_len_keyid);
+				id.KeyId.pbData = data_value_keyid;
+				id.KeyId.cbData = data_len_keyid;
+
+				item["chain_root_state"] = "not found";
+				item["sec_level"] = TYPE_SEC_EXCEPT;
+				item["success"] = FALSE;
+
+				if (TRUE != ulRet)
+				{
+					ulRet = EErr_SMB_CREATE_STORE;
+					goto err;
+				}
+
 				// Other common system stores include "Root", "Trust", and "Ca".
 				// 打开存储�?		
 				hCertStore = CertOpenStore(
 					CERT_STORE_PROV_SYSTEM,          // The store provider type
 					0,                               // The encoding type is
-					// not needed
+													 // not needed
 					NULL,                            // Use the default HCRYPTPROV
 					CERT_SYSTEM_STORE_CURRENT_USER,  // Set the store location in a
-					// registry location
+													 // registry location
 					L"Ca"                            // The store name as a Unicode 
-					// string
-					);
+													 // string
+				);
 
 				if (NULL == hCertStore)
 				{
 					ulRet = EErr_SMB_OPEN_STORE;
 					goto err;
 				}
+
+				certContext_CA = CertFindCertificateInStore(hCertStore, X509_ASN_ENCODING, 0, CERT_FIND_CERT_ID, &id, NULL);
+
+				if (NULL == certContext_CA)
+				{
+					ulRet = EErr_SMB_NO_CERT_CHAIN;
+					goto err;
+				}
+
+				if (ulFlag)
+				{
+					// 验证	CA
+					ulRet = SMB_UTIL_VerifyCert(ulFlag, certContext_CA->pbCertEncoded, certContext_CA->cbCertEncoded);
+				}
+
+				if (ulRet)
+				{
+					ulRet = EErr_SMB_NO_CERT_CHAIN;
+					goto err;
+				}
 			}
-			break;
+		}
+		break;
 		case CERT_ALG_SM2_FLAG:
+		{
+			for (i = strListRootCertKeyIDHex.begin(); i != strListRootCertKeyIDHex.end(); ++i)
 			{
-#if __FIRE_BUG__
-				// 打开存储区
-				hCertStore = SMC_CertOpenStore(0,CERT_SYSTEM_STORE_CURRENT_USER, DEFAULT_SMC_STORE_SM2_ROOT_ID);
-#endif
+				std::string strRootCertKeyIDHex = i->c_str();
+
+				// 查找颁发者证书
+				SMB_CS_CertificateFindAttr findAttr = { 0 };
+
+				findAttr.uiFindFlag = 128;
+
+				findAttr.stSubjectKeyID.data = (unsigned char*)strRootCertKeyIDHex.c_str();
+				findAttr.stSubjectKeyID.length = strRootCertKeyIDHex.size();
+
+				SMB_CS_FindCtxsFromDB(&findAttr, &ctxHeader);
+
+				if (NULL == ctxHeader)
+				{
+					ulRet = EErr_SMB_NO_CERT_CHAIN;
+					goto err;
+				}
+
+				if (ulFlag)
+				{
+					// 验证	CA
+					ulRet = SMB_UTIL_VerifyCert(ulFlag, ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length);
+				}
+
+				if (ulRet)
+				{
+					ulRet = EErr_SMB_NO_CERT_CHAIN;
+					goto err;
+				}
 			}
-			break;
+		}
+		break;
 		default:
 			break;
-		}
-
-		switch(ulAlgType)
-		{
-		case CERT_ALG_RSA_FLAG:
-			{	
-				certContext_CA = CertFindCertificateInStore(hCertStore,X509_ASN_ENCODING,0,CERT_FIND_CERT_ID,&id,NULL);
-			}
-			break;
-		case CERT_ALG_SM2_FLAG:
-			{
-#if __FIRE_BUG__
-				certContext_CA = SMC_CertFindCertificateInStore(hCertStore,X509_ASN_ENCODING,CERT_FIND_CERT_ID,&id,NULL);
-#endif	
-		}
-			break;
-		default:
-			break;
-		}
-
-		if (NULL == certContext_CA)
-		{
-			ulRet = EErr_SMB_NO_CERT_CHAIN;
-			goto err;
-		}
-
-		if (ulFlag)
-		{
-			// 验证	CA
-			ulRet = SMB_UTIL_VerifyCert(ulFlag,certContext_CA->pbCertEncoded, certContext_CA->cbCertEncoded);
-
-			if (ulRet)
-			{
-				item["chain_root_state"] = "verify fail";
-			}
-			else
-			{
-				item["chain_root_state"] = "success";
-				item["sec_level"] = TYPE_SEC_NORMAL;
-				item["success"] = TRUE;
-			}
-
-		}
 	}
+
 err:
 	// 释放上下文
 	if(certContext_CA)
@@ -523,6 +529,22 @@ err:
 	{
 		// 关闭存储区
 		CertCloseStore(hCertStore, CERT_CLOSE_STORE_CHECK_FLAG);
+	}
+
+	if (NULL != ctxHeader)
+	{
+		SMB_CS_FreeCtx_NODE(&ctxHeader);
+	}
+
+	if (ulRet)
+	{
+		item["chain_root_state"] = "verify fail";
+	}
+	else
+	{
+		item["chain_root_state"] = "success";
+		item["sec_level"] = TYPE_SEC_NORMAL;
+		item["success"] = TRUE;
 	}
 
 	return item.toStyledString();
