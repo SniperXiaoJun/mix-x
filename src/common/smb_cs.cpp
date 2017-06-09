@@ -62,8 +62,7 @@ functions declar
 #ifdef __cplusplus
 extern "C" {
 #endif
-	int SMB_DB_Init();
-	int SMB_DB_Path_Init(char * pDbPath);
+
 #ifdef __cplusplus
 }
 #endif
@@ -281,7 +280,7 @@ err:
 
 
 
-int SMB_DB_Init()
+unsigned int SMB_DB_Init()
 {
 	int crv = 0;
 	SDB sdb = {0};
@@ -1860,7 +1859,7 @@ unsigned int SMB_CS_ClrAllCtxFromDB(unsigned char ucStoreType)
 strcpy(smb_db_path, "/home/");
 #endif
 
-int SMB_DB_Path_Init(char *pDbPath)
+unsigned int SMB_DB_Path_Init(char *pDbPath)
 {
 	if (NULL == pDbPath)
 	{

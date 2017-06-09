@@ -233,11 +233,11 @@ extern "C" {
 	/*
 	数据库初始化
 	*/
-	int SMB_DB_Init();
+	COMMON_API unsigned int SMB_DB_Init();
 	/*
 	数据库路径初始化
 	*/
-	int SMB_DB_Path_Init(char * pDbPath);
+	COMMON_API unsigned int SMB_DB_Path_Init(char * pDbPath);
 
 #ifdef __cplusplus
 }
