@@ -208,6 +208,11 @@ extern "C" {
 	COMMON_API unsigned int SMB_CS_GetCtxByCert(SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen);
 
 	/*
+	执行SQL语句
+	*/
+	COMMON_API unsigned int SMB_CS_ExecSQL(char *pSqlData, unsigned int uiSqlDataLen);
+
+	/*
 	工具类xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 	*/
 	/*

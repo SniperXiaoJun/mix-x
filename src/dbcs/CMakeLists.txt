@@ -51,15 +51,12 @@ TARGET_LINK_LIBRARIES(smb_no_ui version)
 add_dependencies(x_all smb_no_ui)
 
 add_executable(
-  x_dbcs
+  x_dbcs_exec_sql
 
-  x_dbcs.c
-  ${common_cs} 
-  ${common_cpps} 
+  x_dbcs_exec_sql.cpp
 )
 
-target_link_libraries(x_dbcs sqlite3)
-TARGET_LINK_LIBRARIES(x_dbcs mix_bssl)
+target_link_libraries(x_dbcs_exec_sql smb_no_ui)
 
 add_dependencies(x_all x_dbcs)
 

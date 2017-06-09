@@ -20,6 +20,7 @@ EXPORTS
 	SMB_DB_Init
 	SMB_DB_Path_Init
 	SMB_CS_DelCtx_NODE_FromDB
+	SMB_CS_ExecSQL
 
 	SMB_DEV_EnumCertBySKF
 	SMB_DEV_EnumCert

@@ -1931,3 +1931,161 @@ err:
 
 	return ulRet;
 }
+
+
+int sdb_ExecSQL(SDB *sdb, char *pSqlData, unsigned int uiSqlDataLen)
+{
+	sqlite3_stmt *stmt = NULL;
+	int sqlerr = SQLITE_OK;
+	int retry = 0;
+	int pos = 0;
+	char data_value[BUFFER_LEN_1K] = { 0 };
+	unsigned int data_len_real = 0;
+	char * ptr_n = NULL;
+	char * ptr_r = NULL;
+	char * ptr_semicolon = NULL;
+
+	LOCK_SQLITE();
+
+	for (pos = 0; pos < uiSqlDataLen;)
+	{
+		while (pSqlData[pos] == '#' || pSqlData[pos] == '\r' || pSqlData[pos] == '\n')
+		{
+			ptr_n = strstr(&pSqlData[pos], "\n");
+			ptr_r = strstr(&pSqlData[pos], "\r");
+			if (NULL == ptr_n && NULL == ptr_r)
+			{
+				pos = uiSqlDataLen;
+				break;
+			}
+			else if (NULL == ptr_n)
+			{
+				pos = ptr_r - pSqlData + 1;
+			}
+			else if (NULL == ptr_r)
+			{
+				pos = ptr_n - pSqlData + 1;
+			}
+			else
+			{
+				if (ptr_n > ptr_r)
+				{
+					pos = ptr_r - pSqlData + 1;
+				}
+				else
+				{
+					pos = ptr_n - pSqlData + 1;
+				}
+			}
+
+			while (pSqlData[pos] == '\r' || pSqlData[pos] == '\n')
+			{
+				pos += 1;
+			}
+		}
+
+		if (pos > uiSqlDataLen || pos == uiSqlDataLen)
+		{
+			break;
+		}
+
+		sqlerr = sqlite3_prepare_v2(sdb->sdb_p, &pSqlData[pos], -1, &stmt, NULL);
+		if (sqlerr != SQLITE_OK)
+		{
+			goto err;
+		}
+
+		do {
+			sqlerr = sqlite3_step(stmt);
+
+			if (sqlerr == SQLITE_BUSY) {
+				sqlite3_sleep(SDB_BUSY_RETRY_TIME);
+			}
+
+			if (sqlerr == SQLITE_DONE)
+			{
+				sqlerr = SQLITE_OK;
+			}
+
+			if (sqlerr == SQLITE_ROW)
+			{
+				// null;
+			}
+
+		} while (!sdb_done(sqlerr, &retry));
+
+		if (sqlerr == SQLITE_ROW)
+		{
+			sqlerr = SQLITE_OK;
+		}
+
+		if (stmt) {
+			sqlite3_reset(stmt);
+			sqlite3_finalize(stmt);
+			stmt = NULL;
+		}
+
+		if (sqlerr)
+		{
+			goto err;
+		}
+
+		// next line
+		ptr_semicolon = strstr(&pSqlData[pos], ";");
+		
+		if (NULL == ptr_semicolon)
+		{
+			pos = uiSqlDataLen;
+			break;
+		}
+		else
+		{
+			pos = ptr_semicolon - pSqlData + 1;
+		}
+	}
+
+err:
+	if (stmt) {
+		sqlite3_reset(stmt);
+		sqlite3_finalize(stmt);
+		stmt = NULL;
+	}
+	UNLOCK_SQLITE();
+
+	return sqlerr;
+}
+
+unsigned int SMB_CS_ExecSQL(char *pSqlData, unsigned int uiSqlDataLen)
+{
+	unsigned int ulRet = -1;
+	int crv = 0;
+	SDB sdb = { 0 };
+
+	sdb.sdb_path = smb_db_path;
+
+	crv = sdb_Begin(&sdb);
+	if (crv)
+	{
+		goto err;
+	}
+
+	crv = sdb_ExecSQL(&sdb, pSqlData, uiSqlDataLen);
+	if (crv)
+	{
+		goto err;
+	}
+
+err:
+	if (crv)
+	{
+		sdb_Abort(&sdb);
+	}
+	else
+	{
+		sdb_Commit(&sdb);
+	}
+
+	return crv;
+
+
+}
