@@ -584,11 +584,8 @@ string WTF_InstallCaCert(list<string> strListCaCertPath, int ulFlag)
 			_file.seekg (0, ios::beg);
 
 			// read data as a block:
-			_file.read ((char *)pbCaCert,length);
+			_file.read((char *)pbCaCert, length>sizeof(pbCaCert) ? sizeof(pbCaCert) : length);
 			_file.close();
-
-			FILE_LOG_FMT(file_log_name, "%s %d %s", __FUNCTION__, __LINE__,"ulCaCertLen");
-			FILE_LOG_FMT(file_log_name, "%s %d %d", __FUNCTION__, __LINE__,ulCaCertLen);
 
 			ulRet = SMB_UTIL_ImportCaCert(pbCaCert, ulCaCertLen, &ulAlgType);
 
