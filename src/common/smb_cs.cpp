@@ -1268,6 +1268,11 @@ unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, uns
 
 	ulAlgType = certParse.m_iKeyAlg;
 
+	if (CERT_ALG_RSA_FLAG == ulAlgType)
+	{
+		ulRet = OpenSSL_VerifyCertChain(pbCert, uiCertLen);
+		goto err;
+	}
 
 	// 创建上下文 
 	SMB_CS_CreateCtx(&ctx, pbCert, uiCertLen);
@@ -1901,7 +1906,7 @@ unsigned int SMB_DB_Path_Init(char *pDbPath)
 
 
 
-unsigned int  SMB_UTIL_ImportCaCert(unsigned char *pbCert, unsigned int ulCertLen, unsigned int *pulAlgType)
+unsigned int  SMB_UTIL_ImportCaCert(unsigned char *pbCert, unsigned int uiCertLen, unsigned int *pulAlgType)
 {
 	unsigned int ulRet = 0;
 
@@ -1909,7 +1914,7 @@ unsigned int  SMB_UTIL_ImportCaCert(unsigned char *pbCert, unsigned int ulCertLe
 
 	SMB_DB_Init();
 
-	if (0 != SMB_CS_CreateCtx(&ctx, pbCert, ulCertLen))
+	if (0 != SMB_CS_CreateCtx(&ctx, pbCert, uiCertLen))
 	{
 		ulRet = EErr_SMB_CREATE_CERT_CONTEXT;
 		goto err;
@@ -2086,6 +2091,80 @@ err:
 	}
 
 	return crv;
+}
 
 
+unsigned int SMB_CS_FindCertChain(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char *pbCert, unsigned int uiCertLen)
+{
+	unsigned int ulRet = 0;
+
+	SMB_CS_CertificateContext *ctx = NULL;
+	SMB_CS_CertificateContext_NODE * ctxHeader = NULL;
+	SMB_CS_CertificateContext_NODE * lastHeader = NULL;
+	CertificateItemParse certParse;
+	SMB_CS_CertificateFindAttr findAttr = { 0 };
+
+	if (0 != SMB_CS_CreateCtx(&ctx, pbCert, uiCertLen))
+	{
+		ulRet = EErr_SMB_CREATE_CERT_CONTEXT;
+		goto err;
+	}
+
+	if (!ctx)
+	{
+		ulRet = EErr_SMB_CREATE_CERT_CONTEXT;
+		goto err;
+	}
+
+	if (0 != certParse.setCertificate(pbCert, uiCertLen))
+	{
+		ulRet = EErr_SMB_INVALID_ARG;
+		goto err;
+	}
+
+	certParse.parse();
+
+	findAttr.uiFindFlag = 128;
+	findAttr.stSubjectKeyID.data = (unsigned char*)certParse.m_strIssueKeyID.c_str();
+	findAttr.stSubjectKeyID.length = certParse.m_strIssueKeyID.size();
+
+	SMB_CS_FindCtxsFromDB(&findAttr, &ctxHeader);
+
+	for (lastHeader = ctxHeader; ctxHeader != NULL; lastHeader = ctxHeader)
+	{
+		if (0 != certParse.setCertificate(ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length))
+		{
+			ulRet = EErr_SMB_INVALID_ARG;
+			goto err;
+		}
+
+		certParse.parse();
+
+		if (0 == strcmp(certParse.m_strIssueKeyID.c_str(), certParse.m_strSubjectKeyID.c_str()))
+		{
+			ulRet = EErr_SMB_OK; // success
+			break;
+		}
+
+		findAttr.uiFindFlag = 128;
+		findAttr.stSubjectKeyID.data = (unsigned char*)certParse.m_strIssueKeyID.c_str();
+		findAttr.stSubjectKeyID.length = certParse.m_strIssueKeyID.size();
+
+		SMB_CS_FindCtxsFromDB(&findAttr, &ctxHeader);
+
+		if (lastHeader == ctxHeader)
+		{
+			break;
+		}
+	}
+
+err:
+	if (ctx)
+	{
+		SMB_CS_FreeCtx(ctx);
+	}
+
+	*ppCertCtxNodeHeader = ctxHeader;
+
+	return ulRet;
 }

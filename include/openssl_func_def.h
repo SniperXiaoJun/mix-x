@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef _OPENSSL_FUNC_DEF_H_
 #define _OPENSSL_FUNC_DEF_H_
 
@@ -10,37 +10,37 @@
 extern "C" {
 #endif
 	/*
-	¹¦ÄÜÃû³Æ:	³õÊ¼»¯×ÊÔ´
-	º¯ÊıÃû³Æ:	OpenSSL_Initialize
-	ÊäÈë²ÎÊı:	
-	Êä³ö²ÎÊı:	
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	³õÊ¼»¯OPENSSL
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â³ÃµÃŠÂ¼Â»Â¯Ã—ÃŠÃ”Â´
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_Initialize
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:	
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Â³ÃµÃŠÂ¼Â»Â¯OPENSSL
 	*/
 	COMMON_API unsigned int OpenSSL_Initialize();
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÊÍ·Å×ÊÔ´
-	º¯ÊıÃû³Æ:	OpenSSL_Finalize
-	ÊäÈë²ÎÊı:	
-	Êä³ö²ÎÊı:	
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÊÍ·Å×ÊÔ´
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	ÃŠÃÂ·Ã…Ã—ÃŠÃ”Â´
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_Finalize
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:	
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	ÃŠÃÂ·Ã…Ã—ÃŠÃ”Â´
 	*/
 	COMMON_API unsigned int OpenSSL_Finalize();
 
 	/*
-	¹¦ÄÜÃû³Æ:	Éú³É¹«Ë½Ô¿¶Ô
-	º¯ÊıÃû³Æ:	OpenSSL_SM2GenKeys
-	ÊäÈë²ÎÊı:	 
-	Êä³ö²ÎÊı:	pbPublicKeyX		¹«Ô¿X
-				pbPublicKeyY		¹«Ô¿Y
-				pbPrivateKey		Ë½Ô¿
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	Éú³É¹«Ë½Ô¿¶Ô
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‰ÃºÂ³Ã‰Â¹Â«Ã‹Â½Ã”Â¿Â¶Ã”
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2GenKeys
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	 
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:	pbPublicKeyX		Â¹Â«Ã”Â¿X
+				pbPublicKeyY		Â¹Â«Ã”Â¿Y
+				pbPrivateKey		Ã‹Â½Ã”Â¿
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‰ÃºÂ³Ã‰Â¹Â«Ã‹Â½Ã”Â¿Â¶Ã”
 	*/
 	COMMON_API unsigned int OpenSSL_SM2GenKeys(unsigned char * pbPublicKeyX,  unsigned int * puiPublicKeyXLen, 
 		unsigned char * pbPublicKeyY,  unsigned int * puiPublicKeyYLen,
@@ -48,17 +48,17 @@ extern "C" {
 
 
 	/*
-	¹¦ÄÜÃû³Æ:	Éú³ÉÖ¤ÊéÇëÇó
-	º¯ÊıÃû³Æ:	OpenSSL_SM2GenCSRWithPubkey
-	ÊäÈë²ÎÊı:	pbPublicKeyX     ¹«Ô¿XÖµ
-				uiPublicKeyXLen		¹«Ô¿X³¤¶È
-				pbPublicKeyY     ¹«Ô¿YÖµ
-				uiPublicKeyYLen		¹«Ô¿Y³¤¶È
-	Êä³ö²ÎÊı:	pbCSR		Ö¤ÊéÇëÇóÄÚÈİ
-				puiCSRLen		Ö¤ÊéÇëÇó³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	Éú³ÉÖ¤ÊéÇëÇó
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‰ÃºÂ³Ã‰Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2GenCSRWithPubkey
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbPublicKeyX     Â¹Â«Ã”Â¿XÃ–Âµ
+				uiPublicKeyXLen		Â¹Â«Ã”Â¿XÂ³Â¤Â¶Ãˆ
+				pbPublicKeyY     Â¹Â«Ã”Â¿YÃ–Âµ
+				uiPublicKeyYLen		Â¹Â«Ã”Â¿YÂ³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:	pbCSR		Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³Ã„ÃšÃˆÃ
+				puiCSRLen		Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³Â³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‰ÃºÂ³Ã‰Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³
 	*/
 	COMMON_API unsigned int OpenSSL_SM2GenCSRWithPubkey(const OPST_USERINFO *pstUserInfo,
 		const unsigned char * pbPublicKeyX,  unsigned int uiPublicKeyXLen, 
@@ -66,18 +66,18 @@ extern "C" {
 		unsigned char * pbCSR,  unsigned int * puiCSRLen);
 
 	/*
-	¹¦ÄÜÃû³Æ:	Éú³É¸ùÖ¤Êé
-	º¯ÊıÃû³Æ:	OpenSSL_SM2GenRootCert
-	ÊäÈë²ÎÊı:	pbCSR		ÇëÇóĞÅÏ¢
-				uiCSRLen			ÇëÇó³¤¶È
-				uiSerialNumber	ĞòÁĞºÅ
-				uiNotBefore		¿ªÊ¼Ê±¼ä
-				uiNotAfter		½áÊøÊ±¼ä
-	Êä³ö²ÎÊı:	pbX509Cert		Ö¤ÊéÄÚÈİ
-				puiX509CertLen		Ö¤Êé³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	Éú³É¸ùÖ¤Êé
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‰ÃºÂ³Ã‰Â¸Ã¹Ã–Â¤ÃŠÃ©
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2GenRootCert
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbCSR		Ã‡Ã«Ã‡Ã³ÃÃ…ÃÂ¢
+				uiCSRLen			Ã‡Ã«Ã‡Ã³Â³Â¤Â¶Ãˆ
+				uiSerialNumber	ÃÃ²ÃÃÂºÃ…
+				uiNotBefore		Â¿ÂªÃŠÂ¼ÃŠÂ±Â¼Ã¤
+				uiNotAfter		Â½Ã¡ÃŠÃ¸ÃŠÂ±Â¼Ã¤
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:	pbX509Cert		Ã–Â¤ÃŠÃ©Ã„ÃšÃˆÃ
+				puiX509CertLen		Ã–Â¤ÃŠÃ©Â³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‰ÃºÂ³Ã‰Â¸Ã¹Ã–Â¤ÃŠÃ©
 	*/
 	COMMON_API unsigned int OpenSSL_SM2GenRootCert(const unsigned char * pbCSR,unsigned int uiCSRLen, 
 		unsigned char * pbSerialNumber,unsigned int uiSerialNumberLen,
@@ -85,18 +85,18 @@ extern "C" {
 		unsigned char * pbX509Cert, unsigned int * puiX509CertLen);
 
 	/*
-	¹¦ÄÜÃû³Æ:	Éú³ÉSM2Ö¤Êé
-	º¯ÊıÃû³Æ:	OpenSSL_SM2GenCert
-	ÊäÈë²ÎÊı:	pbCSR		ÇëÇóÄÚÈİ
-				uiCSRLen			ÇëÇó³¤¶È
-				uiSerialNumber	ĞòÁĞºÅ
-				uiNotBefore		¿ªÊ¼Ê±¼ä
-				uiNotAfter		½áÊøÊ±¼ä
-	Êä³ö²ÎÊı:	pbX509Cert		Ö¤ÊéÄÚÈİ
-				puiX509CertLen		Ö¤Êé³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	Éú³ÉSM2Ö¤Êé
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‰ÃºÂ³Ã‰SM2Ã–Â¤ÃŠÃ©
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2GenCert
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbCSR		Ã‡Ã«Ã‡Ã³Ã„ÃšÃˆÃ
+				uiCSRLen			Ã‡Ã«Ã‡Ã³Â³Â¤Â¶Ãˆ
+				uiSerialNumber	ÃÃ²ÃÃÂºÃ…
+				uiNotBefore		Â¿ÂªÃŠÂ¼ÃŠÂ±Â¼Ã¤
+				uiNotAfter		Â½Ã¡ÃŠÃ¸ÃŠÂ±Â¼Ã¤
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:	pbX509Cert		Ã–Â¤ÃŠÃ©Ã„ÃšÃˆÃ
+				puiX509CertLen		Ã–Â¤ÃŠÃ©Â³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‰ÃºÂ³Ã‰SM2Ã–Â¤ÃŠÃ©
 	*/
 	COMMON_API unsigned int OpenSSL_SM2GenCert(const unsigned char * pbCSR,unsigned int uiCSRLen, 
 		const unsigned char * pbX509CACert, unsigned int uiX509CACertLen, 
@@ -105,18 +105,18 @@ extern "C" {
 		unsigned char * pbX509Cert, unsigned int * puiX509CertLen);
 	
 	/*
-	¹¦ÄÜÃû³Æ:	Éú³ÉSM2Ö¤Êé(À©Õ¹£¬ÑéÖ¤²¢Ìæ»»Ö¤ÊéÇëÇóµÄ¹«Ô¿Ö®ºóÉú³ÉÖ¤Êé)
-	º¯ÊıÃû³Æ:	OpenSSL_SM2GenCert
-	ÊäÈë²ÎÊı:	pbCSR		ÇëÇóÄÚÈİ
-				uiCSRLen			ÇëÇó³¤¶È
-				uiSerialNumber	ĞòÁĞºÅ
-				uiNotBefore		¿ªÊ¼Ê±¼ä
-				uiNotAfter		½áÊøÊ±¼ä
-	Êä³ö²ÎÊı:	pbX509Cert		Ö¤ÊéÄÚÈİ
-				puiX509CertLen		Ö¤Êé³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	Éú³ÉSM2Ö¤Êé
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‰ÃºÂ³Ã‰SM2Ã–Â¤ÃŠÃ©(Ã€Â©Ã•Â¹Â£Â¬Ã‘Ã©Ã–Â¤Â²Â¢ÃŒÃ¦Â»Â»Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³ÂµÃ„Â¹Â«Ã”Â¿Ã–Â®ÂºÃ³Ã‰ÃºÂ³Ã‰Ã–Â¤ÃŠÃ©)
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2GenCert
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbCSR		Ã‡Ã«Ã‡Ã³Ã„ÃšÃˆÃ
+				uiCSRLen			Ã‡Ã«Ã‡Ã³Â³Â¤Â¶Ãˆ
+				uiSerialNumber	ÃÃ²ÃÃÂºÃ…
+				uiNotBefore		Â¿ÂªÃŠÂ¼ÃŠÂ±Â¼Ã¤
+				uiNotAfter		Â½Ã¡ÃŠÃ¸ÃŠÂ±Â¼Ã¤
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:	pbX509Cert		Ã–Â¤ÃŠÃ©Ã„ÃšÃˆÃ
+				puiX509CertLen		Ã–Â¤ÃŠÃ©Â³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‰ÃºÂ³Ã‰SM2Ã–Â¤ÃŠÃ©
 	*/
 	COMMON_API unsigned int OpenSSL_SM2GenCertEX(const unsigned char * pbCSR,unsigned int uiCSRLen, 
 		const unsigned char * pbPublicKeyX, unsigned int uiPublicKeyXLen, 
@@ -127,18 +127,18 @@ extern "C" {
 		unsigned char * pbX509Cert, unsigned int * puiX509CertLen);
 
 	/*
-	¹¦ÄÜÃû³Æ:	Ö¤ÊéµõÏúÁĞ±í
-	º¯ÊıÃû³Æ:	OpenSSL_SM2GenCRL
-	ÊäÈë²ÎÊı:	pstCRLList				Ö¤ÊéµõÏúÄÚÈİ
-				uiCRLListSize			Ö¤Êé¸öÊı
-				pbX509Cert			Ö¤ÊéÄÚÈİ
-				uiX509CertLen				Ö¤Êé³¤¶È
-	Êä³ö²ÎÊı:   
-				pbCRL				Ö¤ÊéµõÏúÁĞ±íÄÚÈİ
-				puiCRLLen				Ö¤ÊéµõÏúÁĞ±í³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	Ö¤ÊéµõÏúÁĞ±í
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã–Â¤ÃŠÃ©ÂµÃµÃÃºÃÃÂ±Ã­
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2GenCRL
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pstCRLList				Ã–Â¤ÃŠÃ©ÂµÃµÃÃºÃ„ÃšÃˆÃ
+				uiCRLListSize			Ã–Â¤ÃŠÃ©Â¸Ã¶ÃŠÃ½
+				pbX509Cert			Ã–Â¤ÃŠÃ©Ã„ÃšÃˆÃ
+				uiX509CertLen				Ã–Â¤ÃŠÃ©Â³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   
+				pbCRL				Ã–Â¤ÃŠÃ©ÂµÃµÃÃºÃÃÂ±Ã­Ã„ÃšÃˆÃ
+				puiCRLLen				Ã–Â¤ÃŠÃ©ÂµÃµÃÃºÃÃÂ±Ã­Â³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã–Â¤ÃŠÃ©ÂµÃµÃÃºÃÃÂ±Ã­
 	*/
 	COMMON_API unsigned int OpenSSL_SM2GenCRL(const OPST_CRL * pstCRLList, unsigned int uiCRLListSize, 
 		const unsigned char * pbX509Cert,unsigned int uiX509CertLen, 
@@ -146,19 +146,19 @@ extern "C" {
 
 	
 	/*
-	¹¦ÄÜÃû³Æ:	¶ÔÖ¤Êé½øĞĞÇ©Ãû
-	º¯ÊıÃû³Æ:	OpenSSL_SM2SignCertWithKeys
-	ÊäÈë²ÎÊı:	pbX509Cert					´ıÇ©ÃûÖ¤ÊéÄÚÈİ
-				uiX509CertLen				´ıÇ©ÃûÖ¤Êé³¤¶È
-				pbPublicKeyX				Ç©ÃûÕß¹«Ô¿X
-				pbPublicKeyY				Ç©ÃûÕß¹«Ô¿Y
-				pbPrivateKey				Ë½Ô¿ÄÚÈİ
-				uiPrivateKeyLen				Ë½Ô¿³¤¶È
-	Êä³ö²ÎÊı:   pbX509CertSigned				Ç©ÃûÖ¤ÊéÄÚÈİ
-				puiX509CertSignedLen			Ç©ÃûÖ¤Êé³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	¶ÔÖ¤Êé½øĞĞÇ©Ãû
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â¶Ã”Ã–Â¤ÃŠÃ©Â½Ã¸ÃÃÃ‡Â©ÃƒÃ»
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2SignCertWithKeys
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbX509Cert					Â´Ã½Ã‡Â©ÃƒÃ»Ã–Â¤ÃŠÃ©Ã„ÃšÃˆÃ
+				uiX509CertLen				Â´Ã½Ã‡Â©ÃƒÃ»Ã–Â¤ÃŠÃ©Â³Â¤Â¶Ãˆ
+				pbPublicKeyX				Ã‡Â©ÃƒÃ»Ã•ÃŸÂ¹Â«Ã”Â¿X
+				pbPublicKeyY				Ã‡Â©ÃƒÃ»Ã•ÃŸÂ¹Â«Ã”Â¿Y
+				pbPrivateKey				Ã‹Â½Ã”Â¿Ã„ÃšÃˆÃ
+				uiPrivateKeyLen				Ã‹Â½Ã”Â¿Â³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   pbX509CertSigned				Ã‡Â©ÃƒÃ»Ã–Â¤ÃŠÃ©Ã„ÃšÃˆÃ
+				puiX509CertSignedLen			Ã‡Â©ÃƒÃ»Ã–Â¤ÃŠÃ©Â³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Â¶Ã”Ã–Â¤ÃŠÃ©Â½Ã¸ÃÃÃ‡Â©ÃƒÃ»
 	*/
 	COMMON_API unsigned int OpenSSL_SM2SignCert(
 		const unsigned char *pbX509Cert,  unsigned int uiX509CertLen, 
@@ -169,17 +169,17 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	¶ÔÖ¤ÊéÇëÇó½øĞĞÇ©Ãû
-	º¯ÊıÃû³Æ:	OpenSSL_SM2SignCSR
-	ÊäÈë²ÎÊı:	pbCSR					´ıÇ©ÃûÖ¤ÊéÇëÇóÄÚÈİ
-				uiCSRLen					´ıÇ©ÃûÖ¤ÊéÇëÇó³¤¶È
-				pbPrivateKey				Ë½Ô¿ÄÚÈİ
-				uiPrivateKeyLen				Ë½Ô¿³¤¶È
-	Êä³ö²ÎÊı:   pbCSRSigned				Ç©ÃûÖ¤ÊéÇëÇóÄÚÈİ
-				puiCSRSignedLen			Ç©ÃûÖ¤ÊéÇëÇó³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	¶ÔÖ¤ÊéÇëÇó½øĞĞÇ©Ãû
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â¶Ã”Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³Â½Ã¸ÃÃÃ‡Â©ÃƒÃ»
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2SignCSR
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbCSR					Â´Ã½Ã‡Â©ÃƒÃ»Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³Ã„ÃšÃˆÃ
+				uiCSRLen					Â´Ã½Ã‡Â©ÃƒÃ»Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³Â³Â¤Â¶Ãˆ
+				pbPrivateKey				Ã‹Â½Ã”Â¿Ã„ÃšÃˆÃ
+				uiPrivateKeyLen				Ã‹Â½Ã”Â¿Â³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   pbCSRSigned				Ã‡Â©ÃƒÃ»Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³Ã„ÃšÃˆÃ
+				puiCSRSignedLen			Ã‡Â©ÃƒÃ»Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³Â³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Â¶Ã”Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³Â½Ã¸ÃÃÃ‡Â©ÃƒÃ»
 	*/
 	COMMON_API unsigned int OpenSSL_SM2SignCSR(
 		const unsigned char *pbCSR, unsigned int uiCSRLen,
@@ -188,19 +188,19 @@ extern "C" {
 		unsigned char *pbCSRSigned, unsigned int * puiCSRSignedLen);
 
 	/*
-	¹¦ÄÜÃû³Æ:	¶ÔCRL½øĞĞÇ©Ãû
-	º¯ÊıÃû³Æ:	OpenSSL_SM2SignCRL
-	ÊäÈë²ÎÊı:	pbCRL					´ıÇ©ÃûCRLÄÚÈİ
-				uiCRLLen					´ıÇ©ÃûCRL³¤¶È
-				pbPublicKeyX				Ç©ÃûÕß¹«Ô¿X
-				pbPublicKeyY				Ç©ÃûÕß¹«Ô¿Y
-				pbPrivateKey				Ë½Ô¿ÄÚÈİ
-				uiPrivateKeyLen				Ë½Ô¿³¤¶È
-	Êä³ö²ÎÊı:   pbCRLSigned				Ç©ÃûCRLÄÚÈİ
-				puiCRLSignedLen			Ç©ÃûCRL³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	¶ÔCRL½øĞĞÇ©Ãû
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â¶Ã”CRLÂ½Ã¸ÃÃÃ‡Â©ÃƒÃ»
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2SignCRL
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbCRL					Â´Ã½Ã‡Â©ÃƒÃ»CRLÃ„ÃšÃˆÃ
+				uiCRLLen					Â´Ã½Ã‡Â©ÃƒÃ»CRLÂ³Â¤Â¶Ãˆ
+				pbPublicKeyX				Ã‡Â©ÃƒÃ»Ã•ÃŸÂ¹Â«Ã”Â¿X
+				pbPublicKeyY				Ã‡Â©ÃƒÃ»Ã•ÃŸÂ¹Â«Ã”Â¿Y
+				pbPrivateKey				Ã‹Â½Ã”Â¿Ã„ÃšÃˆÃ
+				uiPrivateKeyLen				Ã‹Â½Ã”Â¿Â³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   pbCRLSigned				Ã‡Â©ÃƒÃ»CRLÃ„ÃšÃˆÃ
+				puiCRLSignedLen			Ã‡Â©ÃƒÃ»CRLÂ³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Â¶Ã”CRLÂ½Ã¸ÃÃÃ‡Â©ÃƒÃ»
 	*/
 	COMMON_API unsigned int OpenSSL_SM2SignCRL(
 		const unsigned char *pbCRL, unsigned int uiCRLLen,unsigned int uiAlg,
@@ -211,19 +211,19 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	¶ÔÏûÏ¢½øĞĞÇ©Ãû
-	º¯ÊıÃû³Æ:	OpenSSL_SM2SignMSG
-	ÊäÈë²ÎÊı:	pbMSG						´ıÇ©ÃûÄÚÈİ
-				uiMSGLen					´ıÇ©Ãû³¤¶È
-				pbPublicKeyX				Ç©ÃûÕß¹«Ô¿X
-				pbPublicKeyY				Ç©ÃûÕß¹«Ô¿Y
-				pbPrivateKey				Ë½Ô¿ÄÚÈİ
-				uiPrivateKeyLen				Ë½Ô¿³¤¶È
-	Êä³ö²ÎÊı:   pbCRLSigned				Ç©ÃûCRLÄÚÈİ
-				puiCRLSignedLen			Ç©ÃûCRL³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	¶ÔÏûÏ¢½øĞĞÇ©Ãû
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â¶Ã”ÃÃ»ÃÂ¢Â½Ã¸ÃÃÃ‡Â©ÃƒÃ»
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2SignMSG
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbMSG						Â´Ã½Ã‡Â©ÃƒÃ»Ã„ÃšÃˆÃ
+				uiMSGLen					Â´Ã½Ã‡Â©ÃƒÃ»Â³Â¤Â¶Ãˆ
+				pbPublicKeyX				Ã‡Â©ÃƒÃ»Ã•ÃŸÂ¹Â«Ã”Â¿X
+				pbPublicKeyY				Ã‡Â©ÃƒÃ»Ã•ÃŸÂ¹Â«Ã”Â¿Y
+				pbPrivateKey				Ã‹Â½Ã”Â¿Ã„ÃšÃˆÃ
+				uiPrivateKeyLen				Ã‹Â½Ã”Â¿Â³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   pbCRLSigned				Ã‡Â©ÃƒÃ»CRLÃ„ÃšÃˆÃ
+				puiCRLSignedLen			Ã‡Â©ÃƒÃ»CRLÂ³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Â¶Ã”ÃÃ»ÃÂ¢Â½Ã¸ÃÃÃ‡Â©ÃƒÃ»
 	*/
 	COMMON_API unsigned int OpenSSL_SM2SignMSG(const unsigned char *pbMSG, unsigned int uiMSGLen, 
 		const unsigned char *pbPublicKeyX, unsigned int uiPublicKeyXLen,
@@ -232,26 +232,26 @@ extern "C" {
 		unsigned int uiAlg,
 		unsigned char *pbSig, unsigned int * puiSigLen);
 	/*
-	¹¦ÄÜÃû³Æ:	¶ÔHASH½øĞĞÇ©Ãû
-	º¯ÊıÃû³Æ:	OpenSSL_SM2SignMSG
-	ÊäÈë²ÎÊı:	pbHash						´ıÇ©ÃûhashÄÚÈİ
-				uiHashLen					´ıÇ©Ãûhash³¤¶È
-				pbPublicKeyX				Ç©ÃûÕß¹«Ô¿X
-				pbPublicKeyY				Ç©ÃûÕß¹«Ô¿Y
-				pbPrivateKey				Ë½Ô¿ÄÚÈİ
-				uiPrivateKeyLen				Ë½Ô¿³¤¶È
-	Êä³ö²ÎÊı:   pbCRLSigned				Ç©ÃûCRLÄÚÈİ
-				puiCRLSignedLen			Ç©ÃûCRL³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	¶ÔHASH½øĞĞÇ©Ãû
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â¶Ã”HASHÂ½Ã¸ÃÃÃ‡Â©ÃƒÃ»
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2SignMSG
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbHash						Â´Ã½Ã‡Â©ÃƒÃ»hashÃ„ÃšÃˆÃ
+				uiHashLen					Â´Ã½Ã‡Â©ÃƒÃ»hashÂ³Â¤Â¶Ãˆ
+				pbPublicKeyX				Ã‡Â©ÃƒÃ»Ã•ÃŸÂ¹Â«Ã”Â¿X
+				pbPublicKeyY				Ã‡Â©ÃƒÃ»Ã•ÃŸÂ¹Â«Ã”Â¿Y
+				pbPrivateKey				Ã‹Â½Ã”Â¿Ã„ÃšÃˆÃ
+				uiPrivateKeyLen				Ã‹Â½Ã”Â¿Â³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   pbCRLSigned				Ã‡Â©ÃƒÃ»CRLÃ„ÃšÃˆÃ
+				puiCRLSignedLen			Ã‡Â©ÃƒÃ»CRLÂ³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Â¶Ã”HASHÂ½Ã¸ÃÃÃ‡Â©ÃƒÃ»
 	*/
 	COMMON_API unsigned int OpenSSL_SM2SignDigest(const unsigned char *pbHash, unsigned int uiHashLen, 
 		const unsigned char *pbPrivateKey, unsigned int uiPrivateKeyLen,
 		unsigned char *pbSig, unsigned int * puiSigLen
 		);
 
-	//X509½á¹¹ÄÚÈİ
+	//X509Â½Ã¡Â¹Â¹Ã„ÃšÃˆÃ
 	typedef enum _X509_TYPE
 	{
 		X509_TYPE_CSR = 0,
@@ -260,13 +260,13 @@ extern "C" {
 	}X509_TYPE;
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÉèÖÃX509ÄÚÈİµÄÇ©ÃûÖµ
-	º¯ÊıÃû³Æ:	OpenSSL_SM2SetX509SignValue
-	ÊäÈë²ÎÊı:	
-	Êä³ö²ÎÊı:   
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÉèÖÃX509ÄÚÈİµÄÇ©ÃûÖµ
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‰Ã¨Ã–ÃƒX509Ã„ÃšÃˆÃÂµÃ„Ã‡Â©ÃƒÃ»Ã–Âµ
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2SetX509SignValue
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‰Ã¨Ã–ÃƒX509Ã„ÃšÃˆÃÂµÃ„Ã‡Â©ÃƒÃ»Ã–Âµ
 	*/
 	COMMON_API unsigned int OpenSSL_SM2SetX509SignValue(
 		const unsigned char *pbX509, unsigned int uiX509Len,
@@ -276,13 +276,13 @@ extern "C" {
 		unsigned char *pbX509Signed, unsigned int * puiX509SignedLen);
 	
 	/*
-	¹¦ÄÜÃû³Æ:	»ñÈ¡X509ÄÚÈİ£¨²»°üº¬Ç©ÃûÖµ£©
-	º¯ÊıÃû³Æ:	OpenSSL_SM2SetX509SignValue
-	ÊäÈë²ÎÊı:	
-	Êä³ö²ÎÊı:   
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	»ñÈ¡X509ÄÚÈİ£¨²»°üº¬Ç©ÃûÖµ£©
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â»Ã±ÃˆÂ¡X509Ã„ÃšÃˆÃÂ£Â¨Â²Â»Â°Ã¼ÂºÂ¬Ã‡Â©ÃƒÃ»Ã–ÂµÂ£Â©
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2SetX509SignValue
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Â»Ã±ÃˆÂ¡X509Ã„ÃšÃˆÃÂ£Â¨Â²Â»Â°Ã¼ÂºÂ¬Ã‡Â©ÃƒÃ»Ã–ÂµÂ£Â©
 	*/
 	COMMON_API unsigned int OpenSSL_GetX509Content(
 		const unsigned char *pbX509, unsigned int uiX509Len,
@@ -291,20 +291,20 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÑéÖ¤SM2Ç©Ãû
-	º¯ÊıÃû³Æ:	OpenSSL_SM2VerifyDigest
-	ÊäÈë²ÎÊı:	pbHash		HASHÄÚÈİ
-				uiHashLen			HASH³¤¶È
-				pbSig			Ç©ÃûÄÚÈİ
-				uiSigLen				Ç©Ãû³¤¶È
-				pbPublicKeyX		¹«Ô¿XÄÚÈİ
-				uiPublicKeyXLen			¹«Ô¿X³¤¶È
-				pbPublicKeyY		¹«Ô¿YÄÚÈİ
-				uiPublicKeyYLen			¹«Ô¿Y³¤¶È
-	Êä³ö²ÎÊı:
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÑéÖ¤SM2Ç©Ãû
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‘Ã©Ã–Â¤SM2Ã‡Â©ÃƒÃ»
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2VerifyDigest
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbHash		HASHÃ„ÃšÃˆÃ
+				uiHashLen			HASHÂ³Â¤Â¶Ãˆ
+				pbSig			Ã‡Â©ÃƒÃ»Ã„ÃšÃˆÃ
+				uiSigLen				Ã‡Â©ÃƒÃ»Â³Â¤Â¶Ãˆ
+				pbPublicKeyX		Â¹Â«Ã”Â¿XÃ„ÃšÃˆÃ
+				uiPublicKeyXLen			Â¹Â«Ã”Â¿XÂ³Â¤Â¶Ãˆ
+				pbPublicKeyY		Â¹Â«Ã”Â¿YÃ„ÃšÃˆÃ
+				uiPublicKeyYLen			Â¹Â«Ã”Â¿YÂ³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‘Ã©Ã–Â¤SM2Ã‡Â©ÃƒÃ»
 	*/
 	COMMON_API unsigned int OpenSSL_SM2VerifyDigest(const unsigned char *pbHash, unsigned int uiHashLen, 
 		const unsigned char *pbSig, unsigned int uiSigLen,
@@ -312,20 +312,20 @@ extern "C" {
 		const unsigned char *pbPublicKeyY, unsigned int uiPublicKeyYLen);
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÑéÖ¤Ç©Ãû
-	º¯ÊıÃû³Æ:	OpenSSL_SM2VerifyMSG
-	ÊäÈë²ÎÊı:	pbMSG				Ô­ÎÄÄÚÈİ
-				uiMSGLen					Ô­ÎÄ³¤¶È
-				pbSig				Ç©ÃûÖµÄÚÈİ
-				uiSigLen					Ç©ÃûÖµ³¤¶È
-				pbPublicKeyX			¹«Ô¿XÄÚÈİ
-				uiPublicKeyXLen				¹«Ô¿X³¤¶È
-				pbPublicKeyY			¹«Ô¿YÄÚÈİ
-				uiPublicKeyYLen				¹«Ô¿Y³¤¶È
-	Êä³ö²ÎÊı:   
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÑéÖ¤Ç©Ãû
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‘Ã©Ã–Â¤Ã‡Â©ÃƒÃ»
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2VerifyMSG
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbMSG				Ã”Â­ÃÃ„Ã„ÃšÃˆÃ
+				uiMSGLen					Ã”Â­ÃÃ„Â³Â¤Â¶Ãˆ
+				pbSig				Ã‡Â©ÃƒÃ»Ã–ÂµÃ„ÃšÃˆÃ
+				uiSigLen					Ã‡Â©ÃƒÃ»Ã–ÂµÂ³Â¤Â¶Ãˆ
+				pbPublicKeyX			Â¹Â«Ã”Â¿XÃ„ÃšÃˆÃ
+				uiPublicKeyXLen				Â¹Â«Ã”Â¿XÂ³Â¤Â¶Ãˆ
+				pbPublicKeyY			Â¹Â«Ã”Â¿YÃ„ÃšÃˆÃ
+				uiPublicKeyYLen				Â¹Â«Ã”Â¿YÂ³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‘Ã©Ã–Â¤Ã‡Â©ÃƒÃ»
 	*/
 	COMMON_API unsigned int OpenSSL_SM2VerifyMSG(const unsigned char *pbMSG, unsigned int uiMSGLen, 
 		const unsigned char *pbSig, unsigned int uiSigLen,
@@ -333,16 +333,16 @@ extern "C" {
 		const unsigned char *pbPublicKeyY, unsigned int uiPublicKeyYLen);
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÑéÖ¤ÇëÇó
-	º¯ÊıÃû³Æ:	OpenSSL_SM2VerifyCSR
-	ÊäÈë²ÎÊı:	pbIN				ÇëÇóÄÚÈİ
-				uiINLen					ÇëÇó³¤¶È
-				pbSig				Ç©ÃûÖµÄÚÈİ
-				uiSigLen					Ç©ÃûÖµ³¤¶È
-	Êä³ö²ÎÊı:   
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÑéÖ¤ÇëÇó
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‘Ã©Ã–Â¤Ã‡Ã«Ã‡Ã³
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2VerifyCSR
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbIN				Ã‡Ã«Ã‡Ã³Ã„ÃšÃˆÃ
+				uiINLen					Ã‡Ã«Ã‡Ã³Â³Â¤Â¶Ãˆ
+				pbSig				Ã‡Â©ÃƒÃ»Ã–ÂµÃ„ÃšÃˆÃ
+				uiSigLen					Ã‡Â©ÃƒÃ»Ã–ÂµÂ³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‘Ã©Ã–Â¤Ã‡Ã«Ã‡Ã³
 	*/
 	COMMON_API unsigned int OpenSSL_SM2VerifyCSR(
 		const unsigned char *pbCSR, unsigned int uiCSRLen,
@@ -350,18 +350,18 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÑéÖ¤Ö¤Êé
-	º¯ÊıÃû³Æ:	OpenSSL_SM2VerifyCert
-	ÊäÈë²ÎÊı:	pbX509Cert			Ö¤ÊéÄÚÈİ
-				uiX509CertLen				Ö¤Êé³¤¶È
-				pbPublicKeyX			¹«Ô¿XÄÚÈİ
-				uiPublicKeyXLen				¹«Ô¿X³¤¶È
-				pbPublicKeyY			¹«Ô¿YÄÚÈİ
-				uiPublicKeyYLen				¹«Ô¿Y³¤¶È
-	Êä³ö²ÎÊı:   
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÑéÖ¤Ö¤Êé
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‘Ã©Ã–Â¤Ã–Â¤ÃŠÃ©
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2VerifyCert
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbX509Cert			Ã–Â¤ÃŠÃ©Ã„ÃšÃˆÃ
+				uiX509CertLen				Ã–Â¤ÃŠÃ©Â³Â¤Â¶Ãˆ
+				pbPublicKeyX			Â¹Â«Ã”Â¿XÃ„ÃšÃˆÃ
+				uiPublicKeyXLen				Â¹Â«Ã”Â¿XÂ³Â¤Â¶Ãˆ
+				pbPublicKeyY			Â¹Â«Ã”Â¿YÃ„ÃšÃˆÃ
+				uiPublicKeyYLen				Â¹Â«Ã”Â¿YÂ³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‘Ã©Ã–Â¤Ã–Â¤ÃŠÃ©
 	*/
 	COMMON_API unsigned int OpenSSL_SM2VerifyCert(
 		const unsigned char *pbX509Cert, unsigned int uiX509CertLen,unsigned int uiAlg,
@@ -370,18 +370,18 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÑéÖ¤CRL
-	º¯ÊıÃû³Æ:	OpenSSL_SM2VerifyCRL
-	ÊäÈë²ÎÊı:	pbCRL					CRLÄÚÈİ
-				uiCRLLen				CRL³¤¶È
-				pbPublicKeyX			¹«Ô¿XÄÚÈİ
-				uiPublicKeyXLen			¹«Ô¿X³¤¶È
-				pbPublicKeyY			¹«Ô¿YÄÚÈİ
-				uiPublicKeyYLen			¹«Ô¿Y³¤¶È
-	Êä³ö²ÎÊı:   
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÑéÖ¤Ö¤Êé
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‘Ã©Ã–Â¤CRL
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_SM2VerifyCRL
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbCRL					CRLÃ„ÃšÃˆÃ
+				uiCRLLen				CRLÂ³Â¤Â¶Ãˆ
+				pbPublicKeyX			Â¹Â«Ã”Â¿XÃ„ÃšÃˆÃ
+				uiPublicKeyXLen			Â¹Â«Ã”Â¿XÂ³Â¤Â¶Ãˆ
+				pbPublicKeyY			Â¹Â«Ã”Â¿YÃ„ÃšÃˆÃ
+				uiPublicKeyYLen			Â¹Â«Ã”Â¿YÂ³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‘Ã©Ã–Â¤Ã–Â¤ÃŠÃ©
 	*/
 	COMMON_API unsigned int OpenSSL_SM2VerifyCRL(
 		const unsigned char *pbCRL, unsigned int uiCRLLen,unsigned int uiAlg,
@@ -390,15 +390,15 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	»ñÈ¡Ö¤ÊéÖ÷Ìâ
-	º¯ÊıÃû³Æ:	OpenSSL_CertGetSubject
-	ÊäÈë²ÎÊı:	pbX509Cert		Ö¤ÊéÄÚÈİ
-				uiX509CertLen		Ö¤Êé³¤¶È
-	Êä³ö²ÎÊı:	pbSubject	Ö÷ÌâÄÚÈİ
-				puiSubjectLen		Ö÷Ìâ³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	»ñÈ¡Ö¤ÊéÖ÷Ìâ
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â»Ã±ÃˆÂ¡Ã–Â¤ÃŠÃ©Ã–Ã·ÃŒÃ¢
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_CertGetSubject
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbX509Cert		Ã–Â¤ÃŠÃ©Ã„ÃšÃˆÃ
+				uiX509CertLen		Ã–Â¤ÃŠÃ©Â³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:	pbSubject	Ã–Ã·ÃŒÃ¢Ã„ÃšÃˆÃ
+				puiSubjectLen		Ã–Ã·ÃŒÃ¢Â³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Â»Ã±ÃˆÂ¡Ã–Â¤ÃŠÃ©Ã–Ã·ÃŒÃ¢
 	*/
 	COMMON_API unsigned int OpenSSL_CertGetSubject(
 		const unsigned char * pbX509Cert, unsigned int uiX509CertLen,
@@ -406,15 +406,15 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	»ñÈ¡Ö¤Êé¹«Ô¿
-	º¯ÊıÃû³Æ:	OpenSSL_CertGetPubkey
-	ÊäÈë²ÎÊı:	pbX509Cert		Ö¤ÊéÄÚÈİ
-				uiX509CertLen		Ö¤Êé³¤¶È
-	Êä³ö²ÎÊı:	pbPublicKey	¹«Ô¿ÄÚÈİ
-				puiPublicKeyLen		¹«Ô¿³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	»ñÈ¡Ö¤Êé¹«Ô¿
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â»Ã±ÃˆÂ¡Ã–Â¤ÃŠÃ©Â¹Â«Ã”Â¿
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_CertGetPubkey
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbX509Cert		Ã–Â¤ÃŠÃ©Ã„ÃšÃˆÃ
+				uiX509CertLen		Ã–Â¤ÃŠÃ©Â³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:	pbPublicKey	Â¹Â«Ã”Â¿Ã„ÃšÃˆÃ
+				puiPublicKeyLen		Â¹Â«Ã”Â¿Â³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Â»Ã±ÃˆÂ¡Ã–Â¤ÃŠÃ©Â¹Â«Ã”Â¿
 	*/
 	COMMON_API unsigned int OpenSSL_CertGetPubkey(
 		const unsigned char * pbX509Cert, unsigned int uiX509CertLen,
@@ -425,25 +425,25 @@ extern "C" {
 
 
 	/*
-	»ñÈ¡Ö¤ÊéĞòÁĞºÅ
+	Â»Ã±ÃˆÂ¡Ã–Â¤ÃŠÃ©ÃÃ²ÃÃÂºÃ…
 	*/
 	COMMON_API unsigned int OpenSSL_CertGetSN(
 		const unsigned char * pbX509Cert, unsigned int uiX509CertLen,
 		unsigned char * pbSN, unsigned int * puiSNLen);
 
 	/*
-	¹¦ÄÜÃû³Æ:	»ñÈ¡Ö¤ÊéÖ÷ÌâÏî
-	º¯ÊıÃû³Æ:	OpenSSL_CertGetSubjectItem
-	ÊäÈë²ÎÊı:	
-				pbX509Cert				Ö¤ÊéÄÚÈİ
-				uiX509CertLen			Ö¤Êé³¤¶È
-				uiIndex					Ïî±êÊ¾
-	Êä³ö²ÎÊı:   
-				pbSubjectItem			ÏîÖµ
-				puiSubjectItemLen		Ïî³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	»ñÈ¡Ö¤ÊéÖ÷ÌâÏî
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â»Ã±ÃˆÂ¡Ã–Â¤ÃŠÃ©Ã–Ã·ÃŒÃ¢ÃÃ®
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_CertGetSubjectItem
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	
+				pbX509Cert				Ã–Â¤ÃŠÃ©Ã„ÃšÃˆÃ
+				uiX509CertLen			Ã–Â¤ÃŠÃ©Â³Â¤Â¶Ãˆ
+				uiIndex					ÃÃ®Â±ÃªÃŠÂ¾
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   
+				pbSubjectItem			ÃÃ®Ã–Âµ
+				puiSubjectItemLen		ÃÃ®Â³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Â»Ã±ÃˆÂ¡Ã–Â¤ÃŠÃ©Ã–Ã·ÃŒÃ¢ÃÃ®
 	*/
 	COMMON_API unsigned int OpenSSL_CertGetSubjectItem(
 		const unsigned char * pbX509Cert, unsigned int uiX509CertLen,
@@ -452,7 +452,7 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	SM2½âÃÜ
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	SM2Â½Ã¢ÃƒÃœ
 	*/
 	COMMON_API unsigned int OpenSSL_SM2Decrypt(
 		const unsigned char * pbPrivateKey, unsigned int uiPrivateKeyLen, 
@@ -460,7 +460,7 @@ extern "C" {
 		unsigned char * pbOUT, unsigned int * puiOUTLen
 		);
 	/*
-	¹¦ÄÜÃû³Æ:	SM2¼ÓÃÜ
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	SM2Â¼Ã“ÃƒÃœ
 	*/
 	COMMON_API unsigned int OpenSSL_SM2Encrypt(
 		const unsigned char * pbPublicKeyX, unsigned int uiPublicKeyXLen, 
@@ -469,7 +469,7 @@ extern "C" {
 		unsigned char * pbOUT, unsigned int * puiOUTLen);
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÑéÖ¤SM2µã
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‘Ã©Ã–Â¤SM2ÂµÃ£
 	*/
 	COMMON_API unsigned int OpenSSL_SM2Point(
 		const unsigned char * pbPublicKeyX, unsigned int uiPublicKeyXLen, 
@@ -477,7 +477,7 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	¼ÓÃÜÄÚÈİÊä³öÎÄ¼ş
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â¼Ã“ÃƒÃœÃ„ÃšÃˆÃÃŠÃ¤Â³Ã¶ÃÃ„Â¼Ã¾
 	*/
 	COMMON_API unsigned int OpenSSL_SM2Write(
 		const unsigned char * pbIN, unsigned int uiINLen, 
@@ -487,7 +487,7 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	SM2½âÃÜ
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	SM2Â½Ã¢ÃƒÃœ
 	*/
 	COMMON_API unsigned int OpenSSL_SM2DecryptInner(
 		const unsigned char *pbIN, unsigned int uiINLen, 
@@ -496,7 +496,7 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	SM2¼ÓÃÜ
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	SM2Â¼Ã“ÃƒÃœ
 	*/
 	COMMON_API unsigned int OpenSSL_SM2EncryptInner(
 		const unsigned char *pbIN, unsigned int uiINLen, 
@@ -506,7 +506,7 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	»ñÈ¡Ö¤Êé¹«Ô¿Ëã·¨
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â»Ã±ÃˆÂ¡Ã–Â¤ÃŠÃ©Â¹Â«Ã”Â¿Ã‹Ã£Â·Â¨
 	*/
 	COMMON_API unsigned int OpenSSL_CertGetPublicKeyAlgor(
 		const unsigned char * pbX509Cert, unsigned int uiX509CertLen,
@@ -514,7 +514,7 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	±È½ÏÖ¤ÊéµÄ°ä·¢ÕßºÍÊ¹ÓÃÕß
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â±ÃˆÂ½ÃÃ–Â¤ÃŠÃ©ÂµÃ„Â°Ã¤Â·Â¢Ã•ÃŸÂºÃÃŠÂ¹Ã“ÃƒÃ•ÃŸ
 	*/
 	COMMON_API unsigned int OpenSSL_CertSubjectCompareIssuer(const unsigned char * pbX509Cert, unsigned int uiX509CertLen,
 		unsigned int * bEqual
@@ -530,15 +530,15 @@ extern "C" {
 #if defined(GM_ECC_512_SUPPORT)
 	// GM_ECC_512 start
 	/*
-	¹¦ÄÜÃû³Æ:	Éú³É¹«Ë½Ô¿¶Ô
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512GenKeys
-	ÊäÈë²ÎÊı:	 
-	Êä³ö²ÎÊı:	pbPublicKeyX		¹«Ô¿X
-				pbPublicKeyY		¹«Ô¿Y
-				pbPrivateKey		Ë½Ô¿
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	Éú³É¹«Ë½Ô¿¶Ô
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‰ÃºÂ³Ã‰Â¹Â«Ã‹Â½Ã”Â¿Â¶Ã”
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512GenKeys
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	 
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:	pbPublicKeyX		Â¹Â«Ã”Â¿X
+				pbPublicKeyY		Â¹Â«Ã”Â¿Y
+				pbPrivateKey		Ã‹Â½Ã”Â¿
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‰ÃºÂ³Ã‰Â¹Â«Ã‹Â½Ã”Â¿Â¶Ã”
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512GenKeys(unsigned char * pbPublicKeyX,  unsigned int * puiPublicKeyXLen, 
 		unsigned char * pbPublicKeyY,  unsigned int * puiPublicKeyYLen,
@@ -546,17 +546,17 @@ extern "C" {
 
 
 	/*
-	¹¦ÄÜÃû³Æ:	Éú³ÉÖ¤ÊéÇëÇó
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512GenCSRWithPubkey
-	ÊäÈë²ÎÊı:	pbPublicKeyX     ¹«Ô¿XÖµ
-				uiPublicKeyXLen		¹«Ô¿X³¤¶È
-				pbPublicKeyY     ¹«Ô¿YÖµ
-				uiPublicKeyYLen		¹«Ô¿Y³¤¶È
-	Êä³ö²ÎÊı:	pbCSR		Ö¤ÊéÇëÇóÄÚÈİ
-				puiCSRLen		Ö¤ÊéÇëÇó³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	Éú³ÉÖ¤ÊéÇëÇó
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‰ÃºÂ³Ã‰Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512GenCSRWithPubkey
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbPublicKeyX     Â¹Â«Ã”Â¿XÃ–Âµ
+				uiPublicKeyXLen		Â¹Â«Ã”Â¿XÂ³Â¤Â¶Ãˆ
+				pbPublicKeyY     Â¹Â«Ã”Â¿YÃ–Âµ
+				uiPublicKeyYLen		Â¹Â«Ã”Â¿YÂ³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:	pbCSR		Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³Ã„ÃšÃˆÃ
+				puiCSRLen		Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³Â³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‰ÃºÂ³Ã‰Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512GenCSRWithPubkey(const OPST_USERINFO *pstUserInfo,
 		const unsigned char * pbPublicKeyX,  unsigned int uiPublicKeyXLen, 
@@ -564,18 +564,18 @@ extern "C" {
 		unsigned char * pbCSR,  unsigned int * puiCSRLen);
 
 	/*
-	¹¦ÄÜÃû³Æ:	Éú³É¸ùÖ¤Êé
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512GenRootCert
-	ÊäÈë²ÎÊı:	pbCSR		ÇëÇóĞÅÏ¢
-				uiCSRLen			ÇëÇó³¤¶È
-				uiSerialNumber	ĞòÁĞºÅ
-				uiNotBefore		¿ªÊ¼Ê±¼ä
-				uiNotAfter		½áÊøÊ±¼ä
-	Êä³ö²ÎÊı:	pbX509Cert		Ö¤ÊéÄÚÈİ
-				puiX509CertLen		Ö¤Êé³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	Éú³É¸ùÖ¤Êé
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‰ÃºÂ³Ã‰Â¸Ã¹Ã–Â¤ÃŠÃ©
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512GenRootCert
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbCSR		Ã‡Ã«Ã‡Ã³ÃÃ…ÃÂ¢
+				uiCSRLen			Ã‡Ã«Ã‡Ã³Â³Â¤Â¶Ãˆ
+				uiSerialNumber	ÃÃ²ÃÃÂºÃ…
+				uiNotBefore		Â¿ÂªÃŠÂ¼ÃŠÂ±Â¼Ã¤
+				uiNotAfter		Â½Ã¡ÃŠÃ¸ÃŠÂ±Â¼Ã¤
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:	pbX509Cert		Ã–Â¤ÃŠÃ©Ã„ÃšÃˆÃ
+				puiX509CertLen		Ã–Â¤ÃŠÃ©Â³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‰ÃºÂ³Ã‰Â¸Ã¹Ã–Â¤ÃŠÃ©
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512GenRootCert(const unsigned char * pbCSR,unsigned int uiCSRLen, 
 		unsigned char * pbSerialNumber,unsigned int uiSerialNumberLen,
@@ -583,18 +583,18 @@ extern "C" {
 		unsigned char * pbX509Cert, unsigned int * puiX509CertLen);
 
 	/*
-	¹¦ÄÜÃû³Æ:	Éú³ÉGMECC512Ö¤Êé
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512GenCert
-	ÊäÈë²ÎÊı:	pbCSR		ÇëÇóÄÚÈİ
-				uiCSRLen			ÇëÇó³¤¶È
-				uiSerialNumber	ĞòÁĞºÅ
-				uiNotBefore		¿ªÊ¼Ê±¼ä
-				uiNotAfter		½áÊøÊ±¼ä
-	Êä³ö²ÎÊı:	pbX509Cert		Ö¤ÊéÄÚÈİ
-				puiX509CertLen		Ö¤Êé³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	Éú³ÉGMECC512Ö¤Êé
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‰ÃºÂ³Ã‰GMECC512Ã–Â¤ÃŠÃ©
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512GenCert
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbCSR		Ã‡Ã«Ã‡Ã³Ã„ÃšÃˆÃ
+				uiCSRLen			Ã‡Ã«Ã‡Ã³Â³Â¤Â¶Ãˆ
+				uiSerialNumber	ÃÃ²ÃÃÂºÃ…
+				uiNotBefore		Â¿ÂªÃŠÂ¼ÃŠÂ±Â¼Ã¤
+				uiNotAfter		Â½Ã¡ÃŠÃ¸ÃŠÂ±Â¼Ã¤
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:	pbX509Cert		Ã–Â¤ÃŠÃ©Ã„ÃšÃˆÃ
+				puiX509CertLen		Ã–Â¤ÃŠÃ©Â³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‰ÃºÂ³Ã‰GMECC512Ã–Â¤ÃŠÃ©
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512GenCert(const unsigned char * pbCSR,unsigned int uiCSRLen, 
 		const unsigned char * pbX509CACert, unsigned int uiX509CACertLen, 
@@ -603,18 +603,18 @@ extern "C" {
 		unsigned char * pbX509Cert, unsigned int * puiX509CertLen);
 	
 	/*
-	¹¦ÄÜÃû³Æ:	Éú³ÉGMECC512Ö¤Êé(À©Õ¹£¬ÑéÖ¤²¢Ìæ»»Ö¤ÊéÇëÇóµÄ¹«Ô¿Ö®ºóÉú³ÉÖ¤Êé)
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512GenCert
-	ÊäÈë²ÎÊı:	pbCSR		ÇëÇóÄÚÈİ
-				uiCSRLen			ÇëÇó³¤¶È
-				uiSerialNumber	ĞòÁĞºÅ
-				uiNotBefore		¿ªÊ¼Ê±¼ä
-				uiNotAfter		½áÊøÊ±¼ä
-	Êä³ö²ÎÊı:	pbX509Cert		Ö¤ÊéÄÚÈİ
-				puiX509CertLen		Ö¤Êé³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	Éú³ÉGMECC512Ö¤Êé
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‰ÃºÂ³Ã‰GMECC512Ã–Â¤ÃŠÃ©(Ã€Â©Ã•Â¹Â£Â¬Ã‘Ã©Ã–Â¤Â²Â¢ÃŒÃ¦Â»Â»Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³ÂµÃ„Â¹Â«Ã”Â¿Ã–Â®ÂºÃ³Ã‰ÃºÂ³Ã‰Ã–Â¤ÃŠÃ©)
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512GenCert
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbCSR		Ã‡Ã«Ã‡Ã³Ã„ÃšÃˆÃ
+				uiCSRLen			Ã‡Ã«Ã‡Ã³Â³Â¤Â¶Ãˆ
+				uiSerialNumber	ÃÃ²ÃÃÂºÃ…
+				uiNotBefore		Â¿ÂªÃŠÂ¼ÃŠÂ±Â¼Ã¤
+				uiNotAfter		Â½Ã¡ÃŠÃ¸ÃŠÂ±Â¼Ã¤
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:	pbX509Cert		Ã–Â¤ÃŠÃ©Ã„ÃšÃˆÃ
+				puiX509CertLen		Ã–Â¤ÃŠÃ©Â³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‰ÃºÂ³Ã‰GMECC512Ã–Â¤ÃŠÃ©
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512GenCertEX(const unsigned char * pbCSR,unsigned int uiCSRLen, 
 		const unsigned char * pbPublicKeyX, unsigned int uiPublicKeyXLen, 
@@ -625,18 +625,18 @@ extern "C" {
 		unsigned char * pbX509Cert, unsigned int * puiX509CertLen);
 
 	/*
-	¹¦ÄÜÃû³Æ:	Ö¤ÊéµõÏúÁĞ±í
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512GenCRL
-	ÊäÈë²ÎÊı:	pstCRLList				Ö¤ÊéµõÏúÄÚÈİ
-				uiCRLListSize			Ö¤Êé¸öÊı
-				pbX509Cert			Ö¤ÊéÄÚÈİ
-				uiX509CertLen				Ö¤Êé³¤¶È
-	Êä³ö²ÎÊı:   
-				pbCRL				Ö¤ÊéµõÏúÁĞ±íÄÚÈİ
-				puiCRLLen				Ö¤ÊéµõÏúÁĞ±í³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	Ö¤ÊéµõÏúÁĞ±í
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã–Â¤ÃŠÃ©ÂµÃµÃÃºÃÃÂ±Ã­
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512GenCRL
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pstCRLList				Ã–Â¤ÃŠÃ©ÂµÃµÃÃºÃ„ÃšÃˆÃ
+				uiCRLListSize			Ã–Â¤ÃŠÃ©Â¸Ã¶ÃŠÃ½
+				pbX509Cert			Ã–Â¤ÃŠÃ©Ã„ÃšÃˆÃ
+				uiX509CertLen				Ã–Â¤ÃŠÃ©Â³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   
+				pbCRL				Ã–Â¤ÃŠÃ©ÂµÃµÃÃºÃÃÂ±Ã­Ã„ÃšÃˆÃ
+				puiCRLLen				Ã–Â¤ÃŠÃ©ÂµÃµÃÃºÃÃÂ±Ã­Â³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã–Â¤ÃŠÃ©ÂµÃµÃÃºÃÃÂ±Ã­
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512GenCRL(const OPST_CRL * pstCRLList, unsigned int uiCRLListSize, 
 		const unsigned char * pbX509Cert,unsigned int uiX509CertLen, 
@@ -644,19 +644,19 @@ extern "C" {
 
 	
 	/*
-	¹¦ÄÜÃû³Æ:	¶ÔÖ¤Êé½øĞĞÇ©Ãû
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512SignCertWithKeys
-	ÊäÈë²ÎÊı:	pbX509Cert					´ıÇ©ÃûÖ¤ÊéÄÚÈİ
-				uiX509CertLen				´ıÇ©ÃûÖ¤Êé³¤¶È
-				pbPublicKeyX				Ç©ÃûÕß¹«Ô¿X
-				pbPublicKeyY				Ç©ÃûÕß¹«Ô¿Y
-				pbPrivateKey				Ë½Ô¿ÄÚÈİ
-				uiPrivateKeyLen				Ë½Ô¿³¤¶È
-	Êä³ö²ÎÊı:   pbX509CertSigned				Ç©ÃûÖ¤ÊéÄÚÈİ
-				puiX509CertSignedLen			Ç©ÃûÖ¤Êé³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	¶ÔÖ¤Êé½øĞĞÇ©Ãû
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â¶Ã”Ã–Â¤ÃŠÃ©Â½Ã¸ÃÃÃ‡Â©ÃƒÃ»
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512SignCertWithKeys
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbX509Cert					Â´Ã½Ã‡Â©ÃƒÃ»Ã–Â¤ÃŠÃ©Ã„ÃšÃˆÃ
+				uiX509CertLen				Â´Ã½Ã‡Â©ÃƒÃ»Ã–Â¤ÃŠÃ©Â³Â¤Â¶Ãˆ
+				pbPublicKeyX				Ã‡Â©ÃƒÃ»Ã•ÃŸÂ¹Â«Ã”Â¿X
+				pbPublicKeyY				Ã‡Â©ÃƒÃ»Ã•ÃŸÂ¹Â«Ã”Â¿Y
+				pbPrivateKey				Ã‹Â½Ã”Â¿Ã„ÃšÃˆÃ
+				uiPrivateKeyLen				Ã‹Â½Ã”Â¿Â³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   pbX509CertSigned				Ã‡Â©ÃƒÃ»Ã–Â¤ÃŠÃ©Ã„ÃšÃˆÃ
+				puiX509CertSignedLen			Ã‡Â©ÃƒÃ»Ã–Â¤ÃŠÃ©Â³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Â¶Ã”Ã–Â¤ÃŠÃ©Â½Ã¸ÃÃÃ‡Â©ÃƒÃ»
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512SignCert(
 		const unsigned char *pbX509Cert,  unsigned int uiX509CertLen, 
@@ -667,17 +667,17 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	¶ÔÖ¤ÊéÇëÇó½øĞĞÇ©Ãû
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512SignCSR
-	ÊäÈë²ÎÊı:	pbCSR					´ıÇ©ÃûÖ¤ÊéÇëÇóÄÚÈİ
-				uiCSRLen					´ıÇ©ÃûÖ¤ÊéÇëÇó³¤¶È
-				pbPrivateKey				Ë½Ô¿ÄÚÈİ
-				uiPrivateKeyLen				Ë½Ô¿³¤¶È
-	Êä³ö²ÎÊı:   pbCSRSigned				Ç©ÃûÖ¤ÊéÇëÇóÄÚÈİ
-				puiCSRSignedLen			Ç©ÃûÖ¤ÊéÇëÇó³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	¶ÔÖ¤ÊéÇëÇó½øĞĞÇ©Ãû
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â¶Ã”Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³Â½Ã¸ÃÃÃ‡Â©ÃƒÃ»
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512SignCSR
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbCSR					Â´Ã½Ã‡Â©ÃƒÃ»Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³Ã„ÃšÃˆÃ
+				uiCSRLen					Â´Ã½Ã‡Â©ÃƒÃ»Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³Â³Â¤Â¶Ãˆ
+				pbPrivateKey				Ã‹Â½Ã”Â¿Ã„ÃšÃˆÃ
+				uiPrivateKeyLen				Ã‹Â½Ã”Â¿Â³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   pbCSRSigned				Ã‡Â©ÃƒÃ»Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³Ã„ÃšÃˆÃ
+				puiCSRSignedLen			Ã‡Â©ÃƒÃ»Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³Â³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Â¶Ã”Ã–Â¤ÃŠÃ©Ã‡Ã«Ã‡Ã³Â½Ã¸ÃÃÃ‡Â©ÃƒÃ»
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512SignCSR(
 		const unsigned char *pbCSR, unsigned int uiCSRLen,
@@ -686,19 +686,19 @@ extern "C" {
 		unsigned char *pbCSRSigned, unsigned int * puiCSRSignedLen);
 
 	/*
-	¹¦ÄÜÃû³Æ:	¶ÔCRL½øĞĞÇ©Ãû
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512SignCRL
-	ÊäÈë²ÎÊı:	pbCRL					´ıÇ©ÃûCRLÄÚÈİ
-				uiCRLLen					´ıÇ©ÃûCRL³¤¶È
-				pbPublicKeyX				Ç©ÃûÕß¹«Ô¿X
-				pbPublicKeyY				Ç©ÃûÕß¹«Ô¿Y
-				pbPrivateKey				Ë½Ô¿ÄÚÈİ
-				uiPrivateKeyLen				Ë½Ô¿³¤¶È
-	Êä³ö²ÎÊı:   pbCRLSigned				Ç©ÃûCRLÄÚÈİ
-				puiCRLSignedLen			Ç©ÃûCRL³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	¶ÔCRL½øĞĞÇ©Ãû
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â¶Ã”CRLÂ½Ã¸ÃÃÃ‡Â©ÃƒÃ»
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512SignCRL
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbCRL					Â´Ã½Ã‡Â©ÃƒÃ»CRLÃ„ÃšÃˆÃ
+				uiCRLLen					Â´Ã½Ã‡Â©ÃƒÃ»CRLÂ³Â¤Â¶Ãˆ
+				pbPublicKeyX				Ã‡Â©ÃƒÃ»Ã•ÃŸÂ¹Â«Ã”Â¿X
+				pbPublicKeyY				Ã‡Â©ÃƒÃ»Ã•ÃŸÂ¹Â«Ã”Â¿Y
+				pbPrivateKey				Ã‹Â½Ã”Â¿Ã„ÃšÃˆÃ
+				uiPrivateKeyLen				Ã‹Â½Ã”Â¿Â³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   pbCRLSigned				Ã‡Â©ÃƒÃ»CRLÃ„ÃšÃˆÃ
+				puiCRLSignedLen			Ã‡Â©ÃƒÃ»CRLÂ³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Â¶Ã”CRLÂ½Ã¸ÃÃÃ‡Â©ÃƒÃ»
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512SignCRL(
 		const unsigned char *pbCRL, unsigned int uiCRLLen,unsigned int uiAlg,
@@ -709,19 +709,19 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	¶ÔÏûÏ¢½øĞĞÇ©Ãû
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512SignMSG
-	ÊäÈë²ÎÊı:	pbMSG						´ıÇ©ÃûÄÚÈİ
-				uiMSGLen					´ıÇ©Ãû³¤¶È
-				pbPublicKeyX				Ç©ÃûÕß¹«Ô¿X
-				pbPublicKeyY				Ç©ÃûÕß¹«Ô¿Y
-				pbPrivateKey				Ë½Ô¿ÄÚÈİ
-				uiPrivateKeyLen				Ë½Ô¿³¤¶È
-	Êä³ö²ÎÊı:   pbCRLSigned				Ç©ÃûCRLÄÚÈİ
-				puiCRLSignedLen			Ç©ÃûCRL³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	¶ÔÏûÏ¢½øĞĞÇ©Ãû
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â¶Ã”ÃÃ»ÃÂ¢Â½Ã¸ÃÃÃ‡Â©ÃƒÃ»
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512SignMSG
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbMSG						Â´Ã½Ã‡Â©ÃƒÃ»Ã„ÃšÃˆÃ
+				uiMSGLen					Â´Ã½Ã‡Â©ÃƒÃ»Â³Â¤Â¶Ãˆ
+				pbPublicKeyX				Ã‡Â©ÃƒÃ»Ã•ÃŸÂ¹Â«Ã”Â¿X
+				pbPublicKeyY				Ã‡Â©ÃƒÃ»Ã•ÃŸÂ¹Â«Ã”Â¿Y
+				pbPrivateKey				Ã‹Â½Ã”Â¿Ã„ÃšÃˆÃ
+				uiPrivateKeyLen				Ã‹Â½Ã”Â¿Â³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   pbCRLSigned				Ã‡Â©ÃƒÃ»CRLÃ„ÃšÃˆÃ
+				puiCRLSignedLen			Ã‡Â©ÃƒÃ»CRLÂ³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Â¶Ã”ÃÃ»ÃÂ¢Â½Ã¸ÃÃÃ‡Â©ÃƒÃ»
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512SignMSG(const unsigned char *pbMSG, unsigned int uiMSGLen, 
 		const unsigned char *pbPublicKeyX, unsigned int uiPublicKeyXLen,
@@ -730,19 +730,19 @@ extern "C" {
 		unsigned int uiAlg,
 		unsigned char *pbSig, unsigned int * puiSigLen);
 	/*
-	¹¦ÄÜÃû³Æ:	¶ÔHASH½øĞĞÇ©Ãû
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512SignMSG
-	ÊäÈë²ÎÊı:	pbHash						´ıÇ©ÃûhashÄÚÈİ
-				uiHashLen					´ıÇ©Ãûhash³¤¶È
-				pbPublicKeyX				Ç©ÃûÕß¹«Ô¿X
-				pbPublicKeyY				Ç©ÃûÕß¹«Ô¿Y
-				pbPrivateKey				Ë½Ô¿ÄÚÈİ
-				uiPrivateKeyLen				Ë½Ô¿³¤¶È
-	Êä³ö²ÎÊı:   pbCRLSigned				Ç©ÃûCRLÄÚÈİ
-				puiCRLSignedLen			Ç©ÃûCRL³¤¶È
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	¶ÔHASH½øĞĞÇ©Ãû
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â¶Ã”HASHÂ½Ã¸ÃÃÃ‡Â©ÃƒÃ»
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512SignMSG
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbHash						Â´Ã½Ã‡Â©ÃƒÃ»hashÃ„ÃšÃˆÃ
+				uiHashLen					Â´Ã½Ã‡Â©ÃƒÃ»hashÂ³Â¤Â¶Ãˆ
+				pbPublicKeyX				Ã‡Â©ÃƒÃ»Ã•ÃŸÂ¹Â«Ã”Â¿X
+				pbPublicKeyY				Ã‡Â©ÃƒÃ»Ã•ÃŸÂ¹Â«Ã”Â¿Y
+				pbPrivateKey				Ã‹Â½Ã”Â¿Ã„ÃšÃˆÃ
+				uiPrivateKeyLen				Ã‹Â½Ã”Â¿Â³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   pbCRLSigned				Ã‡Â©ÃƒÃ»CRLÃ„ÃšÃˆÃ
+				puiCRLSignedLen			Ã‡Â©ÃƒÃ»CRLÂ³Â¤Â¶Ãˆ
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Â¶Ã”HASHÂ½Ã¸ÃÃÃ‡Â©ÃƒÃ»
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512SignDigest(const unsigned char *pbHash, unsigned int uiHashLen, 
 		const unsigned char *pbPrivateKey, unsigned int uiPrivateKeyLen,
@@ -750,13 +750,13 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÉèÖÃX509ÄÚÈİµÄÇ©ÃûÖµ
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512SetX509SignValue
-	ÊäÈë²ÎÊı:	
-	Êä³ö²ÎÊı:   
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÉèÖÃX509ÄÚÈİµÄÇ©ÃûÖµ
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‰Ã¨Ã–ÃƒX509Ã„ÃšÃˆÃÂµÃ„Ã‡Â©ÃƒÃ»Ã–Âµ
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512SetX509SignValue
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‰Ã¨Ã–ÃƒX509Ã„ÃšÃˆÃÂµÃ„Ã‡Â©ÃƒÃ»Ã–Âµ
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512SetX509SignValue(
 		const unsigned char *pbX509, unsigned int uiX509Len,
@@ -766,13 +766,13 @@ extern "C" {
 		unsigned char *pbX509Signed, unsigned int * puiX509SignedLen);
 	
 	/*
-	¹¦ÄÜÃû³Æ:	»ñÈ¡X509ÄÚÈİ£¨²»°üº¬Ç©ÃûÖµ£©
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512SetX509SignValue
-	ÊäÈë²ÎÊı:	
-	Êä³ö²ÎÊı:   
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	»ñÈ¡X509ÄÚÈİ£¨²»°üº¬Ç©ÃûÖµ£©
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Â»Ã±ÃˆÂ¡X509Ã„ÃšÃˆÃÂ£Â¨Â²Â»Â°Ã¼ÂºÂ¬Ã‡Â©ÃƒÃ»Ã–ÂµÂ£Â©
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512SetX509SignValue
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Â»Ã±ÃˆÂ¡X509Ã„ÃšÃˆÃÂ£Â¨Â²Â»Â°Ã¼ÂºÂ¬Ã‡Â©ÃƒÃ»Ã–ÂµÂ£Â©
 	*/
 	COMMON_API unsigned int OpenSSL_GetX509Content(
 		const unsigned char *pbX509, unsigned int uiX509Len,
@@ -781,20 +781,20 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÑéÖ¤GMECC512Ç©Ãû
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512VerifyDigest
-	ÊäÈë²ÎÊı:	pbHash		HASHÄÚÈİ
-				uiHashLen			HASH³¤¶È
-				pbSig			Ç©ÃûÄÚÈİ
-				uiSigLen				Ç©Ãû³¤¶È
-				pbPublicKeyX		¹«Ô¿XÄÚÈİ
-				uiPublicKeyXLen			¹«Ô¿X³¤¶È
-				pbPublicKeyY		¹«Ô¿YÄÚÈİ
-				uiPublicKeyYLen			¹«Ô¿Y³¤¶È
-	Êä³ö²ÎÊı:
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÑéÖ¤GMECC512Ç©Ãû
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‘Ã©Ã–Â¤GMECC512Ã‡Â©ÃƒÃ»
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512VerifyDigest
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbHash		HASHÃ„ÃšÃˆÃ
+				uiHashLen			HASHÂ³Â¤Â¶Ãˆ
+				pbSig			Ã‡Â©ÃƒÃ»Ã„ÃšÃˆÃ
+				uiSigLen				Ã‡Â©ÃƒÃ»Â³Â¤Â¶Ãˆ
+				pbPublicKeyX		Â¹Â«Ã”Â¿XÃ„ÃšÃˆÃ
+				uiPublicKeyXLen			Â¹Â«Ã”Â¿XÂ³Â¤Â¶Ãˆ
+				pbPublicKeyY		Â¹Â«Ã”Â¿YÃ„ÃšÃˆÃ
+				uiPublicKeyYLen			Â¹Â«Ã”Â¿YÂ³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‘Ã©Ã–Â¤GMECC512Ã‡Â©ÃƒÃ»
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512VerifyDigest(const unsigned char *pbHash, unsigned int uiHashLen, 
 		const unsigned char *pbSig, unsigned int uiSigLen,
@@ -802,20 +802,20 @@ extern "C" {
 		const unsigned char *pbPublicKeyY, unsigned int uiPublicKeyYLen);
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÑéÖ¤Ç©Ãû
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512VerifyMSG
-	ÊäÈë²ÎÊı:	pbMSG				Ô­ÎÄÄÚÈİ
-				uiMSGLen					Ô­ÎÄ³¤¶È
-				pbSig				Ç©ÃûÖµÄÚÈİ
-				uiSigLen					Ç©ÃûÖµ³¤¶È
-				pbPublicKeyX			¹«Ô¿XÄÚÈİ
-				uiPublicKeyXLen				¹«Ô¿X³¤¶È
-				pbPublicKeyY			¹«Ô¿YÄÚÈİ
-				uiPublicKeyYLen				¹«Ô¿Y³¤¶È
-	Êä³ö²ÎÊı:   
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÑéÖ¤Ç©Ãû
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‘Ã©Ã–Â¤Ã‡Â©ÃƒÃ»
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512VerifyMSG
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbMSG				Ã”Â­ÃÃ„Ã„ÃšÃˆÃ
+				uiMSGLen					Ã”Â­ÃÃ„Â³Â¤Â¶Ãˆ
+				pbSig				Ã‡Â©ÃƒÃ»Ã–ÂµÃ„ÃšÃˆÃ
+				uiSigLen					Ã‡Â©ÃƒÃ»Ã–ÂµÂ³Â¤Â¶Ãˆ
+				pbPublicKeyX			Â¹Â«Ã”Â¿XÃ„ÃšÃˆÃ
+				uiPublicKeyXLen				Â¹Â«Ã”Â¿XÂ³Â¤Â¶Ãˆ
+				pbPublicKeyY			Â¹Â«Ã”Â¿YÃ„ÃšÃˆÃ
+				uiPublicKeyYLen				Â¹Â«Ã”Â¿YÂ³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‘Ã©Ã–Â¤Ã‡Â©ÃƒÃ»
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512VerifyMSG(const unsigned char *pbMSG, unsigned int uiMSGLen, 
 		const unsigned char *pbSig, unsigned int uiSigLen,
@@ -823,16 +823,16 @@ extern "C" {
 		const unsigned char *pbPublicKeyY, unsigned int uiPublicKeyYLen);
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÑéÖ¤ÇëÇó
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512VerifyCSR
-	ÊäÈë²ÎÊı:	pbIN				ÇëÇóÄÚÈİ
-				uiINLen					ÇëÇó³¤¶È
-				pbSig				Ç©ÃûÖµÄÚÈİ
-				uiSigLen					Ç©ÃûÖµ³¤¶È
-	Êä³ö²ÎÊı:   
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÑéÖ¤ÇëÇó
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‘Ã©Ã–Â¤Ã‡Ã«Ã‡Ã³
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512VerifyCSR
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbIN				Ã‡Ã«Ã‡Ã³Ã„ÃšÃˆÃ
+				uiINLen					Ã‡Ã«Ã‡Ã³Â³Â¤Â¶Ãˆ
+				pbSig				Ã‡Â©ÃƒÃ»Ã–ÂµÃ„ÃšÃˆÃ
+				uiSigLen					Ã‡Â©ÃƒÃ»Ã–ÂµÂ³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‘Ã©Ã–Â¤Ã‡Ã«Ã‡Ã³
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512VerifyCSR(
 		const unsigned char *pbCSR, unsigned int uiCSRLen,
@@ -840,18 +840,18 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÑéÖ¤Ö¤Êé
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512VerifyCert
-	ÊäÈë²ÎÊı:	pbX509Cert			Ö¤ÊéÄÚÈİ
-				uiX509CertLen				Ö¤Êé³¤¶È
-				pbPublicKeyX			¹«Ô¿XÄÚÈİ
-				uiPublicKeyXLen				¹«Ô¿X³¤¶È
-				pbPublicKeyY			¹«Ô¿YÄÚÈİ
-				uiPublicKeyYLen				¹«Ô¿Y³¤¶È
-	Êä³ö²ÎÊı:   
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÑéÖ¤Ö¤Êé
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‘Ã©Ã–Â¤Ã–Â¤ÃŠÃ©
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512VerifyCert
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbX509Cert			Ã–Â¤ÃŠÃ©Ã„ÃšÃˆÃ
+				uiX509CertLen				Ã–Â¤ÃŠÃ©Â³Â¤Â¶Ãˆ
+				pbPublicKeyX			Â¹Â«Ã”Â¿XÃ„ÃšÃˆÃ
+				uiPublicKeyXLen				Â¹Â«Ã”Â¿XÂ³Â¤Â¶Ãˆ
+				pbPublicKeyY			Â¹Â«Ã”Â¿YÃ„ÃšÃˆÃ
+				uiPublicKeyYLen				Â¹Â«Ã”Â¿YÂ³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‘Ã©Ã–Â¤Ã–Â¤ÃŠÃ©
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512VerifyCert(
 		const unsigned char *pbX509Cert, unsigned int uiX509CertLen,unsigned int uiAlg,
@@ -860,18 +860,18 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÑéÖ¤CRL
-	º¯ÊıÃû³Æ:	OpenSSL_GMECC512VerifyCRL
-	ÊäÈë²ÎÊı:	pbCRL					CRLÄÚÈİ
-				uiCRLLen				CRL³¤¶È
-				pbPublicKeyX			¹«Ô¿XÄÚÈİ
-				uiPublicKeyXLen			¹«Ô¿X³¤¶È
-				pbPublicKeyY			¹«Ô¿YÄÚÈİ
-				uiPublicKeyYLen			¹«Ô¿Y³¤¶È
-	Êä³ö²ÎÊı:   
-	·µ»ØÖµ:   
-	Ê§°Ü£º
-	¹¦ÄÜÃèÊö:	ÑéÖ¤Ö¤Êé
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‘Ã©Ã–Â¤CRL
+	ÂºÂ¯ÃŠÃ½ÃƒÃ»Â³Ã†:	OpenSSL_GMECC512VerifyCRL
+	ÃŠÃ¤ÃˆÃ«Â²ÃÃŠÃ½:	pbCRL					CRLÃ„ÃšÃˆÃ
+				uiCRLLen				CRLÂ³Â¤Â¶Ãˆ
+				pbPublicKeyX			Â¹Â«Ã”Â¿XÃ„ÃšÃˆÃ
+				uiPublicKeyXLen			Â¹Â«Ã”Â¿XÂ³Â¤Â¶Ãˆ
+				pbPublicKeyY			Â¹Â«Ã”Â¿YÃ„ÃšÃˆÃ
+				uiPublicKeyYLen			Â¹Â«Ã”Â¿YÂ³Â¤Â¶Ãˆ
+	ÃŠÃ¤Â³Ã¶Â²ÃÃŠÃ½:   
+	Â·ÂµÂ»Ã˜Ã–Âµ:   
+	ÃŠÂ§Â°ÃœÂ£Âº
+	Â¹Â¦Ã„ÃœÃƒÃ¨ÃŠÃ¶:	Ã‘Ã©Ã–Â¤Ã–Â¤ÃŠÃ©
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512VerifyCRL(
 		const unsigned char *pbCRL, unsigned int uiCRLLen,unsigned int uiAlg,
@@ -880,7 +880,7 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	GMECC512½âÃÜ
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	GMECC512Â½Ã¢ÃƒÃœ
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512Decrypt(
 		const unsigned char * pbPrivateKey, unsigned int uiPrivateKeyLen, 
@@ -888,7 +888,7 @@ extern "C" {
 		unsigned char * pbOUT, unsigned int * puiOUTLen
 		);
 	/*
-	¹¦ÄÜÃû³Æ:	GMECC512¼ÓÃÜ
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	GMECC512Â¼Ã“ÃƒÃœ
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512Encrypt(
 		const unsigned char * pbPublicKeyX, unsigned int uiPublicKeyXLen, 
@@ -897,7 +897,7 @@ extern "C" {
 		unsigned char * pbOUT, unsigned int * puiOUTLen);
 
 	/*
-	¹¦ÄÜÃû³Æ:	ÑéÖ¤GMECC512µã
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	Ã‘Ã©Ã–Â¤GMECC512ÂµÃ£
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512Point(
 		const unsigned char * pbPublicKeyX, unsigned int uiPublicKeyXLen, 
@@ -906,7 +906,7 @@ extern "C" {
 
 
 	/*
-	¹¦ÄÜÃû³Æ:	GMECC512½âÃÜ
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	GMECC512Â½Ã¢ÃƒÃœ
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512DecryptInner(
 		const unsigned char *pbIN, unsigned int uiINLen, 
@@ -915,7 +915,7 @@ extern "C" {
 		);
 
 	/*
-	¹¦ÄÜÃû³Æ:	GMECC512¼ÓÃÜ
+	Â¹Â¦Ã„ÃœÃƒÃ»Â³Ã†:	GMECC512Â¼Ã“ÃƒÃœ
 	*/
 	COMMON_API unsigned int OpenSSL_GMECC512EncryptInner(
 		const unsigned char *pbIN, unsigned int uiINLen, 
@@ -1011,6 +1011,10 @@ extern "C" {
 	COMMON_API unsigned int OpenSSL_VerifyCert(
 		const unsigned char *pbX509Cert, unsigned int uiX509CertLen,
 		const unsigned char *pbX509CaCert, unsigned int uiX509CaCertLen
+	);
+
+	COMMON_API unsigned int OpenSSL_VerifyCertChain(
+		unsigned char *pbX509Cert, unsigned int uiX509CertLen
 	);
 
 #ifdef __cplusplus

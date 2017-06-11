@@ -231,9 +231,14 @@ extern "C" {
 	COMMON_API unsigned int SMB_UTIL_VerifyCert(unsigned int uiFlag, unsigned char *pbCert, unsigned int uiCertLen);
 
 	/*
+	获取证书链
+	*/
+	COMMON_API unsigned int SMB_CS_FindCertChain(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char *pbCert, unsigned int uiCertLen);
+
+	/*
 	导入CA&ROOT证书
 	*/
-	COMMON_API unsigned int  SMB_UTIL_ImportCaCert(unsigned char *pbCert, unsigned int ulCertLen, unsigned int *pulAlgType);
+	COMMON_API unsigned int  SMB_UTIL_ImportCaCert(unsigned char *pbCert, unsigned int uiCertLen, unsigned int *pulAlgType);
 
 	/*
 	数据库初始化
