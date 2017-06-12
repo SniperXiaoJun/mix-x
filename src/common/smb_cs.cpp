@@ -1267,6 +1267,13 @@ unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, uns
 
 	SMB_CS_CertificateContext_NODE * ctxHeader = NULL;
 
+#if defined(WIN32) || defined(WINDOWS)
+	CERT_PUBLIC_KEY_INFO certPublicKeyInfo = { 0 };
+	HCERTSTORE hCertStore = NULL;
+	PCCERT_CONTEXT certContext_OUT = NULL;
+	PCCERT_CONTEXT certContext_IN = NULL;
+#endif
+
 	if (0 != certParse.setCertificate(pbCert, uiCertLen))
 	{
 		ulRet = EErr_SMB_INVALID_ARG;
@@ -1279,9 +1286,129 @@ unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, uns
 
 	if (CERT_ALG_RSA_FLAG == ulAlgType)
 	{
+#if defined(WIN32) || defined(WINDOWS)
+		// 创建上下文
+		certContext_IN = CertCreateCertificateContext(X509_ASN_ENCODING, pbCert, uiCertLen);
+		if (!certContext_IN)
+		{
+			ulRet = EErr_SMB_CREATE_CERT_CONTEXT;
+			goto err;
+		}
+		// TIME
+		if (CERT_VERIFY_TIME_FLAG & ulFlag)
+		{
+			ulRet = CertVerifyTimeValidity(NULL, certContext_IN->pCertInfo);
+			if (ulRet)
+			{
+				ulRet = EErr_SMB_VERIFY_TIME;
+				goto err;
+			}
+		}
+		// SIGN CERT
+		if (CERT_VERIFY_CHAIN_FLAG & ulFlag)
+		{
+			// 打开存储区		
+			hCertStore = CertOpenStore(
+				CERT_STORE_PROV_SYSTEM,          // The store provider type
+				0,                               // The encoding type is
+												 // not needed
+				NULL,                            // Use the default HCRYPTPROV
+				CERT_SYSTEM_STORE_CURRENT_USER,  // Set the store location in a
+												 // registry location
+				L"Ca"                            // The store name as a Unicode 
+												 // string
+			);
+
+			if (NULL == hCertStore)
+			{
+				ulRet = EErr_SMB_OPEN_STORE;
+				goto err;
+			}
+
+			// 查找颁发者证书
+			certContext_OUT = CertFindCertificateInStore(hCertStore, X509_ASN_ENCODING, 0, CERT_FIND_ISSUER_OF, certContext_IN, NULL);
+
+			if (NULL == certContext_OUT)
+			{
+				if (hCertStore)
+				{
+					// 关闭存储区
+					CertCloseStore(hCertStore, CERT_CLOSE_STORE_CHECK_FLAG);
+				}
+
+				// 打开存储区		
+				hCertStore = CertOpenStore(
+					CERT_STORE_PROV_SYSTEM,          // The store provider type
+					0,                               // The encoding type is
+													 // not needed
+					NULL,                            // Use the default HCRYPTPROV
+					CERT_SYSTEM_STORE_CURRENT_USER,  // Set the store location in a
+													 // registry location
+					L"Root"                            // The store name as a Unicode 
+													   // string
+				);
+
+				if (NULL == hCertStore)
+				{
+					ulRet = EErr_SMB_OPEN_STORE;
+					goto err;
+				}
+
+				// 查找颁发者证书
+				certContext_OUT = CertFindCertificateInStore(hCertStore, X509_ASN_ENCODING, 0, CERT_FIND_ISSUER_OF, certContext_IN, NULL);
+			}
+
+			if (NULL != certContext_OUT)
+			{
+				DWORD  dwFlags = CERT_STORE_SIGNATURE_FLAG;
+
+				// 验证颁发者证书
+				if (0 == memcmp(certContext_OUT->pbCertEncoded, pbCert, uiCertLen))
+				{
+
+				}
+				else
+				{
+					// 验证上级证书
+					ulRet = SMB_UTIL_VerifyCert(ulFlag, certContext_OUT->pbCertEncoded, certContext_OUT->cbCertEncoded);
+					if (ulRet)
+					{
+						goto err;
+					}
+				}
+
+				if (!CertVerifySubjectCertificateContext(certContext_IN, certContext_OUT, &dwFlags))
+				{
+					ulRet = EErr_SMB_VERIFY_CERT;
+					goto err;
+				}
+				else
+				{
+					ulRet = 0;
+				}
+
+				if (dwFlags)
+				{
+					ulRet = EErr_SMB_VERIFY_CERT;
+				}
+			}
+			else
+			{
+				ulRet = EErr_SMB_NO_CERT_CHAIN;
+				goto err;
+			}
+		}
+		//CRL
+		if (CERT_VERIFY_CRL_FLAG & ulFlag)
+		{
+
+		}
+#else
 		ulRet = OpenSSL_VerifyCertChain(pbCert, uiCertLen);
+#endif
 		goto err;
 	}
+
 
 	// 创建上下文 
 	SMB_CS_CreateCtx(&ctx, pbCert, uiCertLen);
@@ -1389,6 +1516,24 @@ err:
 	if (NULL != ctxHeader)
 	{
 		SMB_CS_FreeCtx_NODE(&ctxHeader);
+	}
+
+	// 释放上下文
+	if (certContext_OUT)
+	{
+		CertFreeCertificateContext(certContext_OUT);
+	}
+
+	// 释放上下文
+	if (certContext_IN)
+	{
+		CertFreeCertificateContext(certContext_IN);
+	}
+
+	if (hCertStore)
+	{
+		// 关闭存储区
+		CertCloseStore(hCertStore, CERT_CLOSE_STORE_CHECK_FLAG);
 	}
 
 	return ulRet;
