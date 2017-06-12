@@ -285,6 +285,7 @@ string WTF_GetDevAllCerts(const char * pszDevName, int Expire){
 }
 
 #include <sstream>
+#include <certificate_items_parse.h>
 
 string WTF_ShowCert(const std::string strCertContentB64)
 {
@@ -303,7 +304,25 @@ string WTF_ShowCert(const std::string strCertContentB64)
 
 	data_len_out = modp_b64_decode(data_value_out,data_value_in, data_len_in);
 
-	SMB_QTUI_ShowUI((unsigned char*)data_value_out, data_len_out);
+	CertificateItemParse certParse;
+
+	if (0 != certParse.setCertificate((unsigned char*)data_value_out, data_len_out))
+	{
+		
+	}
+	else
+	{
+		certParse.parse();
+
+		if (CERT_ALG_RSA_FLAG == certParse.m_iKeyAlg)
+		{
+			SMB_UI_ShowUI((unsigned char*)data_value_out, data_len_out);
+		}
+		else
+		{
+			SMB_QTUI_ShowUI((unsigned char*)data_value_out, data_len_out);
+		}
+	}
 
 	Json::Value result;
 

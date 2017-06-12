@@ -11,7 +11,6 @@ using namespace std;
 
 string WTF_CalculateDigest(string strAppPath, int ulNid = NID_md5) 
 {  
-
 	Json::Value item;
 	EVP_MD_CTX *md_ctx;
 	unsigned int  digest_len = 1024;
