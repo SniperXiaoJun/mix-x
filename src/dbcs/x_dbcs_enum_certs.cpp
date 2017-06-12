@@ -14,7 +14,14 @@ unsigned int SHOW_ALL_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 {
 	while (pCertCtxNode)
 	{
-		SMB_QTUI_ShowUI(pCertCtxNode->ptr_data->stContent.data, pCertCtxNode->ptr_data->stContent.length);
+		if (CERT_ALG_RSA_FLAG == pCertCtxNode->ptr_data->stAttr.ucCertAlgType)
+		{
+			SMB_UI_UIDlgViewContext(pCertCtxNode->ptr_data->stContent.data, pCertCtxNode->ptr_data->stContent.length);
+		}
+		else
+		{
+			SMB_QTUI_ShowUI(pCertCtxNode->ptr_data->stContent.data, pCertCtxNode->ptr_data->stContent.length);
+		}
 		pCertCtxNode = pCertCtxNode->ptr_next;
 	}
 
@@ -27,7 +34,14 @@ unsigned int ADD_USER_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 
 	while (pCertCtxNode)
 	{
-		SMB_CS_AddCtxToDB(pCertCtxNode->ptr_data, 2);
+		if (CERT_ALG_RSA_FLAG == pCertCtxNode->ptr_data->stAttr.ucCertAlgType)
+		{
+			SMB_UI_UIDlgViewContext(pCertCtxNode->ptr_data->stContent.data, pCertCtxNode->ptr_data->stContent.length);
+		}
+		else
+		{
+			SMB_CS_AddCtxToDB(pCertCtxNode->ptr_data, 2);
+		}
 		pCertCtxNode = pCertCtxNode->ptr_next;
 	}
 
@@ -38,7 +52,7 @@ unsigned int SIGN_USE_CERT(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 {
 	while (pCertCtxNode)
 	{
-		if (pCertCtxNode->ptr_data->stAttr.ucCertAlgType == CERT_ALG_SM2_FLAG && pCertCtxNode->ptr_data->stAttr.ucCertUsageType == CERT_EX_FLAG)
+		if (pCertCtxNode->ptr_data->stAttr.ucCertAlgType == CERT_ALG_SM2_FLAG && pCertCtxNode->ptr_data->stAttr.ucCertUsageType == CERT_SIGN_FLAG)
 		{
 			// 
 			unsigned char szDigest[32] = {0};
@@ -76,7 +90,7 @@ int main(int argc, char * argv[])
 
 	SMB_CS_EnumCtxsFromDB(&header, 2);
 
-	SIGN_USE_CERT(header);
+	//SIGN_USE_CERT(header);
 
 	return 0;
 }
