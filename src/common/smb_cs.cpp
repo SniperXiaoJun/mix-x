@@ -1517,7 +1517,7 @@ err:
 	{
 		SMB_CS_FreeCtx_NODE(&ctxHeader);
 	}
-
+#if defined(WIN32) || defined(WINDOWS)
 	// 释放上下文
 	if (certContext_OUT)
 	{
@@ -1535,6 +1535,7 @@ err:
 		// 关闭存储区
 		CertCloseStore(hCertStore, CERT_CLOSE_STORE_CHECK_FLAG);
 	}
+#endif
 
 	return ulRet;
 }

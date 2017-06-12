@@ -399,9 +399,10 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int ulF
 {
 	unsigned int ulRet = 0;
 	unsigned int ulOutLen = 0;
-	CERT_PUBLIC_KEY_INFO certPublicKeyInfo = { 0 };
+#if defined(WIN32) || defined(WINDOWS)
 	HCERTSTORE hCertStore = NULL;
 	PCCERT_CONTEXT certContext_CA = NULL;
+#endif
 	list<string>::iterator i;
 	unsigned char data_value_keyid[BUFFER_LEN_1K] = { 0 };
 	unsigned int data_len_keyid = BUFFER_LEN_1K;
@@ -412,11 +413,10 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int ulF
 
 	SMB_CS_CertificateContext_NODE * ctxHeader = NULL;
 
-	ulAlgType = CERT_ALG_SM2_FLAG;
-
 	switch (ulAlgType)
 	{
 		case CERT_ALG_RSA_FLAG:
+#if defined(WIN32) || defined(WINDOWS)
 		{
 			for (i = strListRootCertKeyIDHex.begin(); i != strListRootCertKeyIDHex.end(); ++i)
 			{
@@ -478,6 +478,7 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int ulF
 			}
 		}
 		break;
+#endif
 		case CERT_ALG_SM2_FLAG:
 		{
 			for (i = strListRootCertKeyIDHex.begin(); i != strListRootCertKeyIDHex.end(); ++i)
@@ -519,8 +520,9 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int ulF
 	}
 
 err:
+#if defined(WIN32) || defined(WINDOWS)
 	// 释放上下文
-	if(certContext_CA)
+	if (certContext_CA)
 	{
 		CertFreeCertificateContext(certContext_CA);
 	}
@@ -530,6 +532,7 @@ err:
 		// 关闭存储区
 		CertCloseStore(hCertStore, CERT_CLOSE_STORE_CHECK_FLAG);
 	}
+#endif
 
 	if (NULL != ctxHeader)
 	{
