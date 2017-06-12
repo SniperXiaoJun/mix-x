@@ -12,6 +12,13 @@
 #include "openssl_func_def.h"
 #include <math.h>
 
+#if defined(WIN32) || defined(WINDOWS)
+#include <Windows.h>
+#include <WinCrypt.h>
+#else
+strcpy(smb_db_path, "/home/");
+#endif
+
 /*
 defines
 */
@@ -677,6 +684,8 @@ unsigned int SMB_UTIL_FillCertAttr(SMB_CS_CertificateContext * pCertCtx)
 			}
 
 			certParse.parse();
+
+			pCertCtx->stAttr.ucCertAlgType = certParse.m_iKeyAlg;
 
 			if (pCertCtx->stAttr.stSubjectKeyID.data)
 			{
@@ -1858,11 +1867,7 @@ unsigned int SMB_CS_ClrAllCtxFromDB(unsigned char ucStoreType)
 
 
 
-#if defined(WIN32) || defined(WINDOWS)
-#include <Windows.h>
-#else
-strcpy(smb_db_path, "/home/");
-#endif
+
 
 unsigned int SMB_DB_Path_Init(char *pDbPath)
 {
@@ -1912,6 +1917,11 @@ unsigned int  SMB_UTIL_ImportCaCert(unsigned char *pbCert, unsigned int uiCertLe
 
 	SMB_CS_CertificateContext * ctx = NULL;
 
+#if defined(WIN32) || defined(WINDOWS)
+	PCCERT_CONTEXT certContext_IN = NULL;
+	HCERTSTORE hCertStore = NULL;
+#endif
+
 	SMB_DB_Init();
 
 	if (0 != SMB_CS_CreateCtx(&ctx, pbCert, uiCertLen))
@@ -1919,12 +1929,85 @@ unsigned int  SMB_UTIL_ImportCaCert(unsigned char *pbCert, unsigned int uiCertLe
 		ulRet = EErr_SMB_CREATE_CERT_CONTEXT;
 		goto err;
 	}
+#if defined(WIN32) || defined(WINDOWS)
+	if (CERT_ALG_RSA_FLAG == ctx->stAttr.ucCertAlgType)
+	{
+		if (0 == memcmp(ctx->stAttr.stIssueKeyID.data, ctx->stAttr.stSubjectKeyID.data, ctx->stAttr.stSubjectKeyID.length > ctx->stAttr.stIssueKeyID.length ? ctx->stAttr.stSubjectKeyID.length:ctx->stAttr.stIssueKeyID.length))
+		{
+			// 打开存储区	
+			hCertStore = CertOpenStore(
+				CERT_STORE_PROV_SYSTEM,          // The store provider type
+				0,                               // The encoding type is
+													// not needed
+				NULL,                            // Use the default HCRYPTPROV
+				CERT_SYSTEM_STORE_CURRENT_USER,  // Set the store location in a
+													// registry location
+				L"Root"                            // The store name as a Unicode 
+													// string
+			);
+		}
+		else
+		{
+			// 打开存储区	
+			hCertStore = CertOpenStore(
+				CERT_STORE_PROV_SYSTEM,          // The store provider type
+				0,                               // The encoding type is
+													// not needed
+				NULL,                            // Use the default HCRYPTPROV
+				CERT_SYSTEM_STORE_CURRENT_USER,  // Set the store location in a
+													// registry location
+				L"Ca"                            // The store name as a Unicode 
+													// string
+			);
+		}
 
+		if (NULL == hCertStore)
+		{
+			ulRet = EErr_SMB_OPEN_STORE;
+			goto err;
+		}
+
+		// 创建上下文
+		certContext_IN = CertCreateCertificateContext(X509_ASN_ENCODING, (BYTE *)pbCert, uiCertLen);
+		if (!certContext_IN)
+		{
+			ulRet = EErr_SMB_CREATE_CERT_CONTEXT;
+			goto err;
+		}
+
+		if (!CertAddCertificateContextToStore(hCertStore, certContext_IN, CERT_STORE_ADD_REPLACE_EXISTING, NULL))
+		{
+			if (0x80070005 == GetLastError())
+			{
+				ulRet = EErr_SMB_NO_RIGHT;
+			}
+			else
+			{
+				ulRet = EErr_SMB_ADD_CERT_TO_STORE;
+			}
+
+			goto err;
+		}
+		else
+		{
+			ulRet = EErr_SMB_OK; // success
+		}
+	}
+	else
+	{
+		if (0 != SMB_CS_AddCtxToDB(ctx, 1))
+		{
+			ulRet = EErr_SMB_ADD_CERT_TO_STORE;
+			goto err;
+		}
+	}
+#else
 	if (0 != SMB_CS_AddCtxToDB(ctx, 1))
 	{
 		ulRet = EErr_SMB_ADD_CERT_TO_STORE;
 		goto err;
 	}
+#endif
 
 	ulRet = EErr_SMB_OK; // success
 
@@ -1933,6 +2016,19 @@ err:
 	{
 		SMB_CS_FreeCtx(ctx);
 	}
+#if defined(WIN32) || defined(WINDOWS)
+	if (certContext_IN)
+	{
+		// 释放上下文
+		CertFreeCertificateContext(certContext_IN);
+	}
+
+	if (hCertStore)
+	{
+		// 关闭存储区
+		CertCloseStore(hCertStore, CERT_CLOSE_STORE_CHECK_FLAG);
+	}
+#endif
 
 	return ulRet;
 }

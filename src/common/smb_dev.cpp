@@ -1878,7 +1878,7 @@ err:
 
 #if (defined(WIN32) || defined(WINDOWS))
 #include "Cryptuiapi.h"
-unsigned int SMB_UI_UIDlgViewContext(BYTE* pbCert, unsigned int ulCertLen)
+unsigned int SMB_UI_ShowUI(BYTE* pbCert, unsigned int ulCertLen)
 {
 	//2.获取CertContext
 	PCCERT_CONTEXT pCertContext = NULL;

@@ -16,7 +16,7 @@ unsigned int SHOW_ALL_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 	{
 		if (CERT_ALG_RSA_FLAG == pCertCtxNode->ptr_data->stAttr.ucCertAlgType)
 		{
-			SMB_UI_UIDlgViewContext(pCertCtxNode->ptr_data->stContent.data, pCertCtxNode->ptr_data->stContent.length);
+			SMB_UI_ShowUI(pCertCtxNode->ptr_data->stContent.data, pCertCtxNode->ptr_data->stContent.length);
 		}
 		else
 		{
@@ -36,7 +36,7 @@ unsigned int ADD_USER_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 	{
 		if (CERT_ALG_RSA_FLAG == pCertCtxNode->ptr_data->stAttr.ucCertAlgType)
 		{
-			SMB_UI_UIDlgViewContext(pCertCtxNode->ptr_data->stContent.data, pCertCtxNode->ptr_data->stContent.length);
+			
 		}
 		else
 		{

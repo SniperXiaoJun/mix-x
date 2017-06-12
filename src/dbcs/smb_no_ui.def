@@ -33,7 +33,7 @@ EXPORTS
 	SMB_DEV_SM2SignDigestByCertAttr
 	SMB_DEV_SM2VerifyDigest
 	SMB_DEV_FindSKFDriver
-	SMB_UI_UIDlgViewContext
+	SMB_UI_ShowUI
 
 	WT_SetMyCert
 	WT_GetCertInfo
