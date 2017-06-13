@@ -1834,6 +1834,19 @@ unsigned int SMB_CS_AddCtxToDB(SMB_CS_CertificateContext *pCertCtx, unsigned cha
 	int crv = 0;
 	SDB sdb = { 0 };
 
+	SMB_CS_CertificateContext *pCertCtxTmp = NULL;
+
+	SMB_CS_GetCtxByCert(&pCertCtxTmp, pCertCtx->stContent.data, pCertCtx->stContent.length);
+
+	if (pCertCtxTmp)
+	{
+		SMB_CS_FreeCtx(pCertCtxTmp);
+		pCertCtxTmp = NULL;
+
+		return 0;
+	}
+
+
 	sdb.sdb_path = smb_db_path;
 
 	crv = sdb_Begin(&sdb);
