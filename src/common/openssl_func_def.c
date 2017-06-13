@@ -2913,7 +2913,6 @@ unsigned int OpenSSL_SM2Write(const unsigned char * pbIN, unsigned int uiINLen,
 	unsigned char data_value[BUFFER_LEN_1K * 4] = { 0 };
 	unsigned int data_len = BUFFER_LEN_1K * 4;
 	unsigned char * ptr_out = NULL;
-	EVP_PKEY * pkey = NULL;
 	EC_KEY		*ec = NULL;
 	BN_CTX *ctx = NULL;
 	EC_POINT *pubkey = NULL;
@@ -2935,11 +2934,6 @@ unsigned int OpenSSL_SM2Write(const unsigned char * pbIN, unsigned int uiINLen,
 		if (uiINLen != SM2_BYTES_LEN)
 		{
 			uiRet = -1;
-			goto err;
-		}
-
-		if ((pkey = EVP_PKEY_new()) == NULL)
-		{
 			goto err;
 		}
 
@@ -3009,18 +3003,12 @@ unsigned int OpenSSL_SM2Write(const unsigned char * pbIN, unsigned int uiINLen,
 #endif
 		}
 
-
-		if (!EVP_PKEY_assign_EC_KEY(pkey, ec))
-		{
-			goto err;
-		}
-
 		// 写入文件
 		if (fileEncode == EFILEENCODE_TYPE_DER)
 		{
 			ptr_out = data_value;
 
-			data_len = i2d_PrivateKey(pkey, &ptr_out);
+			data_len = i2d_ECPrivateKey(ec, &ptr_out);
 
 			fwrite(data_value, data_len, 1, file);
 		}
@@ -3028,13 +3016,13 @@ unsigned int OpenSSL_SM2Write(const unsigned char * pbIN, unsigned int uiINLen,
 		{
 			if (strlen(szPassword) == 0)
 			{
-				data_len = PEM_write_PrivateKey(file, pkey, NULL, NULL, 0, NULL, NULL);
+				PEM_write_ECPrivateKey(file, ec, NULL, NULL, 0, NULL, NULL);
 			}
 			else
 			{
 				EVP_CIPHER *cipher = NULL;
 				cipher = (EVP_CIPHER *)EVP_des_ede3_cbc();
-				data_len = PEM_write_PrivateKey(file, pkey, cipher, (unsigned char*)szPassword, strlen(szPassword), NULL, NULL);
+				data_len = PEM_write_ECPrivateKey(file, ec, cipher, (unsigned char*)szPassword, strlen(szPassword), NULL, NULL);
 			}
 
 		}
@@ -3061,7 +3049,6 @@ unsigned int OpenSSL_SM2Write(const unsigned char * pbIN, unsigned int uiINLen,
 		else if (fileEncode == EFILEENCODE_TYPE_PEM)
 		{
 			data_len = PEM_write_X509(file, x509);
-
 		}
 		uiRet = 0;
 	}
@@ -3072,11 +3059,6 @@ unsigned int OpenSSL_SM2Write(const unsigned char * pbIN, unsigned int uiINLen,
 		if (uiINLen != SM2_BYTES_LEN * 2)
 		{
 			uiRet = -1;
-			goto err;
-		}
-
-		if ((pkey = EVP_PKEY_new()) == NULL)
-		{
 			goto err;
 		}
 
@@ -3128,29 +3110,20 @@ unsigned int OpenSSL_SM2Write(const unsigned char * pbIN, unsigned int uiINLen,
 		{
 			goto err;
 		}
-		//// NO PRIVKEY
-		//if (!EC_KEY_check_key(ec)) 
-		//{
-		//	goto err;
-		//}
-
-		if (!EVP_PKEY_assign_EC_KEY(pkey, ec))
-		{
-			goto err;
-		}
 
 		if (fileEncode == EFILEENCODE_TYPE_DER)
 		{
 			ptr_out = data_value;
-			data_len = i2d_PUBKEY(pkey, &ptr_out);
+
+			data_len = i2d_EC_PUBKEY(ec,&ptr_out);
+
 			fwrite(data_value, data_len, 1, file);
 		}
 		else if (fileEncode == EFILEENCODE_TYPE_PEM)
 		{
-			// not define
+			PEM_write_EC_PUBKEY(file, ec);
 		}
 		uiRet = 0;
-
 	}
 	break;
 defauit:
@@ -3164,20 +3137,15 @@ err:
 		BN_CTX_free(ctx);
 	}
 
-	//if (ec)
-	//{
-	//	EC_KEY_free(ec);
-	//	ec = NULL;
-	//}
+	if (ec)
+	{
+		EC_KEY_free(ec);
+		ec = NULL;
+	}
 
 	if (x509)
 	{
 		X509_free(x509);
-	}
-
-	if (pkey != NULL)
-	{
-		EVP_PKEY_free(pkey);
 	}
 
 	if (file)
