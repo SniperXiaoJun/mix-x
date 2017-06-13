@@ -111,6 +111,62 @@ typedef struct _SMB_CS_CertificateContext_NODE
 	struct _SMB_CS_CertificateContext_NODE *ptr_next;
 }SMB_CS_CertificateContext_NODE;
 
+typedef struct _SMB_CS_PIDVID
+{
+	SMB_CS_Data     stPID;   // 产品号
+	SMB_CS_Data     stVID;   // 厂商号
+	SMB_CS_Data     stType;  // 类型 csp skf
+	int uiID;
+}SMB_CS_PIDVID;
+
+typedef struct _SMB_CS_PIDVID_NODE
+{
+	SMB_CS_PIDVID *ptr_data;
+	struct _SMB_CS_PIDVID_NODE *ptr_next;
+}SMB_CS_PIDVID_NODE;
+
+typedef struct _SMB_CS_SKF
+{
+	SMB_CS_Data     stName;      // 产品号
+	SMB_CS_Data     stPath;      // 厂商号
+	SMB_CS_Data     stSignType;  // 签名类型 digest data
+	int uiID;
+}SMB_CS_SKF;
+
+typedef struct _SMB_CS_SKF_NODE
+{
+	SMB_CS_SKF *ptr_data;
+	struct _SMB_CS_SKF_NODE *ptr_next;
+}SMB_CS_SKF_NODE;
+
+typedef struct _SMB_CS_CSP
+{
+	SMB_CS_Data     stName;       // 名称
+	SMB_CS_Data     stValue;      // 值
+	int uiID;
+}SMB_CS_CSP;
+
+typedef struct _SMB_CS_CSP_NODE
+{
+	SMB_CS_CSP *ptr_data;
+	struct _SMB_CS_CSP_NODE *ptr_next;
+}SMB_CS_CSP_NODE;
+
+typedef struct _SMB_CS_Path
+{
+	SMB_CS_Data     stName;       // 名称
+	SMB_CS_Data     stValue;      // 值
+	SMB_CS_Data     stDigestMD5;  // MD5值
+	SMB_CS_Data     stDigestSHA1; // SHA1值
+	int uiID;
+}SMB_CS_Path;
+
+typedef struct _SMB_CS_Path_NODE
+{
+	SMB_CS_Path *ptr_data;
+	struct _SMB_CS_Path_NODE *ptr_next;
+}SMB_CS_Path_NODE;
+
 typedef enum _EErr_SMB
 {
 	EErr_SMB_OK,									// 成功
@@ -248,6 +304,66 @@ extern "C" {
 	数据库路径初始化
 	*/
 	COMMON_API unsigned int SMB_DB_Path_Init(char * pDbPath);
+
+	/*
+	从数据库遍历CSP
+	*/
+	COMMON_API unsigned int SMB_CS_EnumCSPFromDB(SMB_CS_CSP_NODE **ppNodeHeader);
+
+	/*
+	释放CSP上下文
+	*/
+	COMMON_API unsigned int SMB_CS_FreeCSP_NODE(SMB_CS_CSP_NODE **ppNodeHeader);
+
+	/*
+	从数据库遍历SKF
+	*/
+	COMMON_API unsigned int SMB_CS_EnumSKFFromDB(SMB_CS_SKF_NODE **ppNodeHeader);
+
+	/*
+	释放SKF上下文
+	*/
+	COMMON_API unsigned int SMB_CS_FreeSKF_NODE(SMB_CS_SKF_NODE **ppNodeHeader);
+
+	/*
+	从数据库遍历PIDVID
+	*/
+	COMMON_API unsigned int SMB_CS_EnumPIDVIDFromDB(SMB_CS_PIDVID_NODE **ppNodeHeader);
+
+	/*
+	释放PIDVID上下文
+	*/
+	COMMON_API unsigned int SMB_CS_FreePIDVID_NODE(SMB_CS_PIDVID_NODE **ppNodeHeader);
+
+	/*
+	从数据库遍历Path
+	*/
+	COMMON_API unsigned int SMB_CS_EnumPathFromDB(SMB_CS_Path_NODE **ppNodeHeader);
+
+	/*
+	释放Path上下文
+	*/
+	COMMON_API unsigned int SMB_CS_FreePath_NODE(SMB_CS_Path_NODE **ppNodeHeader);
+
+	/*
+	释放结构
+	*/
+	COMMON_API unsigned int SMB_CS_FreePath(SMB_CS_Path *pPtr);
+
+	/*
+	释放结构
+	*/
+	COMMON_API unsigned int SMB_CS_FreeCSP(SMB_CS_CSP *pPtr);
+
+	/*
+	释放结构
+	*/
+	COMMON_API unsigned int SMB_CS_FreeSKF(SMB_CS_SKF *pPtr);
+
+	/*
+	释放结构
+	*/
+	COMMON_API unsigned int SMB_CS_FreePIDVID(SMB_CS_PIDVID *pPtr);
 
 #ifdef __cplusplus
 }

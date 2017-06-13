@@ -58,7 +58,8 @@ static const char *CREATE_TABLE_CMD[] =
 , "CREATE TABLE if not exists table_data (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, data);"
 , "CREATE TABLE if not exists table_element (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, type, data, description);"
 , "CREATE TABLE if not exists table_tlv (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, type, value);"
-, "CREATE TABLE if not exists table_path (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name UNIQUE ON CONFLICT REPLACE, value);"
+, "CREATE TABLE if not exists table_path (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name UNIQUE ON CONFLICT REPLACE, value, digest_md5, digest_sha1);"
+, "CREATE TABLE if not exists table_csp (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name UNIQUE ON CONFLICT REPLACE, value);"
 };
 
 
@@ -2422,4 +2423,187 @@ err:
 	*ppCertCtxNodeHeader = ctxHeader;
 
 	return ulRet;
+}
+
+unsigned int SMB_CS_EnumCSPFromDB(SMB_CS_SKF_NODE **ppNodeHeader)
+{
+	return 0;
+}
+
+unsigned int SMB_CS_FreeCSP_NODE(SMB_CS_CSP_NODE **ppNodeHeader)
+{
+	while (*ppNodeHeader)
+	{
+		SMB_CS_FreeCSP((*ppNodeHeader)->ptr_data);
+		OPF_DelNoFreeHandleNodeDataFromLink((OPST_HANDLE_NODE**)ppNodeHeader, (*ppNodeHeader)->ptr_data);
+	}
+
+	return 0;
+}
+
+unsigned int SMB_CS_EnumSKFFromDB(SMB_CS_SKF_NODE **ppNodeHeader)
+{
+	return 0;
+}
+
+unsigned int SMB_CS_FreeSKF_NODE(SMB_CS_SKF_NODE **ppNodeHeader)
+{
+	while (*ppNodeHeader)
+	{
+		SMB_CS_FreeSKF((*ppNodeHeader)->ptr_data);
+		OPF_DelNoFreeHandleNodeDataFromLink((OPST_HANDLE_NODE**)ppNodeHeader, (*ppNodeHeader)->ptr_data);
+	}
+
+	return 0;
+}
+
+unsigned int SMB_CS_EnumPIDVIDFromDB(SMB_CS_PIDVID_NODE **ppNodeHeader)
+{
+	return 0;
+}
+
+unsigned int SMB_CS_FreePIDVID_NODE(SMB_CS_PIDVID_NODE **ppNodeHeader)
+{
+	while (*ppNodeHeader)
+	{
+		SMB_CS_FreePIDVID((*ppNodeHeader)->ptr_data);
+		OPF_DelNoFreeHandleNodeDataFromLink((OPST_HANDLE_NODE**)ppNodeHeader, (*ppNodeHeader)->ptr_data);
+	}
+
+	return 0;
+}
+
+unsigned int SMB_CS_EnumPathFromDB(SMB_CS_Path_NODE **ppNodeHeader)
+{
+	return 0;
+}
+
+
+
+unsigned int SMB_CS_FreePath_NODE(SMB_CS_Path_NODE **ppNodeHeader)
+{
+	while (*ppNodeHeader)
+	{
+		SMB_CS_FreePath((*ppNodeHeader)->ptr_data);
+		OPF_DelNoFreeHandleNodeDataFromLink((OPST_HANDLE_NODE**)ppNodeHeader, (*ppNodeHeader)->ptr_data);
+	}
+
+	return 0;
+}
+
+
+unsigned int SMB_CS_FreePath(SMB_CS_Path *pPtr)
+{
+	if (pPtr)
+	{
+		if (pPtr->stDigestMD5.data)
+		{
+			free(pPtr->stDigestMD5.data);
+			pPtr->stDigestMD5.data = NULL;
+		}
+
+		if (pPtr->stDigestSHA1.data)
+		{
+			free(pPtr->stDigestSHA1.data);
+			pPtr->stDigestSHA1.data = NULL;
+		}
+
+		if (pPtr->stName.data)
+		{
+			free(pPtr->stName.data);
+			pPtr->stName.data = NULL;
+		}
+
+		if (pPtr->stValue.data)
+		{
+			free(pPtr->stValue.data);
+			pPtr->stValue.data = NULL;
+		}
+
+		free(pPtr);
+		pPtr = NULL;
+	}
+
+	return 0;
+}
+
+unsigned int SMB_CS_FreeCSP(SMB_CS_CSP *pPtr)
+{
+	if (pPtr)
+	{
+		if (pPtr->stName.data)
+		{
+			free(pPtr->stName.data);
+			pPtr->stName.data = NULL;
+		}
+
+		if (pPtr->stValue.data)
+		{
+			free(pPtr->stValue.data);
+			pPtr->stValue.data = NULL;
+		}
+
+		free(pPtr);
+		pPtr = NULL;
+	}
+
+	return 0;
+}
+
+unsigned int SMB_CS_FreeSKF(SMB_CS_SKF *pPtr)
+{
+	if (pPtr)
+	{
+		if (pPtr->stName.data)
+		{
+			free(pPtr->stName.data);
+			pPtr->stName.data = NULL;
+		}
+
+		if (pPtr->stPath.data)
+		{
+			free(pPtr->stPath.data);
+			pPtr->stPath.data = NULL;
+		}
+
+		if (pPtr->stSignType.data)
+		{
+			free(pPtr->stSignType.data);
+			pPtr->stSignType.data = NULL;
+		}
+
+		free(pPtr);
+		pPtr = NULL;
+	}
+
+	return 0;
+}
+
+unsigned int SMB_CS_FreePIDVID(SMB_CS_PIDVID *pPtr)
+{
+	if (pPtr)
+	{
+		if (pPtr->stPID.data)
+		{
+			free(pPtr->stPID.data);
+			pPtr->stPID.data = NULL;
+		}
+
+		if (pPtr->stVID.data)
+		{
+			free(pPtr->stVID.data);
+			pPtr->stVID.data = NULL;
+		}
+
+		if (pPtr->stType.data)
+		{
+			free(pPtr->stType.data);
+			pPtr->stType.data = NULL;
+		}
+
+		free(pPtr);
+		pPtr = NULL;
+	}
+
+	return 0;
 }
