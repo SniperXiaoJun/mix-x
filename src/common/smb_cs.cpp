@@ -49,7 +49,7 @@ static const char CHECK_TABLE_CMD[] = "SELECT ALL * FROM %s LIMIT 0;";
 static const char *CREATE_TABLE_CMD[] =
 { "CREATE TABLE if not exists table_certificate (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, content UNIQUE ON CONFLICT REPLACE, store_type, id_attr);"
 , "CREATE TABLE if not exists table_certificate_attr (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, cert_alg_type, cert_use_type, skf_name, device_name, application_ame, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid UNIQUE ON CONFLICT REPLACE, isuue_keyid, vendor_data, verify, not_before, not_after);"
-, "CREATE TABLE if not exists table_skf (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name, path UNIQUE ON CONFLICT REPLACE, signtype);"
+, "CREATE TABLE if not exists table_skf (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name, path UNIQUE ON CONFLICT REPLACE, signtype, pin_verify);"
 , "CREATE TABLE if not exists table_pid_vid (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, pid, vid UNIQUE ON CONFLICT REPLACE, type);"
 , "CREATE TABLE if not exists table_product (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name UNIQUE ON CONFLICT REPLACE, id_skf, id_pid_vid);"
 , "CREATE TABLE if not exists table_check_list (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, type UNIQUE ON CONFLICT REPLACE, description);"
@@ -2025,10 +2025,6 @@ unsigned int SMB_CS_ClrAllCtxFromDB(unsigned char ucStoreType)
 	return 0;
 }
 
-
-
-
-
 unsigned int SMB_DB_Path_Init(char *pDbPath)
 {
 	if (NULL == pDbPath)
@@ -2249,7 +2245,7 @@ int sdb_ExecSQL(SDB *sdb, char *pSqlData, unsigned int uiSqlDataLen)
 		{
 			break;
 		}
-
+		char * pp = &pSqlData[pos];
 		sqlerr = sqlite3_prepare_v2(sdb->sdb_p, &pSqlData[pos], -1, &stmt, NULL);
 		if (sqlerr != SQLITE_OK)
 		{
@@ -2425,24 +2421,516 @@ err:
 	return ulRet;
 }
 
+
+int sdb_FillCSP(SMB_CS_CSP **ppPtr, sqlite3_stmt *stmt)
+{
+	SMB_CS_CSP *pPtr = (SMB_CS_CSP *)malloc(sizeof(SMB_CS_CSP));
+
+	memset(pPtr, 0, sizeof(SMB_CS_CSP));
+
+
+	//id , name , value
+
+	int pos = -1;
+
+	pos += 1;
+	pPtr->uiID = sqlite3_column_int(stmt, pos);
+
+	pos += 1;
+	pPtr->stName.length = sqlite3_column_bytes(stmt, pos);
+	pPtr->stName.data = (unsigned char *)malloc(pPtr->stName.length);
+	memcpy(pPtr->stName.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stName.length);
+
+	pos += 1;
+	pPtr->stValue.length = sqlite3_column_bytes(stmt, pos);
+	pPtr->stValue.data = (unsigned char *)malloc(pPtr->stValue.length);
+	memcpy(pPtr->stValue.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stValue.length);
+
+	*ppPtr = pPtr;
+	
+	return 0;
+}
+
+int sdb_EnumCSPFromDB(SDB *sdb, SMB_CS_CSP_NODE **ppNodeHeader)
+{
+	sqlite3_stmt *stmt = NULL;
+	int sqlerr = SQLITE_OK;
+	int retry = 0;
+	int i = 0;
+
+	LOCK_SQLITE();
+
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select * from table_csp;", -1, &stmt, NULL);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+
+	do {
+		sqlerr = sqlite3_step(stmt);
+
+		if (sqlerr == SQLITE_BUSY) {
+			sqlite3_sleep(SDB_BUSY_RETRY_TIME);
+		}
+
+		if (sqlerr == SQLITE_DONE)
+		{
+			sqlerr = SQLITE_OK;
+		}
+
+		if (sqlerr == SQLITE_ROW)
+		{
+			SMB_CS_CSP *pPtr = NULL;
+
+			sdb_FillCSP(&pPtr, stmt);
+			OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppNodeHeader, (void *)pPtr);
+		}
+
+	} while (!sdb_done(sqlerr, &retry));
+
+	if (sqlerr == SQLITE_ROW)
+	{
+		sqlerr = SQLITE_OK;
+	}
+
+err:
+	if (stmt) {
+		sqlite3_reset(stmt);
+		sqlite3_finalize(stmt);
+		stmt = NULL;
+	}
+	UNLOCK_SQLITE();
+
+	if (!sqlerr)
+	{
+
+	}
+
+	return sqlerr;
+}
+
 unsigned int SMB_CS_EnumCSPFromDB(SMB_CS_CSP_NODE **ppNodeHeader)
 {
+	unsigned int ulRet = -1;
+	int crv = 0;
+	SDB sdb = { 0 };
+
+	sdb.sdb_path = smb_db_path;
+
+	crv = sdb_Begin(&sdb);
+	if (crv)
+	{
+		goto err;
+	}
+
+	crv = sdb_EnumCSPFromDB(&sdb, ppNodeHeader);
+	if (crv)
+	{
+		goto err;
+	}
+
+err:
+
+	if (crv)
+	{
+		sdb_Abort(&sdb);
+	}
+	else
+	{
+		sdb_Commit(&sdb);
+	}
+
+	return crv;
+}
+
+
+int sdb_FillPIDVID(SMB_CS_PIDVID **ppPtr, sqlite3_stmt *stmt)
+{
+	SMB_CS_PIDVID *pPtr = (SMB_CS_PIDVID *)malloc(sizeof(SMB_CS_PIDVID));
+
+	memset(pPtr, 0, sizeof(SMB_CS_PIDVID));
+
+
+	//id , pid, vid, type
+
+	int pos = -1;
+
+	pos += 1;
+	pPtr->uiID = sqlite3_column_int(stmt, pos);
+
+	pos += 1;
+	pPtr->stPID.length = sqlite3_column_bytes(stmt, pos);
+	pPtr->stPID.data = (unsigned char *)malloc(pPtr->stPID.length);
+	memcpy(pPtr->stPID.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stPID.length);
+
+	pos += 1;
+	pPtr->stVID.length = sqlite3_column_bytes(stmt, pos);
+	pPtr->stVID.data = (unsigned char *)malloc(pPtr->stVID.length);
+	memcpy(pPtr->stVID.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stVID.length);
+
+	pos += 1;
+	pPtr->stType.length = sqlite3_column_bytes(stmt, pos);
+	pPtr->stType.data = (unsigned char *)malloc(pPtr->stType.length);
+	memcpy(pPtr->stType.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stType.length);
+
+	*ppPtr = pPtr;
+
 	return 0;
+}
+
+int sdb_EnumPIDVIDFromDB(SDB *sdb, SMB_CS_PIDVID_NODE **ppNodeHeader)
+{
+	sqlite3_stmt *stmt = NULL;
+	int sqlerr = SQLITE_OK;
+	int retry = 0;
+	int i = 0;
+
+	LOCK_SQLITE();
+
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select * from table_pid_vid;", -1, &stmt, NULL);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+
+	do {
+		sqlerr = sqlite3_step(stmt);
+
+		if (sqlerr == SQLITE_BUSY) {
+			sqlite3_sleep(SDB_BUSY_RETRY_TIME);
+		}
+
+		if (sqlerr == SQLITE_DONE)
+		{
+			sqlerr = SQLITE_OK;
+		}
+
+		if (sqlerr == SQLITE_ROW)
+		{
+			SMB_CS_PIDVID *pPtr = NULL;
+
+			sdb_FillPIDVID(&pPtr, stmt);
+			OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppNodeHeader, (void *)pPtr);
+		}
+
+	} while (!sdb_done(sqlerr, &retry));
+
+	if (sqlerr == SQLITE_ROW)
+	{
+		sqlerr = SQLITE_OK;
+	}
+
+err:
+	if (stmt) {
+		sqlite3_reset(stmt);
+		sqlite3_finalize(stmt);
+		stmt = NULL;
+	}
+	UNLOCK_SQLITE();
+
+	if (!sqlerr)
+	{
+
+	}
+
+	return sqlerr;
 }
 
 unsigned int SMB_CS_EnumPIDVIDFromDB(SMB_CS_PIDVID_NODE **ppNodeHeader)
 {
+	unsigned int ulRet = -1;
+	int crv = 0;
+	SDB sdb = { 0 };
+
+	sdb.sdb_path = smb_db_path;
+
+	crv = sdb_Begin(&sdb);
+	if (crv)
+	{
+		goto err;
+	}
+
+	crv = sdb_EnumPIDVIDFromDB(&sdb, ppNodeHeader);
+	if (crv)
+	{
+		goto err;
+	}
+
+err:
+
+	if (crv)
+	{
+		sdb_Abort(&sdb);
+	}
+	else
+	{
+		sdb_Commit(&sdb);
+	}
+
+	return crv;
+}
+
+
+int sdb_FillPath(SMB_CS_Path **ppPtr, sqlite3_stmt *stmt)
+{
+	SMB_CS_Path *pPtr = (SMB_CS_Path *)malloc(sizeof(SMB_CS_Path));
+
+	memset(pPtr, 0, sizeof(SMB_CS_Path));
+
+
+	//id , name, value, digest_md5, digest_sha1
+
+	int pos = -1;
+
+	pos += 1;
+	pPtr->uiID = sqlite3_column_int(stmt, pos);
+
+	pos += 1;
+	pPtr->stName.length = sqlite3_column_bytes(stmt, pos);
+	pPtr->stName.data = (unsigned char *)malloc(pPtr->stName.length);
+	memcpy(pPtr->stName.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stName.length);
+
+	pos += 1;
+	pPtr->stValue.length = sqlite3_column_bytes(stmt, pos);
+	pPtr->stValue.data = (unsigned char *)malloc(pPtr->stValue.length);
+	memcpy(pPtr->stValue.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stValue.length);
+
+	pos += 1;
+	pPtr->stDigestMD5.length = sqlite3_column_bytes(stmt, pos);
+	pPtr->stDigestMD5.data = (unsigned char *)malloc(pPtr->stDigestMD5.length);
+	memcpy(pPtr->stDigestMD5.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stDigestMD5.length);
+
+	pos += 1;
+	pPtr->stDigestSHA1.length = sqlite3_column_bytes(stmt, pos);
+	pPtr->stDigestSHA1.data = (unsigned char *)malloc(pPtr->stDigestSHA1.length);
+	memcpy(pPtr->stDigestSHA1.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stDigestSHA1.length);
+
+	*ppPtr = pPtr;
+
 	return 0;
+}
+
+int sdb_EnumPathFromDB(SDB *sdb, SMB_CS_Path_NODE **ppNodeHeader)
+{
+	sqlite3_stmt *stmt = NULL;
+	int sqlerr = SQLITE_OK;
+	int retry = 0;
+	int i = 0;
+
+	LOCK_SQLITE();
+
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select * from table_path;", -1, &stmt, NULL);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+
+	do {
+		sqlerr = sqlite3_step(stmt);
+
+		if (sqlerr == SQLITE_BUSY) {
+			sqlite3_sleep(SDB_BUSY_RETRY_TIME);
+		}
+
+		if (sqlerr == SQLITE_DONE)
+		{
+			sqlerr = SQLITE_OK;
+		}
+
+		if (sqlerr == SQLITE_ROW)
+		{
+			SMB_CS_Path *pPtr = NULL;
+
+			sdb_FillPath(&pPtr, stmt);
+			OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppNodeHeader, (void *)pPtr);
+		}
+
+	} while (!sdb_done(sqlerr, &retry));
+
+	if (sqlerr == SQLITE_ROW)
+	{
+		sqlerr = SQLITE_OK;
+	}
+
+err:
+	if (stmt) {
+		sqlite3_reset(stmt);
+		sqlite3_finalize(stmt);
+		stmt = NULL;
+	}
+	UNLOCK_SQLITE();
+
+	if (!sqlerr)
+	{
+
+	}
+
+	return sqlerr;
 }
 
 unsigned int SMB_CS_EnumPathFromDB(SMB_CS_Path_NODE **ppNodeHeader)
 {
+	unsigned int ulRet = -1;
+	int crv = 0;
+	SDB sdb = { 0 };
+
+	sdb.sdb_path = smb_db_path;
+
+	crv = sdb_Begin(&sdb);
+	if (crv)
+	{
+		goto err;
+	}
+
+	crv = sdb_EnumPathFromDB(&sdb, ppNodeHeader);
+	if (crv)
+	{
+		goto err;
+	}
+
+err:
+
+	if (crv)
+	{
+		sdb_Abort(&sdb);
+	}
+	else
+	{
+		sdb_Commit(&sdb);
+	}
+
+	return crv;
+}
+
+
+int sdb_FillSKF(SMB_CS_SKF **ppPtr, sqlite3_stmt *stmt)
+{
+	SMB_CS_SKF *pPtr = (SMB_CS_SKF *)malloc(sizeof(SMB_CS_SKF));
+
+	memset(pPtr, 0, sizeof(SMB_CS_SKF));
+
+	//id , name, path, signtype
+
+	int pos = -1;
+
+	pos += 1;
+	pPtr->uiID = sqlite3_column_int(stmt, pos);
+
+	pos += 1;
+	pPtr->stName.length = sqlite3_column_bytes(stmt, pos);
+	pPtr->stName.data = (unsigned char *)malloc(pPtr->stName.length);
+	memcpy(pPtr->stName.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stName.length);
+
+	pos += 1;
+	pPtr->stPath.length = sqlite3_column_bytes(stmt, pos);
+	pPtr->stPath.data = (unsigned char *)malloc(pPtr->stPath.length);
+	memcpy(pPtr->stPath.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stPath.length);
+
+	pos += 1;
+	pPtr->stSignType.length = sqlite3_column_bytes(stmt, pos);
+	pPtr->stSignType.data = (unsigned char *)malloc(pPtr->stSignType.length);
+	memcpy(pPtr->stSignType.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stSignType.length);
+
+	pos += 1;
+	pPtr->stPinVerify.length = sqlite3_column_bytes(stmt, pos);
+	pPtr->stPinVerify.data = (unsigned char *)malloc(pPtr->stPinVerify.length);
+	memcpy(pPtr->stPinVerify.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stPinVerify.length);
+
+	*ppPtr = pPtr;
+
 	return 0;
+}
+
+int sdb_EnumSKFFromDB(SDB *sdb, SMB_CS_SKF_NODE **ppNodeHeader)
+{
+	sqlite3_stmt *stmt = NULL;
+	int sqlerr = SQLITE_OK;
+	int retry = 0;
+	int i = 0;
+
+	LOCK_SQLITE();
+
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select * from table_skf;", -1, &stmt, NULL);
+	if (sqlerr != SQLITE_OK)
+	{
+		goto err;
+	}
+
+	do {
+		sqlerr = sqlite3_step(stmt);
+
+		if (sqlerr == SQLITE_BUSY) {
+			sqlite3_sleep(SDB_BUSY_RETRY_TIME);
+		}
+
+		if (sqlerr == SQLITE_DONE)
+		{
+			sqlerr = SQLITE_OK;
+		}
+
+		if (sqlerr == SQLITE_ROW)
+		{
+			SMB_CS_SKF *pPtr = NULL;
+
+			sdb_FillSKF(&pPtr, stmt);
+			OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppNodeHeader, (void *)pPtr);
+		}
+
+	} while (!sdb_done(sqlerr, &retry));
+
+	if (sqlerr == SQLITE_ROW)
+	{
+		sqlerr = SQLITE_OK;
+	}
+
+err:
+	if (stmt) {
+		sqlite3_reset(stmt);
+		sqlite3_finalize(stmt);
+		stmt = NULL;
+	}
+	UNLOCK_SQLITE();
+
+	if (!sqlerr)
+	{
+
+	}
+
+	return sqlerr;
 }
 
 unsigned int SMB_CS_EnumSKFFromDB(SMB_CS_SKF_NODE **ppNodeHeader)
 {
-	return 0;
+	unsigned int ulRet = -1;
+	int crv = 0;
+	SDB sdb = { 0 };
+
+	sdb.sdb_path = smb_db_path;
+
+	crv = sdb_Begin(&sdb);
+	if (crv)
+	{
+		goto err;
+	}
+
+	crv = sdb_EnumSKFFromDB(&sdb, ppNodeHeader);
+	if (crv)
+	{
+		goto err;
+	}
+
+err:
+
+	if (crv)
+	{
+		sdb_Abort(&sdb);
+	}
+	else
+	{
+		sdb_Commit(&sdb);
+	}
+
+	return crv;
 }
 
 unsigned int SMB_CS_FreeCSP_NODE(SMB_CS_CSP_NODE **ppNodeHeader)
@@ -2567,6 +3055,12 @@ unsigned int SMB_CS_FreeSKF(SMB_CS_SKF *pPtr)
 		{
 			free(pPtr->stSignType.data);
 			pPtr->stSignType.data = NULL;
+		}
+
+		if (pPtr->stPinVerify.data)
+		{
+			free(pPtr->stPinVerify.data);
+			pPtr->stPinVerify.data = NULL;
 		}
 
 		free(pPtr);

@@ -130,6 +130,7 @@ typedef struct _SMB_CS_SKF
 	SMB_CS_Data     stName;      // 产品号
 	SMB_CS_Data     stPath;      // 厂商号
 	SMB_CS_Data     stSignType;  // 签名类型 digest data
+	SMB_CS_Data     stPinVerify; // 存储类型 4
 	int uiID;
 }SMB_CS_SKF;
 
