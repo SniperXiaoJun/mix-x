@@ -941,6 +941,8 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 							// 销毁密钥句柄
 							CryptDestroyKey(hKey);
+
+							break;
 						}
 					}
 
@@ -980,9 +982,7 @@ std::string WTF_ReadCurrentCerts(int Expire)
 			else
 			{
 				HCRYPTKEY hKey = NULL;
-				/*DWORD dwKeyType = AT_KEYEXCHANGE;*/
-
-				DWORD dwKeyType = AT_SIGNATURE;
+				DWORD dwKeyType = AT_KEYEXCHANGE;
 
 				for (; dwKeyType <= AT_SIGNATURE; dwKeyType++)
 				{
@@ -1123,6 +1123,8 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 						// 销毁密钥句柄
 						CryptDestroyKey(hKey);
+
+						break;
 					}
 				}
 
