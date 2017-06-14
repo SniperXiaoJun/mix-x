@@ -50,7 +50,7 @@ static const char *CREATE_TABLE_CMD[] =
 { "CREATE TABLE if not exists table_certificate (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, content UNIQUE ON CONFLICT REPLACE, store_type, id_attr);"
 , "CREATE TABLE if not exists table_certificate_attr (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, cert_alg_type, cert_use_type, skf_name, device_name, application_name, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid UNIQUE ON CONFLICT REPLACE, isuue_keyid, vendor_data, verify, not_before, not_after);"
 , "CREATE TABLE if not exists table_skf (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name, path UNIQUE ON CONFLICT REPLACE, signtype, pin_verify);"
-, "CREATE TABLE if not exists table_pid_vid (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, pid, vid UNIQUE ON CONFLICT REPLACE, type);"
+, "CREATE TABLE if not exists table_pid_vid (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, pid UNIQUE ON CONFLICT REPLACE, vid, type);"
 , "CREATE TABLE if not exists table_product (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name UNIQUE ON CONFLICT REPLACE, id_skf, id_pid_vid);"
 , "CREATE TABLE if not exists table_check_list (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, type UNIQUE ON CONFLICT REPLACE, description);"
 , "CREATE TABLE if not exists table_check_keyid_list (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, keyid UNIQUE ON CONFLICT REPLACE, type);"
