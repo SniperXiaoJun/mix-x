@@ -47,12 +47,14 @@ typedef enum _SMB_CERT_FILTER_FLAG
 	CERT_FILTER_FLAG_TRUE = 0x00000001,		// 过滤
 }SMB_CERT_FILTER_FLAG;
 
+//数据
 typedef struct _SMB_CS_Data
 {
 	unsigned char *data;            // 数据
 	unsigned int length;            // 长度
 }SMB_CS_Data;
 
+//证书属性
 typedef struct _SMB_CS_CertificateAttr
 {
 	SMB_CS_Data stSKFName;			// SKF接口名称
@@ -74,6 +76,7 @@ typedef struct _SMB_CS_CertificateAttr
 	unsigned long long ulNotAfter;	// 截止
 }SMB_CS_CertificateAttr;
 
+//证书查找属性
 typedef struct _SMB_CS_CertificateFindAttr
 {
 	unsigned int uiFindFlag;        // 查找标记 以下选项按位或 1 2 4 8 16 32 64 128 ... 支持4*8=32个查找项 32与组合查找
@@ -90,12 +93,14 @@ typedef struct _SMB_CS_CertificateFindAttr
 	
 }SMB_CS_CertificateFindAttr;
 
+//证书内容
 typedef struct _SMB_CS_CertificateContent
 {
 	unsigned char *data;            // 数据
 	unsigned int length;            // 长度
 }SMB_CS_CertificateContent;
 
+//证书上下文
 typedef struct _SMB_CS_CertificateContext
 {
 	SMB_CS_CertificateAttr     stAttr;      // 证书属性
@@ -105,12 +110,14 @@ typedef struct _SMB_CS_CertificateContext
 	unsigned char ucStoreType;
 }SMB_CS_CertificateContext;
 
+//证书上下文节点（链表）
 typedef struct _SMB_CS_CertificateContext_NODE
 {
 	SMB_CS_CertificateContext *ptr_data;
 	struct _SMB_CS_CertificateContext_NODE *ptr_next;
 }SMB_CS_CertificateContext_NODE;
 
+//PIDVID结构
 typedef struct _SMB_CS_PIDVID
 {
 	SMB_CS_Data     stPID;   // 产品号
@@ -119,12 +126,14 @@ typedef struct _SMB_CS_PIDVID
 	int uiID;
 }SMB_CS_PIDVID;
 
+//PIDVID节点（链表）
 typedef struct _SMB_CS_PIDVID_NODE
 {
 	SMB_CS_PIDVID *ptr_data;
 	struct _SMB_CS_PIDVID_NODE *ptr_next;
 }SMB_CS_PIDVID_NODE;
 
+//SKF结构
 typedef struct _SMB_CS_SKF
 {
 	SMB_CS_Data     stName;      // 产品号
@@ -134,12 +143,14 @@ typedef struct _SMB_CS_SKF
 	int uiID;
 }SMB_CS_SKF;
 
+//SKF结构节点（链表）
 typedef struct _SMB_CS_SKF_NODE
 {
 	SMB_CS_SKF *ptr_data;
 	struct _SMB_CS_SKF_NODE *ptr_next;
 }SMB_CS_SKF_NODE;
 
+//CSP结构
 typedef struct _SMB_CS_CSP
 {
 	SMB_CS_Data     stName;       // 名称
@@ -147,12 +158,14 @@ typedef struct _SMB_CS_CSP
 	int uiID;
 }SMB_CS_CSP;
 
+//CSP结构节点（链表）
 typedef struct _SMB_CS_CSP_NODE
 {
 	SMB_CS_CSP *ptr_data;
 	struct _SMB_CS_CSP_NODE *ptr_next;
 }SMB_CS_CSP_NODE;
 
+//路径结构
 typedef struct _SMB_CS_Path
 {
 	SMB_CS_Data     stName;       // 名称
@@ -162,6 +175,7 @@ typedef struct _SMB_CS_Path
 	int uiID;
 }SMB_CS_Path;
 
+//路径结构节点（链表）
 typedef struct _SMB_CS_Path_NODE
 {
 	SMB_CS_Path *ptr_data;
