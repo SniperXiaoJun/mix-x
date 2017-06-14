@@ -36,20 +36,20 @@ LINK_DIRECTORIES(
 #add_subdirectory(x_itemx)
 
 ADD_LIBRARY(
-  smb_no_ui SHARED
+  smb_base SHARED
   
-  smb_no_ui.def
+  smb_base.def
   ${common_cs} 
   ${common_cpps} 
 )
 
-target_link_libraries(smb_no_ui sqlite3)
-TARGET_LINK_LIBRARIES(smb_no_ui mix_bssl)
-TARGET_LINK_LIBRARIES(smb_no_ui Crypt32)
-TARGET_LINK_LIBRARIES(smb_no_ui Cryptui)
-TARGET_LINK_LIBRARIES(smb_no_ui version)
+target_link_libraries(smb_base sqlite3)
+TARGET_LINK_LIBRARIES(smb_base mix_bssl)
+TARGET_LINK_LIBRARIES(smb_base Crypt32)
+TARGET_LINK_LIBRARIES(smb_base Cryptui)
+TARGET_LINK_LIBRARIES(smb_base version)
 
-add_dependencies(x_all smb_no_ui)
+add_dependencies(x_all smb_base)
 
 add_executable(
   x_dbcs_exec_sql
@@ -57,7 +57,7 @@ add_executable(
   x_dbcs_exec_sql.cpp
 )
 
-target_link_libraries(x_dbcs_exec_sql smb_no_ui)
+target_link_libraries(x_dbcs_exec_sql smb_base)
 
 add_dependencies(x_all x_dbcs)
 
@@ -73,7 +73,7 @@ add_executable(
 #target_link_libraries(x_dbcs_install_ca_cert sqlite3)
 #TARGET_LINK_LIBRARIES(x_dbcs_install_ca_cert mix_bssl)
 
-TARGET_LINK_LIBRARIES(x_dbcs_install_ca_cert smb_no_ui)
+TARGET_LINK_LIBRARIES(x_dbcs_install_ca_cert smb_base)
 
 add_dependencies(x_all x_dbcs)
 
@@ -86,7 +86,7 @@ add_executable(
   #${common_cpps} 
 )
 
-target_link_libraries(x_dbcs_enum_certs smb_no_ui)
+target_link_libraries(x_dbcs_enum_certs smb_base)
 #TARGET_LINK_LIBRARIES(x_dbcs_enum_certs mix_bssl)
 TARGET_LINK_LIBRARIES(x_dbcs_enum_certs SMB_QTUI)
 
