@@ -1,27 +1,49 @@
 LIBRARY	"smb_no_ui"
 
 EXPORTS
+	SMB_DB_Path_Init
+	SMB_DB_Init
+	
 	SMB_CS_CreateCtx
 	SMB_CS_FreeCtx
+	SMB_CS_FreeCtx_NODE
+
 	SMB_CS_AddCtxToDB
 	SMB_CS_DelCtxFromDB
 	SMB_CS_ClrAllCtxFromDB
 	SMB_CS_FindCtxsFromDB
 	SMB_CS_EnumCtxsFromDB
-	SMB_CS_FreeCtx_NODE
+	SMB_CS_DelCtx_NODE_FromDB
+	SMB_CS_GetCtxByCert
+	SMB_CS_FindCertChain
+
+	SMB_CS_ExecSQL
+	
 	SMB_CS_EnumSKF
 	SMB_CS_ReadSKFPath
 	SMB_CS_ReadSKFSignType
-	SMB_CS_GetCtxByCert
+	
+
+	SMB_CS_EnumCSPFromDB
+	SMB_CS_FreeCSP_NODE
+	SMB_CS_FreeCSP
+
+	SMB_CS_EnumSKFFromDB
+	SMB_CS_FreeSKF_NODE
+	SMB_CS_FreeSKF
+
+	SMB_CS_EnumPIDVIDFromDB
+	SMB_CS_FreePIDVID_NODE
+	SMB_CS_FreePIDVID
+	
+	SMB_CS_EnumPathFromDB
+	SMB_CS_FreePath_NODE
+	SMB_CS_FreePath
+
 	SMB_UTIL_FillCertAttr
 	SMB_UTIL_SetCtxVendor
 	SMB_UTIL_VerifyCert
 	SMB_UTIL_ImportCaCert
-	SMB_DB_Init
-	SMB_DB_Path_Init
-	SMB_CS_DelCtx_NODE_FromDB
-	SMB_CS_ExecSQL
-	SMB_CS_FindCertChain
 
 	SMB_DEV_EnumCertBySKF
 	SMB_DEV_EnumCert

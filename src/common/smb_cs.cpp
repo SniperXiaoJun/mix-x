@@ -2425,7 +2425,22 @@ err:
 	return ulRet;
 }
 
-unsigned int SMB_CS_EnumCSPFromDB(SMB_CS_SKF_NODE **ppNodeHeader)
+unsigned int SMB_CS_EnumCSPFromDB(SMB_CS_CSP_NODE **ppNodeHeader)
+{
+	return 0;
+}
+
+unsigned int SMB_CS_EnumPIDVIDFromDB(SMB_CS_PIDVID_NODE **ppNodeHeader)
+{
+	return 0;
+}
+
+unsigned int SMB_CS_EnumPathFromDB(SMB_CS_Path_NODE **ppNodeHeader)
+{
+	return 0;
+}
+
+unsigned int SMB_CS_EnumSKFFromDB(SMB_CS_SKF_NODE **ppNodeHeader)
 {
 	return 0;
 }
@@ -2441,11 +2456,6 @@ unsigned int SMB_CS_FreeCSP_NODE(SMB_CS_CSP_NODE **ppNodeHeader)
 	return 0;
 }
 
-unsigned int SMB_CS_EnumSKFFromDB(SMB_CS_SKF_NODE **ppNodeHeader)
-{
-	return 0;
-}
-
 unsigned int SMB_CS_FreeSKF_NODE(SMB_CS_SKF_NODE **ppNodeHeader)
 {
 	while (*ppNodeHeader)
@@ -2454,11 +2464,6 @@ unsigned int SMB_CS_FreeSKF_NODE(SMB_CS_SKF_NODE **ppNodeHeader)
 		OPF_DelNoFreeHandleNodeDataFromLink((OPST_HANDLE_NODE**)ppNodeHeader, (*ppNodeHeader)->ptr_data);
 	}
 
-	return 0;
-}
-
-unsigned int SMB_CS_EnumPIDVIDFromDB(SMB_CS_PIDVID_NODE **ppNodeHeader)
-{
 	return 0;
 }
 
@@ -2473,13 +2478,6 @@ unsigned int SMB_CS_FreePIDVID_NODE(SMB_CS_PIDVID_NODE **ppNodeHeader)
 	return 0;
 }
 
-unsigned int SMB_CS_EnumPathFromDB(SMB_CS_Path_NODE **ppNodeHeader)
-{
-	return 0;
-}
-
-
-
 unsigned int SMB_CS_FreePath_NODE(SMB_CS_Path_NODE **ppNodeHeader)
 {
 	while (*ppNodeHeader)
@@ -2490,7 +2488,6 @@ unsigned int SMB_CS_FreePath_NODE(SMB_CS_Path_NODE **ppNodeHeader)
 
 	return 0;
 }
-
 
 unsigned int SMB_CS_FreePath(SMB_CS_Path *pPtr)
 {
