@@ -135,6 +135,7 @@ int GetCMBCKeyCount(int *piCount)
 	int count = 0;
 	char data_message[BUFFER_LEN_1K] = { 0 };
 
+	SMB_DB_Init();
 	SMB_CS_EnumPIDVIDFromDB(&pHeader);
 
 	if (NULL == pHeader)
@@ -564,646 +565,10 @@ err:
 
 std::string WTF_ReadCurrentCerts(int Expire)
 {
-#if defined(MIX_SHUNDE_BANK)
-	Json::Value All = Json::Value(Json::arrayValue);
-
-	// 通过设备获取证书
-	void * data_value = NULL;
-	unsigned int data_len = 0;
-	SK_CERT_CONTENT * pCertContent = NULL;
-	int i = 0;
-
-	DWORD       cbName;  
-	DWORD       dwType;  
-	DWORD       dwIndex=0;  
-	char        pszName[BUFFER_LEN_1K];   
-	
-	while(CryptEnumProviders(  
-		dwIndex,     // in -- dwIndex  
-		NULL,        // in -- pdwReserved- set to NULL  
-		0,           // in -- dwFlags -- set to zero  
-		&dwType,     // out -- pdwProvType  
-		NULL,        // out -- pszProvName -- NULL on the first call  
-		&cbName      // in, out -- pcbProvName  
-		))  
-	{  
-		//--------------------------------------------------------------------  
-		//  Get the provider name.  
-
-		if (CryptEnumProviders(  
-			dwIndex++,  
-			NULL,  
-			0,  
-			&dwType,  
-			pszName,  
-			&cbName     // pcbProvName -- size of pszName  
-			))  
-		{  
-			HCRYPTPROV	hCryptProv = NULL;
-
-			DWORD dwErrCode = 0;
-
-			if (!CryptAcquireContext(&hCryptProv, NULL,
-				pszName, PROV_RSA_FULL, CRYPT_SILENT))
-			{
-				dwErrCode = GetLastError();
-			}
-			else
-			{
-				HCRYPTKEY hKey = NULL;
-				DWORD dwKeyType = AT_KEYEXCHANGE;
-
-				//DWORD dwKeyType = AT_SIGNATURE;
-
-				for (; dwKeyType <= AT_SIGNATURE; dwKeyType++)
-				{
-					// 获取容器中的密钥
-					if (!CryptGetUserKey(hCryptProv, dwKeyType, &hKey))
-					{
-						dwErrCode = GetLastError();
-
-						if (NTE_BAD_KEY == dwErrCode)
-						{
-							continue;
-						}
-						else
-						{
-							continue;
-						}
-					}
-
-					ULONG ulCertLen = 4096;
-					// 导出容器中的证书
-					if (!CryptGetKeyParam(hKey, KP_CERTIFICATE, NULL, &ulCertLen, 0))
-					{
-						dwErrCode = GetLastError();
-
-						// 销毁密钥句柄
-						CryptDestroyKey(hKey);
-						continue;
-					}
-					else
-					{
-						if(AT_KEYEXCHANGE == dwKeyType)
-						{
-
-						}
-						else
-						{
-
-						}
-
-						char * szdata = new char[ulCertLen];
-						memset(szdata, 0, ulCertLen);
-						BOOL bFlag = CryptGetKeyParam(hKey, KP_CERTIFICATE, (BYTE *)szdata, &ulCertLen, 0);
-						if (!bFlag)
-						{
-							dwErrCode = GetLastError();
-
-						}
-
-						// add to list as usb_old
-						{
-							Json::Value itemDev;
-							Json::Value itemDevInfo;
-							Json::Value itemDevCerts = Json::Value(Json::arrayValue); // 1 device's certs
-							Json::Value item;
-							char data_info_value[1024] = {0};
-							int data_info_len = 0;
-
-							// 证书的属性
-							WT_SetMyCert((unsigned char *)szdata,ulCertLen);
-
-							memset(data_info_value, 0, 1024);
-							WT_GetCertInfo(CERT_SERIALNUMBER, 0, data_info_value, &data_info_len);
-							item["serialNumber"] = data_info_value;
-
-							memset(data_info_value, 0, 1024);
-							WT_GetCertInfo(CERT_ISSUER_DN, NID_COMMONNAME, data_info_value, &data_info_len);
-							item["issuer"] = data_info_value;
-
-							memset(data_info_value, 0, 1024);
-							WT_GetCertInfo(CERT_SUBJECT_DN, NID_COMMONNAME, data_info_value, &data_info_len);
-							item["subject"] = data_info_value;
-
-							item["commonName"] =  strstr(item["subject"].asCString(),"=")+1 == 0 ?  item["subject"]: strstr(item["subject"].asCString(),"=")+1;
-
-							memset(data_info_value, 0, 1024);
-							WT_GetCertInfo(CERT_NOTBEFORE, 0, data_info_value, &data_info_len);
-							item["notBefore"] = data_info_value;
-
-							memset(data_info_value, 0, 1024);
-							WT_GetCertInfo(CERT_NOTAFTER, 0, data_info_value, &data_info_len);
-							item["notAfter"] = data_info_value;
-
-							item["signType"] = TRUE; // 签名
-
-							switch(WTF_VerifyCert(CERT_VERIFY_TIME_FLAG | CERT_VERIFY_CHAIN_FLAG | CERT_VERIFY_CRL_FLAG,CERT_ALG_RSA_FLAG,(unsigned char *)szdata,ulCertLen)){
-							case 0:
-								item["verify"] = CERT_VERIFY_RESULT_FLAG_OK;   // 未校验
-								break;
-							case EErr_SMB_VERIFY_TIME:
-								item["verify"] = CERT_VERIFY_RESULT_TIME_INVALID;
-								break;
-							case EErr_SMB_NO_CERT_CHAIN:
-								item["verify"] = CERT_VERIFY_RESULT_CHAIN_INVALID;
-								break;
-							case EErr_SMB_VERIFY_CERT:
-								item["verify"] = CERT_VERIFY_RESULT_SIGN_INVALID;	
-								break;
-							default:
-								item["verify"] = CERT_VERIFY_RESULT_CHAIN_INVALID;
-								break;
-							}
-
-							item["type"] = CERT_ALG_RSA_FLAG;     // RSA
-
-							WT_ClearCert();
-
-							// b64 fomat encode certcontent
-							{
-								char * data_value_in = (char * )malloc(sizeof(SK_CERT_CONTENT) + ulCertLen);
-								size_t data_len_in = sizeof(SK_CERT_CONTENT) + ulCertLen;
-
-								size_t data_len_out = modp_b64_encode_len(data_len_in);
-								char * data_value_out = (char * )malloc(data_len_out);
-
-								((SK_CERT_CONTENT*)data_value_in)->stProperty.nType = 1; // RSA
-								((SK_CERT_CONTENT*)data_value_in)->nValueLen = ulCertLen;
-								memcpy(data_value_in+sizeof(SK_CERT_CONTENT),szdata,ulCertLen);
-
-								memset(data_value_out, 0, data_len_out);
-
-								data_len_out = modp_b64_encode(data_value_out,data_value_in, data_len_in);
-
-								item["certContentB64String"] = data_value_out;
-
-								free(data_value_out);
-								free(data_value_in);
-							}
-
-							itemDevInfo["devNickName"] = item["commonName"];
-							itemDevInfo["devFrom"] = "csp";
-							itemDevInfo["serialNumber"] = "unknow";
-
-							itemDevCerts.append(item); 
-							itemDev = itemDevInfo;
-							itemDev["certs"] = itemDevCerts;
-
-							All.append(itemDev);
-						}
-
-						delete szdata;
-
-						// 销毁密钥句柄
-						CryptDestroyKey(hKey);
-					}
-				}
-
-				// CryptReleaseContext
-				if (!CryptReleaseContext(hCryptProv, 0))
-				{
-					;
-				}
-				else
-				{
-
-				}
-			}
-		}  
-		else  
-		{  
- 
-		}   
-
-	} // End of while loop 
-
-	//MessageBoxA(NULL,All.toStyledString().c_str(), "提示", MB_ICONEXCLAMATION|MB_YESNO);
-
-	g_CurrentCerts = All.toStyledString();
-	
-	return All.toStyledString();
-#elif defined(MIX_JILIN_BANK)
 	Json::Value All = Json::Value(Json::arrayValue);
 	const char * ptrDevOri; // 原始DEV
-
+	SMB_CS_CSP_NODE *pHeader = NULL;
 	// 通过设备获取证书
-	void * data_value = NULL;
-	unsigned int data_len = 0;
-	SK_CERT_CONTENT * pCertContent = NULL;
-	int i = 0;
-	unsigned int ulRet;
-
-	DEVINFO * pDevInfo = (DEVINFO*)malloc(sizeof(DEVINFO) + 8);
-
-	data_value = malloc(BUFFER_LEN_1K * BUFFER_LEN_1K);
-	data_len = BUFFER_LEN_1K * BUFFER_LEN_1K;
-	
-	ulRet = WTF_EnumCertInternal("JLBANKi3csp11", data_value, &data_len,
-		CERT_ALG_RSA_FLAG | CERT_ALG_SM2_FLAG, // RSA SM2
-		CERT_SIGN_FLAG | CERT_EX_FLAG, // 签名加密
-		CERT_VERIFY_TIME_FLAG | CERT_VERIFY_CHAIN_FLAG | CERT_VERIFY_CRL_FLAG,
-		CERT_FILTER_FLAG_FALSE);
-	
-	FILE_LOG_FMT(file_log_name, "func=%s thread=%d line=%d watch=%d", __FUNCTION__, GetCurrentThreadId(), __LINE__, ulRet);
-	FILE_LOG_FMT(file_log_name, "func=%s thread=%d line=%d watch=%d", __FUNCTION__, GetCurrentThreadId(), __LINE__, data_len);
-
-	//ulRet = WTF_EnumCert(devName, data_value, &data_len,
-	//	CERT_ALG_RSA_FLAG | CERT_ALG_SM2_FLAG, // RSA SM2
-	//	CERT_SIGN_FLAG | CERT_EX_FLAG, // 签名加密
-	//	CERT_VERIFY_CHAIN_FLAG,
-	//	CERT_FILTER_FLAG_FALSE);
-	if(ulRet)
-	{
-		
-	}
-	else
-	{
-		for (pCertContent = (SK_CERT_CONTENT *)data_value;(char *)pCertContent < (char *)data_value + data_len;pCertContent=(SK_CERT_CONTENT*)((BYTE *)pCertContent+pCertContent->nValueLen+sizeof(SK_CERT_CONTENT)) )
-		{
-			Json::Value itemDev;
-			Json::Value itemDevInfo;
-			Json::Value itemDevCerts = Json::Value(Json::arrayValue); // 1 device's certs
-
-			itemDevInfo["devNickName"] = pCertCtxNode->ptr_data->stAttr.stCommonName;
-
-			itemDevInfo["devFrom"] = "skf";
-
-			memset(pDevInfo, 0, sizeof(DEVINFO));
-
-			WTF_GetDevInfoByCertProperty(&(pCertContent->stProperty),pDevInfo);
-
-			itemDevInfo["versionMajor"] = pDevInfo->Version.major;
-			itemDevInfo["versionMinor"] = pDevInfo->Version.minor;
-
-			itemDevInfo["manufacturer"] = pDevInfo->Manufacturer;
-			itemDevInfo["issuer"] = pDevInfo->Issuer;
-			itemDevInfo["label"] = pDevInfo->Label;
-			itemDevInfo["serialNumber"] = pDevInfo->SerialNumber;
-
-			itemDevInfo["hwVersionMajor"] = pDevInfo->HWVersion.major;
-			itemDevInfo["hwVersionMinor"] = pDevInfo->HWVersion.minor;
-
-			itemDevInfo["firmwareVersionMajor"] = pDevInfo->FirmwareVersion.major;
-			itemDevInfo["firmwareVersionMinor"] = pDevInfo->FirmwareVersion.minor;
-
-			itemDevInfo["algSymCap"] = (int)pDevInfo->AlgSymCap;
-			itemDevInfo["algAsymCap"] = (int)pDevInfo->AlgAsymCap;
-			itemDevInfo["algHashCap"] = (int)pDevInfo->AlgHashCap;
-			itemDevInfo["devAuthAlgId"] = (int)pDevInfo->DevAuthAlgId;
-			itemDevInfo["totalSpace"] = (int)pDevInfo->TotalSpace;
-			itemDevInfo["freeSpace"] = (int)pDevInfo->FreeSpace;
-
-			ptrDevOri = pCertCtxNode->ptr_data->stAttr.stDeviceName;
-
-			for (;(char *)pCertContent < (char *)data_value + data_len;pCertContent=(SK_CERT_CONTENT*)((BYTE *)pCertContent+pCertContent->nValueLen+sizeof(SK_CERT_CONTENT)) )
-			{
-				if ( 0 != strcmp(ptrDevOri,pCertCtxNode->ptr_data->stAttr.stDeviceName))
-				{
-					break;
-				}
-				
-				Json::Value item;
-
-				item["skfName"] = pCertCtxNode->ptr_data->stAttr.stSKFName;
-				item["deviceName"] = pCertCtxNode->ptr_data->stAttr.stDeviceName;
-				item["applicationName"] = pCertCtxNode->ptr_data->stAttr.stApplicationName;
-				item["containerName"] = pCertCtxNode->ptr_data->stAttr.stContainerName;
-
-				// 证书的属性
-				char data_info_value[1024] = {0};
-				int data_info_len = 0;
-
-				WT_SetMyCert(pCertContent->pbValue,pCertContent->nValueLen);
-
-				memset(data_info_value, 0, 1024);
-				WT_GetCertInfo(CERT_SERIALNUMBER, 0, data_info_value, &data_info_len);
-				item["serialNumber"] = data_info_value;
-
-				memset(data_info_value, 0, 1024);
-				WT_GetCertInfo(CERT_ISSUER_DN, NID_COMMONNAME, data_info_value, &data_info_len);
-				item["issuer"] = data_info_value;
-
-				memset(data_info_value, 0, 1024);
-				WT_GetCertInfo(CERT_SUBJECT_DN, NID_COMMONNAME, data_info_value, &data_info_len);
-				item["subject"] = data_info_value;
-
-				item["commonName"] = pCertCtxNode->ptr_data->stAttr.stCommonName;
-
-				memset(data_info_value, 0, 1024);
-				WT_GetCertInfo(CERT_NOTBEFORE, 0, data_info_value, &data_info_len);
-				item["notBefore"] = data_info_value;
-
-				memset(data_info_value, 0, 1024);
-				WT_GetCertInfo(CERT_NOTAFTER, 0, data_info_value, &data_info_len);
-				item["notAfter"] = data_info_value;
-
-				item["signType"] = pCertContent->stProperty.bSignType;
-				item["verify"] = pCertContent->stProperty.ulVerify;
-				item["type"] = pCertContent->stProperty.nType;
-
-				WT_ClearCert();
-
-				// b64 fomat encode certcontent
-				{
-					const char * data_value_in = (const char *)pCertContent;
-					size_t data_len_in = sizeof(SK_CERT_CONTENT) + pCertContent->nValueLen;
-
-					size_t data_len_out = modp_b64_encode_len(data_len_in);
-					char * data_value_out = (char * )malloc(data_len_out);
-
-					memset(data_value_out, 0, data_len_out);
-
-					data_len_out = modp_b64_encode(data_value_out,data_value_in, data_len_in);
-
-					item["certContentB64String"] = data_value_out;
-
-					free(data_value_out);
-				}
-
-				if (0 == pCertContent->stProperty.ulVerify)
-				{
-					unsigned long long timeLocal = 0;
-					unsigned long long daysLeft = 0;
-
-					GetLocalTime_T(&timeLocal);
-
-					daysLeft = (pCertContent->stProperty.ulNotAfter - timeLocal)/24/60/60;
-
-					if (daysLeft < Expire)
-					{
-						std::wostringstream oss; 
-
-						oss<< L"证书还有";
-
-						oss<<(int)daysLeft;
-
-						oss<< L"天过期，请进行证书更新！";
-
-						item["expire_msg"] = utf8_encode(oss.str()); 
-						item["expiration_status"] = EXPIRATION_STATUS_LEFT_IN_EXPIRE;
-					}
-					else
-					{
-						item["expire_msg"] = utf8_encode(L"证书有效！");
-						item["expiration_status"] = EXPIRATION_STATUS_IN;
-					}
-				}
-				else
-				{
-					item["expire_msg"] =  utf8_encode(L"证书不在有效期！");
-					item["expiration_status"] = EXPIRATION_STATUS_OUT;
-				}
-
-				itemDevCerts.append(item);  	
-			}
-
-			itemDev = itemDevInfo;
-			itemDev["certs"] = itemDevCerts;
-			
-			All.append(itemDev);
-			/*cert["notAfter"] = pCertContent->stProperty.ulNotAfter;
-			cert["notBefore"] = pCertContent->stProperty.ulNotBefore;*/
-		}
-
-		WTF_ClearStore(DEFAULT_SMC_STORE_SM2_USER_ID);
-
-		for (pCertContent = (SK_CERT_CONTENT *)data_value;(char *)pCertContent < (char *)data_value + data_len;pCertContent=(SK_CERT_CONTENT*)((BYTE *)pCertContent+pCertContent->nValueLen+sizeof(SK_CERT_CONTENT)) )
-		{
-			//regist sm2 signcert to store
-			/*if ((pCertContent->stProperty.bSignType == TRUE) && (pCertContent->stProperty.nType == CERT_ALG_SM2_FLAG))*/
-			//regist sm2 certpair to store
-			if (pCertContent->stProperty.nType == CERT_ALG_SM2_FLAG)
-			{
-				SMC_ImportUserCert((BYTE*)pCertContent+sizeof(SK_CERT_CONTENT),pCertContent->nValueLen,&(pCertContent->stProperty));
-			}
-		}
-
-	}
-
-	
-	DWORD       cbName;  
-	DWORD       dwType;  
-	DWORD       dwIndex=0;  
-	char        pszName[BUFFER_LEN_1K];   
-
-	while(CryptEnumProviders(  
-		dwIndex,     // in -- dwIndex  
-		NULL,        // in -- pdwReserved- set to NULL  
-		0,           // in -- dwFlags -- set to zero  
-		&dwType,     // out -- pdwProvType  
-		NULL,        // out -- pszProvName -- NULL on the first call  
-		&cbName      // in, out -- pcbProvName  
-		))  
-	{  
-		//--------------------------------------------------------------------  
-		//  Get the provider name.  
-
-		if (CryptEnumProviders(  
-			dwIndex++,  
-			NULL,  
-			0,  
-			&dwType,  
-			pszName,  
-			&cbName     // pcbProvName -- size of pszName  
-			))  
-		{  
-			HCRYPTPROV	hCryptProv = NULL;
-
-			DWORD dwErrCode = 0;
-
-			if (!CryptAcquireContext(&hCryptProv, NULL,
-				pszName, PROV_RSA_FULL, CRYPT_SILENT))
-			{
-				dwErrCode = GetLastError();
-			}
-			else
-			{
-				HCRYPTKEY hKey = NULL;
-				DWORD dwKeyType = AT_KEYEXCHANGE;
-
-				//DWORD dwKeyType = AT_SIGNATURE;
-
-				for (; dwKeyType <= AT_SIGNATURE; dwKeyType++)
-				{
-					// 获取容器中的密钥
-					if (!CryptGetUserKey(hCryptProv, dwKeyType, &hKey))
-					{
-						dwErrCode = GetLastError();
-
-						if (NTE_BAD_KEY == dwErrCode)
-						{
-							continue;
-						}
-						else
-						{
-							continue;
-						}
-					}
-
-					ULONG ulCertLen = 4096;
-					// 导出容器中的证书
-					if (!CryptGetKeyParam(hKey, KP_CERTIFICATE, NULL, &ulCertLen, 0))
-					{
-						dwErrCode = GetLastError();
-
-						// 销毁密钥句柄
-						CryptDestroyKey(hKey);
-						continue;
-					}
-					else
-					{
-						if(AT_KEYEXCHANGE == dwKeyType)
-						{
-
-						}
-						else
-						{
-
-						}
-
-						char * szdata = new char[ulCertLen];
-						memset(szdata, 0, ulCertLen);
-						BOOL bFlag = CryptGetKeyParam(hKey, KP_CERTIFICATE, (BYTE *)szdata, &ulCertLen, 0);
-						if (!bFlag)
-						{
-							dwErrCode = GetLastError();
-
-						}
-
-						// add to list as usb_old
-						{
-							Json::Value itemDev;
-							Json::Value itemDevInfo;
-							Json::Value itemDevCerts = Json::Value(Json::arrayValue); // 1 device's certs
-							Json::Value item;
-							char data_info_value[1024] = {0};
-							int data_info_len = 0;
-
-							// 证书的属性
-							WT_SetMyCert((unsigned char *)szdata,ulCertLen);
-
-							memset(data_info_value, 0, 1024);
-							WT_GetCertInfo(CERT_SERIALNUMBER, 0, data_info_value, &data_info_len);
-							item["serialNumber"] = data_info_value;
-
-							memset(data_info_value, 0, 1024);
-							WT_GetCertInfo(CERT_ISSUER_DN, NID_COMMONNAME, data_info_value, &data_info_len);
-							item["issuer"] = data_info_value;
-
-							memset(data_info_value, 0, 1024);
-							WT_GetCertInfo(CERT_SUBJECT_DN, NID_COMMONNAME, data_info_value, &data_info_len);
-							item["subject"] = data_info_value;
-
-							item["commonName"] =  strstr(item["subject"].asCString(),"=")+1 == 0 ?  item["subject"]: strstr(item["subject"].asCString(),"=")+1;
-
-							memset(data_info_value, 0, 1024);
-							WT_GetCertInfo(CERT_NOTBEFORE, 0, data_info_value, &data_info_len);
-							item["notBefore"] = data_info_value;
-
-							memset(data_info_value, 0, 1024);
-							WT_GetCertInfo(CERT_NOTAFTER, 0, data_info_value, &data_info_len);
-							item["notAfter"] = data_info_value;
-
-							item["signType"] = TRUE; // 签名
-
-							switch(WTF_VerifyCert(CERT_VERIFY_TIME_FLAG | CERT_VERIFY_CHAIN_FLAG | CERT_VERIFY_CRL_FLAG,CERT_ALG_RSA_FLAG,(unsigned char *)szdata,ulCertLen)){
-							case 0:
-								item["verify"] = CERT_VERIFY_RESULT_FLAG_OK;   // 未校验
-								break;
-							case EErr_SMB_VERIFY_TIME:
-								item["verify"] = CERT_VERIFY_RESULT_TIME_INVALID;
-								break;
-							case EErr_SMB_NO_CERT_CHAIN:
-								item["verify"] = CERT_VERIFY_RESULT_CHAIN_INVALID;
-								break;
-							case EErr_SMB_VERIFY_CERT:
-								item["verify"] = CERT_VERIFY_RESULT_SIGN_INVALID;	
-								break;
-							default:
-								item["verify"] = CERT_VERIFY_RESULT_CHAIN_INVALID;
-								break;
-							}
-
-							item["type"] = CERT_ALG_RSA_FLAG;     // RSA
-
-							WT_ClearCert();
-
-							// b64 fomat encode certcontent
-							{
-								char * data_value_in = (char * )malloc(sizeof(SK_CERT_CONTENT) + ulCertLen);
-								size_t data_len_in = sizeof(SK_CERT_CONTENT) + ulCertLen;
-
-								size_t data_len_out = modp_b64_encode_len(data_len_in);
-								char * data_value_out = (char * )malloc(data_len_out);
-
-								((SK_CERT_CONTENT*)data_value_in)->stProperty.nType = 1; // RSA
-								((SK_CERT_CONTENT*)data_value_in)->nValueLen = ulCertLen;
-								memcpy(data_value_in+sizeof(SK_CERT_CONTENT),szdata,ulCertLen);
-
-								memset(data_value_out, 0, data_len_out);
-
-								data_len_out = modp_b64_encode(data_value_out,data_value_in, data_len_in);
-
-								item["certContentB64String"] = data_value_out;
-
-								free(data_value_out);
-								free(data_value_in);
-							}
-
-							itemDevInfo["devNickName"] = item["commonName"];
-							itemDevInfo["devFrom"] = "csp";
-							itemDevInfo["serialNumber"] = "unknow";
-
-							itemDevCerts.append(item); 
-							itemDev = itemDevInfo;
-							itemDev["certs"] = itemDevCerts;
-
-							All.append(itemDev);
-						}
-
-						delete szdata;
-
-						// 销毁密钥句柄
-						CryptDestroyKey(hKey);
-					}
-				}
-
-				// CryptReleaseContext
-				if (!CryptReleaseContext(hCryptProv, 0))
-				{
-					;
-				}
-				else
-				{
-
-				}
-			}
-		}  
-		else  
-		{  
-
-		}   
-
-	} 
-
-	free(data_value);
-
-	if (pDevInfo)
-	{
-		free(pDevInfo);
-	}
-
-	g_CurrentCerts = All.toStyledString();
-	
-	return All.toStyledString();
-#else
-
-	Json::Value All = Json::Value(Json::arrayValue);
-	const char * ptrDevOri; // 原始DEV
-
-	// 通过设备获取证书
-	void * data_value = NULL;
 	unsigned int data_len = 0;
 	SMB_CS_CertificateContext_NODE *header = NULL;
 	SMB_CS_CertificateContext_NODE *pCertCtxNode = NULL;
@@ -1213,9 +578,6 @@ std::string WTF_ReadCurrentCerts(int Expire)
 	DEVINFO * pDevInfo = (DEVINFO*)malloc(sizeof(DEVINFO) + 8);
 
 	SMB_DB_Init();
-
-	data_value = malloc(BUFFER_LEN_1K * BUFFER_LEN_1K);
-	data_len = BUFFER_LEN_1K * BUFFER_LEN_1K;
 
 	ulRet = SMB_DEV_EnumCert(&header, CERT_ALG_SM2_FLAG | CERT_ALG_RSA_FLAG,
 		CERT_SIGN_FLAG | CERT_EX_FLAG, // Ç©Ãû
@@ -1395,190 +757,402 @@ std::string WTF_ReadCurrentCerts(int Expire)
 		}
 	}
 
-	// this is rsa suit
+	SMB_CS_EnumCSPFromDB(&pHeader);
+
+	if (NULL == pHeader)
 	{
-		HCRYPTPROV	hCryptProv = NULL;
+		// this is rsa suit
+		DWORD       cbName;
+		DWORD       dwType;
+		DWORD       dwIndex = 0;
+		char        pszName[BUFFER_LEN_1K];
 
-		DWORD dwErrCode = 0;
-
-		if (!CryptAcquireContextA(&hCryptProv, NULL,
-			"CMBC CSP V1.0", PROV_RSA_FULL, CRYPT_SILENT))
+		while (CryptEnumProviders(
+			dwIndex,     // in -- dwIndex  
+			NULL,        // in -- pdwReserved- set to NULL  
+			0,           // in -- dwFlags -- set to zero  
+			&dwType,     // out -- pdwProvType  
+			NULL,        // out -- pszProvName -- NULL on the first call  
+			&cbName      // in, out -- pcbProvName  
+		))
 		{
-			dwErrCode = GetLastError();
-		}
-		else
-		{
-			HCRYPTKEY hKey = NULL;
-			/*DWORD dwKeyType = AT_KEYEXCHANGE;*/
+			//--------------------------------------------------------------------  
+			//  Get the provider name.  
 
-			DWORD dwKeyType = AT_SIGNATURE;
-
-			for (; dwKeyType <= AT_SIGNATURE; dwKeyType++)
+			if (CryptEnumProvidersA(
+				dwIndex++,
+				NULL,
+				0,
+				&dwType,
+				pszName,
+				&cbName     // pcbProvName -- size of pszName  
+			))
 			{
-				// 获取容器中的密钥
-				if (!CryptGetUserKey(hCryptProv, dwKeyType, &hKey))
+				HCRYPTPROV	hCryptProv = NULL;
+
+				DWORD dwErrCode = 0;
+
+				if (!CryptAcquireContextA(&hCryptProv, NULL,
+					pszName, PROV_RSA_FULL, CRYPT_SILENT))
 				{
 					dwErrCode = GetLastError();
-
-					if (NTE_BAD_KEY == dwErrCode)
-					{
-						continue;
-					}
-					else
-					{
-						continue;
-					}
-				}
-
-				ULONG ulCertLen = 4096;
-				// 导出容器中的证书
-				if (!CryptGetKeyParam(hKey, KP_CERTIFICATE, NULL, &ulCertLen, 0))
-				{
-					dwErrCode = GetLastError();
-
-					// 销毁密钥句柄
-					CryptDestroyKey(hKey);
-					continue;
 				}
 				else
 				{
-					if(AT_KEYEXCHANGE == dwKeyType)
-					{
+					HCRYPTKEY hKey = NULL;
+					DWORD dwKeyType = AT_KEYEXCHANGE;
 
+					for (; dwKeyType <= AT_SIGNATURE; dwKeyType++)
+					{
+						// 获取容器中的密钥
+						if (!CryptGetUserKey(hCryptProv, dwKeyType, &hKey))
+						{
+							dwErrCode = GetLastError();
+
+							if (NTE_BAD_KEY == dwErrCode)
+							{
+								continue;
+							}
+							else
+							{
+								continue;
+							}
+						}
+
+						ULONG ulCertLen = 4096;
+						// 导出容器中的证书
+						if (!CryptGetKeyParam(hKey, KP_CERTIFICATE, NULL, &ulCertLen, 0))
+						{
+							dwErrCode = GetLastError();
+
+							// 销毁密钥句柄
+							CryptDestroyKey(hKey);
+							continue;
+						}
+						else
+						{
+							if (AT_KEYEXCHANGE == dwKeyType)
+							{
+
+							}
+							else
+							{
+
+							}
+
+							char * szdata = new char[ulCertLen];
+							memset(szdata, 0, ulCertLen);
+							BOOL bFlag = CryptGetKeyParam(hKey, KP_CERTIFICATE, (BYTE *)szdata, &ulCertLen, 0);
+							if (!bFlag)
+							{
+								dwErrCode = GetLastError();
+
+							}
+
+							// add to list as usb_old
+							{
+								Json::Value itemDev;
+								Json::Value itemDevInfo;
+								Json::Value itemDevCerts = Json::Value(Json::arrayValue); // 1 device's certs
+								Json::Value item;
+								char data_info_value[1024] = { 0 };
+								int data_info_len = 0;
+
+								// 证书的属性
+								WT_SetMyCert((unsigned char *)szdata, ulCertLen);
+
+								memset(data_info_value, 0, 1024);
+								WT_GetCertInfo(CERT_SERIALNUMBER, 0, data_info_value, &data_info_len);
+								item["serialNumber"] = data_info_value;
+
+								memset(data_info_value, 0, 1024);
+								WT_GetCertInfo(CERT_ISSUER_DN, NID_COMMONNAME, data_info_value, &data_info_len);
+								item["issuer"] = data_info_value;
+
+								memset(data_info_value, 0, 1024);
+								WT_GetCertInfo(CERT_SUBJECT_DN, NID_COMMONNAME, data_info_value, &data_info_len);
+								item["subject"] = data_info_value;
+
+								item["commonName"] = strstr(item["subject"].asCString(), "=") + 1 == 0 ? item["subject"] : strstr(item["subject"].asCString(), "=") + 1;
+
+								memset(data_info_value, 0, 1024);
+								WT_GetCertInfo(CERT_NOTBEFORE, 0, data_info_value, &data_info_len);
+								item["notBefore"] = data_info_value;
+
+								memset(data_info_value, 0, 1024);
+								WT_GetCertInfo(CERT_NOTAFTER, 0, data_info_value, &data_info_len);
+								item["notAfter"] = data_info_value;
+
+								item["signType"] = TRUE; // 签名
+
+								switch (SMB_UTIL_VerifyCert(CERT_VERIFY_TIME_FLAG | CERT_VERIFY_CHAIN_FLAG | CERT_VERIFY_CRL_FLAG, (unsigned char *)szdata, ulCertLen)) {
+								case 0:
+									item["verify"] = CERT_VERIFY_RESULT_FLAG_OK;   // 未校验
+									break;
+								case EErr_SMB_VERIFY_TIME:
+									item["verify"] = CERT_VERIFY_RESULT_TIME_INVALID;
+									break;
+								case EErr_SMB_NO_CERT_CHAIN:
+									item["verify"] = CERT_VERIFY_RESULT_CHAIN_INVALID;
+									break;
+								case EErr_SMB_VERIFY_CERT:
+									item["verify"] = CERT_VERIFY_RESULT_SIGN_INVALID;
+									break;
+								default:
+									item["verify"] = CERT_VERIFY_RESULT_CHAIN_INVALID;
+									break;
+								}
+
+								item["type"] = CERT_ALG_RSA_FLAG;     // RSA
+
+								WT_ClearCert();
+
+								// b64 fomat encode certcontent
+								{
+									char * data_value_in = (char *)malloc(+ulCertLen);
+									size_t data_len_in = ulCertLen;
+
+									size_t data_len_out = modp_b64_encode_len(data_len_in);
+									char * data_value_out = (char *)malloc(data_len_out);
+
+									memcpy(data_value_in, szdata, ulCertLen);
+									memset(data_value_out, 0, data_len_out);
+
+									data_len_out = modp_b64_encode(data_value_out, data_value_in, data_len_in);
+
+									item["certContentB64String"] = data_value_out;
+
+									free(data_value_out);
+									free(data_value_in);
+								}
+
+								itemDevInfo["devNickName"] = item["commonName"];
+								itemDevInfo["devFrom"] = "csp";
+								itemDevInfo["serialNumber"] = "unknow";
+
+								itemDevCerts.append(item);
+								itemDev = itemDevInfo;
+								itemDev["certs"] = itemDevCerts;
+
+								All.append(itemDev);
+							}
+
+							delete szdata;
+
+							// 销毁密钥句柄
+							CryptDestroyKey(hKey);
+						}
+					}
+
+					// CryptReleaseContext
+					if (!CryptReleaseContext(hCryptProv, 0))
+					{
+						;
 					}
 					else
 					{
 
 					}
-
-					char * szdata = new char[ulCertLen];
-					memset(szdata, 0, ulCertLen);
-					BOOL bFlag = CryptGetKeyParam(hKey, KP_CERTIFICATE, (BYTE *)szdata, &ulCertLen, 0);
-					if (!bFlag)
-					{
-						dwErrCode = GetLastError();
-
-					}
-
-					// add to list as usb_old
-					{
-						Json::Value itemDev;
-						Json::Value itemDevInfo;
-						Json::Value itemDevCerts = Json::Value(Json::arrayValue); // 1 device's certs
-						Json::Value item;
-						char data_info_value[1024] = {0};
-						int data_info_len = 0;
-
-						// 证书的属性
-						WT_SetMyCert((unsigned char *)szdata,ulCertLen);
-
-						memset(data_info_value, 0, 1024);
-						WT_GetCertInfo(CERT_SERIALNUMBER, 0, data_info_value, &data_info_len);
-						item["serialNumber"] = data_info_value;
-
-						memset(data_info_value, 0, 1024);
-						WT_GetCertInfo(CERT_ISSUER_DN, NID_COMMONNAME, data_info_value, &data_info_len);
-						item["issuer"] = data_info_value;
-
-						memset(data_info_value, 0, 1024);
-						WT_GetCertInfo(CERT_SUBJECT_DN, NID_COMMONNAME, data_info_value, &data_info_len);
-						item["subject"] = data_info_value;
-
-						item["commonName"] =  strstr(item["subject"].asCString(),"=")+1 == 0 ?  item["subject"]: strstr(item["subject"].asCString(),"=")+1;
-
-						memset(data_info_value, 0, 1024);
-						WT_GetCertInfo(CERT_NOTBEFORE, 0, data_info_value, &data_info_len);
-						item["notBefore"] = data_info_value;
-
-						memset(data_info_value, 0, 1024);
-						WT_GetCertInfo(CERT_NOTAFTER, 0, data_info_value, &data_info_len);
-						item["notAfter"] = data_info_value;
-
-						item["signType"] = TRUE; // 签名
-
-						switch(SMB_UTIL_VerifyCert(CERT_VERIFY_TIME_FLAG | CERT_VERIFY_CHAIN_FLAG | CERT_VERIFY_CRL_FLAG,(unsigned char *)szdata,ulCertLen)){
-						case 0:
-							item["verify"] = CERT_VERIFY_RESULT_FLAG_OK;   // 未校验
-							break;
-						case EErr_SMB_VERIFY_TIME:
-							item["verify"] = CERT_VERIFY_RESULT_TIME_INVALID;
-							break;
-						case EErr_SMB_NO_CERT_CHAIN:
-							item["verify"] = CERT_VERIFY_RESULT_CHAIN_INVALID;
-							break;
-						case EErr_SMB_VERIFY_CERT:
-							item["verify"] = CERT_VERIFY_RESULT_SIGN_INVALID;	
-							break;
-						default:
-							item["verify"] = CERT_VERIFY_RESULT_CHAIN_INVALID;
-							break;
-						}
-
-						item["type"] = CERT_ALG_RSA_FLAG;     // RSA
-
-						WT_ClearCert();
-
-						// b64 fomat encode certcontent
-						{
-							char * data_value_in = (char * )malloc(+ ulCertLen);
-							size_t data_len_in =  ulCertLen;
-
-							size_t data_len_out = modp_b64_encode_len(data_len_in);
-							char * data_value_out = (char * )malloc(data_len_out);
-
-							memcpy(data_value_in,szdata,ulCertLen);
-							memset(data_value_out, 0, data_len_out);
-							
-							data_len_out = modp_b64_encode(data_value_out,data_value_in, data_len_in);
-
-							item["certContentB64String"] = data_value_out;
-
-							free(data_value_out);
-							free(data_value_in);
-						}
-
-						itemDevInfo["devNickName"] = item["commonName"];
-						itemDevInfo["devFrom"] = "csp";
-						itemDevInfo["serialNumber"] = "unknow";
-
-						itemDevCerts.append(item); 
-						itemDev = itemDevInfo;
-						itemDev["certs"] = itemDevCerts;
-
-						All.append(itemDev);
-					}
-
-					delete szdata;
-
-					// 销毁密钥句柄
-					CryptDestroyKey(hKey);
 				}
-			}
-
-			// CryptReleaseContext
-			if (!CryptReleaseContext(hCryptProv, 0))
-			{
-				;
 			}
 			else
 			{
 
 			}
-
 		}
 	}
+	else
+	{
+		SMB_CS_CSP_NODE *pNode = pHeader;
+		while (pNode)
+		{
+			HCRYPTPROV	hCryptProv = NULL;
+			DWORD dwErrCode = 0;
+			char szProvider[256] = { 0 };
 
-	free(data_value);
+			memcpy(szProvider, pNode->ptr_data->stValue.data, pNode->ptr_data->stValue.length);
+
+			if (!CryptAcquireContextA(&hCryptProv, NULL,
+				szProvider, PROV_RSA_FULL, CRYPT_SILENT))
+			{
+				dwErrCode = GetLastError();
+			}
+			else
+			{
+				HCRYPTKEY hKey = NULL;
+				/*DWORD dwKeyType = AT_KEYEXCHANGE;*/
+
+				DWORD dwKeyType = AT_SIGNATURE;
+
+				for (; dwKeyType <= AT_SIGNATURE; dwKeyType++)
+				{
+					// 获取容器中的密钥
+					if (!CryptGetUserKey(hCryptProv, dwKeyType, &hKey))
+					{
+						dwErrCode = GetLastError();
+
+						if (NTE_BAD_KEY == dwErrCode)
+						{
+							continue;
+						}
+						else
+						{
+							continue;
+						}
+					}
+
+					ULONG ulCertLen = 4096;
+					// 导出容器中的证书
+					if (!CryptGetKeyParam(hKey, KP_CERTIFICATE, NULL, &ulCertLen, 0))
+					{
+						dwErrCode = GetLastError();
+
+						// 销毁密钥句柄
+						CryptDestroyKey(hKey);
+						continue;
+					}
+					else
+					{
+						if (AT_KEYEXCHANGE == dwKeyType)
+						{
+
+						}
+						else
+						{
+
+						}
+
+						char * szdata = new char[ulCertLen];
+						memset(szdata, 0, ulCertLen);
+						BOOL bFlag = CryptGetKeyParam(hKey, KP_CERTIFICATE, (BYTE *)szdata, &ulCertLen, 0);
+						if (!bFlag)
+						{
+							dwErrCode = GetLastError();
+
+						}
+
+						// add to list as usb_old
+						{
+							Json::Value itemDev;
+							Json::Value itemDevInfo;
+							Json::Value itemDevCerts = Json::Value(Json::arrayValue); // 1 device's certs
+							Json::Value item;
+							char data_info_value[1024] = { 0 };
+							int data_info_len = 0;
+
+							// 证书的属性
+							WT_SetMyCert((unsigned char *)szdata, ulCertLen);
+
+							memset(data_info_value, 0, 1024);
+							WT_GetCertInfo(CERT_SERIALNUMBER, 0, data_info_value, &data_info_len);
+							item["serialNumber"] = data_info_value;
+
+							memset(data_info_value, 0, 1024);
+							WT_GetCertInfo(CERT_ISSUER_DN, NID_COMMONNAME, data_info_value, &data_info_len);
+							item["issuer"] = data_info_value;
+
+							memset(data_info_value, 0, 1024);
+							WT_GetCertInfo(CERT_SUBJECT_DN, NID_COMMONNAME, data_info_value, &data_info_len);
+							item["subject"] = data_info_value;
+
+							item["commonName"] = strstr(item["subject"].asCString(), "=") + 1 == 0 ? item["subject"] : strstr(item["subject"].asCString(), "=") + 1;
+
+							memset(data_info_value, 0, 1024);
+							WT_GetCertInfo(CERT_NOTBEFORE, 0, data_info_value, &data_info_len);
+							item["notBefore"] = data_info_value;
+
+							memset(data_info_value, 0, 1024);
+							WT_GetCertInfo(CERT_NOTAFTER, 0, data_info_value, &data_info_len);
+							item["notAfter"] = data_info_value;
+
+							item["signType"] = TRUE; // 签名
+
+							switch (SMB_UTIL_VerifyCert(CERT_VERIFY_TIME_FLAG | CERT_VERIFY_CHAIN_FLAG | CERT_VERIFY_CRL_FLAG, (unsigned char *)szdata, ulCertLen)) {
+							case 0:
+								item["verify"] = CERT_VERIFY_RESULT_FLAG_OK;   // 未校验
+								break;
+							case EErr_SMB_VERIFY_TIME:
+								item["verify"] = CERT_VERIFY_RESULT_TIME_INVALID;
+								break;
+							case EErr_SMB_NO_CERT_CHAIN:
+								item["verify"] = CERT_VERIFY_RESULT_CHAIN_INVALID;
+								break;
+							case EErr_SMB_VERIFY_CERT:
+								item["verify"] = CERT_VERIFY_RESULT_SIGN_INVALID;
+								break;
+							default:
+								item["verify"] = CERT_VERIFY_RESULT_CHAIN_INVALID;
+								break;
+							}
+
+							item["type"] = CERT_ALG_RSA_FLAG;     // RSA
+
+							WT_ClearCert();
+
+							// b64 fomat encode certcontent
+							{
+								char * data_value_in = (char *)malloc(+ulCertLen);
+								size_t data_len_in = ulCertLen;
+
+								size_t data_len_out = modp_b64_encode_len(data_len_in);
+								char * data_value_out = (char *)malloc(data_len_out);
+
+								memcpy(data_value_in, szdata, ulCertLen);
+								memset(data_value_out, 0, data_len_out);
+
+								data_len_out = modp_b64_encode(data_value_out, data_value_in, data_len_in);
+
+								item["certContentB64String"] = data_value_out;
+
+								free(data_value_out);
+								free(data_value_in);
+							}
+
+							itemDevInfo["devNickName"] = item["commonName"];
+							itemDevInfo["devFrom"] = "csp";
+							itemDevInfo["serialNumber"] = "unknow";
+
+							itemDevCerts.append(item);
+							itemDev = itemDevInfo;
+							itemDev["certs"] = itemDevCerts;
+
+							All.append(itemDev);
+						}
+
+						delete szdata;
+
+						// 销毁密钥句柄
+						CryptDestroyKey(hKey);
+					}
+				}
+
+				// CryptReleaseContext
+				if (!CryptReleaseContext(hCryptProv, 0))
+				{
+					;
+				}
+				else
+				{
+
+				}
+			}
+			pNode = pNode->ptr_next;
+		}
+	}
 
 	if (pDevInfo)
 	{
 		free(pDevInfo);
 	}
 
+	if (pHeader)
+	{
+		SMB_CS_FreeCSP_NODE(&pHeader);
+	}
+
 	g_CurrentCerts = All.toStyledString();
 	
 	return All.toStyledString();
-#endif
 }
 
 std::string WTF_GetCurrentCerts(int Expire)
