@@ -689,85 +689,6 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_DEVICECHANGE:
 		if(wParam == DBT_DEVICEARRIVAL || wParam == DBT_DEVICEREMOVECOMPLETE)
 		{
-#if defined(MIX_SHUNDE_BANK)
-			UseMixMutex share_mutex("share_mutex");
-			UseMixMutex share_mutex_PluginObject("share_mutex_PluginObject");
-			int iRet = 0;
-			string strRes;
-
-			int i =0;
-			int tmpCMBCKeyCount = 0;
-
-			Sleep(500);
-
-			GetCMBCKeyCount(&tmpCMBCKeyCount);
-
-			if (tmpCMBCKeyCount > g_CMBCKeyCount)
-			{
-				WTF_ReadCurrentCerts(30);
-
-				for (i = 0; i < g_plgnObjVector.size(); i++)
-				{
-					(g_plgnObjVector[i])->ExecuteJSCallback((g_plgnObjVector[i])->mOnUKeyOn, utf8_decode(strRes));
-				}
-			}
-			else if(tmpCMBCKeyCount < g_CMBCKeyCount)
-			{
-				WTF_ReadCurrentCerts(30);
-
-				for (i = 0; i < g_plgnObjVector.size(); i++)
-				{
-					(g_plgnObjVector[i])->ExecuteJSCallback((g_plgnObjVector[i])->mOnUKeyOff, utf8_decode(strRes));
-				}
-			}
-			else
-			{
-				// nothing need do
-			}
-
-			g_CMBCKeyCount = tmpCMBCKeyCount;
-
-#elif defined(MIX_JILIN_BANK)
-			UseMixMutex share_mutex("share_mutex");
-			UseMixMutex share_mutex_PluginObject("share_mutex_PluginObject");
-			int iRet = 0;
-			string strRes;
-
-			int i =0;
-			int tmpCMBCKeyCount = 0;
-
-			Sleep(500);
-
-			GetCMBCKeyCount(&tmpCMBCKeyCount);
-
-			if (tmpCMBCKeyCount > g_CMBCKeyCount)
-			{
-				WTF_ReadCurrentCerts(30);
-
-				for (i = 0; i < g_plgnObjVector.size(); i++)
-				{
-					(g_plgnObjVector[i])->ExecuteJSCallback((g_plgnObjVector[i])->mOnUKeyOn, utf8_decode(strRes));
-				}
-			}
-			else if(tmpCMBCKeyCount < g_CMBCKeyCount)
-			{
-				WTF_ReadCurrentCerts(30);
-
-				for (i = 0; i < g_plgnObjVector.size(); i++)
-				{
-					(g_plgnObjVector[i])->ExecuteJSCallback((g_plgnObjVector[i])->mOnUKeyOff, utf8_decode(strRes));
-				}
-			}
-			else
-			{
-				// nothing need do
-			}
-
-			g_CMBCKeyCount = tmpCMBCKeyCount;
-#else
-
-
-
 			UseMixMutex share_mutex("share_mutex");
 			UseMixMutex share_mutex_PluginObject("share_mutex_PluginObject");
 			int iRet = 0;
@@ -804,7 +725,6 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 
 			g_CMBCKeyCount = tmpCMBCKeyCount;
-#endif
 		}
 
 		break;
