@@ -27,7 +27,7 @@ COMMON_API unsigned int SMB_DEV_ArgsGet(SMB_CS_CertificateAttr*pCertAttr, OPST_H
 COMMON_API unsigned int SMB_DEV_ArgsPut(SMB_CS_CertificateAttr*pCertAttr, OPST_HANDLE_ARGS*args);
 COMMON_API unsigned int SMB_DEV_ArgsClr();
 COMMON_API unsigned int SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr*pCertAttr, OPST_HANDLE_ARGS *args);
-COMMON_API unsigned int SMB_DEV_SM2SignDigestProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, unsigned int uiDataLen, PECCSIGNATUREBLOB pSignature);
+COMMON_API unsigned int SMB_DEV_SM2SignProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, unsigned int uiDataLen, PECCSIGNATUREBLOB pSignature);
 COMMON_API unsigned int SMB_DEV_SM2SignFinalize(OPST_HANDLE_ARGS *args);
 COMMON_API HINSTANCE SMB_DEV_LoadLibrary(char*pszDllPath);
 
@@ -640,7 +640,7 @@ err:
 }
 
 
-unsigned int SMB_DEV_SM2SignDigestByCertAttr(
+unsigned int SMB_DEV_SM2SignByCertAttr(
 	SMB_CS_CertificateAttr *pCertAttr,
 	char *pszPIN,
 	BYTE *pbDigest, unsigned int uiDigestLen,
@@ -1693,7 +1693,7 @@ err:
 	return ulRet;
 	}
 
-unsigned int SMB_DEV_SM2SignDigestProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, unsigned int ulDataLen, PECCSIGNATUREBLOB pSignature)
+unsigned int SMB_DEV_SM2SignProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, unsigned int ulDataLen, PECCSIGNATUREBLOB pSignature)
 {
 	HINSTANCE ghInst = NULL;
 	unsigned int ulRet = 0;
@@ -1819,11 +1819,20 @@ err:
 	return ulRet;
 	}
 
-unsigned int SMB_DEV_SM2SignDigestProcessByCertAttr(SMB_CS_CertificateAttr * pCertAttr, BYTE *pbData, unsigned int ulDataLen, PECCSIGNATUREBLOB pSignature)
+unsigned int SMB_DEV_SM2SignProcessByCertAttr(
+	SMB_CS_CertificateAttr*pCertAttr,
+	BYTE *pbDigest, unsigned int uiDigestLen,
+	BYTE *pbData, unsigned int uiDataLen,
+	PECCSIGNATUREBLOB pSignature)
 {
 	OPST_HANDLE_ARGS args = { 0 };
 	OPST_HANDLE_ARGS argsZERO = { 0 };
 	unsigned int ulRet = 0;
+	unsigned int signTypeLen = BUFFER_LEN_1K;
+	char signTypeValue[BUFFER_LEN_1K] = { 0 };
+
+	// there may be fail, so don't judge return value
+	SMB_CS_ReadSKFSignType((char *)pCertAttr->stSKFName.data, signTypeValue, &signTypeLen);
 
 	ulRet = SMB_DEV_ArgsGet(pCertAttr, &args);
 	if (0 != ulRet)
@@ -1843,8 +1852,15 @@ unsigned int SMB_DEV_SM2SignDigestProcessByCertAttr(SMB_CS_CertificateAttr * pCe
 		}
 	}
 
+	if (0 == memcmp("data", signTypeValue, 4))
+	{
+		ulRet = SMB_DEV_SM2SignProcessInner(&args,pbData, uiDataLen, pSignature);
+	}
+	else
+	{
+		ulRet = SMB_DEV_SM2SignProcessInner(&args, pbDigest, uiDigestLen, pSignature);
+	}
 
-	ulRet = SMB_DEV_SM2SignDigestProcessInner(&args, pbData, ulDataLen, pSignature);
 	if (SAR_FAIL == ulRet)
 	{
 		SMB_DEV_SM2SignFinalize(&args);
@@ -1858,7 +1874,14 @@ unsigned int SMB_DEV_SM2SignDigestProcessByCertAttr(SMB_CS_CertificateAttr * pCe
 			goto err;
 		}
 
-		ulRet = SMB_DEV_SM2SignDigestProcessInner(&args, pbData, ulDataLen, pSignature);
+		if (0 == memcmp("data", signTypeValue, 4))
+		{
+			ulRet = SMB_DEV_SM2SignProcessInner(&args, pbData, uiDataLen, pSignature);
+		}
+		else
+		{
+			ulRet = SMB_DEV_SM2SignProcessInner(&args, pbDigest, uiDigestLen, pSignature);
+		}
 
 		if (0 != ulRet)
 		{

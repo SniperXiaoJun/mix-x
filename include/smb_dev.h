@@ -75,7 +75,11 @@ extern "C" {
 		_In_ SMB_CS_CertificateAttr *pCertDescProperty, _Out_ unsigned char *pbCert, _Inout_ unsigned int *puiCertLen
 	);
 	
-	COMMON_API unsigned int SMB_DEV_SM2SignDigestProcessByCertAttr(SMB_CS_CertificateAttr*pCertAttr, BYTE *pbData, unsigned int uiDataLen, PECCSIGNATUREBLOB pSignature);
+	COMMON_API unsigned int SMB_DEV_SM2SignProcessByCertAttr(
+		SMB_CS_CertificateAttr*pCertAttr, 
+		BYTE *pbDigest, unsigned int uiDigestLen,
+		BYTE *pbData, unsigned int uiDataLen,
+		PECCSIGNATUREBLOB pSignature);
 
 	/*
 	功能名称:	获取设备信息
@@ -107,7 +111,7 @@ extern "C" {
 
 	/*
 	功能名称:	SM2证书签名
-	函数名称:	SMB_DEV_SM2SignDigest
+	函数名称:	SMB_DEV_SM2SignByCertAttr
 	输入参数:
 	pCertAttr 证书属性// SMC接口查找出来之后的结构体
 	pszPIN	密码
@@ -120,7 +124,7 @@ extern "C" {
 	失败：
 	功能描述:	修改密码
 	*/
-	COMMON_API unsigned int SMB_DEV_SM2SignDigestByCertAttr(
+	COMMON_API unsigned int SMB_DEV_SM2SignByCertAttr(
 		SMB_CS_CertificateAttr *pCertAttr,
 		char *pszPIN,
 		BYTE *pbDigest, unsigned int uiDigestLen,

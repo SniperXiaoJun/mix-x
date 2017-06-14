@@ -60,7 +60,7 @@ unsigned int SIGN_USE_CERT(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 			unsigned int ulRet = 0;
 			ULONG ulRetry =0;
 
-			ulRet = SMB_DEV_SM2SignDigestByCertAttr(&pCertCtxNode->ptr_data->stAttr,"111qqq", szDigest,32, szDigest, 32, &blob, &ulRetry);
+			ulRet = SMB_DEV_SM2SignByCertAttr(&pCertCtxNode->ptr_data->stAttr,"111qqq", szDigest,32, szDigest, 32, &blob, &ulRetry);
 
 			printf("ulRet = %d, ulRetry = %d\n", ulRet, ulRetry);
 		}
