@@ -69,8 +69,8 @@ ADD_LIBRARY(
 
 target_link_libraries(npplugin sqlite3)
 TARGET_LINK_LIBRARIES(npplugin mix_bssl)
-TARGET_LINK_LIBRARIES(npplugin smb_no_ui)
-TARGET_LINK_LIBRARIES(npplugin SMB_QTUI)
+TARGET_LINK_LIBRARIES(npplugin smb_base)
+TARGET_LINK_LIBRARIES(npplugin smb_qtui)
 TARGET_LINK_LIBRARIES(npplugin Wininet)
 TARGET_LINK_LIBRARIES(npplugin Crypt32)
 TARGET_LINK_LIBRARIES(npplugin SetupAPI)
