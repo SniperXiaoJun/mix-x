@@ -130,67 +130,73 @@ int skfKeyCount = 0;
 
 int GetCMBCKeyCount(int *piCount)
 {
-
-#if defined(MIX_SHUNDE_BANK)
+	SMB_CS_PIDVID_NODE *pHeader = NULL;
 	int tmpCount = 0;
 	int count = 0;
+	char data_message[BUFFER_LEN_1K] = { 0 };
 
-	CollectUSBInfo(&tmpCount, "14D6", "1004");
+	SMB_CS_EnumPIDVIDFromDB(&pHeader);
 
-	count += tmpCount;
+	if (NULL == pHeader)
+	{
+		CollectUSBInfo(&tmpCount, NULL, NULL);
+
+		count += tmpCount;
+
+		//sprintf(data_message, "count=%d", count);
+
+		//MessageBoxA(NULL, data_message, "Info", MB_ICONEXCLAMATION | MB_YESNO);
+
+		goto err;
+	}
+	else
+	{
+		cspKeyCount = 0;
+		skfKeyCount = 0;
+
+		SMB_CS_PIDVID_NODE *pNode = pHeader;
+
+		while (pNode)
+		{
+			char data_type[32] = { 0 };
+			char data_pid[32] =  { 0 };
+			char data_vid[32] =  { 0 };
+
+			memcpy(data_type, pNode->ptr_data->stType.data, pNode->ptr_data->stType.length);
+			memcpy(data_pid, pNode->ptr_data->stPID.data, pNode->ptr_data->stPID.length);
+			memcpy(data_vid, pNode->ptr_data->stVID.data, pNode->ptr_data->stVID.length);
+
+			CollectUSBInfo(&tmpCount, data_vid, data_pid);
+
+			if (0 == memcmp(pNode->ptr_data->stType.data,"CSP", 3) || 0 == memcmp(pNode->ptr_data->stType.data, "csp", 3))
+			{
+				count += tmpCount;
+				cspKeyCount += tmpCount;
+			}
+			else
+			{
+				count += tmpCount;
+				skfKeyCount += tmpCount;
+			}
+
+			//sprintf(data_message,"data_type=%s,data_pid=%s,data_vid=%s,cspKeyCount=%d,skfKeyCount=%d,count=%d", data_type, data_pid , data_vid , cspKeyCount, skfKeyCount, count);
+
+			//MessageBoxA(NULL, data_message, "Info", MB_ICONEXCLAMATION | MB_YESNO);
+
+			pNode = pNode->ptr_next;
+		}
+	}
+
+err:
+
+	if (pHeader)
+	{
+		SMB_CS_FreePIDVID_NODE(&pHeader);
+	}
 
 	*piCount = count;
 
 	return 0;
-#elif defined(MIX_JILIN_BANK)
-	int tmpCount = 0;
-	int count = 0;
-
-	CollectUSBInfo(&tmpCount, "14D6", "1004");
-
-	count += tmpCount;
-
-	*piCount = count;
-
-	return 0;
-#else
-	int tmpCount = 0;
-
-	int count = 0;
-
-	cspKeyCount = 0;
-	skfKeyCount = 0;
-
-	CollectUSBInfo(&tmpCount, "14D6", "1004");
-
-	count += tmpCount;
-	cspKeyCount += tmpCount;
-
-	CollectUSBInfo(&tmpCount, "14D6", "1006");
-
-	count += tmpCount;
-	cspKeyCount += tmpCount;
-
-	CollectUSBInfo(&tmpCount, "14D6", "3002");
-
-	count += tmpCount;
-	cspKeyCount += tmpCount;
-
-	CollectUSBInfo(&tmpCount, "14D6", "3032");
-
-	count += tmpCount;
-	skfKeyCount += tmpCount;
-
-	CollectUSBInfo(&tmpCount, "14D6", "3732");
-
-	count += tmpCount;
-	skfKeyCount += tmpCount;
-
-	*piCount = count;
-
-	return 0;
-#endif
-
 }
 std::string WTF_GetCurrentCerts(int Expire);
 string WTF_GetDevAllCerts(const char * pszDevName, int Expire){
