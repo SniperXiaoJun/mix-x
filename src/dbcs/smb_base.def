@@ -1,5 +1,3 @@
-LIBRARY	"smb_no_ui"
-
 EXPORTS
 	SMB_DB_Path_Init
 	SMB_DB_Init
