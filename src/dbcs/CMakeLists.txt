@@ -91,6 +91,13 @@ target_link_libraries(x_dbcs_enum_certs smb_base)
 TARGET_LINK_LIBRARIES(x_dbcs_enum_certs SMB_QTUI)
 
 
+add_executable(
+  x_dbcs_verify_der
 
+  x_dbcs_verify_der.cpp
+  #${common_cs} 
+  #${common_cpps} 
+)
 
+target_link_libraries(x_dbcs_verify_der smb_base)
 
