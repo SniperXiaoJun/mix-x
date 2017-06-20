@@ -50,8 +50,8 @@ typedef enum _SMB_CERT_FILTER_FLAG
 //数据
 typedef struct _SMB_CS_Data
 {
-	unsigned char *data;            // 数据
 	unsigned int length;            // 长度
+	unsigned char *data;            // 数据
 }SMB_CS_Data;
 
 //证书属性
@@ -96,8 +96,8 @@ typedef struct _SMB_CS_CertificateFindAttr
 //证书内容
 typedef struct _SMB_CS_CertificateContent
 {
-	unsigned char *data;            // 数据
 	unsigned int length;            // 长度
+	unsigned char *data;            // 数据
 }SMB_CS_CertificateContent;
 
 //证书上下文
@@ -105,8 +105,6 @@ typedef struct _SMB_CS_CertificateContext
 {
 	SMB_CS_CertificateAttr     stAttr;      // 证书属性
 	SMB_CS_CertificateContent  stContent;   // 证书内容
-	int uiContentID;
-	int uiAttrID;
 	unsigned char ucStoreType;
 }SMB_CS_CertificateContext;
 
@@ -123,7 +121,6 @@ typedef struct _SMB_CS_PIDVID
 	SMB_CS_Data     stPID;   // 产品号
 	SMB_CS_Data     stVID;   // 厂商号
 	SMB_CS_Data     stType;  // 类型 csp skf
-	int uiID;
 }SMB_CS_PIDVID;
 
 //PIDVID节点（链表）
@@ -140,7 +137,6 @@ typedef struct _SMB_CS_SKF
 	SMB_CS_Data     stPath;      // 厂商号
 	SMB_CS_Data     stSignType;  // 签名类型 digest data
 	SMB_CS_Data     stPinVerify; // 存储类型 4
-	int uiID;
 }SMB_CS_SKF;
 
 //SKF结构节点（链表）
@@ -155,7 +151,6 @@ typedef struct _SMB_CS_CSP
 {
 	SMB_CS_Data     stName;       // 名称
 	SMB_CS_Data     stValue;      // 值
-	int uiID;
 }SMB_CS_CSP;
 
 //CSP结构节点（链表）
@@ -172,7 +167,6 @@ typedef struct _SMB_CS_Path
 	SMB_CS_Data     stValue;      // 值
 	SMB_CS_Data     stDigestMD5;  // MD5值
 	SMB_CS_Data     stDigestSHA1; // SHA1值
-	int uiID;
 }SMB_CS_Path;
 
 //路径结构节点（链表）
@@ -237,52 +231,37 @@ extern "C" {
 	/*
 	添加证书到数据库 ucStoreType 1:CA&ROOT 2:USER
 	*/
-	COMMON_API unsigned int SMB_CS_AddCtxToDB(SMB_CS_CertificateContext *pCertCtx, unsigned char ucStoreType);
+	COMMON_API unsigned int SMB_CS_AddCtx(SMB_CS_CertificateContext *pCertCtx, unsigned char ucStoreType);
 
 	/*
-	从数据库删除证书上
+	从数据库删除证书
 	*/
-	COMMON_API unsigned int SMB_CS_DelCtxFromDB(SMB_CS_CertificateContext *pCertCtx);
+	COMMON_API unsigned int SMB_CS_DelCtx(SMB_CS_CertificateContext *pCertCtx);
 
 	/*
 	清空数据库
 	*/
-	COMMON_API unsigned int SMB_CS_ClrAllCtxFromDB(unsigned char ucStoreType);
+	COMMON_API unsigned int SMB_CS_ClrAllCtx(unsigned char ucStoreType);
 
 	/*
 	从数据库查找证书
 	*/
-	COMMON_API unsigned int SMB_CS_FindCtxsFromDB(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader);
+	COMMON_API unsigned int SMB_CS_FindCtxs(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader);
 
 	/*
 	从数据库遍历证书
 	*/
-	COMMON_API unsigned int SMB_CS_EnumCtxsFromDB(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char ucStoreType);
+	COMMON_API unsigned int SMB_CS_EnumCtxs(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char ucStoreType);
 
 	/*
 	从数据库删除证书上
 	*/
-	COMMON_API unsigned int SMB_CS_DelCtx_NODE_FromDB(SMB_CS_CertificateContext_NODE *pCertCtxNodeHeader);
+	COMMON_API unsigned int SMB_CS_DelCtxLink(SMB_CS_CertificateContext_NODE *pCertCtxNodeHeader);
 
 	/*
 	释放证书上下文
 	*/
-	COMMON_API unsigned int SMB_CS_FreeCtx_NODE(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader);
-
-	/*
-	从数据库遍历SKF名称
-	*/
-	COMMON_API unsigned int SMB_CS_EnumSKF(char * pszSKFNames, unsigned int * puiSKFNamesLen);
-
-	/*
-	从数据库读取SKF路径
-	*/
-	COMMON_API unsigned int SMB_CS_ReadSKFPath(const char * pszSKFName, char * pszDllPath, unsigned int *puiDllPathLen);
-	
-	/*
-	从数据库读取SKF签名类型
-	*/
-	COMMON_API unsigned int SMB_CS_ReadSKFSignType(const char * pszSKFName, char * pszSignType, unsigned int *puiSignTypeLen);
+	COMMON_API unsigned int SMB_CS_FreeCtxLink(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader);
 
 	/*
 	通过证书获取上下文
@@ -297,12 +276,12 @@ extern "C" {
 	/*
 	从数据库遍历CSP
 	*/
-	COMMON_API unsigned int SMB_CS_EnumCSPFromDB(SMB_CS_CSP_NODE **ppNodeHeader);
+	COMMON_API unsigned int SMB_CS_EnumCSP(SMB_CS_CSP_NODE **ppNodeHeader);
 
 	/*
 	释放CSP上下文
 	*/
-	COMMON_API unsigned int SMB_CS_FreeCSP_NODE(SMB_CS_CSP_NODE **ppNodeHeader);
+	COMMON_API unsigned int SMB_CS_FreeCSPLink(SMB_CS_CSP_NODE **ppNodeHeader);
 
 	/*
 	释放结构
@@ -312,12 +291,12 @@ extern "C" {
 	/*
 	从数据库遍历SKF
 	*/
-	COMMON_API unsigned int SMB_CS_EnumSKFFromDB(SMB_CS_SKF_NODE **ppNodeHeader);
+	COMMON_API unsigned int SMB_CS_EnumSKF(SMB_CS_SKF_NODE **ppNodeHeader);
 
 	/*
 	释放SKF上下文
 	*/
-	COMMON_API unsigned int SMB_CS_FreeSKF_NODE(SMB_CS_SKF_NODE **ppNodeHeader);
+	COMMON_API unsigned int SMB_CS_FreeSKFLink(SMB_CS_SKF_NODE **ppNodeHeader);
 
 	/*
 	释放结构
@@ -327,12 +306,12 @@ extern "C" {
 	/*
 	从数据库遍历PIDVID
 	*/
-	COMMON_API unsigned int SMB_CS_EnumPIDVIDFromDB(SMB_CS_PIDVID_NODE **ppNodeHeader);
+	COMMON_API unsigned int SMB_CS_EnumPIDVID(SMB_CS_PIDVID_NODE **ppNodeHeader);
 
 	/*
 	释放PIDVID上下文
 	*/
-	COMMON_API unsigned int SMB_CS_FreePIDVID_NODE(SMB_CS_PIDVID_NODE **ppNodeHeader);
+	COMMON_API unsigned int SMB_CS_FreePIDVIDLink(SMB_CS_PIDVID_NODE **ppNodeHeader);
 
 	/*
 	释放结构
@@ -342,12 +321,12 @@ extern "C" {
 	/*
 	从数据库遍历Path
 	*/
-	COMMON_API unsigned int SMB_CS_EnumPathFromDB(SMB_CS_Path_NODE **ppNodeHeader);
+	COMMON_API unsigned int SMB_CS_EnumPath(SMB_CS_Path_NODE **ppNodeHeader);
 
 	/*
 	释放Path上下文
 	*/
-	COMMON_API unsigned int SMB_CS_FreePath_NODE(SMB_CS_Path_NODE **ppNodeHeader);
+	COMMON_API unsigned int SMB_CS_FreePathLink (SMB_CS_Path_NODE **ppNodeHeader);
 
 	/*
 	释放结构
@@ -385,6 +364,21 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
+/*
+从数据库遍历SKF名称
+*/
+COMMON_API unsigned int SMB_CS_EnumSKF(char * pszSKFNames, unsigned int * puiSKFNamesLen);
+
+/*
+从数据库读取SKF路径
+*/
+COMMON_API unsigned int SMB_CS_ReadSKFPath(const char * pszSKFName, char * pszDllPath, unsigned int *puiDllPathLen);
+
+/*
+从数据库读取SKF签名类型
+*/
+COMMON_API unsigned int SMB_CS_ReadSKFSignType(const char * pszSKFName, char * pszSignType, unsigned int *puiSignTypeLen);
 
 
 #endif /*_SMB_CS_API_H_*/

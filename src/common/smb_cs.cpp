@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <map>
 
 #include "sqlite3.h"
 #include "smcert.h"
@@ -18,6 +19,8 @@
 #else
 strcpy(smb_db_path, "/home/");
 #endif
+
+std::map<void*, int> g_mapPtr2IDs;
 
 /*
 defines
@@ -783,7 +786,8 @@ int sdb_FillCtx(SMB_CS_CertificateContext **ppCertCtx, SMB_CS_CertificateFindAtt
 	int pos = -1;
 
 	pos += 1;
-	pCertCtx->uiContentID = sqlite3_column_int(stmt, pos);
+
+	g_mapPtr2IDs[&pCertCtx->stContent] = sqlite3_column_int(stmt, pos);
 
 	pos += 1;
 	pCertCtx->stContent.length = sqlite3_column_bytes(stmt, pos);
@@ -794,7 +798,7 @@ int sdb_FillCtx(SMB_CS_CertificateContext **ppCertCtx, SMB_CS_CertificateFindAtt
 	pCertCtx->ucStoreType = sqlite3_column_int(stmt, pos);
 
 	pos += 1;
-	pCertCtx->uiAttrID = sqlite3_column_int(stmt, pos);
+	g_mapPtr2IDs[&pCertCtx->stAttr] = sqlite3_column_int(stmt, pos);
 
 	pos += 1;
 	pCertCtx->stAttr.ucCertAlgType = sqlite3_column_int(stmt, pos);
@@ -938,7 +942,7 @@ int sdb_FillCtx(SMB_CS_CertificateContext **ppCertCtx, SMB_CS_CertificateFindAtt
 	return 0;
 }
 
-int sdb_FindCtxsFromDB(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
+int sdb_FindCtxs(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
 {
 	sqlite3_stmt *stmt = NULL;
 	int sqlerr = SQLITE_OK;
@@ -997,7 +1001,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_FindCtxsFromDB(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
+unsigned int SMB_CS_FindCtxs(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -1011,7 +1015,7 @@ unsigned int SMB_CS_FindCtxsFromDB(SMB_CS_CertificateFindAttr *pCertificateFindA
 		goto err;
 	}
 
-	crv = sdb_FindCtxsFromDB(&sdb, pCertificateFindAttr, ppCertCtxNodeHeader);
+	crv = sdb_FindCtxs(&sdb, pCertificateFindAttr, ppCertCtxNodeHeader);
 	if (crv)
 	{
 		goto err;
@@ -1145,7 +1149,7 @@ unsigned int SMB_CS_FreeCtx(SMB_CS_CertificateContext *pCertCtx)
 	return 0;
 }
 
-unsigned int SMB_CS_FreeCtx_NODE(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
+unsigned int SMB_CS_FreeCtxLink(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
 {
 	while (*ppCertCtxNodeHeader)
 	{
@@ -1442,7 +1446,7 @@ unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, uns
 		findAttr.stSubjectKeyID.data = (unsigned char*)certParse.m_strIssueKeyID.c_str();
 		findAttr.stSubjectKeyID.length = certParse.m_strIssueKeyID.size();
 
-		SMB_CS_FindCtxsFromDB(&findAttr, &ctxHeader);
+		SMB_CS_FindCtxs(&findAttr, &ctxHeader);
 
 		if (NULL != ctxHeader)
 		{
@@ -1516,7 +1520,7 @@ err:
 
 	if (NULL != ctxHeader)
 	{
-		SMB_CS_FreeCtx_NODE(&ctxHeader);
+		SMB_CS_FreeCtxLink(&ctxHeader);
 	}
 #if defined(WIN32) || defined(WINDOWS)
 	// 释放上下文
@@ -1541,7 +1545,7 @@ err:
 	return ulRet;
 }
 
-unsigned int SMB_CS_EnumCtxsFromDB(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char ucStoreType)
+unsigned int SMB_CS_EnumCtxs(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char ucStoreType)
 {
 	SMB_CS_CertificateFindAttr findAttr;
 	if (0 == ucStoreType)
@@ -1557,14 +1561,14 @@ unsigned int SMB_CS_EnumCtxsFromDB(SMB_CS_CertificateContext_NODE **ppCertCtxNod
 	}
 
 
-	return SMB_CS_FindCtxsFromDB(&findAttr, ppCertCtxNodeHeader);
+	return SMB_CS_FindCtxs(&findAttr, ppCertCtxNodeHeader);
 }
 
-unsigned int SMB_CS_DelCtx_NODE_FromDB(SMB_CS_CertificateContext_NODE *pCertCtxNodeHeader)
+unsigned int SMB_CS_DelCtxLink(SMB_CS_CertificateContext_NODE *pCertCtxNodeHeader)
 {
 	while (pCertCtxNodeHeader)
 	{
-		SMB_CS_DelCtxFromDB(pCertCtxNodeHeader->ptr_data);
+		SMB_CS_DelCtx(pCertCtxNodeHeader->ptr_data);
 		pCertCtxNodeHeader = pCertCtxNodeHeader->ptr_next;
 	}
 
@@ -1829,7 +1833,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_AddCtxToDB(SMB_CS_CertificateContext *pCertCtx, unsigned char ucStoreType)
+unsigned int SMB_CS_AddCtx(SMB_CS_CertificateContext *pCertCtx, unsigned char ucStoreType)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -1876,7 +1880,7 @@ err:
 	return crv;
 }
 
-int sdb_DelCtxFromDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx)
+int sdb_DelCtx(SDB *sdb, SMB_CS_CertificateContext *pCertCtx)
 {
 	sqlite3_stmt *stmt = NULL;
 	int sqlerr = SQLITE_OK;
@@ -1887,7 +1891,7 @@ int sdb_DelCtxFromDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx)
 
 	LOCK_SQLITE();
 
-	sprintf(data_value, "delete from table_certificate_attr where id=%d", pCertCtx->uiAttrID);
+	sprintf(data_value, "delete from table_certificate_attr where id=%d", g_mapPtr2IDs[&pCertCtx->stAttr]);
 	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, data_value, -1, &stmt, NULL);
 	if (sqlerr != SQLITE_OK)
 	{
@@ -1919,7 +1923,7 @@ int sdb_DelCtxFromDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx)
 		stmt = NULL;
 	}
 
-	sprintf(data_value, "delete from table_certificate where id=%d", pCertCtx->uiContentID);
+	sprintf(data_value, "delete from table_certificate where id=%d", g_mapPtr2IDs[&pCertCtx->stContent]);
 	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, data_value, -1, &stmt, NULL);
 	if (sqlerr != SQLITE_OK)
 	{
@@ -1966,7 +1970,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_DelCtxFromDB(SMB_CS_CertificateContext *pCertCtx)
+unsigned int SMB_CS_DelCtx(SMB_CS_CertificateContext *pCertCtx)
 {
 	int crv = 0;
 	SDB sdb = { 0 };
@@ -1979,7 +1983,7 @@ unsigned int SMB_CS_DelCtxFromDB(SMB_CS_CertificateContext *pCertCtx)
 		goto err;
 	}
 
-	crv = sdb_DelCtxFromDB(&sdb, pCertCtx);
+	crv = sdb_DelCtx(&sdb, pCertCtx);
 	if (crv)
 	{
 		goto err;
@@ -1998,27 +2002,27 @@ err:
 	return crv;
 }
 
-unsigned int SMB_CS_ClrAllCtxFromDB(unsigned char ucStoreType)
+unsigned int SMB_CS_ClrAllCtx(unsigned char ucStoreType)
 {
 	SMB_CS_CertificateContext_NODE *header = NULL;
 
 	if (ucStoreType > 0)
 	{
-		SMB_CS_EnumCtxsFromDB(&header, ucStoreType);
+		SMB_CS_EnumCtxs(&header, ucStoreType);
 
-		SMB_CS_DelCtx_NODE_FromDB(header);
+		SMB_CS_DelCtxLink(header);
 
-		SMB_CS_FreeCtx_NODE(&header);
+		SMB_CS_FreeCtxLink(&header);
 	}
 	else
 	{
 		for (int i = 0; i < 4; i++)
 		{
-			SMB_CS_EnumCtxsFromDB(&header, i+1);
+			SMB_CS_EnumCtxs(&header, i+1);
 
-			SMB_CS_DelCtx_NODE_FromDB(header);
+			SMB_CS_DelCtxLink(header);
 
-			SMB_CS_FreeCtx_NODE(&header);
+			SMB_CS_FreeCtxLink(&header);
 		}
 	}
 
@@ -2151,14 +2155,14 @@ unsigned int  SMB_UTIL_ImportCaCert(unsigned char *pbCert, unsigned int uiCertLe
 	}
 	else
 	{
-		if (0 != SMB_CS_AddCtxToDB(ctx, 1))
+		if (0 != SMB_CS_AddCtx(ctx, 1))
 		{
 			ulRet = EErr_SMB_ADD_CERT_TO_STORE;
 			goto err;
 		}
 	}
 #else
-	if (0 != SMB_CS_AddCtxToDB(ctx, 1))
+	if (0 != SMB_CS_AddCtx(ctx, 1))
 	{
 		ulRet = EErr_SMB_ADD_CERT_TO_STORE;
 		goto err;
@@ -2380,7 +2384,7 @@ unsigned int SMB_CS_FindCertChain(SMB_CS_CertificateContext_NODE **ppCertCtxNode
 	findAttr.stSubjectKeyID.data = (unsigned char*)certParse.m_strIssueKeyID.c_str();
 	findAttr.stSubjectKeyID.length = certParse.m_strIssueKeyID.size();
 
-	SMB_CS_FindCtxsFromDB(&findAttr, &ctxHeader);
+	SMB_CS_FindCtxs(&findAttr, &ctxHeader);
 
 	for (lastHeader = ctxHeader; ctxHeader != NULL; lastHeader = ctxHeader)
 	{
@@ -2402,7 +2406,7 @@ unsigned int SMB_CS_FindCertChain(SMB_CS_CertificateContext_NODE **ppCertCtxNode
 		findAttr.stSubjectKeyID.data = (unsigned char*)certParse.m_strIssueKeyID.c_str();
 		findAttr.stSubjectKeyID.length = certParse.m_strIssueKeyID.size();
 
-		SMB_CS_FindCtxsFromDB(&findAttr, &ctxHeader);
+		SMB_CS_FindCtxs(&findAttr, &ctxHeader);
 
 		if (lastHeader == ctxHeader)
 		{
@@ -2434,7 +2438,7 @@ int sdb_FillCSP(SMB_CS_CSP **ppPtr, sqlite3_stmt *stmt)
 	int pos = -1;
 
 	pos += 1;
-	pPtr->uiID = sqlite3_column_int(stmt, pos);
+	g_mapPtr2IDs[pPtr] = sqlite3_column_int(stmt, pos);
 
 	pos += 1;
 	pPtr->stName.length = sqlite3_column_bytes(stmt, pos);
@@ -2451,7 +2455,7 @@ int sdb_FillCSP(SMB_CS_CSP **ppPtr, sqlite3_stmt *stmt)
 	return 0;
 }
 
-int sdb_EnumCSPFromDB(SDB *sdb, SMB_CS_CSP_NODE **ppNodeHeader)
+int sdb_EnumCSP(SDB *sdb, SMB_CS_CSP_NODE **ppNodeHeader)
 {
 	sqlite3_stmt *stmt = NULL;
 	int sqlerr = SQLITE_OK;
@@ -2509,7 +2513,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_EnumCSPFromDB(SMB_CS_CSP_NODE **ppNodeHeader)
+unsigned int SMB_CS_EnumCSP(SMB_CS_CSP_NODE **ppNodeHeader)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -2523,7 +2527,7 @@ unsigned int SMB_CS_EnumCSPFromDB(SMB_CS_CSP_NODE **ppNodeHeader)
 		goto err;
 	}
 
-	crv = sdb_EnumCSPFromDB(&sdb, ppNodeHeader);
+	crv = sdb_EnumCSP(&sdb, ppNodeHeader);
 	if (crv)
 	{
 		goto err;
@@ -2556,7 +2560,7 @@ int sdb_FillPIDVID(SMB_CS_PIDVID **ppPtr, sqlite3_stmt *stmt)
 	int pos = -1;
 
 	pos += 1;
-	pPtr->uiID = sqlite3_column_int(stmt, pos);
+	g_mapPtr2IDs[pPtr] = sqlite3_column_int(stmt, pos);
 
 	pos += 1;
 	pPtr->stPID.length = sqlite3_column_bytes(stmt, pos);
@@ -2578,7 +2582,7 @@ int sdb_FillPIDVID(SMB_CS_PIDVID **ppPtr, sqlite3_stmt *stmt)
 	return 0;
 }
 
-int sdb_EnumPIDVIDFromDB(SDB *sdb, SMB_CS_PIDVID_NODE **ppNodeHeader)
+int sdb_EnumPIDVID(SDB *sdb, SMB_CS_PIDVID_NODE **ppNodeHeader)
 {
 	sqlite3_stmt *stmt = NULL;
 	int sqlerr = SQLITE_OK;
@@ -2636,7 +2640,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_EnumPIDVIDFromDB(SMB_CS_PIDVID_NODE **ppNodeHeader)
+unsigned int SMB_CS_EnumPIDVID(SMB_CS_PIDVID_NODE **ppNodeHeader)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -2650,7 +2654,7 @@ unsigned int SMB_CS_EnumPIDVIDFromDB(SMB_CS_PIDVID_NODE **ppNodeHeader)
 		goto err;
 	}
 
-	crv = sdb_EnumPIDVIDFromDB(&sdb, ppNodeHeader);
+	crv = sdb_EnumPIDVID(&sdb, ppNodeHeader);
 	if (crv)
 	{
 		goto err;
@@ -2683,7 +2687,7 @@ int sdb_FillPath(SMB_CS_Path **ppPtr, sqlite3_stmt *stmt)
 	int pos = -1;
 
 	pos += 1;
-	pPtr->uiID = sqlite3_column_int(stmt, pos);
+	g_mapPtr2IDs[pPtr] = sqlite3_column_int(stmt, pos);
 
 	pos += 1;
 	pPtr->stName.length = sqlite3_column_bytes(stmt, pos);
@@ -2710,7 +2714,7 @@ int sdb_FillPath(SMB_CS_Path **ppPtr, sqlite3_stmt *stmt)
 	return 0;
 }
 
-int sdb_EnumPathFromDB(SDB *sdb, SMB_CS_Path_NODE **ppNodeHeader)
+int sdb_EnumPath(SDB *sdb, SMB_CS_Path_NODE **ppNodeHeader)
 {
 	sqlite3_stmt *stmt = NULL;
 	int sqlerr = SQLITE_OK;
@@ -2768,7 +2772,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_EnumPathFromDB(SMB_CS_Path_NODE **ppNodeHeader)
+unsigned int SMB_CS_EnumPath(SMB_CS_Path_NODE **ppNodeHeader)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -2782,7 +2786,7 @@ unsigned int SMB_CS_EnumPathFromDB(SMB_CS_Path_NODE **ppNodeHeader)
 		goto err;
 	}
 
-	crv = sdb_EnumPathFromDB(&sdb, ppNodeHeader);
+	crv = sdb_EnumPath(&sdb, ppNodeHeader);
 	if (crv)
 	{
 		goto err;
@@ -2814,7 +2818,7 @@ int sdb_FillSKF(SMB_CS_SKF **ppPtr, sqlite3_stmt *stmt)
 	int pos = -1;
 
 	pos += 1;
-	pPtr->uiID = sqlite3_column_int(stmt, pos);
+	g_mapPtr2IDs[pPtr] = sqlite3_column_int(stmt, pos);
 
 	pos += 1;
 	pPtr->stName.length = sqlite3_column_bytes(stmt, pos);
@@ -2841,7 +2845,7 @@ int sdb_FillSKF(SMB_CS_SKF **ppPtr, sqlite3_stmt *stmt)
 	return 0;
 }
 
-int sdb_EnumSKFFromDB(SDB *sdb, SMB_CS_SKF_NODE **ppNodeHeader)
+int sdb_EnumSKF(SDB *sdb, SMB_CS_SKF_NODE **ppNodeHeader)
 {
 	sqlite3_stmt *stmt = NULL;
 	int sqlerr = SQLITE_OK;
@@ -2899,7 +2903,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_EnumSKFFromDB(SMB_CS_SKF_NODE **ppNodeHeader)
+unsigned int SMB_CS_EnumSKF(SMB_CS_SKF_NODE **ppNodeHeader)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -2913,7 +2917,7 @@ unsigned int SMB_CS_EnumSKFFromDB(SMB_CS_SKF_NODE **ppNodeHeader)
 		goto err;
 	}
 
-	crv = sdb_EnumSKFFromDB(&sdb, ppNodeHeader);
+	crv = sdb_EnumSKF(&sdb, ppNodeHeader);
 	if (crv)
 	{
 		goto err;
@@ -2933,7 +2937,7 @@ err:
 	return crv;
 }
 
-unsigned int SMB_CS_FreeCSP_NODE(SMB_CS_CSP_NODE **ppNodeHeader)
+unsigned int SMB_CS_FreeCSPLink(SMB_CS_CSP_NODE **ppNodeHeader)
 {
 	while (*ppNodeHeader)
 	{
@@ -2944,7 +2948,7 @@ unsigned int SMB_CS_FreeCSP_NODE(SMB_CS_CSP_NODE **ppNodeHeader)
 	return 0;
 }
 
-unsigned int SMB_CS_FreeSKF_NODE(SMB_CS_SKF_NODE **ppNodeHeader)
+unsigned int SMB_CS_FreeSKFLink(SMB_CS_SKF_NODE **ppNodeHeader)
 {
 	while (*ppNodeHeader)
 	{
@@ -2955,7 +2959,7 @@ unsigned int SMB_CS_FreeSKF_NODE(SMB_CS_SKF_NODE **ppNodeHeader)
 	return 0;
 }
 
-unsigned int SMB_CS_FreePIDVID_NODE(SMB_CS_PIDVID_NODE **ppNodeHeader)
+unsigned int SMB_CS_FreePIDVIDLink(SMB_CS_PIDVID_NODE **ppNodeHeader)
 {
 	while (*ppNodeHeader)
 	{
@@ -2966,7 +2970,7 @@ unsigned int SMB_CS_FreePIDVID_NODE(SMB_CS_PIDVID_NODE **ppNodeHeader)
 	return 0;
 }
 
-unsigned int SMB_CS_FreePath_NODE(SMB_CS_Path_NODE **ppNodeHeader)
+unsigned int SMB_CS_FreePathLink(SMB_CS_Path_NODE **ppNodeHeader)
 {
 	while (*ppNodeHeader)
 	{
