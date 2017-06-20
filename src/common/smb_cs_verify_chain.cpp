@@ -22,7 +22,7 @@
 #include "string.h"
 #include "openssl/x509v3.h"
 #include "smb_cs.h"
-
+#include "smb_cs_inner.h"
 
 
 unsigned int OpenSSL_VerifyCertChain(

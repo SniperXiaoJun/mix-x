@@ -1,5 +1,5 @@
 #include "smb_dev.h"
-
+#include "smb_cs_inner.h"
 #include <map>
 #include <string>
 

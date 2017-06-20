@@ -1,5 +1,6 @@
 
 #include <smb_cs.h>
+#include <smb_cs_inner.h>
 #include <iostream>
 #include <fstream>
 #include<iostream>

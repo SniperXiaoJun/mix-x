@@ -30,7 +30,7 @@ unsigned int SHOW_ALL_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 
 unsigned int ADD_USER_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 {
-	SMB_CS_ClrAllCtxFromDB(2);
+	SMB_CS_ClrAllCtx(2);
 
 	while (pCertCtxNode)
 	{
@@ -40,7 +40,7 @@ unsigned int ADD_USER_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 		}
 		else
 		{
-			SMB_CS_AddCtxToDB(pCertCtxNode->ptr_data, 2);
+			SMB_CS_AddCtx(pCertCtxNode->ptr_data, 2);
 		}
 		pCertCtxNode = pCertCtxNode->ptr_next;
 	}
@@ -86,9 +86,9 @@ int main(int argc, char * argv[])
 
 	ADD_USER_CERTS(header);
 
-	SMB_CS_FreeCtx_NODE(&header);
+	SMB_CS_FreeCtxLink(&header);
 
-	SMB_CS_EnumCtxsFromDB(&header, 2);
+	SMB_CS_EnumCtxs(&header, 2);
 
 	//SIGN_USE_CERT(header);
 

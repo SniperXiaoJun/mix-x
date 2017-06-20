@@ -76,9 +76,9 @@ int main(int argc, char * argv[])
 
 	SMB_CS_CertificateContext_NODE *header = NULL;
 	
-	SMB_CS_EnumCtxsFromDB(&header, 0);
+	SMB_CS_EnumCtxs(&header, 0);
 
-	SMB_CS_DelCtx_NODE_FromDB(header);
+	SMB_CS_DelCtxLink(header);
 
 	std::string path = ".";
 
