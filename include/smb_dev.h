@@ -72,7 +72,7 @@ extern "C" {
 	通过证书描述属性获取加密证书
 	*/
 	COMMON_API unsigned int SMB_DEV_FindEnCertificateByCertAttr(
-		_In_ SMB_CS_CertificateAttr *pCertDescProperty, _Out_ unsigned char *pbCert, _Inout_ unsigned int *puiCertLen
+		_In_ SMB_CS_CertificateAttr *pCertAttr, _Out_ unsigned char *pbCert, _Inout_ unsigned int *puiCertLen
 	);
 	
 	COMMON_API unsigned int SMB_DEV_SM2SignProcessByCertAttr(
