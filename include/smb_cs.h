@@ -365,20 +365,7 @@ extern "C" {
 }
 #endif
 
-/*
-从数据库遍历SKF名称
-*/
-COMMON_API unsigned int SMB_CS_EnumSKF(char * pszSKFNames, unsigned int * puiSKFNamesLen);
 
-/*
-从数据库读取SKF路径
-*/
-COMMON_API unsigned int SMB_CS_ReadSKFPath(const char * pszSKFName, char * pszDllPath, unsigned int *puiDllPathLen);
-
-/*
-从数据库读取SKF签名类型
-*/
-COMMON_API unsigned int SMB_CS_ReadSKFSignType(const char * pszSKFName, char * pszSignType, unsigned int *puiSignTypeLen);
 
 
 #endif /*_SMB_CS_API_H_*/

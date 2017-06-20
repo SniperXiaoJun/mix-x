@@ -225,13 +225,26 @@ unsigned int SMB_DEV_ChangePINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsi
 
 	unsigned int ulRet = 0;
 
-	unsigned int dllPathLen = BUFFER_LEN_1K;
 	char dllPathValue[BUFFER_LEN_1K] = { 0 };
+	char signTypeValue[BUFFER_LEN_1K] = { 0 };
 
 	DEVHANDLE hDev = NULL;
 	HAPPLICATION hAPP = NULL;
 
-	ulRet = SMB_CS_ReadSKFPath((const char *)pCertAttr->stSKFName.data, dllPathValue, &dllPathLen);
+	SMB_CS_SKF_NODE *pPtr = NULL;
+	SMB_CS_SKF_NODE *pHeader = NULL;
+
+	SMB_CS_EnumSKF(&pHeader);
+
+	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
+	{
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
+		{
+			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
+			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
+			break;
+		}
+	}
 
 	if (0 != ulRet)
 	{
@@ -338,6 +351,11 @@ err:
 #endif
 	}
 
+	if (pHeader)
+	{
+		SMB_CS_FreeSKFLink(&pHeader);
+	}
+
 
 	return ulRet;
 }
@@ -377,19 +395,26 @@ unsigned int SMB_DEV_GetDevInfoByCertAttr(SMB_CS_CertificateAttr *pCertAttr, DEV
 
 	unsigned int ulRet = 0;
 
-	unsigned int dllPathLen = BUFFER_LEN_1K;
 	char dllPathValue[BUFFER_LEN_1K] = { 0 };
+	char signTypeValue[BUFFER_LEN_1K] = { 0 };
 
 	DEVHANDLE hDev = NULL;
 	HAPPLICATION hAPP = NULL;
 
 	// 读取路径
-	ulRet = SMB_CS_ReadSKFPath((char *)pCertAttr->stSKFName.data, dllPathValue, &dllPathLen);
+	SMB_CS_SKF_NODE *pPtr = NULL;
+	SMB_CS_SKF_NODE *pHeader = NULL;
 
-	if (0 != ulRet)
+	SMB_CS_EnumSKF(&pHeader);
+
+	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
 	{
-		ulRet = EErr_SMB_DLL_REG_PATH;
-		goto err;
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
+		{
+			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
+			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
+			break;
+		}
 	}
 
 #if defined(USE_LOAD_LIBRARY)
@@ -482,6 +507,11 @@ err:
 #endif
 	}
 
+	if (pHeader)
+	{
+		SMB_CS_FreeSKFLink(&pHeader);
+	}
+
 	return ulRet;
 }
 
@@ -521,13 +551,26 @@ unsigned int SMB_DEV_VerifyPINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsi
 
 	unsigned int ulRet = 0;
 
-	unsigned int dllPathLen = BUFFER_LEN_1K;
 	char dllPathValue[BUFFER_LEN_1K] = { 0 };
+	char signTypeValue[BUFFER_LEN_1K] = { 0 };
 
 	DEVHANDLE hDev = NULL;
 	HAPPLICATION hAPP = NULL;
 
-	ulRet = SMB_CS_ReadSKFPath((char *)pCertAttr->stSKFName.data, dllPathValue, &dllPathLen);
+	SMB_CS_SKF_NODE *pPtr = NULL;
+	SMB_CS_SKF_NODE *pHeader = NULL;
+
+	SMB_CS_EnumSKF(&pHeader);
+
+	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
+	{
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
+		{
+			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
+			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
+			break;
+		}
+	}
 
 	if (0 != ulRet)
 	{
@@ -636,6 +679,11 @@ err:
 #endif
 	}
 
+	if (pHeader)
+	{
+		SMB_CS_FreeSKFLink(&pHeader);
+	}
+
 	return ulRet;
 }
 
@@ -680,27 +728,27 @@ unsigned int SMB_DEV_SM2SignByCertAttr(
 
 	unsigned int ulRet = 0;
 
-
-	unsigned int dllPathLen = BUFFER_LEN_1K;
 	char dllPathValue[BUFFER_LEN_1K] = { 0 };
-
-	unsigned int signTypeLen = BUFFER_LEN_1K;
 	char signTypeValue[BUFFER_LEN_1K] = { 0 };
 
 	DEVHANDLE hDev = NULL;
 	HAPPLICATION hAPP = NULL;
 	HCONTAINER hCon = NULL;
 
-	ulRet = SMB_CS_ReadSKFPath((char *)pCertAttr->stSKFName.data, dllPathValue, &dllPathLen);
+	SMB_CS_SKF_NODE *pPtr = NULL;
+	SMB_CS_SKF_NODE *pHeader = NULL;
 
-	if (0 != ulRet)
+	SMB_CS_EnumSKF(&pHeader);
+
+	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
 	{
-		ulRet = EErr_SMB_DLL_REG_PATH;
-		goto err;
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data , pCertAttr->stSKFName.length))
+		{
+			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
+			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
+			break;
+		}
 	}
-
-	// there may be fail, so don't judge return value
-	SMB_CS_ReadSKFSignType((char *)pCertAttr->stSKFName.data, signTypeValue, &signTypeLen);
 
 #if defined(USE_LOAD_LIBRARY)
 	ghInst = LoadLibraryA(dllPathValue);//动态加载Dll
@@ -805,6 +853,11 @@ err:
 #endif
 	}
 
+	if (pHeader)
+	{
+		SMB_CS_FreeSKFLink(&pHeader);
+	}
+
 	return ulRet;
 }
 
@@ -846,19 +899,26 @@ unsigned int SMB_DEV_FindEnCertificateByCertAttr(
 
 	unsigned int ulRet = -1;
 
-	unsigned int dllPathLen = BUFFER_LEN_1K;
 	char dllPathValue[BUFFER_LEN_1K] = { 0 };
+	char signTypeValue[BUFFER_LEN_1K] = { 0 };
 
 	DEVHANDLE hDev = NULL;
 	HAPPLICATION hAPP = NULL;
 	HCONTAINER hCon = NULL;
 
-	ulRet = SMB_CS_ReadSKFPath((char *)pCertAttr->stSKFName.data, dllPathValue, &dllPathLen);
+	SMB_CS_SKF_NODE *pPtr = NULL;
+	SMB_CS_SKF_NODE *pHeader = NULL;
 
-	if (0 != ulRet)
+	SMB_CS_EnumSKF(&pHeader);
+
+	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
 	{
-		ulRet = EErr_SMB_DLL_REG_PATH;
-		goto err;
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
+		{
+			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
+			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
+			break;
+		}
 	}
 
 #if defined(USE_LOAD_LIBRARY)
@@ -965,6 +1025,11 @@ err:
 #endif
 	}
 
+	if (pHeader)
+	{
+		SMB_CS_FreeSKFLink(&pHeader);
+	}
+
 
 	return ulRet;
 }
@@ -1040,8 +1105,8 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 
 	BYTE *pTmp = NULL;
 
-	unsigned int dllPathLen = BUFFER_LEN_1K;
 	char dllPathValue[BUFFER_LEN_1K] = { 0 };
+	char signTypeValue[BUFFER_LEN_1K] = { 0 };
 
 	char szConNames[BUFFER_LEN_1K] = { 0 };
 	ULONG ulConSize = BUFFER_LEN_1K;
@@ -1069,12 +1134,19 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 
 	pTmp = (BYTE *)malloc(BUFFER_LEN_1K * 4);
 
-	ulRet = SMB_CS_ReadSKFPath(pszSKFName, dllPathValue, &dllPathLen);
+	SMB_CS_SKF_NODE *pPtr = NULL;
+	SMB_CS_SKF_NODE *pHeader = NULL;
 
-	if (0 != ulRet)
+	SMB_CS_EnumSKF(&pHeader);
+
+	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
 	{
-		ulRet = EErr_SMB_DLL_REG_PATH;
-		goto err;
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pszSKFName, strlen(pszSKFName)))
+		{
+			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
+			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
+			break;
+		}
 	}
 
 #if defined(USE_LOAD_LIBRARY)
@@ -1452,24 +1524,30 @@ err:
 		free(pTmp);
 	}
 
+	if (pHeader)
+	{
+		SMB_CS_FreeSKFLink(&pHeader);
+	}
+
 	return ulRet;
 }
 
 unsigned int SMB_DEV_EnumCert(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int ulKeyFlag, unsigned int ulSignFlag, unsigned int ulVerifyFlag, unsigned int ulFilterFlag)
 {
 	unsigned int ulRet = 0;
-	char * ptr_SKF = NULL;
-	char szSKFAll[BUFFER_LEN_1K] = { 0 };
-	unsigned int ulSKFAll = 1024;
 
-	SMB_CS_EnumSKF(szSKFAll, &ulSKFAll);
+	SMB_CS_SKF_NODE *pPtr = NULL;
+	SMB_CS_SKF_NODE *pHeader = NULL;
 
-	for (ptr_SKF = szSKFAll; (ptr_SKF < szSKFAll + ulSKFAll) && *ptr_SKF != 0;)
+	SMB_CS_EnumSKF(&pHeader);
+
+	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
 	{
-		ulRet = SMB_DEV_EnumCertBySKF(ptr_SKF, ppCertCtxNodeHeader, ulKeyFlag, ulSignFlag, ulVerifyFlag, ulFilterFlag);
+		char data_skf[32] = { 0 };
 
-		// next SKF
-		ptr_SKF += strlen(ptr_SKF) + 1;
+		memcpy(data_skf, pPtr->ptr_data->stName.data, pPtr->ptr_data->stName.length);
+
+		ulRet = SMB_DEV_EnumCertBySKF(data_skf, ppCertCtxNodeHeader, ulKeyFlag, ulSignFlag, ulVerifyFlag, ulFilterFlag);
 
 		if (ulRet)
 		{
@@ -1478,6 +1556,11 @@ unsigned int SMB_DEV_EnumCert(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHead
 	}
 
 	ulRet = 0;
+
+	if (pHeader)
+	{
+		SMB_CS_FreeSKFLink(&pHeader);
+	}
 
 	return ulRet;
 }
@@ -1522,19 +1605,26 @@ unsigned int SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr * pCertAttr, OPST_
 
 	unsigned int ulRet = 0;
 
-	unsigned int dllPathLen = BUFFER_LEN_1K;
 	char dllPathValue[BUFFER_LEN_1K] = { 0 };
+	char signTypeValue[BUFFER_LEN_1K] = { 0 };
 
 	DEVHANDLE hDev = NULL;
 	HAPPLICATION hAPP = NULL;
 	HCONTAINER hCon = NULL;
 
-	ulRet = SMB_CS_ReadSKFPath((char *)pCertAttr->stSKFName.data, dllPathValue, &dllPathLen);
+	SMB_CS_SKF_NODE *pPtr = NULL;
+	SMB_CS_SKF_NODE *pHeader = NULL;
 
-	if (0 != ulRet)
+	SMB_CS_EnumSKF(&pHeader);
+
+	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
 	{
-		ulRet = EErr_SMB_DLL_REG_PATH;
-		goto err;
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
+		{
+			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
+			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
+			break;
+		}
 	}
 
 #if defined(USE_LOAD_LIBRARY)
@@ -1690,6 +1780,11 @@ err:
 #endif
 	}
 
+	if (pHeader)
+	{
+		SMB_CS_FreeSKFLink(&pHeader);
+	}
+
 	return ulRet;
 	}
 
@@ -1830,9 +1925,22 @@ unsigned int SMB_DEV_SM2SignProcessByCertAttr(
 	unsigned int ulRet = 0;
 	unsigned int signTypeLen = BUFFER_LEN_1K;
 	char signTypeValue[BUFFER_LEN_1K] = { 0 };
+	char dllPathValue[BUFFER_LEN_1K] = { 0 };
 
-	// there may be fail, so don't judge return value
-	SMB_CS_ReadSKFSignType((char *)pCertAttr->stSKFName.data, signTypeValue, &signTypeLen);
+	SMB_CS_SKF_NODE *pPtr = NULL;
+	SMB_CS_SKF_NODE *pHeader = NULL;
+
+	SMB_CS_EnumSKF(&pHeader);
+
+	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
+	{
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
+		{
+			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
+			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
+			break;
+		}
+	}
 
 	ulRet = SMB_DEV_ArgsGet(pCertAttr, &args);
 	if (0 != ulRet)
@@ -1894,6 +2002,11 @@ err:
 	{
 		SMB_DEV_SM2SignFinalize(&args);
 		SMB_DEV_ArgsClr();
+	}
+
+	if (pHeader)
+	{
+		SMB_CS_FreeSKFLink(&pHeader);
 	}
 
 	return ulRet;
@@ -1975,21 +2088,27 @@ COMMON_API unsigned int SMB_DEV_SM2GetAgreementKey(
 
 	unsigned int ulRet = 0;
 
-
-	unsigned int dllPathLen = BUFFER_LEN_1K;
 	char dllPathValue[BUFFER_LEN_1K] = { 0 };
+	char signTypeValue[BUFFER_LEN_1K] = { 0 };
 
 	DEVHANDLE hDev = NULL;
 	HAPPLICATION hAPP = NULL;
 	HCONTAINER hCon = NULL;
 	HANDLE hAgreementHandle = NULL;
 
-	ulRet = SMB_CS_ReadSKFPath((char *)pCertAttr->stSKFName.data, dllPathValue, &dllPathLen);
+	SMB_CS_SKF_NODE *pPtr = NULL;
+	SMB_CS_SKF_NODE *pHeader = NULL;
 
-	if (0 != ulRet)
+	SMB_CS_EnumSKF(&pHeader);
+
+	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
 	{
-		ulRet = EErr_SMB_DLL_REG_PATH;
-		goto err;
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
+		{
+			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
+			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
+			break;
+		}
 	}
 
 #if defined(USE_LOAD_LIBRARY)
@@ -2131,6 +2250,11 @@ err:
 #endif
 	}
 
+	if (pHeader)
+	{
+		SMB_CS_FreeSKFLink(&pHeader);
+	}
+
 	return ulRet;
 }
 
@@ -2249,8 +2373,8 @@ unsigned int SMB_DEV_FindSKFDriver(const char * pszSKFName, char * szVersion)
 	char * data_value = NULL;
 	char * pTmp = NULL;
 
-	unsigned int dllPathLen = BUFFER_LEN_1K;
 	char dllPathValue[BUFFER_LEN_1K] = { 0 };
+	char signTypeValue[BUFFER_LEN_1K] = { 0 };
 
 
 	DWORD    dwSize = 0;
@@ -2258,12 +2382,19 @@ unsigned int SMB_DEV_FindSKFDriver(const char * pszSKFName, char * szVersion)
 	VS_FIXEDFILEINFO    *pFileInfo = NULL;
 	UINT                puLenFileInfo = 0;
 
-	ulRet = SMB_CS_ReadSKFPath(pszSKFName, dllPathValue, &dllPathLen);
+	SMB_CS_SKF_NODE *pPtr = NULL;
+	SMB_CS_SKF_NODE *pHeader = NULL;
 
-	if (0 != ulRet)
+	SMB_CS_EnumSKF(&pHeader);
+
+	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
 	{
-		ulRet = EErr_SMB_DLL_REG_PATH;
-		goto err;
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pszSKFName, strlen(pszSKFName)))
+		{
+			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
+			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
+			break;
+		}
 	}
 
 #if defined(USE_LOAD_LIBRARY)
@@ -2320,6 +2451,11 @@ err:
 	if (pbVersionInfo)
 	{
 		free(pbVersionInfo);
+	}
+
+	if (pHeader)
+	{
+		SMB_CS_FreeSKFLink(&pHeader);
 	}
 
 	return ulRet;

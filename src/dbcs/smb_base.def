@@ -17,11 +17,6 @@ EXPORTS
 
 	SMB_CS_ExecSQL
 	
-	SMB_CS_EnumSKF
-	SMB_CS_ReadSKFPath
-	SMB_CS_ReadSKFSignType
-	
-
 	SMB_CS_EnumCSP
 	SMB_CS_FreeCSPLink
 	SMB_CS_FreeCSP

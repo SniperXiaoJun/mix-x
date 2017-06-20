@@ -136,7 +136,7 @@ int GetCMBCKeyCount(int *piCount)
 	char data_message[BUFFER_LEN_1K] = { 0 };
 
 	SMB_DB_Init();
-	SMB_CS_EnumPIDVIDFromDB(&pHeader);
+	SMB_CS_EnumPIDVID(&pHeader);
 
 	if (NULL == pHeader)
 	{
@@ -192,7 +192,7 @@ err:
 
 	if (pHeader)
 	{
-		SMB_CS_FreePIDVID_NODE(&pHeader);
+		SMB_CS_FreePIDVIDLink(&pHeader);
 	}
 
 	*piCount = count;
@@ -432,7 +432,7 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int ulF
 				findAttr.stSubjectKeyID.data = (unsigned char*)strRootCertKeyIDHex.c_str();
 				findAttr.stSubjectKeyID.length = strRootCertKeyIDHex.size();
 
-				SMB_CS_FindCtxsFromDB(&findAttr, &ctxHeader);
+				SMB_CS_FindCtxs(&findAttr, &ctxHeader);
 
 				if (NULL == ctxHeader)
 				{
@@ -475,7 +475,7 @@ err:
 
 	if (NULL != ctxHeader)
 	{
-		SMB_CS_FreeCtx_NODE(&ctxHeader);
+		SMB_CS_FreeCtxLink(&ctxHeader);
 	}
 
 	if (ulRet)
@@ -746,18 +746,18 @@ std::string WTF_ReadCurrentCerts(int Expire)
 			}
 		}
 
-		SMB_CS_ClrAllCtxFromDB(2);
+		SMB_CS_ClrAllCtx(2);
 
 		pCertCtxNode = header;
 
 		while (pCertCtxNode)
 		{
-			SMB_CS_AddCtxToDB(pCertCtxNode->ptr_data,2);
+			SMB_CS_AddCtx(pCertCtxNode->ptr_data,2);
 			pCertCtxNode = pCertCtxNode->ptr_next;
 		}
 	}
 
-	SMB_CS_EnumCSPFromDB(&pHeader);
+	SMB_CS_EnumCSP(&pHeader);
 
 	if (NULL == pHeader)
 	{
@@ -1149,7 +1149,7 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 	if (pHeader)
 	{
-		SMB_CS_FreeCSP_NODE(&pHeader);
+		SMB_CS_FreeCSPLink(&pHeader);
 	}
 
 	g_CurrentCerts = All.toStyledString();
