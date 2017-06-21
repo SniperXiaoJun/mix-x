@@ -46,6 +46,7 @@ EXPORTS
 	SMB_DEV_GetDevInfoByCertAttr
 	SMB_DEV_VerifyPINByCertAttr
 	SMB_DEV_SM2SignByCertAttr
+	SMB_DEV_SM2Sign
 	SMB_DEV_SM2VerifyDigest
 	SMB_DEV_FindSKFDriver
 	SMB_UI_ShowUI

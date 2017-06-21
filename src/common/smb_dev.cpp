@@ -688,6 +688,238 @@ err:
 }
 
 
+unsigned int SMB_DEV_SM2SignProcess(OPST_HANDLE_ARGS *args,
+	SMB_CS_CertificateAttr *pCertAttr,
+	char *pszPIN,
+	BYTE *pbDigest, unsigned int uiDigestLen,
+	BYTE *pbData, unsigned int uiDataLen,
+	PECCSIGNATUREBLOB pSignature, ULONG *puiRetryCount)
+{
+	HINSTANCE ghInst = NULL;
+	unsigned int ulRet = 0;
+
+	FUNC_NAME_DECLARE(func_, EnumDev, );
+	FUNC_NAME_DECLARE(func_, ConnectDev, );
+	FUNC_NAME_DECLARE(func_, DisConnectDev, );
+	FUNC_NAME_DECLARE(func_, ChangePIN, );
+	FUNC_NAME_DECLARE(func_, OpenApplication, );
+	FUNC_NAME_DECLARE(func_, CloseApplication, );
+	FUNC_NAME_DECLARE(func_, EnumApplication, );
+	FUNC_NAME_DECLARE(func_, ExportCertificate, );
+	FUNC_NAME_DECLARE(func_, EnumContainer, );
+	FUNC_NAME_DECLARE(func_, OpenContainer, );
+	FUNC_NAME_DECLARE(func_, CloseContainer, );
+	FUNC_NAME_DECLARE(func_, VerifyPIN, );
+	FUNC_NAME_DECLARE(func_, GetContainerType, );
+	FUNC_NAME_DECLARE(func_, ECCSignData, );
+	FUNC_NAME_DECLARE(func_, ECCVerify, );
+	FUNC_NAME_DECLARE(func_, ExtECCVerify, );
+	FUNC_NAME_DECLARE(func_, GetDevInfo, );
+	FUNC_NAME_DECLARE(func_, LockDev, );
+	FUNC_NAME_DECLARE(func_, UnlockDev, );
+
+	FUNC_NAME_DECLARE(func_, GenerateKeyWithECCEx, );
+	FUNC_NAME_DECLARE(func_, GenerateAgreementDataWithECC, );
+	FUNC_NAME_DECLARE(func_, GenerateAgreementDataWithECCEx, );
+	FUNC_NAME_DECLARE(func_, GenerateAgreementDataAndKeyWithECCEx, );
+
+	FUNC_NAME_DECLARE(func_, GenRandom, );
+	FUNC_NAME_DECLARE(func_, Transmit, );
+
+
+	DEVHANDLE hDev = NULL;
+	HAPPLICATION hAPP = NULL;
+	HCONTAINER hCon = NULL;
+
+	char dllPathValue[BUFFER_LEN_1K] = { 0 };
+	char signTypeValue[BUFFER_LEN_1K] = { 0 };
+	char pinVerifyValue[BUFFER_LEN_1K] = { 0 };
+
+	SMB_CS_SKF_NODE *pPtr = NULL;
+	SMB_CS_SKF_NODE *pHeader = NULL;
+
+	OPST_HANDLE_ARGS * handleArgs = args;
+
+	if (handleArgs)
+	{
+		ghInst = (HINSTANCE)handleArgs->ghInst;
+		hDev = handleArgs->hDev;
+		hAPP = handleArgs->hAPP;
+		hCon = handleArgs->hCon;
+	}
+	else
+	{
+		return EErr_SMB_FAIL;
+	}
+
+	if (!ghInst)
+	{
+		ulRet = EErr_SMB_DLL_PATH;
+		goto err;
+	}
+
+	SMB_CS_EnumSKF(&pHeader);
+
+	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
+	{
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
+		{
+			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
+			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
+			memcpy(pinVerifyValue, pPtr->ptr_data->stPinVerify.data, pPtr->ptr_data->stPinVerify.length);
+			break;
+		}
+	}
+
+	FUNC_NAME_INIT(func_, EnumDev, );
+	FUNC_NAME_INIT(func_, ConnectDev, );
+	FUNC_NAME_INIT(func_, DisConnectDev, );
+	FUNC_NAME_INIT(func_, ChangePIN, );
+	FUNC_NAME_INIT(func_, OpenApplication, );
+	FUNC_NAME_INIT(func_, CloseApplication, );
+	FUNC_NAME_INIT(func_, EnumApplication, );
+	FUNC_NAME_INIT(func_, ExportCertificate, );
+	FUNC_NAME_INIT(func_, EnumContainer, );
+	FUNC_NAME_INIT(func_, OpenContainer, );
+	FUNC_NAME_INIT(func_, CloseContainer, );
+	FUNC_NAME_INIT(func_, VerifyPIN, );
+	FUNC_NAME_INIT_GetContainerType(func_, GetContainerType, );
+	FUNC_NAME_INIT(func_, LockDev, );
+	FUNC_NAME_INIT(func_, UnlockDev, );
+
+	FUNC_NAME_INIT(func_, ECCSignData, );
+
+	FUNC_NAME_INIT(func_, GenRandom, );
+	FUNC_NAME_INIT(func_, Transmit, );
+
+	{
+		if (hCon)
+		{
+
+			//  "0" || "" ：标准PIN有效使用
+			//	"1"：无需调用校验PIN接口
+			//	"2"：PIN无效，但需调用校验PIN接口
+			if (0 == memcmp("2", pinVerifyValue, 1))
+			{
+				ulRet = func_VerifyPIN(hAPP, 1, pszPIN, puiRetryCount);
+				if (0 != ulRet)
+				{
+					goto err;
+				}
+			}
+			else if (0 == memcmp("1", pinVerifyValue, 1))
+			{
+
+			}
+			else if (0 == memcmp("0", pinVerifyValue, 1))
+			{
+				ulRet = func_VerifyPIN(hAPP, 1, pszPIN, puiRetryCount);
+				if (0 != ulRet)
+				{
+					goto err;
+				}
+			}
+			else if (0 == memcmp("", pinVerifyValue, 1))
+			{
+				ulRet = func_VerifyPIN(hAPP, 1, pszPIN, puiRetryCount);
+				if (0 != ulRet)
+				{
+					goto err;
+				}
+			}
+
+			if (0 == memcmp("data", signTypeValue, 4))
+			{
+				ulRet = func_ECCSignData(hCon, pbData, uiDataLen, pSignature);
+			}
+			else
+			{
+				ulRet = func_ECCSignData(hCon, pbDigest, uiDigestLen, pSignature);
+			}
+			if (0 != ulRet)
+			{
+				goto err;
+			}
+		}
+		else
+		{
+			ulRet = EErr_SMB_FAIL;
+		}
+	}
+
+err:
+
+	if (pHeader)
+	{
+		SMB_CS_FreeSKFLink(&pHeader);
+	}
+
+
+	return ulRet;
+}
+
+
+unsigned int SMB_DEV_SM2Sign(
+	SMB_CS_CertificateAttr *pCertAttr,
+	char *pszPIN,
+	BYTE *pbDigest, unsigned int uiDigestLen,
+	BYTE *pbData, unsigned int uiDataLen,
+	PECCSIGNATUREBLOB pSignature, ULONG *puiRetryCount)
+{
+	OPST_HANDLE_ARGS args = { 0 };
+	OPST_HANDLE_ARGS argsZERO = { 0 };
+	unsigned int ulRet = 0;
+
+	ulRet = SMB_DEV_ArgsGet(pCertAttr, &args);
+	if (0 != ulRet)
+	{
+		goto err;
+	}
+
+	if (0 == memcmp(&args, &argsZERO, sizeof(OPST_HANDLE_ARGS)))
+	{
+		ulRet = SMB_DEV_SM2SignInitialize(pCertAttr, &args);
+
+		SMB_DEV_ArgsPut(pCertAttr, &args);
+
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+	}
+
+	ulRet = SMB_DEV_SM2SignProcess(&args, pCertAttr, pszPIN, pbDigest, uiDigestLen, pbData, uiDataLen, pSignature, puiRetryCount);
+	if (SAR_FAIL == ulRet)
+	{
+		SMB_DEV_SM2SignFinalize(&args);
+		memcpy(&args, &argsZERO, sizeof(OPST_HANDLE_ARGS));
+		ulRet = SMB_DEV_SM2SignInitialize(pCertAttr, &args);
+
+		SMB_DEV_ArgsPut(pCertAttr, &args);
+
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+
+		ulRet = SMB_DEV_SM2SignProcess(&args, pCertAttr, pszPIN, pbDigest, uiDigestLen, pbData, uiDataLen, pSignature, puiRetryCount);
+
+		if (0 != ulRet)
+		{
+			goto err;
+		}
+	}
+
+err:
+	if (ulRet)
+	{
+		SMB_DEV_SM2SignFinalize(&args);
+		SMB_DEV_ArgsClr();
+	}
+
+	return ulRet;
+}
+
 unsigned int SMB_DEV_SM2SignByCertAttr(
 	SMB_CS_CertificateAttr *pCertAttr,
 	char *pszPIN,
@@ -863,7 +1095,7 @@ err:
 
 
 unsigned int SMB_DEV_FindEnCertificateByCertAttr(
-	_In_ SMB_CS_CertificateAttr *pCertAttr, _Out_ unsigned char *pbCert, _Inout_ unsigned int *pulCertLen
+	IN SMB_CS_CertificateAttr *pCertAttr, OUT unsigned char *pbCert, IN OUT unsigned int *pulCertLen
 )
 {
 	HINSTANCE ghInst = NULL;
@@ -2041,19 +2273,19 @@ err:
 #endif
 
 COMMON_API unsigned int SMB_DEV_SM2GetAgreementKey(
-	_In_ SMB_CS_CertificateAttr *pCertAttr,
-	_In_ ULONG ulAlgId,
-	_Out_ ECCPUBLICKEYBLOB *pTempECCPubKeyBlobA,
-	_In_ BYTE* pbIDA,
-	_In_ ULONG ulIDALen,
-	_In_ ECCPUBLICKEYBLOB *pECCPubKeyBlobB,
-	_In_ ECCPUBLICKEYBLOB *pTempECCPubKeyBlobB,
-	_In_ BYTE* pbIDB,
-	_In_ ULONG ulIDBLen,
-	_Out_ BYTE *pbAgreementKey,
-	_Inout_ ULONG *pulAgreementKeyLen,
-	_In_ char * pszPIN,
-	_Inout_ ULONG * puiRetryCount)
+	IN SMB_CS_CertificateAttr *pCertAttr,
+	IN ULONG ulAlgId,
+	OUT ECCPUBLICKEYBLOB *pTempECCPubKeyBlobA,
+	IN BYTE* pbIDA,
+	IN ULONG ulIDALen,
+	IN ECCPUBLICKEYBLOB *pECCPubKeyBlobB,
+	IN ECCPUBLICKEYBLOB *pTempECCPubKeyBlobB,
+	IN BYTE* pbIDB,
+	IN ULONG ulIDBLen,
+	OUT BYTE *pbAgreementKey,
+	IN OUT ULONG *pulAgreementKeyLen,
+	IN char * pszPIN,
+	IN OUT ULONG * puiRetryCount)
 {
 	HINSTANCE ghInst = NULL;
 
@@ -2259,23 +2491,23 @@ err:
 }
 
 COMMON_API unsigned int SMB_DEV_SM2GetAgreementKeyEx(
-	_In_ BYTE* pbCert,
-	_In_ unsigned int ulCertLen,
-	_In_ int ulAlgId,
-	_Out_ BYTE* pbTempECCPubKeyBlobA,
-	_Inout_ int *pulTempECCPubKeyBlobALen,
-	_In_ BYTE* pbIDA,
-	_In_ int ulIDALen,
-	_In_ BYTE* pbECCPubKeyBlobB,
-	_In_ int  ulECCPubKeyBlobBLen,
-	_In_ BYTE* pbTempECCPubKeyBlobB,
-	_In_ int  ulTempECCPubKeyBlobBLen,
-	_In_ BYTE* pbIDB,
-	_In_ int ulIDBLen,
-	_Out_ BYTE *pbAgreementKey,
-	_Inout_ ULONG *pulAgreementKeyLen,
-	_In_ char * pszPIN,
-	_Inout_ ULONG * puiRetryCount)
+	IN BYTE* pbCert,
+	IN unsigned int ulCertLen,
+	IN int ulAlgId,
+	OUT BYTE* pbTempECCPubKeyBlobA,
+	IN OUT int *pulTempECCPubKeyBlobALen,
+	IN BYTE* pbIDA,
+	IN int ulIDALen,
+	IN BYTE* pbECCPubKeyBlobB,
+	IN int  ulECCPubKeyBlobBLen,
+	IN BYTE* pbTempECCPubKeyBlobB,
+	IN int  ulTempECCPubKeyBlobBLen,
+	IN BYTE* pbIDB,
+	IN int ulIDBLen,
+	OUT BYTE *pbAgreementKey,
+	IN OUT ULONG *pulAgreementKeyLen,
+	IN char * pszPIN,
+	IN OUT ULONG * puiRetryCount)
 {
 	SMB_CS_CertificateContext *pCertCtx = NULL;
 

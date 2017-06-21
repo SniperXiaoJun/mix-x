@@ -72,14 +72,8 @@ extern "C" {
 	通过证书描述属性获取加密证书
 	*/
 	COMMON_API unsigned int SMB_DEV_FindEnCertificateByCertAttr(
-		_In_ SMB_CS_CertificateAttr *pCertAttr, _Out_ unsigned char *pbCert, _Inout_ unsigned int *puiCertLen
+		IN SMB_CS_CertificateAttr *pCertAttr, OUT unsigned char *pbCert, IN OUT unsigned int *puiCertLen
 	);
-	
-	COMMON_API unsigned int SMB_DEV_SM2SignProcessByCertAttr(
-		SMB_CS_CertificateAttr*pCertAttr, 
-		BYTE *pbDigest, unsigned int uiDigestLen,
-		BYTE *pbData, unsigned int uiDataLen,
-		PECCSIGNATUREBLOB pSignature);
 
 	/*
 	功能名称:	获取设备信息
@@ -111,9 +105,9 @@ extern "C" {
 
 	/*
 	功能名称:	SM2证书签名
-	函数名称:	SMB_DEV_SM2SignByCertAttr
+	函数名称:	SMB_DEV_SM2Sign
 	输入参数:
-	pCertAttr 证书属性// SMC接口查找出来之后的结构体
+	pCertAttr 证书属性// SMB接口查找出来之后的结构体
 	pszPIN	密码
 	pbData数据
 	uiDataLen 长度
@@ -124,7 +118,7 @@ extern "C" {
 	失败：
 	功能描述:	修改密码
 	*/
-	COMMON_API unsigned int SMB_DEV_SM2SignByCertAttr(
+	COMMON_API unsigned int SMB_DEV_SM2Sign(
 		SMB_CS_CertificateAttr *pCertAttr,
 		char *pszPIN,
 		BYTE *pbDigest, unsigned int uiDigestLen,
@@ -171,38 +165,38 @@ extern "C" {
 
 
 	COMMON_API unsigned int SMB_DEV_SM2GetAgreementKey(
-		_In_ SMB_CS_CertificateAttr*pCertAttr,
-		_In_ ULONG ulAlgId,
-		_Out_ ECCPUBLICKEYBLOB *pTempECCPubKeyBlobA,
-		_In_ BYTE *pbIDA,
-		_In_ ULONG ulIDALen,
-		_In_ ECCPUBLICKEYBLOB *pECCPubKeyBlobB,
-		_In_ ECCPUBLICKEYBLOB *pTempECCPubKeyBlobB,
-		_In_ BYTE *pbIDB,
-		_In_ ULONG ulIDBLen,
-		_Out_ BYTE *pbAgreementKey,
-		_Inout_ ULONG *pulAgreementKeyLen,
-		_In_ char*pszPIN,
-		_Inout_ ULONG*puiRetryCount);
+		IN SMB_CS_CertificateAttr*pCertAttr,
+		IN ULONG ulAlgId,
+		OUT ECCPUBLICKEYBLOB *pTempECCPubKeyBlobA,
+		IN BYTE *pbIDA,
+		IN ULONG ulIDALen,
+		IN ECCPUBLICKEYBLOB *pECCPubKeyBlobB,
+		IN ECCPUBLICKEYBLOB *pTempECCPubKeyBlobB,
+		IN BYTE *pbIDB,
+		IN ULONG ulIDBLen,
+		OUT BYTE *pbAgreementKey,
+		IN OUT ULONG *pulAgreementKeyLen,
+		IN char*pszPIN,
+		IN OUT ULONG*puiRetryCount);
 
 	COMMON_API unsigned int SMB_DEV_SM2GetAgreementKeyEx(
-		_In_ BYTE *pbCert,
-		_In_ unsigned int uiCertLen,
-		_In_ int uiAlgId,
-		_Out_ BYTE *pbTempECCPubKeyBlobA,
-		_Inout_ int *puiTempECCPubKeyBlobALen,
-		_In_ BYTE *pbIDA,
-		_In_ int uiIDALen,
-		_In_ BYTE *pbECCPubKeyBlobB,
-		_In_ int uiECCPubKeyBlobBLen,
-		_In_ BYTE *pbTempECCPubKeyBlobB,
-		_In_ int uiTempECCPubKeyBlobBLen,
-		_In_ BYTE *pbIDB,
-		_In_ int uiIDBLen,
-		_Out_ BYTE *pbAgreementKey,
-		_Inout_ ULONG *puiAgreementKeyLen,
-		_In_ const char*pszPIN,
-		_Inout_ ULONG*puiRetryCount);
+		IN BYTE *pbCert,
+		IN unsigned int uiCertLen,
+		IN int uiAlgId,
+		OUT BYTE *pbTempECCPubKeyBlobA,
+		IN OUT int *puiTempECCPubKeyBlobALen,
+		IN BYTE *pbIDA,
+		IN int uiIDALen,
+		IN BYTE *pbECCPubKeyBlobB,
+		IN int uiECCPubKeyBlobBLen,
+		IN BYTE *pbTempECCPubKeyBlobB,
+		IN int uiTempECCPubKeyBlobBLen,
+		IN BYTE *pbIDB,
+		IN int uiIDBLen,
+		OUT BYTE *pbAgreementKey,
+		IN OUT ULONG *puiAgreementKeyLen,
+		IN const char*pszPIN,
+		IN OUT ULONG*puiRetryCount);
 
 
 	/*
@@ -254,6 +248,24 @@ extern "C" {
 	功能描述:	验证设备密码
 	*/
 	COMMON_API unsigned int SMB_DEV_VerifyPIN(const char *pszDevName, unsigned int uiPINType, char *pszPin, ULONG *puiRetryCount);
+
+	/*
+	
+	*/
+	COMMON_API unsigned int SMB_DEV_SM2SignByCertAttr(
+		SMB_CS_CertificateAttr *pCertAttr,
+		char *pszPIN,
+		BYTE *pbDigest, unsigned int uiDigestLen,
+		BYTE *pbData, unsigned int uiDataLen,
+		PECCSIGNATUREBLOB pSignature, ULONG *puiRetryCount);
+
+	COMMON_API unsigned int SMB_DEV_SM2SignProcessByCertAttr(
+		SMB_CS_CertificateAttr*pCertAttr,
+		BYTE *pbDigest, unsigned int uiDigestLen,
+		BYTE *pbData, unsigned int uiDataLen,
+		PECCSIGNATUREBLOB pSignature);
+
+
 #ifdef __cplusplus
 }
 #endif
