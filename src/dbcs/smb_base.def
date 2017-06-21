@@ -9,8 +9,8 @@ EXPORTS
 	SMB_CS_AddCtx
 	SMB_CS_DelCtx
 	SMB_CS_ClrAllCtx
-	SMB_CS_FindCtxs
-	SMB_CS_EnumCtxs
+	SMB_CS_FindCtx
+	SMB_CS_EnumCtx
 	SMB_CS_DelCtxLink
 	SMB_CS_GetCtxByCert
 	SMB_CS_FindCertChain

@@ -90,7 +90,7 @@ typedef struct _SMB_CS_CertificateFindAttr
 	SMB_CS_Data stSubjectKeyID;     // 使用者密钥标识  128
 	SMB_CS_Data stIssueKeyID;       // 颁发者密钥标识  256
 	SMB_CS_Data stVendorData;       // 用户自定义数据  512
-	
+
 }SMB_CS_CertificateFindAttr;
 
 //证书内容
@@ -208,7 +208,7 @@ typedef enum _EErr_SMB
 extern "C" {
 #endif
 	/*
-	数据库路径初始化 
+	数据库路径初始化
 	pDbPath:NULL 默认路径C:\Users\xxxxx\AppData\Roaming\xxxx.smb_cs.db
 	*/
 	COMMON_API unsigned int SMB_DB_Path_Init(char * pDbPath);
@@ -221,7 +221,7 @@ extern "C" {
 	/*
 	创建证书上下文
 	*/
-	COMMON_API unsigned int SMB_CS_CreateCtx(OUT SMB_CS_CertificateContext **ppCertCtx,IN unsigned char *pCertificate,IN unsigned int uiCertificateLen);
+	COMMON_API unsigned int SMB_CS_CreateCertCtx(OUT SMB_CS_CertificateContext **ppCertCtx, IN unsigned char *pCertificate, IN unsigned int uiCertificateLen);
 
 	/*
 	释放证书上下文
@@ -231,7 +231,7 @@ extern "C" {
 	/*
 	添加证书到数据库 ucStoreType 1:CA&ROOT 2:USER
 	*/
-	COMMON_API unsigned int SMB_CS_AddCtx(IN SMB_CS_CertificateContext *pCertCtx,IN unsigned char ucStoreType);
+	COMMON_API unsigned int SMB_CS_AddCtx(IN SMB_CS_CertificateContext *pCertCtx, IN unsigned char ucStoreType);
 
 	/*
 	从数据库删除证书
@@ -246,12 +246,12 @@ extern "C" {
 	/*
 	从数据库查找证书
 	*/
-	COMMON_API unsigned int SMB_CS_FindCtxs(IN SMB_CS_CertificateFindAttr *pCertificateFindAttr,OUT SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader);
+	COMMON_API unsigned int SMB_CS_FindCtx(IN SMB_CS_CertificateFindAttr *pCertificateFindAttr, OUT SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader);
 
 	/*
 	从数据库遍历证书
 	*/
-	COMMON_API unsigned int SMB_CS_EnumCtxs(OUT SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, IN unsigned char ucStoreType);
+	COMMON_API unsigned int SMB_CS_EnumCtx(OUT SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, IN unsigned char ucStoreType);
 
 	/*
 	从数据库删除证书上
@@ -266,7 +266,7 @@ extern "C" {
 	/*
 	通过证书获取上下文
 	*/
-	COMMON_API unsigned int SMB_CS_GetCtxByCert(OUT SMB_CS_CertificateContext **ppCertCtx,IN unsigned char *pCertificate,IN unsigned int uiCertificateLen);
+	COMMON_API unsigned int SMB_CS_GetCtxByCert(OUT SMB_CS_CertificateContext **ppCertCtx, IN unsigned char *pCertificate, IN unsigned int uiCertificateLen);
 
 	/*
 	从数据库遍历CSP
@@ -339,12 +339,12 @@ extern "C" {
 	/*
 	验证证书的合法性
 	*/
-	COMMON_API unsigned int SMB_UTIL_VerifyCert(IN unsigned int uiFlag, IN unsigned char *pbCert,IN unsigned int uiCertLen);
+	COMMON_API unsigned int SMB_UTIL_VerifyCert(IN unsigned int uiFlag, IN unsigned char *pbCert, IN unsigned int uiCertLen);
 
 	/*
 	导入CA&ROOT证书
 	*/
-	COMMON_API unsigned int  SMB_UTIL_ImportCaCert(IN unsigned char *pbCert,IN unsigned int uiCertLen,OUT unsigned int *pulAlgType);
+	COMMON_API unsigned int SMB_UTIL_ImportCaCert(IN unsigned char *pbCert, IN unsigned int uiCertLen, OUT unsigned int *pulAlgType);
 
 #ifdef __cplusplus
 }

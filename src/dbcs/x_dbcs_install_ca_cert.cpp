@@ -76,7 +76,7 @@ int main(int argc, char * argv[])
 
 	SMB_CS_CertificateContext_NODE *header = NULL;
 	
-	SMB_CS_EnumCtxs(&header, 0);
+	SMB_CS_EnumCtx(&header, 0);
 
 	SMB_CS_DelCtxLink(header);
 

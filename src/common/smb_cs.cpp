@@ -704,7 +704,7 @@ int sdb_FillCtx(SMB_CS_CertificateContext **ppCertCtx, SMB_CS_CertificateFindAtt
 	return 0;
 }
 
-int sdb_FindCtxs(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
+int sdb_FindCtx(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
 {
 	sqlite3_stmt *stmt = NULL;
 	int sqlerr = SQLITE_OK;
@@ -763,7 +763,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_FindCtxs(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
+unsigned int SMB_CS_FindCtx(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -777,7 +777,7 @@ unsigned int SMB_CS_FindCtxs(SMB_CS_CertificateFindAttr *pCertificateFindAttr, S
 		goto err;
 	}
 
-	crv = sdb_FindCtxs(&sdb, pCertificateFindAttr, ppCertCtxNodeHeader);
+	crv = sdb_FindCtx(&sdb, pCertificateFindAttr, ppCertCtxNodeHeader);
 	if (crv)
 	{
 		goto err;
@@ -1208,7 +1208,7 @@ unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, uns
 		findAttr.stSubjectKeyID.data = (unsigned char*)certParse.m_strIssueKeyID.c_str();
 		findAttr.stSubjectKeyID.length = certParse.m_strIssueKeyID.size();
 
-		SMB_CS_FindCtxs(&findAttr, &ctxHeader);
+		SMB_CS_FindCtx(&findAttr, &ctxHeader);
 
 		if (NULL != ctxHeader)
 		{
@@ -1307,7 +1307,7 @@ err:
 	return ulRet;
 }
 
-unsigned int SMB_CS_EnumCtxs(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char ucStoreType)
+unsigned int SMB_CS_EnumCtx(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char ucStoreType)
 {
 	SMB_CS_CertificateFindAttr findAttr;
 	if (0 == ucStoreType)
@@ -1323,7 +1323,7 @@ unsigned int SMB_CS_EnumCtxs(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeade
 	}
 
 
-	return SMB_CS_FindCtxs(&findAttr, ppCertCtxNodeHeader);
+	return SMB_CS_FindCtx(&findAttr, ppCertCtxNodeHeader);
 }
 
 unsigned int SMB_CS_DelCtxLink(SMB_CS_CertificateContext_NODE *pCertCtxNodeHeader)
@@ -1770,7 +1770,7 @@ unsigned int SMB_CS_ClrAllCtx(unsigned char ucStoreType)
 
 	if (ucStoreType > 0)
 	{
-		SMB_CS_EnumCtxs(&header, ucStoreType);
+		SMB_CS_EnumCtx(&header, ucStoreType);
 
 		SMB_CS_DelCtxLink(header);
 
@@ -1780,7 +1780,7 @@ unsigned int SMB_CS_ClrAllCtx(unsigned char ucStoreType)
 	{
 		for (int i = 0; i < 4; i++)
 		{
-			SMB_CS_EnumCtxs(&header, i+1);
+			SMB_CS_EnumCtx(&header, i+1);
 
 			SMB_CS_DelCtxLink(header);
 
@@ -2156,7 +2156,7 @@ unsigned int SMB_CS_FindCertChain(SMB_CS_CertificateContext_NODE **ppCertCtxNode
 	findAttr.stSubjectKeyID.data = (unsigned char*)certParse.m_strIssueKeyID.c_str();
 	findAttr.stSubjectKeyID.length = certParse.m_strIssueKeyID.size();
 
-	SMB_CS_FindCtxs(&findAttr, &ctxHeader);
+	SMB_CS_FindCtx(&findAttr, &ctxHeader);
 
 	for (lastHeader = ctxHeader; ctxHeader != NULL; lastHeader = ctxHeader)
 	{
@@ -2178,7 +2178,7 @@ unsigned int SMB_CS_FindCertChain(SMB_CS_CertificateContext_NODE **ppCertCtxNode
 		findAttr.stSubjectKeyID.data = (unsigned char*)certParse.m_strIssueKeyID.c_str();
 		findAttr.stSubjectKeyID.length = certParse.m_strIssueKeyID.size();
 
-		SMB_CS_FindCtxs(&findAttr, &ctxHeader);
+		SMB_CS_FindCtx(&findAttr, &ctxHeader);
 
 		if (lastHeader == ctxHeader)
 		{

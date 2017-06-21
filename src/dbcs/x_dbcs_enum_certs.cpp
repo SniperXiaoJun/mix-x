@@ -88,7 +88,7 @@ int main(int argc, char * argv[])
 
 	SMB_CS_FreeCtxLink(&header);
 
-	SMB_CS_EnumCtxs(&header, 2);
+	SMB_CS_EnumCtx(&header, 2);
 
 	//SIGN_USE_CERT(header);
 

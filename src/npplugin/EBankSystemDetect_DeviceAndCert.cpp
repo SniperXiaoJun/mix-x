@@ -432,7 +432,7 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int ulF
 				findAttr.stSubjectKeyID.data = (unsigned char*)strRootCertKeyIDHex.c_str();
 				findAttr.stSubjectKeyID.length = strRootCertKeyIDHex.size();
 
-				SMB_CS_FindCtxs(&findAttr, &ctxHeader);
+				SMB_CS_FindCtx(&findAttr, &ctxHeader);
 
 				if (NULL == ctxHeader)
 				{
