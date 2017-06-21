@@ -43,11 +43,11 @@ typedef struct SDB {
 vars
 */
 
-char smb_db_path[BUFFER_LEN_1K] = {0};
+char smb_db_path[BUFFER_LEN_1K] = { 0 };
 
 static const char BEGIN_CMD[] = "BEGIN IMMEDIATE TRANSACTION;";
 static const char COMMIT_CMD[] = "COMMIT TRANSACTION;";
-static const char ROLLBACK_CMD[] = "ROLLBACK TRANSACTION;"; 
+static const char ROLLBACK_CMD[] = "ROLLBACK TRANSACTION;";
 static const char CHECK_TABLE_CMD[] = "SELECT ALL * FROM %s LIMIT 0;";
 static const char *CREATE_TABLE_CMD[] =
 { "CREATE TABLE if not exists table_certificate (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, content UNIQUE ON CONFLICT REPLACE, store_type, id_attr);"
@@ -266,7 +266,7 @@ int sdb_Init(SDB *sdb)
 	sqlite3_stmt *stmt = NULL;
 	int sqlerr = SQLITE_OK;
 	int retry = 0;
-	
+
 	int i = 0;
 	LOCK_SQLITE();
 
@@ -294,7 +294,7 @@ err:
 unsigned int SMB_DB_Init()
 {
 	int crv = 0;
-	SDB sdb = {0};
+	SDB sdb = { 0 };
 
 	SMB_DB_Path_Init(NULL);
 
@@ -524,7 +524,7 @@ unsigned int SMB_UTIL_FillCertAttr(SMB_CS_CertificateContext * pCertCtx)
 
 		WT_ClearCert();
 
-		
+
 	}
 
 err:
@@ -649,11 +649,11 @@ int sdb_FillCtx(SMB_CS_CertificateContext **ppCertCtx, SMB_CS_CertificateFindAtt
 	{
 		bool bExist = true;
 
-		if ((pCertificateFindAttr->uiFindFlag& 1) && pCertCtx->stAttr.ucCertAlgType != pCertificateFindAttr->ucCertAlgType)
+		if ((pCertificateFindAttr->uiFindFlag & 1) && pCertCtx->stAttr.ucCertAlgType != pCertificateFindAttr->ucCertAlgType)
 		{
 			bExist = false;
 		}
-		if ((pCertificateFindAttr->uiFindFlag& 2) && pCertCtx->stAttr.ucCertUsageType != pCertificateFindAttr->ucCertUsageType)
+		if ((pCertificateFindAttr->uiFindFlag & 2) && pCertCtx->stAttr.ucCertUsageType != pCertificateFindAttr->ucCertUsageType)
 		{
 			bExist = false;
 		}
@@ -661,7 +661,7 @@ int sdb_FillCtx(SMB_CS_CertificateContext **ppCertCtx, SMB_CS_CertificateFindAtt
 		{
 			bExist = false;
 		}
-		if ((pCertificateFindAttr->uiFindFlag& 8) && 0 != memcmp(pCertCtx->stAttr.stSubject.data, pCertificateFindAttr->stSubject.data, pCertificateFindAttr->stSubject.length))
+		if ((pCertificateFindAttr->uiFindFlag & 8) && 0 != memcmp(pCertCtx->stAttr.stSubject.data, pCertificateFindAttr->stSubject.data, pCertificateFindAttr->stSubject.length))
 		{
 			bExist = false;
 		}
@@ -736,7 +736,7 @@ int sdb_FindCtx(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_
 		if (sqlerr == SQLITE_ROW)
 		{
 			SMB_CS_CertificateContext *pCertCtx = NULL;
-			sdb_FillCtx(&pCertCtx, pCertificateFindAttr,stmt);
+			sdb_FillCtx(&pCertCtx, pCertificateFindAttr, stmt);
 			OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppCertCtxNodeHeader, (void *)pCertCtx);
 		}
 
@@ -1780,7 +1780,7 @@ unsigned int SMB_CS_ClrAllCtx(unsigned char ucStoreType)
 	{
 		for (int i = 0; i < 4; i++)
 		{
-			SMB_CS_EnumCtx(&header, i+1);
+			SMB_CS_EnumCtx(&header, i + 1);
 
 			SMB_CS_DelCtxLink(header);
 
@@ -1837,7 +1837,7 @@ unsigned int SMB_DB_Path_Init(char *pDbPath)
 	{
 		strcpy(smb_db_path, pDbPath);
 	}
-	
+
 	return 0;
 }
 
@@ -1864,7 +1864,7 @@ unsigned int  SMB_UTIL_ImportCaCert(unsigned char *pbCert, unsigned int uiCertLe
 #if defined(WIN32) || defined(WINDOWS)
 	if (CERT_ALG_RSA_FLAG == ctx->stAttr.ucCertAlgType)
 	{
-		if (0 == memcmp(ctx->stAttr.stIssueKeyID.data, ctx->stAttr.stSubjectKeyID.data, ctx->stAttr.stSubjectKeyID.length > ctx->stAttr.stIssueKeyID.length ? ctx->stAttr.stSubjectKeyID.length:ctx->stAttr.stIssueKeyID.length))
+		if (0 == memcmp(ctx->stAttr.stIssueKeyID.data, ctx->stAttr.stSubjectKeyID.data, ctx->stAttr.stSubjectKeyID.length > ctx->stAttr.stIssueKeyID.length ? ctx->stAttr.stSubjectKeyID.length : ctx->stAttr.stIssueKeyID.length))
 		{
 			// 打开存储区	
 			hCertStore = CertOpenStore(
@@ -2065,7 +2065,7 @@ int sdb_ExecSQL(SDB *sdb, char *pSqlData, unsigned int uiSqlDataLen)
 
 		// next line
 		ptr_semicolon = strstr(&pSqlData[pos], ";");
-		
+
 		if (NULL == ptr_semicolon)
 		{
 			pos = uiSqlDataLen;
@@ -2223,7 +2223,7 @@ int sdb_FillCSP(SMB_CS_CSP **ppPtr, sqlite3_stmt *stmt)
 	memcpy(pPtr->stValue.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stValue.length);
 
 	*ppPtr = pPtr;
-	
+
 	return 0;
 }
 
