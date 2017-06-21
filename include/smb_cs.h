@@ -209,7 +209,7 @@ extern "C" {
 #endif
 	/*
 	数据库路径初始化 
-	pDbPath:NULL 默认路径C:\Users\xxxxx\AppData\Roaming\xxxx.exe.smb_cs.db
+	pDbPath:NULL 默认路径C:\Users\xxxxx\AppData\Roaming\xxxx.smb_cs.db
 	*/
 	COMMON_API unsigned int SMB_DB_Path_Init(char * pDbPath);
 

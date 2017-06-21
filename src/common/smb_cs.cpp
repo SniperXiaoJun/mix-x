@@ -1815,6 +1815,16 @@ unsigned int SMB_DB_Path_Init(char *pDbPath)
 
 			GetEnvironmentVariableA("APPDATA", smb_db_path, MAX_PATH);
 			strcat(smb_db_path, &smb_db_path_prefix[i]);
+
+			for (i = strlen(smb_db_path); i > 0; i--)
+			{
+				if ('.' == smb_db_path[i])
+				{
+					smb_db_path[i] = 0;
+					break;
+				}
+			}
+
 			strcat(smb_db_path, ".smb_cs.db");
 
 			//strcpy(smb_db_path + strlen(smb_db_path), "smb_cs.db");
