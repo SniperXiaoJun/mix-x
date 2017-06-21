@@ -334,17 +334,17 @@ extern "C" {
 	/*
 	设置用户自定义数据
 	*/
-	COMMON_API unsigned int SMB_UTIL_SetCtxVendor(IN OUT SMB_CS_CertificateContext *pCertCtx, IN unsigned char *pVendor, IN unsigned int uiVendorLen);
+	COMMON_API unsigned int SMB_CS_SetCtxVendor(IN OUT SMB_CS_CertificateContext *pCertCtx, IN unsigned char *pVendor, IN unsigned int uiVendorLen);
 
 	/*
 	验证证书的合法性
 	*/
-	COMMON_API unsigned int SMB_UTIL_VerifyCert(IN unsigned int uiFlag, IN unsigned char *pbCert, IN unsigned int uiCertLen);
+	COMMON_API unsigned int SMB_CS_VerifyCert(IN unsigned int uiFlag, IN unsigned char *pbCert, IN unsigned int uiCertLen);
 
 	/*
 	导入CA&ROOT证书
 	*/
-	COMMON_API unsigned int SMB_UTIL_ImportCaCert(IN unsigned char *pbCert, IN unsigned int uiCertLen, OUT unsigned int *pulAlgType);
+	COMMON_API unsigned int SMB_CS_ImportCaCert(IN unsigned char *pbCert, IN unsigned int uiCertLen, OUT unsigned int *pulAlgType);
 
 #ifdef __cplusplus
 }

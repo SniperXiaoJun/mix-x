@@ -1284,7 +1284,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 					{
 						if (ulVerifyFlag)
 						{
-							ulRet = SMB_UTIL_VerifyCert(ulVerifyFlag, pTmp, nValueLen);
+							ulRet = SMB_CS_VerifyCert(ulVerifyFlag, pTmp, nValueLen);
 
 							if (ulRet)
 							{
@@ -1377,7 +1377,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 					{
 						if (ulVerifyFlag)
 						{
-							ulRet = SMB_UTIL_VerifyCert(ulVerifyFlag, pTmp, nValueLen);
+							ulRet = SMB_CS_VerifyCert(ulVerifyFlag, pTmp, nValueLen);
 
 							if (ulRet)
 							{
@@ -1496,7 +1496,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 
 	for (pCtxNode = *ppCertCtxNodeHeader; pCtxNode; pCtxNode = pCtxNode->ptr_next)
 	{
-		SMB_UTIL_FillCertAttr(pCtxNode->ptr_data);
+		SMB_CS_FillCertAttr(pCtxNode->ptr_data);
 	}
 
 	ulRet = 0;

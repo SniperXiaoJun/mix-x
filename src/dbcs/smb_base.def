@@ -33,10 +33,10 @@ EXPORTS
 	SMB_CS_FreePathLink
 	SMB_CS_FreePath
 
-	SMB_UTIL_FillCertAttr
-	SMB_UTIL_SetCtxVendor
-	SMB_UTIL_VerifyCert
-	SMB_UTIL_ImportCaCert
+	SMB_CS_FillCertAttr
+	SMB_CS_SetCtxVendor
+	SMB_CS_VerifyCert
+	SMB_CS_ImportCaCert
 
 	SMB_DEV_EnumCertBySKF
 	SMB_DEV_EnumCert

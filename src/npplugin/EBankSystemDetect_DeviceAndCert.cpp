@@ -406,7 +406,7 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int ulF
 				if (ulFlag)
 				{
 					// 验证	CA
-					ulRet = SMB_UTIL_VerifyCert(ulFlag, certContext_CA->pbCertEncoded, certContext_CA->cbCertEncoded);
+					ulRet = SMB_CS_VerifyCert(ulFlag, certContext_CA->pbCertEncoded, certContext_CA->cbCertEncoded);
 				}
 
 				if (ulRet)
@@ -443,7 +443,7 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int ulF
 				if (ulFlag)
 				{
 					// 验证	CA
-					ulRet = SMB_UTIL_VerifyCert(ulFlag, ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length);
+					ulRet = SMB_CS_VerifyCert(ulFlag, ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length);
 				}
 
 				if (ulRet)
@@ -529,7 +529,7 @@ string WTF_InstallCaCert(list<string> strListCaCertPath, int ulFlag)
 			_file.read((char *)pbCaCert, length>sizeof(pbCaCert) ? sizeof(pbCaCert) : length);
 			_file.close();
 
-			ulRet = SMB_UTIL_ImportCaCert(pbCaCert, ulCaCertLen, &ulAlgType);
+			ulRet = SMB_CS_ImportCaCert(pbCaCert, ulCaCertLen, &ulAlgType);
 
 			item["success"] = ulRet ? FALSE:TRUE;
 			item["algType"] = ulAlgType;
@@ -885,7 +885,7 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 								item["signType"] = TRUE; // 签名
 
-								switch (SMB_UTIL_VerifyCert(CERT_VERIFY_TIME_FLAG | CERT_VERIFY_CHAIN_FLAG | CERT_VERIFY_CRL_FLAG, (unsigned char *)szdata, ulCertLen)) {
+								switch (SMB_CS_VerifyCert(CERT_VERIFY_TIME_FLAG | CERT_VERIFY_CHAIN_FLAG | CERT_VERIFY_CRL_FLAG, (unsigned char *)szdata, ulCertLen)) {
 								case 0:
 									item["verify"] = CERT_VERIFY_RESULT_FLAG_OK;   // 未校验
 									break;
@@ -1067,7 +1067,7 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 							item["signType"] = TRUE; // 签名
 
-							switch (SMB_UTIL_VerifyCert(CERT_VERIFY_TIME_FLAG | CERT_VERIFY_CHAIN_FLAG | CERT_VERIFY_CRL_FLAG, (unsigned char *)szdata, ulCertLen)) {
+							switch (SMB_CS_VerifyCert(CERT_VERIFY_TIME_FLAG | CERT_VERIFY_CHAIN_FLAG | CERT_VERIFY_CRL_FLAG, (unsigned char *)szdata, ulCertLen)) {
 							case 0:
 								item["verify"] = CERT_VERIFY_RESULT_FLAG_OK;   // 未校验
 								break;

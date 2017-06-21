@@ -16,7 +16,7 @@ extern "C" {
 	/*
 	填充证书属性
 	*/
-	COMMON_API unsigned int SMB_UTIL_FillCertAttr(IN OUT SMB_CS_CertificateContext *pCertCtx);
+	COMMON_API unsigned int SMB_CS_FillCertAttr(IN OUT SMB_CS_CertificateContext *pCertCtx);
 
 	/*
 	获取证书链

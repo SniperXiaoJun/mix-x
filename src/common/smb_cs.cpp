@@ -420,7 +420,7 @@ unsigned int SMB_CS_CreateCtx(SMB_CS_CertificateContext **ppCertCtx, unsigned ch
 	pCertCtx->stContent.data = (unsigned char *)malloc(pCertCtx->stContent.length);
 	memcpy(pCertCtx->stContent.data, pCertificate, pCertCtx->stContent.length);
 
-	uiRet = SMB_UTIL_FillCertAttr(pCertCtx);
+	uiRet = SMB_CS_FillCertAttr(pCertCtx);
 	if (0 != uiRet)
 	{
 		goto err;
@@ -431,7 +431,7 @@ err:
 	return uiRet;
 }
 
-unsigned int SMB_UTIL_FillCertAttr(SMB_CS_CertificateContext * pCertCtx)
+unsigned int SMB_CS_FillCertAttr(SMB_CS_CertificateContext * pCertCtx)
 {
 	unsigned int ulRet = 0;
 	if (NULL == pCertCtx)
@@ -799,7 +799,7 @@ err:
 
 
 
-unsigned int SMB_UTIL_SetCtxVendor(SMB_CS_CertificateContext *pCertCtx, unsigned char *pVendor, unsigned int uiVendorLen)
+unsigned int SMB_CS_SetCtxVendor(SMB_CS_CertificateContext *pCertCtx, unsigned char *pVendor, unsigned int uiVendorLen)
 {
 	unsigned int ulRet = 0;
 	if (NULL == pCertCtx)
@@ -1022,7 +1022,7 @@ err:
 }
 
 
-unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, unsigned int uiCertLen)
+unsigned int SMB_CS_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, unsigned int uiCertLen)
 {
 	unsigned int ulRet = 0;
 
@@ -1137,7 +1137,7 @@ unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, uns
 				else
 				{
 					// 验证上级证书
-					ulRet = SMB_UTIL_VerifyCert(ulFlag, certContext_OUT->pbCertEncoded, certContext_OUT->cbCertEncoded);
+					ulRet = SMB_CS_VerifyCert(ulFlag, certContext_OUT->pbCertEncoded, certContext_OUT->cbCertEncoded);
 					if (ulRet)
 					{
 						goto err;
@@ -1220,7 +1220,7 @@ unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, uns
 			else
 			{
 				// 验证上级证书
-				ulRet = SMB_UTIL_VerifyCert(ulFlag, ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length);
+				ulRet = SMB_CS_VerifyCert(ulFlag, ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length);
 				if (ulRet)
 				{
 					goto err;
@@ -1843,7 +1843,7 @@ unsigned int SMB_DB_Path_Init(char *pDbPath)
 
 
 
-unsigned int  SMB_UTIL_ImportCaCert(unsigned char *pbCert, unsigned int uiCertLen, unsigned int *pulAlgType)
+unsigned int  SMB_CS_ImportCaCert(unsigned char *pbCert, unsigned int uiCertLen, unsigned int *pulAlgType)
 {
 	unsigned int ulRet = 0;
 
