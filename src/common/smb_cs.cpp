@@ -51,7 +51,7 @@ static const char ROLLBACK_CMD[] = "ROLLBACK TRANSACTION;";
 static const char CHECK_TABLE_CMD[] = "SELECT ALL * FROM %s LIMIT 0;";
 static const char *CREATE_TABLE_CMD[] =
 { "CREATE TABLE if not exists table_certificate (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, content UNIQUE ON CONFLICT REPLACE, store_type, id_attr);"
-, "CREATE TABLE if not exists table_certificate_attr (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, cert_alg_type, cert_use_type, skf_name, device_name, application_name, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid UNIQUE ON CONFLICT REPLACE, isuue_keyid, vendor_data, verify, not_before, not_after);"
+, "CREATE TABLE if not exists table_certificate_attr (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, cert_alg_type, cert_usage_type, skf_name, device_name, application_name, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid UNIQUE ON CONFLICT REPLACE, isuue_keyid, vendor_data, verify, not_before, not_after);"
 , "CREATE TABLE if not exists table_skf (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name, path UNIQUE ON CONFLICT REPLACE, signtype, pin_verify);"
 , "CREATE TABLE if not exists table_pid_vid (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, pid UNIQUE ON CONFLICT REPLACE, vid, type);"
 , "CREATE TABLE if not exists table_product (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name UNIQUE ON CONFLICT REPLACE, id_skf, id_pid_vid);"
@@ -541,7 +541,7 @@ int sdb_FillCtx(SMB_CS_CertificateContext **ppCertCtx, SMB_CS_CertificateFindAtt
 
 
 	//id content, store_type, id_attr,
-	//cert_alg_type, cert_use_type, skf_name, device_name, application_name, 
+	//cert_alg_type, cert_usage_type, skf_name, device_name, application_name, 
 	//container_name, common_name, subject, isuue, public_key, serial_number, 
 	//subject_keyid, isuue_keyid, vendor_data, verify, not_before, not_after
 
@@ -714,7 +714,7 @@ int sdb_FindCtx(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_
 	LOCK_SQLITE();
 
 	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select a.id as id, content, store_type, id_attr, "
-		"cert_alg_type, cert_use_type, skf_name, device_name, application_name, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid, isuue_keyid, vendor_data, verify, not_before, not_after "
+		"cert_alg_type, cert_usage_type, skf_name, device_name, application_name, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid, isuue_keyid, vendor_data, verify, not_before, not_after "
 		"from table_certificate as a,table_certificate_attr as b where a.id_attr=b.id; ", -1, &stmt, NULL);
 	if (sqlerr != SQLITE_OK)
 	{
@@ -932,7 +932,7 @@ unsigned int sdb_GetCtxByCert(SDB *sdb, SMB_CS_CertificateContext **ppCertCtx, u
 	LOCK_SQLITE();
 
 	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select a.id as id content, store_type, id_attr, "
-		"cert_alg_type, cert_use_type, skf_name, device_name, application_name, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid, isuue_keyid, vendor_data, verify, not_before, not_after "
+		"cert_alg_type, cert_usage_type, skf_name, device_name, application_name, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid, isuue_keyid, vendor_data, verify, not_before, not_after "
 		"from table_certificate as a,table_certificate as b where a.id_attr=b.id and content=$content limit(0,1); ", -1, &stmt, NULL);
 
 	if (sqlerr != SQLITE_OK)
@@ -1348,8 +1348,8 @@ int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned char 
 	LOCK_SQLITE();
 
 	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "INSERT INTO "
-		"table_certificate_attr(cert_alg_type, cert_use_type, skf_name, device_name, application_name, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid, isuue_keyid, vendor_data, verify, not_before, not_after) "
-		"VALUES($cert_alg_type, $cert_use_type, $skf_name, $device_name, $application_name, $container_name, $common_name, $subject, $isuue, $public_key, $serial_number, $subject_keyid, $isuue_keyid, $vendor_data, $verify, $not_before, $not_after);", -1, &stmt, NULL);
+		"table_certificate_attr(cert_alg_type, cert_usage_type, skf_name, device_name, application_name, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid, isuue_keyid, vendor_data, verify, not_before, not_after) "
+		"VALUES($cert_alg_type, $cert_usage_type, $skf_name, $device_name, $application_name, $container_name, $common_name, $subject, $isuue, $public_key, $serial_number, $subject_keyid, $isuue_keyid, $vendor_data, $verify, $not_before, $not_after);", -1, &stmt, NULL);
 	if (sqlerr != SQLITE_OK)
 	{
 		goto err;
@@ -1360,7 +1360,7 @@ int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned char 
 	{
 		goto err;
 	}
-	//$cert_use_type, 
+	//$cert_usage_type, 
 	sqlerr = sqlite3_bind_int(stmt, 2, pCertCtx->stAttr.ucCertUsageType);
 	if (sqlerr != SQLITE_OK)
 	{
