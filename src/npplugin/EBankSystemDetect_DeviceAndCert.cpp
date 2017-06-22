@@ -334,7 +334,7 @@ string WTF_ListSKFDriver(list<string> strSKFList)
 }
 
 // 证书使用者密钥标示
-string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int ulFlag, unsigned int ulAlgType)
+string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int uiFlag, unsigned int ulAlgType)
 {
 	unsigned int ulRet = 0;
 	unsigned int ulOutLen = 0;
@@ -403,10 +403,10 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int ulF
 					goto err;
 				}
 
-				if (ulFlag)
+				if (uiFlag)
 				{
 					// 验证	CA
-					ulRet = SMB_CS_VerifyCert(ulFlag, certContext_CA->pbCertEncoded, certContext_CA->cbCertEncoded);
+					ulRet = SMB_CS_VerifyCert(uiFlag, certContext_CA->pbCertEncoded, certContext_CA->cbCertEncoded);
 				}
 
 				if (ulRet)
@@ -440,10 +440,10 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int ulF
 					goto err;
 				}
 
-				if (ulFlag)
+				if (uiFlag)
 				{
 					// 验证	CA
-					ulRet = SMB_CS_VerifyCert(ulFlag, ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length);
+					ulRet = SMB_CS_VerifyCert(uiFlag, ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length);
 				}
 
 				if (ulRet)

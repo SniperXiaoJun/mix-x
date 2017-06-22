@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 
-unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, unsigned int uiCertLen)
+unsigned int SMB_UTIL_VerifyCert(unsigned int uiFlag, unsigned char* pbCert, unsigned int uiCertLen)
 {
 	unsigned int ulRet = 0;
 
@@ -114,7 +114,7 @@ unsigned int SMB_UTIL_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, uns
 				else
 				{
 					// 验证上级证书
-					ulRet = SMB_UTIL_VerifyCert(ulFlag, certContext_OUT->pbCertEncoded, certContext_OUT->cbCertEncoded);
+					ulRet = SMB_UTIL_VerifyCert(uiFlag, certContext_OUT->pbCertEncoded, certContext_OUT->cbCertEncoded);
 					if (ulRet)
 					{
 						goto err;

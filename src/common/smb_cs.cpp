@@ -1022,7 +1022,7 @@ err:
 }
 
 
-unsigned int SMB_CS_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, unsigned int uiCertLen)
+unsigned int SMB_CS_VerifyCert(unsigned int uiFlag, unsigned char* pbCert, unsigned int uiCertLen)
 {
 	unsigned int ulRet = 0;
 
@@ -1062,7 +1062,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, unsig
 			goto err;
 		}
 		// TIME
-		if (CERT_VERIFY_TIME_FLAG & ulFlag)
+		if (CERT_VERIFY_TIME_FLAG & uiFlag)
 		{
 			ulRet = CertVerifyTimeValidity(NULL, certContext_IN->pCertInfo);
 			if (ulRet)
@@ -1072,7 +1072,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, unsig
 			}
 		}
 		// SIGN CERT
-		if (CERT_VERIFY_CHAIN_FLAG & ulFlag)
+		if (CERT_VERIFY_CHAIN_FLAG & uiFlag)
 		{
 			// 打开存储区		
 			hCertStore = CertOpenStore(
@@ -1137,7 +1137,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, unsig
 				else
 				{
 					// 验证上级证书
-					ulRet = SMB_CS_VerifyCert(ulFlag, certContext_OUT->pbCertEncoded, certContext_OUT->cbCertEncoded);
+					ulRet = SMB_CS_VerifyCert(uiFlag, certContext_OUT->pbCertEncoded, certContext_OUT->cbCertEncoded);
 					if (ulRet)
 					{
 						goto err;
@@ -1166,7 +1166,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, unsig
 			}
 		}
 		//CRL
-		if (CERT_VERIFY_CRL_FLAG & ulFlag)
+		if (CERT_VERIFY_CRL_FLAG & uiFlag)
 		{
 
 		}
@@ -1186,7 +1186,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, unsig
 		goto err;
 	}
 	// TIME
-	if (CERT_VERIFY_TIME_FLAG & ulFlag)
+	if (CERT_VERIFY_TIME_FLAG & uiFlag)
 	{
 		time_t time_now;
 		time(&time_now);
@@ -1198,7 +1198,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, unsig
 		}
 	}
 	// SIGN CERT
-	if (CERT_VERIFY_CHAIN_FLAG & ulFlag)
+	if (CERT_VERIFY_CHAIN_FLAG & uiFlag)
 	{
 		// 查找颁发者证书
 		SMB_CS_CertificateFindAttr findAttr = { 0 };
@@ -1220,7 +1220,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, unsig
 			else
 			{
 				// 验证上级证书
-				ulRet = SMB_CS_VerifyCert(ulFlag, ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length);
+				ulRet = SMB_CS_VerifyCert(uiFlag, ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length);
 				if (ulRet)
 				{
 					goto err;
@@ -1269,7 +1269,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int ulFlag, unsigned char* pbCert, unsig
 		}
 	}
 	//CRL
-	if (CERT_VERIFY_CRL_FLAG & ulFlag)
+	if (CERT_VERIFY_CRL_FLAG & uiFlag)
 	{
 
 	}
