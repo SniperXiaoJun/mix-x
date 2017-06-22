@@ -18,7 +18,7 @@ extern "C" {
 		uiKeyFlag
 		证书(密钥类型标志) 可以做按位与操作
 		参见 SMB_DEV_CERT_ALG_FLAG
-		uiSignFlag
+		uiUsageFlag
 		证书(签名|加密标志) 可以做按位与操作
 		参见 SMB_DEV_CERT_SIGN_FLAG
 		uiVerifyFlag
@@ -29,7 +29,7 @@ extern "C" {
 		puiCertsLen		长度
 	返回值: 0:成功 其他:错误码
 	*/
-	COMMON_API unsigned int SMB_DEV_EnumCertBySKF(const char*pszSKFName, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiKeyFlag, unsigned int uiSignFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag);
+	COMMON_API unsigned int SMB_DEV_EnumCertBySKF(const char*pszSKFName, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiKeyFlag, unsigned int uiUsageFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag);
 
 	/*
 	功能名称:	枚举证书
@@ -38,7 +38,7 @@ extern "C" {
 		uiKeyFlag
 		证书(密钥类型标志) 可以做按位与操作
 		参见 SMB_DEV_CERT_ALG_FLAG
-		uiSignFlag
+		uiUsageFlag
 		证书(签名|加密标志) 可以做按位与操作
 		参见 SMB_DEV_CERT_SIGN_FLAG
 		uiVerifyFlag
@@ -49,7 +49,7 @@ extern "C" {
 		puiCertsLen		长度
 	返回值: 0:成功 其他:错误码
 	*/
-	COMMON_API unsigned int SMB_DEV_EnumCert(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiKeyFlag, unsigned int uiSignFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag);
+	COMMON_API unsigned int SMB_DEV_EnumCert(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiKeyFlag, unsigned int uiUsageFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag);
 
 	/*
 	功能名称:	修改密码通过证书属性（签名证书代表设备）
@@ -250,7 +250,7 @@ extern "C" {
 	COMMON_API unsigned int SMB_DEV_VerifyPIN(const char *pszDevName, unsigned int uiPINType, char *pszPin, ULONG *puiRetryCount);
 
 	/*
-	
+	旧函数
 	*/
 	COMMON_API unsigned int SMB_DEV_SM2SignByCertAttr(
 		SMB_CS_CertificateAttr *pCertAttr,

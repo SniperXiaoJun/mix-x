@@ -1300,7 +1300,7 @@ err:
 }
 
 
-unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int ulKeyFlag, unsigned int ulSignFlag, unsigned int ulVerifyFlag, unsigned int ulFilterFlag)
+unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiKeyFlag, unsigned int uiUsageFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag)
 {
 	HINSTANCE ghInst = NULL;
 
@@ -1496,7 +1496,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 					goto err;
 				}
 
-				if (!(ulKeyFlag & ulContainerType))
+				if (!(uiKeyFlag & ulContainerType))
 				{
 					// next Container
 					ptrContainer += strlen(ptrContainer);
@@ -1504,7 +1504,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 					continue;
 				}
 
-				if (CERT_SIGN_FLAG & ulSignFlag)
+				if (CERT_SIGN_FLAG & uiUsageFlag)
 				{
 					ULONG nValueLen = BUFFER_LEN_1K * 4;
 
@@ -1514,14 +1514,14 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 
 					if ((0 == ulRet) && (nValueLen != 0))
 					{
-						if (ulVerifyFlag)
+						if (uiVerifyFlag)
 						{
-							ulRet = SMB_CS_VerifyCert(ulVerifyFlag, pTmp, nValueLen);
+							ulRet = SMB_CS_VerifyCert(uiVerifyFlag, pTmp, nValueLen);
 
 							if (ulRet)
 							{
 								// next Container
-								if (CERT_FILTER_FLAG_TRUE == ulFilterFlag)
+								if (CERT_FILTER_FLAG_TRUE == uiFilterFlag)
 								{
 									ptrContainer += strlen(ptrContainer);
 									ptrContainer += 1;
@@ -1537,7 +1537,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 
 							memset(pCertCtx, 0, sizeof(SMB_CS_CertificateContext));
 
-							if (ulVerifyFlag)
+							if (uiVerifyFlag)
 							{
 								switch (ulRet) {
 								case 0:
@@ -1597,7 +1597,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 					}
 				}
 
-				if (CERT_EX_FLAG & ulSignFlag)
+				if (CERT_EX_FLAG & uiUsageFlag)
 				{
 					ULONG nValueLen = BUFFER_LEN_1K * 4;
 
@@ -1607,14 +1607,14 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 
 					if ((0 == ulRet) && (nValueLen != 0))
 					{
-						if (ulVerifyFlag)
+						if (uiVerifyFlag)
 						{
-							ulRet = SMB_CS_VerifyCert(ulVerifyFlag, pTmp, nValueLen);
+							ulRet = SMB_CS_VerifyCert(uiVerifyFlag, pTmp, nValueLen);
 
 							if (ulRet)
 							{
 								// next Container
-								if (CERT_FILTER_FLAG_TRUE == ulFilterFlag)
+								if (CERT_FILTER_FLAG_TRUE == uiFilterFlag)
 								{
 									ptrContainer += strlen(ptrContainer);
 									ptrContainer += 1;
@@ -1629,7 +1629,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 
 							memset(pCertCtx, 0, sizeof(SMB_CS_CertificateContext));
 
-							if (ulVerifyFlag)
+							if (uiVerifyFlag)
 							{
 								switch (ulRet) {
 								case 0:
@@ -1764,7 +1764,7 @@ err:
 	return ulRet;
 }
 
-unsigned int SMB_DEV_EnumCert(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int ulKeyFlag, unsigned int ulSignFlag, unsigned int ulVerifyFlag, unsigned int ulFilterFlag)
+unsigned int SMB_DEV_EnumCert(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiKeyFlag, unsigned int uiUsageFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag)
 {
 	unsigned int ulRet = 0;
 
@@ -1779,7 +1779,7 @@ unsigned int SMB_DEV_EnumCert(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHead
 
 		memcpy(data_skf, pPtr->ptr_data->stName.data, pPtr->ptr_data->stName.length);
 
-		ulRet = SMB_DEV_EnumCertBySKF(data_skf, ppCertCtxNodeHeader, ulKeyFlag, ulSignFlag, ulVerifyFlag, ulFilterFlag);
+		ulRet = SMB_DEV_EnumCertBySKF(data_skf, ppCertCtxNodeHeader, uiKeyFlag, uiUsageFlag, uiVerifyFlag, uiFilterFlag);
 
 		if (ulRet)
 		{

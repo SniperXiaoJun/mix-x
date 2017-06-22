@@ -101,3 +101,15 @@ add_executable(
 
 target_link_libraries(x_dbcs_verify_der smb_base)
 
+add_executable(
+  x_dbcs_show_der
+
+  x_dbcs_show_der.cpp
+  #${common_cs} 
+  #${common_cpps} 
+)
+
+target_link_libraries(x_dbcs_show_der smb_base)
+
+
+
