@@ -14,8 +14,8 @@ int main(int argc, char * argv[])
 	unsigned int ulCertLen = 0;
 	unsigned char pbCert[1024] = { 0 };
 
-	SMB_DB_Path_Init("smb_cs.db");
-	SMB_DB_Init();
+	SMB_CS_SetPath("smb_cs.db");
+	SMB_CS_Init();
 
 	FILE * file = fopen("d:/show.cer", "r+b");
 

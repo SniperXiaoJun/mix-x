@@ -135,7 +135,7 @@ int GetKeyCount(int *piCount)
 	int count = 0;
 	char data_message[BUFFER_LEN_1K] = { 0 };
 
-	SMB_DB_Init();
+	SMB_CS_Init();
 	SMB_CS_EnumPIDVID(&pHeader);
 
 	if (NULL == pHeader)
@@ -236,7 +236,7 @@ string WTF_ShowCert(const std::string strCertContentB64)
 
 		if (SMB_CERT_ALG_FLAG_RSA == certParse.m_iKeyAlg)
 		{
-			SMB_UI_ShowUI((unsigned char*)data_value_out, data_len_out);
+			SMB_UI_ShowCert((unsigned char*)data_value_out, data_len_out);
 		}
 		else
 		{
@@ -430,7 +430,7 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int uiF
 				findAttr.stSubjectKeyID.data = (unsigned char*)strRootCertKeyIDHex.c_str();
 				findAttr.stSubjectKeyID.length = strRootCertKeyIDHex.size();
 
-				SMB_CS_FindCtx(&findAttr, &ctxHeader);
+				SMB_CS_FindCertCtx(&findAttr, &ctxHeader);
 
 				if (NULL == ctxHeader)
 				{
@@ -473,7 +473,7 @@ err:
 
 	if (NULL != ctxHeader)
 	{
-		SMB_CS_FreeCtxLink(&ctxHeader);
+		SMB_CS_FreeCertCtxLink(&ctxHeader);
 	}
 
 	if (ulRet)
@@ -575,7 +575,7 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 	DEVINFO * pDevInfo = (DEVINFO*)malloc(sizeof(DEVINFO) + 8);
 
-	SMB_DB_Init();
+	SMB_CS_Init();
 
 	ulRet = SMB_DEV_EnumCert(&header, SMB_CERT_ALG_FLAG_SM2 | SMB_CERT_ALG_FLAG_RSA,
 		SMB_CERT_USAGE_FLAG_SIGN | SMB_CERT_USAGE_FLAG_EX, // Ç©Ãû
@@ -744,13 +744,13 @@ std::string WTF_ReadCurrentCerts(int Expire)
 			}
 		}
 
-		SMB_CS_ClrAllCtx(2);
+		SMB_CS_ClrAllCertCtx(2);
 
 		pCertCtxNode = header;
 
 		while (pCertCtxNode)
 		{
-			SMB_CS_AddCtx(pCertCtxNode->ptr_data,2);
+			SMB_CS_AddCertCtx(pCertCtxNode->ptr_data,2);
 			pCertCtxNode = pCertCtxNode->ptr_next;
 		}
 	}

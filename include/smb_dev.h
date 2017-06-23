@@ -150,7 +150,7 @@ extern "C" {
 	返回值		0：成功。
 	其他：		错误码
 	*/
-	COMMON_API unsigned int SMB_UI_ShowUI(BYTE *pbCert, unsigned int uiCertLen);
+	COMMON_API unsigned int SMB_UI_ShowCert(BYTE *pbCert, unsigned int uiCertLen);
 
 	/*
 	功能描述:	查找SKF驱动

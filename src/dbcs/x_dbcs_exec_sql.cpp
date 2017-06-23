@@ -86,8 +86,8 @@ void filesearch(string path, int layer)
 
 int main()
 {
-	SMB_DB_Path_Init("smb_cs.db");
-	SMB_DB_Init();
+	SMB_CS_SetPath("smb_cs.db");
+	SMB_CS_Init();
 
 	filesearch(".", 1);
 

@@ -2246,7 +2246,7 @@ err:
 
 #if (defined(WIN32) || defined(WINDOWS))
 #include "Cryptuiapi.h"
-unsigned int SMB_UI_ShowUI(BYTE* pbCert, unsigned int ulCertLen)
+unsigned int SMB_UI_ShowCert(BYTE* pbCert, unsigned int ulCertLen)
 {
 	//2.获取CertContext
 	PCCERT_CONTEXT pCertContext = NULL;
@@ -2521,7 +2521,7 @@ COMMON_API unsigned int SMB_DEV_SM2GetAgreementKeyEx(
 	unsigned int		uiECCBitLen = 256;
 	unsigned int		uiECCLen = uiECCBitLen / 8;
 
-	uiRet = SMB_CS_GetCtxByCert(&pCertCtx, pbCert, ulCertLen);
+	uiRet = SMB_CS_GetCertCtxByCert(&pCertCtx, pbCert, ulCertLen);
 	if (0 != uiRet)
 	{
 		return uiRet;

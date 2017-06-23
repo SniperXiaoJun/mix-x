@@ -129,7 +129,7 @@ err:
 
 	if (pCertCtxNodeHeader)
 	{
-		SMB_CS_FreeCtxLink(&pCertCtxNodeHeader);
+		SMB_CS_FreeCertCtxLink(&pCertCtxNodeHeader);
 	}
 
 	return rv;

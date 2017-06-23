@@ -1,18 +1,18 @@
 EXPORTS
-	SMB_DB_Path_Init
-	SMB_DB_Init
+	SMB_CS_SetPath
+	SMB_CS_Init
 	
 	SMB_CS_CreateCtx
-	SMB_CS_FreeCtx
-	SMB_CS_FreeCtxLink
+	SMB_CS_FreeCertCtx
+	SMB_CS_FreeCertCtxLink
 
-	SMB_CS_AddCtx
-	SMB_CS_DelCtx
-	SMB_CS_ClrAllCtx
-	SMB_CS_FindCtx
-	SMB_CS_EnumCtx
-	SMB_CS_DelCtxLink
-	SMB_CS_GetCtxByCert
+	SMB_CS_AddCertCtx
+	SMB_CS_DelCertCtx
+	SMB_CS_ClrAllCertCtx
+	SMB_CS_FindCertCtx
+	SMB_CS_EnumCertCtx
+	SMB_CS_DelCertCtxLink
+	SMB_CS_GetCertCtxByCert
 	SMB_CS_FindCertChain
 
 	SMB_CS_ExecSQL
@@ -29,12 +29,12 @@ EXPORTS
 	SMB_CS_FreePIDVIDLink
 	SMB_CS_FreePIDVID
 	
-	SMB_CS_EnumPath
-	SMB_CS_FreePathLink
-	SMB_CS_FreePath
+	SMB_CS_EnumFilePath
+	SMB_CS_FreeFilePathLink
+	SMB_CS_FreeFilePath
 
 	SMB_CS_FillCertAttr
-	SMB_CS_SetCtxVendor
+	SMB_CS_SetCertCtxVendor
 	SMB_CS_VerifyCert
 	SMB_CS_ImportCaCert
 
@@ -49,7 +49,7 @@ EXPORTS
 	SMB_DEV_SM2Sign
 	SMB_DEV_SM2VerifyDigest
 	SMB_DEV_FindSKFDriver
-	SMB_UI_ShowUI
+	SMB_UI_ShowCert
 
 	WT_SetMyCert
 	WT_GetCertInfo

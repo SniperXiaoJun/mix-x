@@ -291,12 +291,12 @@ err:
 
 
 
-unsigned int SMB_DB_Init()
+unsigned int SMB_CS_Init()
 {
 	int crv = 0;
 	SDB sdb = { 0 };
 
-	SMB_DB_Path_Init(NULL);
+	SMB_CS_SetPath(NULL);
 
 	sdb.sdb_path = smb_db_path;
 
@@ -696,7 +696,7 @@ int sdb_FillCtx(SMB_CS_CertificateContext **ppCertCtx, SMB_CS_CertificateFindAtt
 		}
 		else
 		{
-			SMB_CS_FreeCtx(pCertCtx);
+			SMB_CS_FreeCertCtx(pCertCtx);
 			*ppCertCtx = NULL;
 		}
 	}
@@ -763,7 +763,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_FindCtx(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
+unsigned int SMB_CS_FindCertCtx(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -799,7 +799,7 @@ err:
 
 
 
-unsigned int SMB_CS_SetCtxVendor(SMB_CS_CertificateContext *pCertCtx, unsigned char *pVendor, unsigned int uiVendorLen)
+unsigned int SMB_CS_SetCertCtxVendor(SMB_CS_CertificateContext *pCertCtx, unsigned char *pVendor, unsigned int uiVendorLen)
 {
 	unsigned int ulRet = 0;
 	if (NULL == pCertCtx)
@@ -822,7 +822,7 @@ err:
 	return ulRet;
 }
 
-unsigned int SMB_CS_FreeCtx(SMB_CS_CertificateContext *pCertCtx)
+unsigned int SMB_CS_FreeCertCtx(SMB_CS_CertificateContext *pCertCtx)
 {
 	if (pCertCtx)
 	{
@@ -911,11 +911,11 @@ unsigned int SMB_CS_FreeCtx(SMB_CS_CertificateContext *pCertCtx)
 	return 0;
 }
 
-unsigned int SMB_CS_FreeCtxLink(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
+unsigned int SMB_CS_FreeCertCtxLink(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
 {
 	while (*ppCertCtxNodeHeader)
 	{
-		SMB_CS_FreeCtx((*ppCertCtxNodeHeader)->ptr_data);
+		SMB_CS_FreeCertCtx((*ppCertCtxNodeHeader)->ptr_data);
 		OPF_DelNoFreeHandleNodeDataFromLink((OPST_HANDLE_NODE**)ppCertCtxNodeHeader, (*ppCertCtxNodeHeader)->ptr_data);
 	}
 
@@ -987,7 +987,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_GetCtxByCert(SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen)
+unsigned int SMB_CS_GetCertCtxByCert(SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -1208,7 +1208,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int uiFlag, unsigned char* pbCert, unsig
 		findAttr.stSubjectKeyID.data = (unsigned char*)certParse.m_strIssueKeyID.c_str();
 		findAttr.stSubjectKeyID.length = certParse.m_strIssueKeyID.size();
 
-		SMB_CS_FindCtx(&findAttr, &ctxHeader);
+		SMB_CS_FindCertCtx(&findAttr, &ctxHeader);
 
 		if (NULL != ctxHeader)
 		{
@@ -1277,12 +1277,12 @@ err:
 
 	if (NULL != ctx)
 	{
-		SMB_CS_FreeCtx(ctx);
+		SMB_CS_FreeCertCtx(ctx);
 	}
 
 	if (NULL != ctxHeader)
 	{
-		SMB_CS_FreeCtxLink(&ctxHeader);
+		SMB_CS_FreeCertCtxLink(&ctxHeader);
 	}
 #if defined(WIN32) || defined(WINDOWS)
 	// 释放上下文
@@ -1307,7 +1307,7 @@ err:
 	return ulRet;
 }
 
-unsigned int SMB_CS_EnumCtx(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char ucStoreType)
+unsigned int SMB_CS_EnumCertCtx(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char ucStoreType)
 {
 	SMB_CS_CertificateFindAttr findAttr;
 	if (0 == ucStoreType)
@@ -1323,14 +1323,14 @@ unsigned int SMB_CS_EnumCtx(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader
 	}
 
 
-	return SMB_CS_FindCtx(&findAttr, ppCertCtxNodeHeader);
+	return SMB_CS_FindCertCtx(&findAttr, ppCertCtxNodeHeader);
 }
 
-unsigned int SMB_CS_DelCtxLink(SMB_CS_CertificateContext_NODE *pCertCtxNodeHeader)
+unsigned int SMB_CS_DelCertCtxLink(SMB_CS_CertificateContext_NODE *pCertCtxNodeHeader)
 {
 	while (pCertCtxNodeHeader)
 	{
-		SMB_CS_DelCtx(pCertCtxNodeHeader->ptr_data);
+		SMB_CS_DelCertCtx(pCertCtxNodeHeader->ptr_data);
 		pCertCtxNodeHeader = pCertCtxNodeHeader->ptr_next;
 	}
 
@@ -1595,7 +1595,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_AddCtx(SMB_CS_CertificateContext *pCertCtx, unsigned char ucStoreType)
+unsigned int SMB_CS_AddCertCtx(SMB_CS_CertificateContext *pCertCtx, unsigned char ucStoreType)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -1603,11 +1603,11 @@ unsigned int SMB_CS_AddCtx(SMB_CS_CertificateContext *pCertCtx, unsigned char uc
 
 	SMB_CS_CertificateContext *pCertCtxTmp = NULL;
 
-	SMB_CS_GetCtxByCert(&pCertCtxTmp, pCertCtx->stContent.data, pCertCtx->stContent.length);
+	SMB_CS_GetCertCtxByCert(&pCertCtxTmp, pCertCtx->stContent.data, pCertCtx->stContent.length);
 
 	if (pCertCtxTmp)
 	{
-		SMB_CS_FreeCtx(pCertCtxTmp);
+		SMB_CS_FreeCertCtx(pCertCtxTmp);
 		pCertCtxTmp = NULL;
 
 		return 0;
@@ -1732,7 +1732,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_DelCtx(SMB_CS_CertificateContext *pCertCtx)
+unsigned int SMB_CS_DelCertCtx(SMB_CS_CertificateContext *pCertCtx)
 {
 	int crv = 0;
 	SDB sdb = { 0 };
@@ -1764,34 +1764,34 @@ err:
 	return crv;
 }
 
-unsigned int SMB_CS_ClrAllCtx(unsigned char ucStoreType)
+unsigned int SMB_CS_ClrAllCertCtx(unsigned char ucStoreType)
 {
 	SMB_CS_CertificateContext_NODE *header = NULL;
 
 	if (ucStoreType > 0)
 	{
-		SMB_CS_EnumCtx(&header, ucStoreType);
+		SMB_CS_EnumCertCtx(&header, ucStoreType);
 
-		SMB_CS_DelCtxLink(header);
+		SMB_CS_DelCertCtxLink(header);
 
-		SMB_CS_FreeCtxLink(&header);
+		SMB_CS_FreeCertCtxLink(&header);
 	}
 	else
 	{
 		for (int i = 0; i < 4; i++)
 		{
-			SMB_CS_EnumCtx(&header, i + 1);
+			SMB_CS_EnumCertCtx(&header, i + 1);
 
-			SMB_CS_DelCtxLink(header);
+			SMB_CS_DelCertCtxLink(header);
 
-			SMB_CS_FreeCtxLink(&header);
+			SMB_CS_FreeCertCtxLink(&header);
 		}
 	}
 
 	return 0;
 }
 
-unsigned int SMB_DB_Path_Init(char *pDbPath)
+unsigned int SMB_CS_SetPath(char *pDbPath)
 {
 	if (NULL == pDbPath)
 	{
@@ -1854,7 +1854,7 @@ unsigned int  SMB_CS_ImportCaCert(unsigned char *pbCert, unsigned int uiCertLen,
 	HCERTSTORE hCertStore = NULL;
 #endif
 
-	SMB_DB_Init();
+	SMB_CS_Init();
 
 	if (0 != SMB_CS_CreateCtx(&ctx, pbCert, uiCertLen))
 	{
@@ -1927,14 +1927,14 @@ unsigned int  SMB_CS_ImportCaCert(unsigned char *pbCert, unsigned int uiCertLen,
 	}
 	else
 	{
-		if (0 != SMB_CS_AddCtx(ctx, 1))
+		if (0 != SMB_CS_AddCertCtx(ctx, 1))
 		{
 			ulRet = EErr_SMB_ADD_CERT_TO_STORE;
 			goto err;
 		}
 	}
 #else
-	if (0 != SMB_CS_AddCtx(ctx, 1))
+	if (0 != SMB_CS_AddCertCtx(ctx, 1))
 	{
 		ulRet = EErr_SMB_ADD_CERT_TO_STORE;
 		goto err;
@@ -1946,7 +1946,7 @@ unsigned int  SMB_CS_ImportCaCert(unsigned char *pbCert, unsigned int uiCertLen,
 err:
 	if (ctx)
 	{
-		SMB_CS_FreeCtx(ctx);
+		SMB_CS_FreeCertCtx(ctx);
 	}
 #if defined(WIN32) || defined(WINDOWS)
 	if (certContext_IN)
@@ -2156,7 +2156,7 @@ unsigned int SMB_CS_FindCertChain(SMB_CS_CertificateContext_NODE **ppCertCtxNode
 	findAttr.stSubjectKeyID.data = (unsigned char*)certParse.m_strIssueKeyID.c_str();
 	findAttr.stSubjectKeyID.length = certParse.m_strIssueKeyID.size();
 
-	SMB_CS_FindCtx(&findAttr, &ctxHeader);
+	SMB_CS_FindCertCtx(&findAttr, &ctxHeader);
 
 	for (lastHeader = ctxHeader; ctxHeader != NULL; lastHeader = ctxHeader)
 	{
@@ -2178,7 +2178,7 @@ unsigned int SMB_CS_FindCertChain(SMB_CS_CertificateContext_NODE **ppCertCtxNode
 		findAttr.stSubjectKeyID.data = (unsigned char*)certParse.m_strIssueKeyID.c_str();
 		findAttr.stSubjectKeyID.length = certParse.m_strIssueKeyID.size();
 
-		SMB_CS_FindCtx(&findAttr, &ctxHeader);
+		SMB_CS_FindCertCtx(&findAttr, &ctxHeader);
 
 		if (lastHeader == ctxHeader)
 		{
@@ -2189,7 +2189,7 @@ unsigned int SMB_CS_FindCertChain(SMB_CS_CertificateContext_NODE **ppCertCtxNode
 err:
 	if (ctx)
 	{
-		SMB_CS_FreeCtx(ctx);
+		SMB_CS_FreeCertCtx(ctx);
 	}
 
 	*ppCertCtxNodeHeader = ctxHeader;
@@ -2447,11 +2447,11 @@ err:
 }
 
 
-int sdb_FillPath(SMB_CS_Path **ppPtr, sqlite3_stmt *stmt)
+int sdb_FillPath(SMB_CS_FilePath **ppPtr, sqlite3_stmt *stmt)
 {
-	SMB_CS_Path *pPtr = (SMB_CS_Path *)malloc(sizeof(SMB_CS_Path));
+	SMB_CS_FilePath *pPtr = (SMB_CS_FilePath *)malloc(sizeof(SMB_CS_FilePath));
 
-	memset(pPtr, 0, sizeof(SMB_CS_Path));
+	memset(pPtr, 0, sizeof(SMB_CS_FilePath));
 
 
 	//id , name, value, digest_md5, digest_sha1
@@ -2486,7 +2486,7 @@ int sdb_FillPath(SMB_CS_Path **ppPtr, sqlite3_stmt *stmt)
 	return 0;
 }
 
-int sdb_EnumPath(SDB *sdb, SMB_CS_Path_NODE **ppNodeHeader)
+int sdb_EnumPath(SDB *sdb, SMB_CS_FilePath_NODE **ppNodeHeader)
 {
 	sqlite3_stmt *stmt = NULL;
 	int sqlerr = SQLITE_OK;
@@ -2515,7 +2515,7 @@ int sdb_EnumPath(SDB *sdb, SMB_CS_Path_NODE **ppNodeHeader)
 
 		if (sqlerr == SQLITE_ROW)
 		{
-			SMB_CS_Path *pPtr = NULL;
+			SMB_CS_FilePath *pPtr = NULL;
 
 			sdb_FillPath(&pPtr, stmt);
 			OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppNodeHeader, (void *)pPtr);
@@ -2544,7 +2544,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_EnumPath(SMB_CS_Path_NODE **ppNodeHeader)
+unsigned int SMB_CS_EnumFilePath(SMB_CS_FilePath_NODE **ppNodeHeader)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -2742,18 +2742,18 @@ unsigned int SMB_CS_FreePIDVIDLink(SMB_CS_PIDVID_NODE **ppNodeHeader)
 	return 0;
 }
 
-unsigned int SMB_CS_FreePathLink(SMB_CS_Path_NODE **ppNodeHeader)
+unsigned int SMB_CS_FreeFilePathLink(SMB_CS_FilePath_NODE **ppNodeHeader)
 {
 	while (*ppNodeHeader)
 	{
-		SMB_CS_FreePath((*ppNodeHeader)->ptr_data);
+		SMB_CS_FreeFilePath((*ppNodeHeader)->ptr_data);
 		OPF_DelNoFreeHandleNodeDataFromLink((OPST_HANDLE_NODE**)ppNodeHeader, (*ppNodeHeader)->ptr_data);
 	}
 
 	return 0;
 }
 
-unsigned int SMB_CS_FreePath(SMB_CS_Path *pPtr)
+unsigned int SMB_CS_FreeFilePath(SMB_CS_FilePath *pPtr)
 {
 	if (pPtr)
 	{

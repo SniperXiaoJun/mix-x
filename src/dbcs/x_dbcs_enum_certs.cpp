@@ -16,7 +16,7 @@ unsigned int SHOW_ALL_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 	{
 		if (SMB_CERT_ALG_FLAG_RSA == pCertCtxNode->ptr_data->stAttr.ucCertAlgType)
 		{
-			SMB_UI_ShowUI(pCertCtxNode->ptr_data->stContent.data, pCertCtxNode->ptr_data->stContent.length);
+			SMB_UI_ShowCert(pCertCtxNode->ptr_data->stContent.data, pCertCtxNode->ptr_data->stContent.length);
 		}
 		else
 		{
@@ -30,7 +30,7 @@ unsigned int SHOW_ALL_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 
 unsigned int ADD_USER_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 {
-	SMB_CS_ClrAllCtx(2);
+	SMB_CS_ClrAllCertCtx(2);
 
 	while (pCertCtxNode)
 	{
@@ -40,7 +40,7 @@ unsigned int ADD_USER_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 		}
 		else
 		{
-			SMB_CS_AddCtx(pCertCtxNode->ptr_data, 2);
+			SMB_CS_AddCertCtx(pCertCtxNode->ptr_data, 2);
 		}
 		pCertCtxNode = pCertCtxNode->ptr_next;
 	}
@@ -74,8 +74,8 @@ int main(int argc, char * argv[])
 {
 	SMB_CS_CertificateContext_NODE *header = NULL;
 
-	SMB_DB_Path_Init("smb_cs.db");
-	SMB_DB_Init();
+	SMB_CS_SetPath("smb_cs.db");
+	SMB_CS_Init();
 
 	SMB_DEV_EnumCert(&header, SMB_CERT_ALG_FLAG_SM2| SMB_CERT_ALG_FLAG_RSA,
 		SMB_CERT_USAGE_FLAG_SIGN| SMB_CERT_USAGE_FLAG_EX, // Ç©Ãû
@@ -86,9 +86,9 @@ int main(int argc, char * argv[])
 
 	ADD_USER_CERTS(header);
 
-	SMB_CS_FreeCtxLink(&header);
+	SMB_CS_FreeCertCtxLink(&header);
 
-	SMB_CS_EnumCtx(&header, 2);
+	SMB_CS_EnumCertCtx(&header, 2);
 
 	//SIGN_USE_CERT(header);
 
