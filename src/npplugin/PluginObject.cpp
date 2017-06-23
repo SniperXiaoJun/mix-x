@@ -98,8 +98,8 @@ HINSTANCE g_hInstance;
 std::vector<PluginObject *> g_plgnObjVector;
 
 
-int g_CMBCKeyCount = 0;
-int GetCMBCKeyCount(int *piCount);
+int g_KeyCount = 0;
+int GetKeyCount(int *piCount);
 
 
 extern NPNetscapeFuncs NPNFuncs;
@@ -718,13 +718,13 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			string strRes;
 
 			int i =0;
-			int tmpCMBCKeyCount = 0;
+			int tmpKeyCount = 0;
 			
 			Sleep(500);
 
-			GetCMBCKeyCount(&tmpCMBCKeyCount);
+			GetKeyCount(&tmpKeyCount);
 
-			if (tmpCMBCKeyCount > g_CMBCKeyCount)
+			if (tmpKeyCount > g_KeyCount)
 			{
 				WTF_ReadCurrentCerts(30);
 
@@ -733,7 +733,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					(g_plgnObjVector[i])->ExecuteJSCallback((g_plgnObjVector[i])->mOnUKeyOn, utf8_decode(strRes));
 				}
 			}
-			else if(tmpCMBCKeyCount < g_CMBCKeyCount)
+			else if(tmpKeyCount < g_KeyCount)
 			{
 				WTF_ReadCurrentCerts(30);
 
@@ -747,7 +747,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				// nothing need do
 			}
 
-			g_CMBCKeyCount = tmpCMBCKeyCount;
+			g_KeyCount = tmpKeyCount;
 		}
 
 		break;
@@ -760,9 +760,9 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 DWORD __stdcall CreateDlg(IN void* pParam)
 {
-	// add first GetCMBCKeyCount
+	// add first GetKeyCount
 	{
-		GetCMBCKeyCount(&g_CMBCKeyCount);
+		GetKeyCount(&g_KeyCount);
 	}
 
 	static TCHAR szAppName[] = TEXT("CYSD_CSPUPI_DLG_NAME_A581FDC3-B26E-4809-A037-F8901D84B57D") ;

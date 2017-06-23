@@ -128,7 +128,7 @@ err:
 int cspKeyCount = 0;
 int skfKeyCount = 0;
 
-int GetCMBCKeyCount(int *piCount)
+int GetKeyCount(int *piCount)
 {
 	SMB_CS_PIDVID_NODE *pHeader = NULL;
 	int tmpCount = 0;
