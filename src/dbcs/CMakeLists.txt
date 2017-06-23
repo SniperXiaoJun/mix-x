@@ -111,5 +111,15 @@ add_executable(
 
 target_link_libraries(x_dbcs_show_der smb_base)
 
+add_executable(
+  x_dbcs_test_csp
+
+  x_dbcs_test_csp.cpp
+  #${common_cs} 
+  #${common_cpps} 
+)
+
+target_link_libraries(x_dbcs_test_csp smb_base)
+
 
 
