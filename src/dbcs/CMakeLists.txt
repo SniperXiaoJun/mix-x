@@ -110,6 +110,7 @@ add_executable(
 )
 
 target_link_libraries(x_dbcs_show_der smb_base)
+target_link_libraries(x_dbcs_show_der smb_qtui)
 
 
 

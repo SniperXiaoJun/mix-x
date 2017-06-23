@@ -6,78 +6,33 @@
 #include <Windows.h>
 #include <wincrypt.h>
 #include <stdio.h>
-
-using namespace std;
+#include <smb_qtui.h>
+#include <smb_cs.h>
 
 int main(int argc, char * argv[])
 {
-	HCRYPTPROV	hCryptProv = NULL;
-	DWORD dwError;
-	char csp_name[128] = { 0 };
+	unsigned int ulCertLen = 0;
+	unsigned char pbCert[1024] = { 0 };
 
-	SetLastError(0);
+	SMB_DB_Path_Init("smb_cs.db");
+	SMB_DB_Init();
 
-	std::fstream _file;
+	FILE * file = fopen("d:/show.cer", "r+b");
 
-	_file.open("csp.conf", ios::binary | ios::in);
-
-	if (_file)
+	if (file)
 	{
-		std::ios::pos_type length;
-		unsigned int ulAlgType = 0;
-		char * pbSqlData = NULL;
 		int pos = 0;
-
-		// get length of file:
-		_file.seekg(0, ios::end);
-		length = _file.tellg();
-		_file.seekg(0, ios::beg);
-
-		pbSqlData = new char[length];
-
-		// read data as a block:
-		_file.read(pbSqlData + pos, length);
-
-		memcpy(csp_name,pbSqlData, length);
-
-		delete[]pbSqlData;
-
-		_file.close();
-	}
-	else
-	{
-
+		do
+		{
+			pos = fread(pbCert + ulCertLen, 1, 8, file);
+			ulCertLen += pos;
+		} while ((pos>0));
+		fclose(file);
 	}
 
-	printf("cspname=%s\n", csp_name);
+	printf("%d", ulCertLen);
 
-	if (!CryptAcquireContextA(&hCryptProv, NULL,
-		csp_name, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
-	{
-		dwError = GetLastError();
-		printf("CryptAcquireContextA use CRYPT_VERIFYCONTEXT errorecode dwError=%x\n", dwError);
-	}
-	else
-	{
-		dwError = GetLastError();
-		printf("CryptAcquireContextA use CRYPT_VERIFYCONTEXT successcode dwError=%x\n", dwError);
+	SMB_QTUI_ShowUI(pbCert, ulCertLen);
 
-		CryptReleaseContext(hCryptProv, 0);
-	}
-
-	SetLastError(0);
-	if (!CryptAcquireContextA(&hCryptProv, NULL,
-		csp_name, PROV_RSA_FULL, 0))
-	{
-		dwError = GetLastError();
-		printf("CryptAcquireContextA use 0 errorecode dwError=%x\n", dwError);
-	}
-	else
-	{
-		dwError = GetLastError();
-		printf("CryptAcquireContextA use 0 successcode dwError=%x\n", dwError);
-		CryptReleaseContext(hCryptProv, 0);
-	}
-
-	return getchar();
+	return 0;
 }
