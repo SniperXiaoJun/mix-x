@@ -1504,7 +1504,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 					continue;
 				}
 
-				if (CERT_SIGN_FLAG & uiUsageFlag)
+				if (SMB_CERT_USAGE_FLAG_SIGN & uiUsageFlag)
 				{
 					ULONG nValueLen = BUFFER_LEN_1K * 4;
 
@@ -1521,7 +1521,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 							if (ulRet)
 							{
 								// next Container
-								if (CERT_FILTER_FLAG_TRUE == uiFilterFlag)
+								if (SMB_CERT_FILTER_FLAG_TRUE == uiFilterFlag)
 								{
 									ptrContainer += strlen(ptrContainer);
 									ptrContainer += 1;
@@ -1541,19 +1541,19 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 							{
 								switch (ulRet) {
 								case 0:
-									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_FLAG_OK;
+									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_OK;
 									break;
 								case EErr_SMB_VERIFY_TIME:
-									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_TIME_INVALID;
+									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_TIME_INVALID;
 									break;
 								case EErr_SMB_NO_CERT_CHAIN:
-									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_CHAIN_INVALID;
+									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_CHAIN_INVALID;
 									break;
 								case EErr_SMB_VERIFY_CERT:
-									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_SIGN_INVALID;
+									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_SIGN_INVALID;
 									break;
 								default:
-									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_CHAIN_INVALID;
+									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_CHAIN_INVALID;
 									break;
 								}
 							}
@@ -1597,7 +1597,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 					}
 				}
 
-				if (CERT_EX_FLAG & uiUsageFlag)
+				if (SMB_CERT_USAGE_FLAG_EX & uiUsageFlag)
 				{
 					ULONG nValueLen = BUFFER_LEN_1K * 4;
 
@@ -1614,7 +1614,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 							if (ulRet)
 							{
 								// next Container
-								if (CERT_FILTER_FLAG_TRUE == uiFilterFlag)
+								if (SMB_CERT_FILTER_FLAG_TRUE == uiFilterFlag)
 								{
 									ptrContainer += strlen(ptrContainer);
 									ptrContainer += 1;
@@ -1633,19 +1633,19 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 							{
 								switch (ulRet) {
 								case 0:
-									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_FLAG_OK;
+									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_OK;
 									break;
 								case EErr_SMB_VERIFY_TIME:
-									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_TIME_INVALID;
+									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_TIME_INVALID;
 									break;
 								case EErr_SMB_NO_CERT_CHAIN:
-									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_CHAIN_INVALID;
+									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_CHAIN_INVALID;
 									break;
 								case EErr_SMB_VERIFY_CERT:
-									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_SIGN_INVALID;
+									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_SIGN_INVALID;
 									break;
 								default:
-									pCertCtx->stAttr.ulVerify = CERT_VERIFY_RESULT_CHAIN_INVALID;
+									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_CHAIN_INVALID;
 									break;
 								}
 							}

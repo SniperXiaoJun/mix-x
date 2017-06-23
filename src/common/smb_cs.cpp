@@ -1051,7 +1051,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int uiFlag, unsigned char* pbCert, unsig
 
 	ulAlgType = certParse.m_iKeyAlg;
 
-	if (CERT_ALG_RSA_FLAG == ulAlgType)
+	if (SMB_CERT_ALG_FLAG_RSA == ulAlgType)
 	{
 #if defined(WIN32) || defined(WINDOWS)
 		// 创建上下文
@@ -1062,7 +1062,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int uiFlag, unsigned char* pbCert, unsig
 			goto err;
 		}
 		// TIME
-		if (CERT_VERIFY_TIME_FLAG & uiFlag)
+		if (SMB_CERT_VERIFY_FLAG_TIME & uiFlag)
 		{
 			ulRet = CertVerifyTimeValidity(NULL, certContext_IN->pCertInfo);
 			if (ulRet)
@@ -1072,7 +1072,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int uiFlag, unsigned char* pbCert, unsig
 			}
 		}
 		// SIGN CERT
-		if (CERT_VERIFY_CHAIN_FLAG & uiFlag)
+		if (SMB_CERT_VERIFY_FLAG_CHAIN & uiFlag)
 		{
 			// 打开存储区		
 			hCertStore = CertOpenStore(
@@ -1166,7 +1166,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int uiFlag, unsigned char* pbCert, unsig
 			}
 		}
 		//CRL
-		if (CERT_VERIFY_CRL_FLAG & uiFlag)
+		if (SMB_CERT_VERIFY_FLAG_CRL & uiFlag)
 		{
 
 		}
@@ -1186,7 +1186,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int uiFlag, unsigned char* pbCert, unsig
 		goto err;
 	}
 	// TIME
-	if (CERT_VERIFY_TIME_FLAG & uiFlag)
+	if (SMB_CERT_VERIFY_FLAG_TIME & uiFlag)
 	{
 		time_t time_now;
 		time(&time_now);
@@ -1198,7 +1198,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int uiFlag, unsigned char* pbCert, unsig
 		}
 	}
 	// SIGN CERT
-	if (CERT_VERIFY_CHAIN_FLAG & uiFlag)
+	if (SMB_CERT_VERIFY_FLAG_CHAIN & uiFlag)
 	{
 		// 查找颁发者证书
 		SMB_CS_CertificateFindAttr findAttr = { 0 };
@@ -1228,7 +1228,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int uiFlag, unsigned char* pbCert, unsig
 			}
 			switch (ulAlgType)
 			{
-			case CERT_ALG_RSA_FLAG:
+			case SMB_CERT_ALG_FLAG_RSA:
 			{
 				ulRet = OpenSSL_VerifyCert(pbCert, uiCertLen, ctxHeader->ptr_data->stContent.data, ctxHeader->ptr_data->stContent.length);
 				if (ulRet)
@@ -1242,7 +1242,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int uiFlag, unsigned char* pbCert, unsig
 				}
 				break;
 			}
-			case CERT_ALG_SM2_FLAG:
+			case SMB_CERT_ALG_FLAG_SM2:
 			{
 				OpenSSL_Initialize();
 
@@ -1269,7 +1269,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int uiFlag, unsigned char* pbCert, unsig
 		}
 	}
 	//CRL
-	if (CERT_VERIFY_CRL_FLAG & uiFlag)
+	if (SMB_CERT_VERIFY_FLAG_CRL & uiFlag)
 	{
 
 	}
@@ -1862,7 +1862,7 @@ unsigned int  SMB_CS_ImportCaCert(unsigned char *pbCert, unsigned int uiCertLen,
 		goto err;
 	}
 #if defined(WIN32) || defined(WINDOWS)
-	if (CERT_ALG_RSA_FLAG == ctx->stAttr.ucCertAlgType)
+	if (SMB_CERT_ALG_FLAG_RSA == ctx->stAttr.ucCertAlgType)
 	{
 		if (0 == memcmp(ctx->stAttr.stIssueKeyID.data, ctx->stAttr.stSubjectKeyID.data, ctx->stAttr.stSubjectKeyID.length > ctx->stAttr.stIssueKeyID.length ? ctx->stAttr.stSubjectKeyID.length : ctx->stAttr.stIssueKeyID.length))
 		{

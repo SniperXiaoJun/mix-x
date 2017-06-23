@@ -14,7 +14,7 @@ unsigned int SHOW_ALL_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 {
 	while (pCertCtxNode)
 	{
-		if (CERT_ALG_RSA_FLAG == pCertCtxNode->ptr_data->stAttr.ucCertAlgType)
+		if (SMB_CERT_ALG_FLAG_RSA == pCertCtxNode->ptr_data->stAttr.ucCertAlgType)
 		{
 			SMB_UI_ShowUI(pCertCtxNode->ptr_data->stContent.data, pCertCtxNode->ptr_data->stContent.length);
 		}
@@ -34,7 +34,7 @@ unsigned int ADD_USER_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 
 	while (pCertCtxNode)
 	{
-		if (CERT_ALG_RSA_FLAG == pCertCtxNode->ptr_data->stAttr.ucCertAlgType)
+		if (SMB_CERT_ALG_FLAG_RSA == pCertCtxNode->ptr_data->stAttr.ucCertAlgType)
 		{
 			
 		}
@@ -52,7 +52,7 @@ unsigned int SIGN_USE_CERT(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 {
 	while (pCertCtxNode)
 	{
-		if (pCertCtxNode->ptr_data->stAttr.ucCertAlgType == CERT_ALG_SM2_FLAG && pCertCtxNode->ptr_data->stAttr.ucCertUsageType == CERT_SIGN_FLAG)
+		if (pCertCtxNode->ptr_data->stAttr.ucCertAlgType == SMB_CERT_ALG_FLAG_SM2 && pCertCtxNode->ptr_data->stAttr.ucCertUsageType == SMB_CERT_USAGE_FLAG_SIGN)
 		{
 			// 
 			unsigned char szDigest[32] = {0};
@@ -77,10 +77,10 @@ int main(int argc, char * argv[])
 	SMB_DB_Path_Init("smb_cs.db");
 	SMB_DB_Init();
 
-	SMB_DEV_EnumCert(&header, CERT_ALG_SM2_FLAG| CERT_ALG_RSA_FLAG,
-		CERT_SIGN_FLAG| CERT_EX_FLAG, // Ç©Ãû
-		CERT_VERIFY_TIME_FLAG | CERT_VERIFY_CHAIN_FLAG | CERT_VERIFY_CRL_FLAG,
-		CERT_FILTER_FLAG_FALSE);
+	SMB_DEV_EnumCert(&header, SMB_CERT_ALG_FLAG_SM2| SMB_CERT_ALG_FLAG_RSA,
+		SMB_CERT_USAGE_FLAG_SIGN| SMB_CERT_USAGE_FLAG_EX, // Ç©Ãû
+		SMB_CERT_VERIFY_FLAG_TIME | SMB_CERT_VERIFY_FLAG_CHAIN | SMB_CERT_VERIFY_FLAG_CRL,
+		SMB_CERT_FILTER_FLAG_FALSE);
 
 	SHOW_ALL_CERTS(header);
 

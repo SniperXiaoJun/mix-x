@@ -282,7 +282,7 @@ namespace {
 		splitdou(strSecondCertKeyId,strSecondCertKeyIdList);
 
 		paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(
-			WTF_CheckCertChain(strSecondCertKeyIdList ,CERT_VERIFY_TIME_FLAG|CERT_VERIFY_CHAIN_FLAG|CERT_VERIFY_CRL_FLAG, ulAlgType)) );
+			WTF_CheckCertChain(strSecondCertKeyIdList ,SMB_CERT_VERIFY_FLAG_TIME|SMB_CERT_VERIFY_FLAG_CHAIN|SMB_CERT_VERIFY_FLAG_CRL, ulAlgType)) );
 
 		//FreeThreadParamItem(paramThread);
 

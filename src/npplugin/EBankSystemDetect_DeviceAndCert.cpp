@@ -234,7 +234,7 @@ string WTF_ShowCert(const std::string strCertContentB64)
 	{
 		certParse.parse();
 
-		if (CERT_ALG_RSA_FLAG == certParse.m_iKeyAlg)
+		if (SMB_CERT_ALG_FLAG_RSA == certParse.m_iKeyAlg)
 		{
 			SMB_UI_ShowUI((unsigned char*)data_value_out, data_len_out);
 		}
@@ -352,7 +352,7 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int uiF
 
 	switch (ulAlgType)
 	{
-		case CERT_ALG_RSA_FLAG:
+		case SMB_CERT_ALG_FLAG_RSA:
 #if defined(WIN32) || defined(WINDOWS)
 		{
 			for (i = strListRootCertKeyIDHex.begin(); i != strListRootCertKeyIDHex.end(); ++i)
@@ -416,7 +416,7 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int uiF
 		}
 		break;
 #endif
-		case CERT_ALG_SM2_FLAG:
+		case SMB_CERT_ALG_FLAG_SM2:
 		{
 			for (i = strListRootCertKeyIDHex.begin(); i != strListRootCertKeyIDHex.end(); ++i)
 			{
@@ -534,7 +534,7 @@ string WTF_InstallCaCert(list<string> strListCaCertPath, int ulFlag)
 
 			if(0 == ulRet)
 			{
-				item["msg"] = ulAlgType==CERT_ALG_SM2_FLAG? utf8_encode(L"安装SM2证书文件成功"):utf8_encode(L"安装RSA证书文件成功");
+				item["msg"] = ulAlgType==SMB_CERT_ALG_FLAG_SM2? utf8_encode(L"安装SM2证书文件成功"):utf8_encode(L"安装RSA证书文件成功");
 			}
 			else  if (EErr_SMB_NO_RIGHT == ulRet)
 			{
@@ -577,10 +577,10 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 	SMB_DB_Init();
 
-	ulRet = SMB_DEV_EnumCert(&header, CERT_ALG_SM2_FLAG | CERT_ALG_RSA_FLAG,
-		CERT_SIGN_FLAG | CERT_EX_FLAG, // Ç©Ãû
-		CERT_VERIFY_TIME_FLAG | CERT_VERIFY_CHAIN_FLAG | CERT_VERIFY_CRL_FLAG,
-		CERT_FILTER_FLAG_FALSE);
+	ulRet = SMB_DEV_EnumCert(&header, SMB_CERT_ALG_FLAG_SM2 | SMB_CERT_ALG_FLAG_RSA,
+		SMB_CERT_USAGE_FLAG_SIGN | SMB_CERT_USAGE_FLAG_EX, // Ç©Ãû
+		SMB_CERT_VERIFY_FLAG_TIME | SMB_CERT_VERIFY_FLAG_CHAIN | SMB_CERT_VERIFY_FLAG_CRL,
+		SMB_CERT_FILTER_FLAG_FALSE);
 
 	if(ulRet)
 	{
@@ -883,25 +883,25 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 								item["signType"] = TRUE; // 签名
 
-								switch (SMB_CS_VerifyCert(CERT_VERIFY_TIME_FLAG | CERT_VERIFY_CHAIN_FLAG | CERT_VERIFY_CRL_FLAG, (unsigned char *)szdata, ulCertLen)) {
+								switch (SMB_CS_VerifyCert(SMB_CERT_VERIFY_FLAG_TIME | SMB_CERT_VERIFY_FLAG_CHAIN | SMB_CERT_VERIFY_FLAG_CRL, (unsigned char *)szdata, ulCertLen)) {
 								case 0:
-									item["verify"] = CERT_VERIFY_RESULT_FLAG_OK;   // 未校验
+									item["verify"] = SMB_CERT_VERIFY_RESULT_FLAG_OK;   // 未校验
 									break;
 								case EErr_SMB_VERIFY_TIME:
-									item["verify"] = CERT_VERIFY_RESULT_TIME_INVALID;
+									item["verify"] = SMB_CERT_VERIFY_RESULT_FLAG_TIME_INVALID;
 									break;
 								case EErr_SMB_NO_CERT_CHAIN:
-									item["verify"] = CERT_VERIFY_RESULT_CHAIN_INVALID;
+									item["verify"] = SMB_CERT_VERIFY_RESULT_FLAG_CHAIN_INVALID;
 									break;
 								case EErr_SMB_VERIFY_CERT:
-									item["verify"] = CERT_VERIFY_RESULT_SIGN_INVALID;
+									item["verify"] = SMB_CERT_VERIFY_RESULT_FLAG_SIGN_INVALID;
 									break;
 								default:
-									item["verify"] = CERT_VERIFY_RESULT_CHAIN_INVALID;
+									item["verify"] = SMB_CERT_VERIFY_RESULT_FLAG_CHAIN_INVALID;
 									break;
 								}
 
-								item["type"] = CERT_ALG_RSA_FLAG;     // RSA
+								item["type"] = SMB_CERT_ALG_FLAG_RSA;     // RSA
 
 								WT_ClearCert();
 
@@ -1065,25 +1065,25 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 							item["signType"] = TRUE; // 签名
 
-							switch (SMB_CS_VerifyCert(CERT_VERIFY_TIME_FLAG | CERT_VERIFY_CHAIN_FLAG | CERT_VERIFY_CRL_FLAG, (unsigned char *)szdata, ulCertLen)) {
+							switch (SMB_CS_VerifyCert(SMB_CERT_VERIFY_FLAG_TIME | SMB_CERT_VERIFY_FLAG_CHAIN | SMB_CERT_VERIFY_FLAG_CRL, (unsigned char *)szdata, ulCertLen)) {
 							case 0:
-								item["verify"] = CERT_VERIFY_RESULT_FLAG_OK;   // 未校验
+								item["verify"] = SMB_CERT_VERIFY_RESULT_FLAG_OK;   // 未校验
 								break;
 							case EErr_SMB_VERIFY_TIME:
-								item["verify"] = CERT_VERIFY_RESULT_TIME_INVALID;
+								item["verify"] = SMB_CERT_VERIFY_RESULT_FLAG_TIME_INVALID;
 								break;
 							case EErr_SMB_NO_CERT_CHAIN:
-								item["verify"] = CERT_VERIFY_RESULT_CHAIN_INVALID;
+								item["verify"] = SMB_CERT_VERIFY_RESULT_FLAG_CHAIN_INVALID;
 								break;
 							case EErr_SMB_VERIFY_CERT:
-								item["verify"] = CERT_VERIFY_RESULT_SIGN_INVALID;
+								item["verify"] = SMB_CERT_VERIFY_RESULT_FLAG_SIGN_INVALID;
 								break;
 							default:
-								item["verify"] = CERT_VERIFY_RESULT_CHAIN_INVALID;
+								item["verify"] = SMB_CERT_VERIFY_RESULT_FLAG_CHAIN_INVALID;
 								break;
 							}
 
-							item["type"] = CERT_ALG_RSA_FLAG;     // RSA
+							item["type"] = SMB_CERT_ALG_FLAG_RSA;     // RSA
 
 							WT_ClearCert();
 
