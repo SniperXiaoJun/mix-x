@@ -58,6 +58,7 @@ const char* kInstallCaCertSM2 = "installCaCertSM2";			// 安装CA证书
 const char* kRepairHostFile = "repairHostFile";			// 修复HOST文件
 const char* kRepairLocalTime = "repairLocalTime";		// 修复本地时间
 const char* kListSKFDriver = "listSKFDriver";				// 获取驱动安装信息
+const char* kListCSPDriver = "listCSPDriver";				// 获取驱动安装信息
 const char* kGetLocalFileVersion = "getLocalFileVersion";   // 本地文件版本信息
 const char* kGetWebFileVersion = "getWebFileVersion";		// 网络文件版本信息
 const char* kCheckCertChain = "checkCertChain";				// 检测证书链安装信息
@@ -199,6 +200,28 @@ namespace {
 
 		paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(
 			WTF_ListSKFDriver(strSKFNameList)));
+
+
+		//FreeThreadParamItem(paramThread);
+
+		return true;
+	}
+
+	DWORD WINAPI ListCSPDriverThread(LPVOID lparam) {
+		UseMixMutex share_mutex("share_mutex_skf");
+
+		ParamThread* paramThread = (ParamThread*)lparam;
+		if (paramThread == NULL)
+			return false;
+
+		std::string strCSPName = paramThread->paramThreadStringMap["CSPName"];
+
+		std::list<std::string> strCSPNameList;
+
+		splitdou(strCSPName, strCSPNameList);
+
+		paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(
+			WTF_ListCSPDriver(strCSPNameList)));
 
 
 		//FreeThreadParamItem(paramThread);
@@ -997,6 +1020,7 @@ bool PluginObject::hasMethod(NPIdentifier methodName){
 		|| strcmp(pName, kRepairHostFile ) == 0
 		|| strcmp(pName, kRepairLocalTime) == 0
 		|| strcmp(pName, kListSKFDriver) == 0
+		|| strcmp(pName, kListCSPDriver) == 0
 		|| strcmp(pName, kGetLocalFileVersion ) == 0
 		|| strcmp(pName, kGetWebFileVersion ) == 0
 		|| strcmp(pName, kCheckCertChain) == 0
@@ -1419,6 +1443,28 @@ bool PluginObject::invoke(NPIdentifier methodName,
 			AddThreadItem(hThread);
 			
 			outString = "List SKF Driver async.";
+		}
+		else if (strcmp(name, kListCSPDriver) == 0)
+		{
+			ret_val = true;
+
+			ParamThread * paramThread = new ParamThread();
+			paramThread->pluginObj = this;
+
+			NPString CSPName(NPVARIANT_TO_STRING(args[0]));
+			std::string strCSPName(CSPName.UTF8Characters, CSPName.UTF8Length);
+
+			// 线程参数
+			paramThread->paramThreadStringMap["CSPName"] = strCSPName;
+
+			paramThread->paramCallback = NPN_RetainObject(NPVARIANT_TO_OBJECT(args[1]));
+			AddThreadParamItem(paramThread);
+
+			hThread = CreateThread(NULL, 0, ListCSPDriverThread, paramThread, 0, NULL);
+
+			AddThreadItem(hThread);
+
+			outString = "List CSP Driver async.";
 		}
 		else if (strcmp(name,kRepairLocalTime) == 0)
 		{

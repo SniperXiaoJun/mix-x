@@ -511,6 +511,26 @@ string WTF_GetLocalFileVersion(string strPath);
 */
 string WTF_ListSKFDriver(list<string> strSKFList);
 
+/*
+函数功能：获取CSP驱动状态
+输入参数：
+strCSPList CSP名称列表
+返回值： json string
+返回JSON结构:
+[
+{
+"csp_name" : "hbcmbc",
+"csp_state" : 1
+},
+省略部分
+{
+"csp_name" : "CMBC",
+"csp_state" : 0
+}
+]
+*/
+string WTF_ListCSPDriver(list<string> strCSPList);
+
 
 /*
 	函数功能：修复本地时间

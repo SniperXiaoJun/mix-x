@@ -260,54 +260,9 @@ string WTF_ShowCert(const std::string strCertContentB64)
 string WTF_ListSKFDriver(list<string> strSKFList)
 {
 	unsigned int ulRet = 0;
-
 	list<string>::iterator i;
-
 	Json::Value values;
-
 	char version[64] = {0};
-
-	BOOL bCspDriver = FALSE;
-
-#if 1        // for cmbc
-	if (0 < cspKeyCount)
-	{
-		Json::Value value;
-		Json::Reader reader;
-
-		BOOL bFlag = reader.parse(g_CurrentCerts, value);
-
-		if (bFlag)
-		{
-			if (value.isArray())
-			{
-				int i = 0;
-				bCspDriver = FALSE;
-				for (i;!value[i].isNull(); i++)
-				{
-					if (value[i]["devFrom"] == "csp")
-					{
-						bCspDriver = TRUE;
-						break;
-					}
-				}
-			}
-			else
-			{
-				bCspDriver = TRUE;
-			}
-		}	
-		else
-		{
-			bCspDriver = TRUE;
-		}
-	}
-	else
-	{
-		bCspDriver = TRUE;
-	}
-
-#endif
 
 	for (i = strSKFList.begin(); i != strSKFList.end(); ++i)
 	{
@@ -320,12 +275,55 @@ string WTF_ListSKFDriver(list<string> strSKFList)
 		item["skf_name"] = *i;
 		item["skf_state"] = ulRet? FALSE:TRUE;
 
-		if(FALSE == bCspDriver)
+		item["skf_version"] = version;
+
+		values.append(item);
+	}
+
+	return values.toStyledString();
+}
+
+
+string WTF_ListCSPDriver(list<string> strCSPList)
+{
+	list<string>::iterator i;
+	Json::Value values;
+
+	for (i = strCSPList.begin(); i != strCSPList.end(); ++i)
+	{
+		Json::Value item;
+
+		HCRYPTPROV	hCryptProv = NULL;
+
+		item["csp_name"] = *i;
+		item["csp_state"] = FALSE;
+
+		// 顺德CSP
+		if (!CryptAcquireContextA(&hCryptProv, NULL,
+			i->c_str(), PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
 		{
-			item["skf_state"] = bCspDriver;
+
+		}
+		else
+		{
+			item["csp_name"] = *i;
+			item["csp_state"] = TRUE;
+
+			CryptReleaseContext(hCryptProv, 0);
 		}
 
-		item["skf_version"] = version;
+		if (!CryptAcquireContextA(&hCryptProv, NULL,
+			i->c_str(), PROV_RSA_FULL, 0))
+		{
+
+		}
+		else
+		{
+			item["csp_name"] = *i;
+			item["csp_state"] = TRUE;
+
+			CryptReleaseContext(hCryptProv, 0);
+		}
 
 		values.append(item);
 	}
