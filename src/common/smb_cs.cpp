@@ -533,7 +533,7 @@ err:
 
 }
 
-int sdb_FillCtx(SMB_CS_CertificateContext **ppCertCtx, SMB_CS_CertificateFindAttr *pCertificateFindAttr, sqlite3_stmt *stmt)
+int sdb_FillCertCtx(SMB_CS_CertificateContext **ppCertCtx, SMB_CS_CertificateFindAttr *pCertificateFindAttr, sqlite3_stmt *stmt)
 {
 	SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
 
@@ -704,7 +704,7 @@ int sdb_FillCtx(SMB_CS_CertificateContext **ppCertCtx, SMB_CS_CertificateFindAtt
 	return 0;
 }
 
-int sdb_FindCtx(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
+int sdb_FindCertCtx(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
 {
 	sqlite3_stmt *stmt = NULL;
 	int sqlerr = SQLITE_OK;
@@ -736,7 +736,7 @@ int sdb_FindCtx(SDB *sdb, SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_
 		if (sqlerr == SQLITE_ROW)
 		{
 			SMB_CS_CertificateContext *pCertCtx = NULL;
-			sdb_FillCtx(&pCertCtx, pCertificateFindAttr, stmt);
+			sdb_FillCertCtx(&pCertCtx, pCertificateFindAttr, stmt);
 			OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppCertCtxNodeHeader, (void *)pCertCtx);
 		}
 
@@ -777,7 +777,7 @@ unsigned int SMB_CS_FindCertCtx(SMB_CS_CertificateFindAttr *pCertificateFindAttr
 		goto err;
 	}
 
-	crv = sdb_FindCtx(&sdb, pCertificateFindAttr, ppCertCtxNodeHeader);
+	crv = sdb_FindCertCtx(&sdb, pCertificateFindAttr, ppCertCtxNodeHeader);
 	if (crv)
 	{
 		goto err;
@@ -922,7 +922,7 @@ unsigned int SMB_CS_FreeCertCtxLink(SMB_CS_CertificateContext_NODE **ppCertCtxNo
 	return 0;
 }
 
-unsigned int sdb_GetCtxByCert(SDB *sdb, SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen)
+unsigned int sdb_GetCertCtxByCert(SDB *sdb, SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen)
 {
 	sqlite3_stmt *stmt = NULL;
 	int sqlerr = SQLITE_OK;
@@ -961,7 +961,7 @@ unsigned int sdb_GetCtxByCert(SDB *sdb, SMB_CS_CertificateContext **ppCertCtx, u
 		if (sqlerr == SQLITE_ROW)
 		{
 			SMB_CS_CertificateContext *pCertCtx = NULL;
-			sdb_FillCtx(&pCertCtx, NULL, stmt);
+			sdb_FillCertCtx(&pCertCtx, NULL, stmt);
 		}
 
 	} while (!sdb_done(sqlerr, &retry));
@@ -1001,7 +1001,7 @@ unsigned int SMB_CS_GetCertCtxByCert(SMB_CS_CertificateContext **ppCertCtx, unsi
 		goto err;
 	}
 
-	crv = sdb_GetCtxByCert(&sdb, ppCertCtx, pCertificate, uiCertificateLen);
+	crv = sdb_GetCertCtxByCert(&sdb, ppCertCtx, pCertificate, uiCertificateLen);
 	if (crv)
 	{
 		goto err;
@@ -1337,7 +1337,7 @@ unsigned int SMB_CS_DelCertCtxLink(SMB_CS_CertificateContext_NODE *pCertCtxNodeH
 	return 0;
 }
 
-int sdb_AddCtxToDB(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned char ucStoreType)
+int sdb_AddCertCtx(SDB *sdb, SMB_CS_CertificateContext *pCertCtx, unsigned char ucStoreType)
 {
 	sqlite3_stmt *stmt = NULL;
 	int sqlerr = SQLITE_OK;
@@ -1622,7 +1622,7 @@ unsigned int SMB_CS_AddCertCtx(SMB_CS_CertificateContext *pCertCtx, unsigned cha
 		goto err;
 	}
 
-	crv = sdb_AddCtxToDB(&sdb, pCertCtx, ucStoreType);
+	crv = sdb_AddCertCtx(&sdb, pCertCtx, ucStoreType);
 	if (crv)
 	{
 		goto err;
@@ -1642,7 +1642,7 @@ err:
 	return crv;
 }
 
-int sdb_DelCtx(SDB *sdb, SMB_CS_CertificateContext *pCertCtx)
+int sdb_DelCertCtx(SDB *sdb, SMB_CS_CertificateContext *pCertCtx)
 {
 	sqlite3_stmt *stmt = NULL;
 	int sqlerr = SQLITE_OK;
@@ -1745,7 +1745,7 @@ unsigned int SMB_CS_DelCertCtx(SMB_CS_CertificateContext *pCertCtx)
 		goto err;
 	}
 
-	crv = sdb_DelCtx(&sdb, pCertCtx);
+	crv = sdb_DelCertCtx(&sdb, pCertCtx);
 	if (crv)
 	{
 		goto err;
