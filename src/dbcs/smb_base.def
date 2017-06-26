@@ -29,9 +29,9 @@ EXPORTS
 	SMB_CS_FreePIDVIDLink
 	SMB_CS_FreePIDVID
 	
-	SMB_CS_EnumFilePath
-	SMB_CS_FreeFilePathLink
-	SMB_CS_FreeFilePath
+	SMB_CS_EnumFileInfo
+	SMB_CS_FreeFileInfoLink
+	SMB_CS_FreeFileInfo
 
 	SMB_CS_FillCertAttr
 	SMB_CS_SetCertCtxVendor

@@ -61,7 +61,7 @@ static const char *CREATE_TABLE_CMD[] =
 , "CREATE TABLE if not exists table_data (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, data);"
 , "CREATE TABLE if not exists table_element (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, type, data, description);"
 , "CREATE TABLE if not exists table_tlv (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, type, value);"
-, "CREATE TABLE if not exists table_path (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name UNIQUE ON CONFLICT REPLACE, value, digest_md5, digest_sha1);"
+, "CREATE TABLE if not exists table_fileinfo (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name UNIQUE ON CONFLICT REPLACE, path, digest_md5, digest_sha1, filetype, category);"
 , "CREATE TABLE if not exists table_csp (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name UNIQUE ON CONFLICT REPLACE, value);"
 };
 
@@ -2447,11 +2447,11 @@ err:
 }
 
 
-int sdb_FillPath(SMB_CS_FilePath **ppPtr, sqlite3_stmt *stmt)
+int sdb_FillFileInfo(SMB_CS_FileInfo **ppPtr, sqlite3_stmt *stmt)
 {
-	SMB_CS_FilePath *pPtr = (SMB_CS_FilePath *)malloc(sizeof(SMB_CS_FilePath));
+	SMB_CS_FileInfo *pPtr = (SMB_CS_FileInfo *)malloc(sizeof(SMB_CS_FileInfo));
 
-	memset(pPtr, 0, sizeof(SMB_CS_FilePath));
+	memset(pPtr, 0, sizeof(SMB_CS_FileInfo));
 
 
 	//id , name, value, digest_md5, digest_sha1
@@ -2467,9 +2467,9 @@ int sdb_FillPath(SMB_CS_FilePath **ppPtr, sqlite3_stmt *stmt)
 	memcpy(pPtr->stName.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stName.length);
 
 	pos += 1;
-	pPtr->stValue.length = sqlite3_column_bytes(stmt, pos);
-	pPtr->stValue.data = (unsigned char *)malloc(pPtr->stValue.length);
-	memcpy(pPtr->stValue.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stValue.length);
+	pPtr->stPath.length = sqlite3_column_bytes(stmt, pos);
+	pPtr->stPath.data = (unsigned char *)malloc(pPtr->stPath.length);
+	memcpy(pPtr->stPath.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stPath.length);
 
 	pos += 1;
 	pPtr->stDigestMD5.length = sqlite3_column_bytes(stmt, pos);
@@ -2481,12 +2481,22 @@ int sdb_FillPath(SMB_CS_FilePath **ppPtr, sqlite3_stmt *stmt)
 	pPtr->stDigestSHA1.data = (unsigned char *)malloc(pPtr->stDigestSHA1.length);
 	memcpy(pPtr->stDigestSHA1.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stDigestSHA1.length);
 
+	pos += 1;
+	pPtr->stFileType.length = sqlite3_column_bytes(stmt, pos);
+	pPtr->stFileType.data = (unsigned char *)malloc(pPtr->stFileType.length);
+	memcpy(pPtr->stFileType.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stFileType.length);
+
+	pos += 1;
+	pPtr->stCategory.length = sqlite3_column_bytes(stmt, pos);
+	pPtr->stCategory.data = (unsigned char *)malloc(pPtr->stCategory.length);
+	memcpy(pPtr->stCategory.data, (char *)sqlite3_column_blob(stmt, pos), pPtr->stCategory.length);
+
 	*ppPtr = pPtr;
 
 	return 0;
 }
 
-int sdb_EnumPath(SDB *sdb, SMB_CS_FilePath_NODE **ppNodeHeader)
+int sdb_EnumFileInfo(SDB *sdb, SMB_CS_FileInfo_NODE **ppNodeHeader)
 {
 	sqlite3_stmt *stmt = NULL;
 	int sqlerr = SQLITE_OK;
@@ -2515,9 +2525,9 @@ int sdb_EnumPath(SDB *sdb, SMB_CS_FilePath_NODE **ppNodeHeader)
 
 		if (sqlerr == SQLITE_ROW)
 		{
-			SMB_CS_FilePath *pPtr = NULL;
+			SMB_CS_FileInfo *pPtr = NULL;
 
-			sdb_FillPath(&pPtr, stmt);
+			sdb_FillFileInfo(&pPtr, stmt);
 			OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppNodeHeader, (void *)pPtr);
 		}
 
@@ -2544,7 +2554,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_EnumFilePath(SMB_CS_FilePath_NODE **ppNodeHeader)
+unsigned int SMB_CS_EnumFileInfo(SMB_CS_FileInfo_NODE **ppNodeHeader)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -2558,7 +2568,7 @@ unsigned int SMB_CS_EnumFilePath(SMB_CS_FilePath_NODE **ppNodeHeader)
 		goto err;
 	}
 
-	crv = sdb_EnumPath(&sdb, ppNodeHeader);
+	crv = sdb_EnumFileInfo(&sdb, ppNodeHeader);
 	if (crv)
 	{
 		goto err;
@@ -2742,18 +2752,18 @@ unsigned int SMB_CS_FreePIDVIDLink(SMB_CS_PIDVID_NODE **ppNodeHeader)
 	return 0;
 }
 
-unsigned int SMB_CS_FreeFilePathLink(SMB_CS_FilePath_NODE **ppNodeHeader)
+unsigned int SMB_CS_FreeFileInfoLink(SMB_CS_FileInfo_NODE **ppNodeHeader)
 {
 	while (*ppNodeHeader)
 	{
-		SMB_CS_FreeFilePath((*ppNodeHeader)->ptr_data);
+		SMB_CS_FreeFileInfo((*ppNodeHeader)->ptr_data);
 		OPF_DelNoFreeHandleNodeDataFromLink((OPST_HANDLE_NODE**)ppNodeHeader, (*ppNodeHeader)->ptr_data);
 	}
 
 	return 0;
 }
 
-unsigned int SMB_CS_FreeFilePath(SMB_CS_FilePath *pPtr)
+unsigned int SMB_CS_FreeFileInfo(SMB_CS_FileInfo *pPtr)
 {
 	if (pPtr)
 	{
@@ -2775,10 +2785,22 @@ unsigned int SMB_CS_FreeFilePath(SMB_CS_FilePath *pPtr)
 			pPtr->stName.data = NULL;
 		}
 
-		if (pPtr->stValue.data)
+		if (pPtr->stPath.data)
 		{
-			free(pPtr->stValue.data);
-			pPtr->stValue.data = NULL;
+			free(pPtr->stPath.data);
+			pPtr->stPath.data = NULL;
+		}
+
+		if (pPtr->stFileType.data)
+		{
+			free(pPtr->stFileType.data);
+			pPtr->stFileType.data = NULL;
+		}
+
+		if (pPtr->stCategory.data)
+		{
+			free(pPtr->stCategory.data);
+			pPtr->stCategory.data = NULL;
 		}
 
 		free(pPtr);
