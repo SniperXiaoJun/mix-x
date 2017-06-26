@@ -2505,7 +2505,7 @@ int sdb_EnumFileInfo(SDB *sdb, SMB_CS_FileInfo_NODE **ppNodeHeader)
 
 	LOCK_SQLITE();
 
-	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select * from table_path;", -1, &stmt, NULL);
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select * from table_fileinfo;", -1, &stmt, NULL);
 	if (sqlerr != SQLITE_OK)
 	{
 		goto err;
