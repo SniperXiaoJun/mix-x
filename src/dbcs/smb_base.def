@@ -49,6 +49,9 @@ EXPORTS
 	SMB_DEV_SM2Sign
 	SMB_DEV_SM2VerifyDigest
 	SMB_DEV_FindSKFDriver
+
+	SMB_DEV_ReadSKFPinVerify
+
 	SMB_UI_ShowCert
 
 	WT_SetMyCert

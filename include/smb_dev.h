@@ -163,6 +163,19 @@ extern "C" {
 	*/
 	COMMON_API unsigned int SMB_DEV_FindSKFDriver(const char * pszSKFName, char * szVersion);
 
+	/*
+	功能描述:	读取PIN码校验处理
+	输入参数:
+	pCertAttr: 证书属性
+	puiPinVerifyLen: PIN码校验长度
+	输出参数：
+	pszPinVerify: PIN码校验
+	puiPinVerifyLen:  PIN码校验长度
+	返回值		0：  成功。
+	其他：		错误码
+	*/
+	COMMON_API unsigned int SMB_DEV_ReadSKFPinVerify(SMB_CS_CertificateAttr *pCertAttr, char * pszPinVerify, unsigned int *puiPinVerifyLen);
+
 
 	COMMON_API unsigned int SMB_DEV_SM2GetAgreementKey(
 		IN SMB_CS_CertificateAttr*pCertAttr,

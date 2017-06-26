@@ -2699,3 +2699,47 @@ err:
 
 	return ulRet;
 }
+
+
+unsigned int SMB_DEV_ReadSKFPinVerify(SMB_CS_CertificateAttr *pCertAttr, char * pszPinVerify, unsigned int *puiPinVerifyLen)
+{
+	unsigned int ulRet = -1;
+	SMB_CS_SKF_NODE *pHeader = NULL;
+	SMB_CS_SKF_NODE *pNode = NULL;
+
+	SMB_CS_EnumSKF(&pHeader);
+
+	pNode = pHeader;
+
+	while (pNode) 
+	{
+		if (0 == memcmp(pNode->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
+		{
+			if (NULL == pszPinVerify)
+			{
+				*puiPinVerifyLen = pNode->ptr_data->stPinVerify.length;
+				ulRet = 0;
+			}
+			else if (*puiPinVerifyLen < pNode->ptr_data->stPinVerify.length)
+			{
+				*puiPinVerifyLen = pNode->ptr_data->stPinVerify.length;
+				ulRet = EErr_SMB_MEM_LES;
+			}
+			else
+			{
+				*puiPinVerifyLen = pNode->ptr_data->stPinVerify.length;
+				memcpy(pszPinVerify, pNode->ptr_data->stPinVerify.data, pNode->ptr_data->stPinVerify.length);
+				ulRet = 0;
+			}
+			break;
+		}
+	}
+
+	if (pHeader)
+	{
+		SMB_CS_FreeSKFLink(&pHeader);
+	}
+
+	return ulRet;
+}
+
