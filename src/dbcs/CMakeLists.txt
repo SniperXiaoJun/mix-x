@@ -107,5 +107,13 @@ add_executable(
 target_link_libraries(x_dbcs_show_der smb_base)
 target_link_libraries(x_dbcs_show_der smb_qtui)
 
+add_executable(
+  x_dbcs_enum_fileinfo
 
+  x_dbcs_enum_fileinfo.cpp
+  #${common_cs} 
+  #${common_cpps} 
+)
+
+target_link_libraries(x_dbcs_enum_fileinfo smb_base)
 
