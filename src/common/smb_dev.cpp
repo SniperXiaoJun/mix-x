@@ -12,7 +12,7 @@
 #include "certificate_items_parse.h"
 
 #if USE_SELF_MUTEX
-#include "SDSCMutex.h"
+#include "mix-mutex.h"
 static char mutex_buffer[25] = "mutex_smc_interface";
 HANDLE hMutex = 0;
 #endif
@@ -194,6 +194,10 @@ unsigned int SMB_DEV_ChangePINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsi
 {
 	HINSTANCE ghInst = NULL;
 
+#if USE_SELF_MUTEX
+	UseMixMutex mutex("mutex_dev");
+#endif
+
 	/*
 	SKF函数地址
 	*/
@@ -288,10 +292,7 @@ unsigned int SMB_DEV_ChangePINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsi
 		}
 
 #if USE_SELF_MUTEX
-		if (ulRet = SDSCWaitMutex(mutex_buffer, INFINITE, &hMutex))
-		{
-			goto err;
-		}
+		
 #else
 		ulRet = func_LockDev(hDev, 0xFFFFFFFF);
 		if (0 != ulRet)
@@ -319,7 +320,7 @@ unsigned int SMB_DEV_ChangePINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsi
 		}
 
 #if USE_SELF_MUTEX
-		SDSCReleaseMutex(hMutex);
+		
 #else
 		func_UnlockDev(hDev);
 #endif
@@ -336,7 +337,7 @@ err:
 	if (hDev)
 	{
 #if USE_SELF_MUTEX
-		SDSCReleaseMutex(hMutex);
+
 #else
 		func_UnlockDev(hDev);
 #endif
@@ -363,6 +364,10 @@ err:
 unsigned int SMB_DEV_GetDevInfoByCertAttr(SMB_CS_CertificateAttr *pCertAttr, DEVINFO *pDevInfo)
 {
 	HINSTANCE ghInst = NULL;
+
+#if USE_SELF_MUTEX
+	UseMixMutex mutex("mutex_dev");
+#endif
 
 	/*
 	SKF函数地址
@@ -457,10 +462,7 @@ unsigned int SMB_DEV_GetDevInfoByCertAttr(SMB_CS_CertificateAttr *pCertAttr, DEV
 		}
 
 #if USE_SELF_MUTEX
-		if (ulRet = SDSCWaitMutex(mutex_buffer, INFINITE, &hMutex))
-		{
-			goto err;
-		}
+
 #else
 		ulRet = func_LockDev(hDev, 0xFFFFFFFF);
 		if (0 != ulRet)
@@ -478,7 +480,7 @@ unsigned int SMB_DEV_GetDevInfoByCertAttr(SMB_CS_CertificateAttr *pCertAttr, DEV
 		if (hDev)
 		{
 #if USE_SELF_MUTEX
-			SDSCReleaseMutex(hMutex);
+			
 #else
 			func_UnlockDev(hDev);
 #endif
@@ -492,7 +494,7 @@ err:
 	if (hDev)
 	{
 #if USE_SELF_MUTEX
-		SDSCReleaseMutex(hMutex);
+		
 #else
 		func_UnlockDev(hDev);
 #endif
@@ -519,6 +521,10 @@ err:
 unsigned int SMB_DEV_VerifyPINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsigned int ulPINType, char *pszPin, ULONG *puiRetryCount)
 {
 	HINSTANCE ghInst = NULL;
+
+#if USE_SELF_MUTEX
+	UseMixMutex mutex("mutex_dev");
+#endif
 
 	/*
 	SKF函数地址
@@ -616,10 +622,7 @@ unsigned int SMB_DEV_VerifyPINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsi
 		}
 
 #if USE_SELF_MUTEX
-		if (ulRet = SDSCWaitMutex(mutex_buffer, INFINITE, &hMutex))
-		{
-			goto err;
-		}
+
 #else
 		ulRet = func_LockDev(hDev, 0xFFFFFFFF);
 		if (0 != ulRet)
@@ -647,7 +650,7 @@ unsigned int SMB_DEV_VerifyPINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsi
 		}
 
 #if USE_SELF_MUTEX
-		SDSCReleaseMutex(hMutex);
+		
 #else
 		func_UnlockDev(hDev);
 #endif
@@ -664,7 +667,7 @@ err:
 	if (hDev)
 	{
 #if USE_SELF_MUTEX
-		SDSCReleaseMutex(hMutex);
+		
 #else
 		func_UnlockDev(hDev);
 #endif
@@ -1100,6 +1103,10 @@ unsigned int SMB_DEV_FindEnCertificateByCertAttr(
 {
 	HINSTANCE ghInst = NULL;
 
+#if USE_SELF_MUTEX
+	UseMixMutex mutex("mutex_dev");
+#endif
+
 	/*
 	SKF函数地址
 	*/
@@ -1190,10 +1197,7 @@ unsigned int SMB_DEV_FindEnCertificateByCertAttr(
 	}
 
 #if USE_SELF_MUTEX
-	if (ulRet = SDSCWaitMutex(mutex_buffer, INFINITE, &hMutex))
-	{
-		goto err;
-	}
+	
 #else
 	ulRet = func_LockDev(hDev, 0xFFFFFFFF);
 	if (0 != ulRet)
@@ -1228,7 +1232,7 @@ unsigned int SMB_DEV_FindEnCertificateByCertAttr(
 		goto err;
 	}
 #if USE_SELF_MUTEX
-	SDSCReleaseMutex(hMutex);
+	
 #else
 	func_UnlockDev(hDev);
 #endif
@@ -1242,7 +1246,7 @@ err:
 	if (hDev)
 	{
 #if USE_SELF_MUTEX
-		SDSCReleaseMutex(hMutex);
+		
 #else
 		func_UnlockDev(hDev);
 #endif
@@ -1303,6 +1307,10 @@ err:
 unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiKeyFlag, unsigned int uiUsageFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag)
 {
 	HINSTANCE ghInst = NULL;
+
+#if USE_SELF_MUTEX
+	UseMixMutex mutex("mutex_dev");
+#endif
 
 	/*
 	SKF函数地址
@@ -1427,10 +1435,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 		}
 
 #if USE_SELF_MUTEX
-		if (ulRet = SDSCWaitMutex(mutex_buffer, INFINITE, &hMutex))
-		{
-			goto err;
-		}
+		
 #else
 		ulRet = func_LockDev(hDev, 0xFFFFFFFF);
 		if (0 != ulRet)
@@ -1712,7 +1717,7 @@ unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateCon
 
 
 #if USE_SELF_MUTEX
-		SDSCReleaseMutex(hMutex);
+		
 #else
 		func_UnlockDev(hDev);
 #endif
@@ -1736,7 +1741,7 @@ err:
 	if (hDev)
 	{
 #if USE_SELF_MUTEX
-		SDSCReleaseMutex(hMutex);
+		
 #else
 		func_UnlockDev(hDev);
 #endif
@@ -1801,6 +1806,10 @@ unsigned int SMB_DEV_EnumCert(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHead
 unsigned int SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr * pCertAttr, OPST_HANDLE_ARGS * args)
 {
 	HINSTANCE ghInst = NULL;
+
+#if USE_SELF_MUTEX
+	UseMixMutex mutex("mutex_dev");
+#endif
 
 	/*
 	SKF函数地址
@@ -1907,10 +1916,7 @@ unsigned int SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr * pCertAttr, OPST_
 		}
 
 #if USE_SELF_MUTEX
-		if (ulRet = SDSCWaitMutex(mutex_buffer, INFINITE, &hMutex))
-		{
-			goto err;
-		}
+		
 #else
 		ulRet = func_LockDev(hDev, 0xFFFFFFFF);
 		if (0 != ulRet)
@@ -1975,7 +1981,7 @@ unsigned int SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr * pCertAttr, OPST_
 	}
 
 #if USE_SELF_MUTEX
-		SDSCReleaseMutex(hMutex);
+		
 #else
 		func_UnlockDev(hDev);
 #endif
@@ -1997,7 +2003,7 @@ err:
 	if (hDev)
 	{
 #if USE_SELF_MUTEX
-		SDSCReleaseMutex(hMutex);
+		
 #else
 		func_UnlockDev(hDev);
 #endif
@@ -2128,7 +2134,7 @@ err:
 	if (hDev)
 	{
 #if USE_SELF_MUTEX
-		SDSCReleaseMutex(hMutex);
+		
 #else
 		func_UnlockDev(hDev);
 #endif
@@ -2289,6 +2295,10 @@ COMMON_API unsigned int SMB_DEV_SM2GetAgreementKey(
 {
 	HINSTANCE ghInst = NULL;
 
+#if USE_SELF_MUTEX
+	UseMixMutex mutex("mutex_dev");
+#endif
+
 	/*
 	SKF函数地址
 	*/
@@ -2386,10 +2396,7 @@ COMMON_API unsigned int SMB_DEV_SM2GetAgreementKey(
 		}
 
 #if USE_SELF_MUTEX
-		if (ulRet = SDSCWaitMutex(mutex_buffer, INFINITE, &hMutex))
-		{
-			goto err;
-		}
+
 #else
 		ulRet = func_LockDev(hDev, 0xFFFFFFFF);
 		if (0 != ulRet)
@@ -2450,7 +2457,7 @@ COMMON_API unsigned int SMB_DEV_SM2GetAgreementKey(
 		}
 
 #if USE_SELF_MUTEX
-		SDSCReleaseMutex(hMutex);
+		
 #else
 		func_UnlockDev(hDev);
 #endif
@@ -2467,7 +2474,7 @@ err:
 	if (hDev)
 	{
 #if USE_SELF_MUTEX
-		SDSCReleaseMutex(hMutex);
+		
 #else
 		func_UnlockDev(hDev);
 #endif

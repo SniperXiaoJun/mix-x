@@ -1,7 +1,7 @@
 include_directories(../../include)
 
 
-add_definitions(-DUNICODE -D_UNICODE -DNOCRYPT -DMIX_BORINGSSL)
+add_definitions(-DUNICODE -D_UNICODE -DNOCRYPT -DMIX_BORINGSSL -DUSE_SELF_MUTEX)
 
 set(
     ARCH_SOURCES
@@ -59,8 +59,6 @@ add_executable(
 
 target_link_libraries(x_dbcs_exec_sql smb_base)
 
-add_dependencies(x_all x_dbcs)
-
 
 add_executable(
   x_dbcs_install_ca_cert
@@ -74,9 +72,6 @@ add_executable(
 #TARGET_LINK_LIBRARIES(x_dbcs_install_ca_cert mix_bssl)
 
 TARGET_LINK_LIBRARIES(x_dbcs_install_ca_cert smb_base)
-
-add_dependencies(x_all x_dbcs)
-
 
 add_executable(
   x_dbcs_enum_certs
