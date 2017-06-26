@@ -161,21 +161,23 @@ typedef struct _SMB_CS_CSP_NODE
 	struct _SMB_CS_CSP_NODE *ptr_next;
 }SMB_CS_CSP_NODE;
 
-//路径结构
-typedef struct _SMB_CS_FilePath
+//文件信息结构
+typedef struct _SMB_CS_FileInfo
 {
 	SMB_CS_Data     stName;       // 名称
-	SMB_CS_Data     stValue;      // 值
+	SMB_CS_Data     stPath;       // 路径
 	SMB_CS_Data     stDigestMD5;  // MD5值
 	SMB_CS_Data     stDigestSHA1; // SHA1值
-}SMB_CS_FilePath;
+	SMB_CS_Data     stFileType;   // 文件类别 csp skf control driver cert  .etc
+	SMB_CS_Data     stCategory;   // 类目 如 CSP名称
+}SMB_CS_FileInfo;
 
-//路径结构节点（链表）
-typedef struct _SMB_CS_FilePath_NODE
+//文件信息结构节点（链表）
+typedef struct _SMB_CS_FileInfo_NODE
 {
-	SMB_CS_FilePath *ptr_data;
-	struct _SMB_CS_FilePath_NODE *ptr_next;
-}SMB_CS_FilePath_NODE;
+	SMB_CS_FileInfo *ptr_data;
+	struct _SMB_CS_FileInfo_NODE *ptr_next;
+}SMB_CS_FileInfo_NODE;
 
 typedef enum _EErr_SMB
 {
@@ -315,19 +317,19 @@ extern "C" {
 	COMMON_API unsigned int SMB_CS_FreePIDVID(IN SMB_CS_PIDVID *pPtr);
 
 	/*
-	从数据库遍历FilePath
+	从数据库遍历FileInfo
 	*/
-	COMMON_API unsigned int SMB_CS_EnumFilePath(OUT SMB_CS_FilePath_NODE **ppNodeHeader);
+	COMMON_API unsigned int SMB_CS_EnumFileInfo(OUT SMB_CS_FileInfo_NODE **ppNodeHeader);
 
 	/*
-	释放FilePath链表
+	释放FileInfo链表
 	*/
-	COMMON_API unsigned int SMB_CS_FreeFilePathLink(IN OUT SMB_CS_FilePath_NODE **ppNodeHeader);
+	COMMON_API unsigned int SMB_CS_FreeFileInfoLink(IN OUT SMB_CS_FileInfo_NODE **ppNodeHeader);
 
 	/*
 	释放结构
 	*/
-	COMMON_API unsigned int SMB_CS_FreeFilePath(IN SMB_CS_FilePath *pPtr);
+	COMMON_API unsigned int SMB_CS_FreeFileInfo(IN SMB_CS_FileInfo *pPtr);
 
 	/*
 	工具类xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
