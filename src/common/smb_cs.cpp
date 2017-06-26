@@ -403,7 +403,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_CreateCtx(SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen)
+unsigned int SMB_CS_CreateCertCtx(SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen)
 {
 	SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
 	unsigned int uiRet = -1;
@@ -1178,7 +1178,7 @@ unsigned int SMB_CS_VerifyCert(unsigned int uiFlag, unsigned char* pbCert, unsig
 
 
 	// 创建上下文 
-	SMB_CS_CreateCtx(&ctx, pbCert, uiCertLen);
+	SMB_CS_CreateCertCtx(&ctx, pbCert, uiCertLen);
 
 	if (!ctx)
 	{
@@ -1856,7 +1856,7 @@ unsigned int  SMB_CS_ImportCaCert(unsigned char *pbCert, unsigned int uiCertLen,
 
 	SMB_CS_Init();
 
-	if (0 != SMB_CS_CreateCtx(&ctx, pbCert, uiCertLen))
+	if (0 != SMB_CS_CreateCertCtx(&ctx, pbCert, uiCertLen))
 	{
 		ulRet = EErr_SMB_CREATE_CERT_CONTEXT;
 		goto err;
@@ -2132,7 +2132,7 @@ unsigned int SMB_CS_FindCertChain(SMB_CS_CertificateContext_NODE **ppCertCtxNode
 	CertificateItemParse certParse;
 	SMB_CS_CertificateFindAttr findAttr = { 0 };
 
-	if (0 != SMB_CS_CreateCtx(&ctx, pbCert, uiCertLen))
+	if (0 != SMB_CS_CreateCertCtx(&ctx, pbCert, uiCertLen))
 	{
 		ulRet = EErr_SMB_CREATE_CERT_CONTEXT;
 		goto err;

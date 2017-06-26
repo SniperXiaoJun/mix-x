@@ -2,7 +2,7 @@ EXPORTS
 	SMB_CS_SetPath
 	SMB_CS_Init
 	
-	SMB_CS_CreateCtx
+	SMB_CS_CreateCertCtx
 	SMB_CS_FreeCertCtx
 	SMB_CS_FreeCertCtxLink
 
