@@ -1,13 +1,14 @@
 include_directories(../../include)
 
 add_executable(
-  x_test
+  x_test_certkeyid
 
-  x_test.cpp
+  x_test_certkeyid.cpp
 )
 
-target_link_libraries(x_test sqlite3)
-add_dependencies(x_all x_test)
+target_link_libraries(x_test_certkeyid sqlite3)
+TARGET_LINK_LIBRARIES(x_test_certkeyid Crypt32)
+add_dependencies(x_all x_test_certkeyid)
 
 
 include_directories(../../include)
