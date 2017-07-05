@@ -2905,9 +2905,14 @@ OPENSSL_EXPORT const SSL_METHOD *SSLv23_method(void);
 OPENSSL_EXPORT const SSL_METHOD *SSLv3_method(void);
 OPENSSL_EXPORT const SSL_METHOD *TLSv1_method(void);
 OPENSSL_EXPORT const SSL_METHOD *TLSv1_1_method(void);
+
+/*fix header by liqiangqiang*/
+OPENSSL_EXPORT const SSL_METHOD *SMv1_1_method(void);
+
 OPENSSL_EXPORT const SSL_METHOD *TLSv1_2_method(void);
 OPENSSL_EXPORT const SSL_METHOD *DTLSv1_method(void);
 OPENSSL_EXPORT const SSL_METHOD *DTLSv1_2_method(void);
+OPENSSL_EXPORT const SSL_METHOD *SMv1_1_method(void);
 
 /* These client- and server-specific methods call their corresponding generic
  * methods. */
