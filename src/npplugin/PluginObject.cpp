@@ -43,6 +43,10 @@ const char* kDetectMACAddress = "detectMACAddress";
 const char* kDetectProcessLikeRunState = "detectProcessLikeRunState";
 const char* kDetectWebsiteWithTimeout = "detectWebsiteWithTimeout";
 const char* kCalculateDigest = "calculateDigest";
+const char* kCheckCSPWithFileInfo = "checkCSP";
+const char* kCheckCSPItemWithFileInfo = "checkCSPItem";
+const char* kCheckFileMd5 = "checkFileMd5";
+const char* kReadUkeyType = "readUkeyType";
 
 
 const char* kRunApplication = "runApplication";
@@ -340,6 +344,70 @@ namespace {
 			WTF_CalculateDigest(strAppPath, 4)) ); //4 is md5
 
 		//FreeThreadParamItem(paramThread);
+
+		return true;
+	}
+
+	DWORD WINAPI CheckCSPWithFileInfoThread(LPVOID lparam) {
+		UseMixMutex share_mutex("share_mutex_file");
+
+		ParamThread* paramThread = (ParamThread*)lparam;
+		if (paramThread == NULL)
+			return false;
+
+		paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(
+			WTF_CheckCSPWithFileInfo())); //4 is md5
+
+										  //FreeThreadParamItem(paramThread);
+
+		return true;
+	}
+
+	DWORD WINAPI CheckCSPItemWithFileInfoThread(LPVOID lparam) {
+		UseMixMutex share_mutex("share_mutex_file");
+
+		ParamThread* paramThread = (ParamThread*)lparam;
+		if (paramThread == NULL)
+			return false;
+
+		std::string strName = paramThread->paramThreadStringMap["name"];
+
+		paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(
+			WTF_CheckCSPItemWithFileInfo(strName))); //4 is md5
+
+													 //FreeThreadParamItem(paramThread);
+
+		return true;
+	}
+
+
+
+	DWORD WINAPI CheckFileMd5Thread(LPVOID lparam) {
+		UseMixMutex share_mutex("share_mutex_file");
+
+		ParamThread* paramThread = (ParamThread*)lparam;
+		if (paramThread == NULL)
+			return false;
+
+		paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(
+			WTF_CheckFileMd5())); //4 is md5
+
+								  //FreeThreadParamItem(paramThread);
+
+		return true;
+	}
+
+	DWORD WINAPI ReadUkeyTypeThread(LPVOID lparam) {
+		UseMixMutex share_mutex("share_mutex_file");
+
+		ParamThread* paramThread = (ParamThread*)lparam;
+		if (paramThread == NULL)
+			return false;
+
+		paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(
+			WTF_ReadUkeyType())); //4 is md5
+
+								  //FreeThreadParamItem(paramThread);
 
 		return true;
 	}
@@ -1011,6 +1079,10 @@ bool PluginObject::hasMethod(NPIdentifier methodName){
 		|| strcmp(pName, kShowCert)==0
 		//add by liqiangqiang start
 		|| strcmp(pName, kCalculateDigest) == 0
+		|| strcmp(pName, kCheckCSPWithFileInfo) == 0
+		|| strcmp(pName, kCheckCSPItemWithFileInfo) == 0
+		|| strcmp(pName, kCheckFileMd5) == 0
+		|| strcmp(pName, kReadUkeyType) == 0
 		|| strcmp(pName, kDetectProcessLikeRunState) == 0
 		|| strcmp(pName, kRunApplication ) == 0
 		|| strcmp(pName, kInstallApp ) == 0
@@ -1219,6 +1291,78 @@ bool PluginObject::invoke(NPIdentifier methodName,
 			AddThreadItem(hThread);
 
 			outString = "Install App async.";
+		}
+		else if (strcmp(name, kCheckFileMd5) == 0)
+		{
+			ret_val = true;
+
+			ParamThread * paramThread = new ParamThread();
+			paramThread->pluginObj = this;
+
+			paramThread->paramCallback = NPN_RetainObject(NPVARIANT_TO_OBJECT(args[0]));
+
+			AddThreadParamItem(paramThread);
+
+			hThread = CreateThread(NULL, 0, CheckFileMd5Thread, paramThread, 0, NULL);
+			AddThreadItem(hThread);
+
+			outString = "CheckFileMd5Thread async.";
+		}
+		else if (strcmp(name, kReadUkeyType) == 0)
+		{
+			ret_val = true;
+
+			ParamThread * paramThread = new ParamThread();
+			paramThread->pluginObj = this;
+
+			paramThread->paramCallback = NPN_RetainObject(NPVARIANT_TO_OBJECT(args[0]));
+
+			AddThreadParamItem(paramThread);
+
+			hThread = CreateThread(NULL, 0, ReadUkeyTypeThread, paramThread, 0, NULL);
+			AddThreadItem(hThread);
+
+			outString = "ReadUkeyTypeThread async.";
+		}
+		else if (strcmp(name, kCheckCSPWithFileInfo) == 0)
+		{
+			ret_val = true;
+
+			ParamThread * paramThread = new ParamThread();
+			paramThread->pluginObj = this;
+
+			paramThread->paramCallback = NPN_RetainObject(NPVARIANT_TO_OBJECT(args[0]));
+
+			AddThreadParamItem(paramThread);
+
+			hThread = CreateThread(NULL, 0, CheckCSPWithFileInfoThread, paramThread, 0, NULL);
+			AddThreadItem(hThread);
+
+			outString = "CheckCSPWithFileInfoThread async.";
+		}
+		else if (strcmp(name, kCheckCSPItemWithFileInfo) == 0)
+		{
+			ret_val = true;
+
+			ParamThread * paramThread = new ParamThread();
+			paramThread->pluginObj = this;
+
+			NPString name(NPVARIANT_TO_STRING(args[0]));
+			//NPString Password(NPVARIANT_TO_STRING(args[1]));
+			std::string strName(name.UTF8Characters, name.UTF8Length);
+			//std::string strPassword(Password.UTF8Characters, Password.UTF8Length);
+
+			// 线程参数
+			paramThread->paramThreadStringMap["name"] = strName;
+
+			paramThread->paramCallback = NPN_RetainObject(NPVARIANT_TO_OBJECT(args[1]));
+
+			AddThreadParamItem(paramThread);
+
+			hThread = CreateThread(NULL, 0, CheckCSPItemWithFileInfoThread, paramThread, 0, NULL);
+			AddThreadItem(hThread);
+
+			outString = "CheckCSPItemWithFileInfoThread async.";
 		}
 		else if(strcmp(name,kCalculateDigest) == 0)
 		{

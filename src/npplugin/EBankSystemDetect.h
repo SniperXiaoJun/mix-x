@@ -620,6 +620,107 @@ strProcessName 应用程序名称
 */
 string WTF_CalculateDigest(string strAppPath, int ulNid);
 
+
+/*
+函数功能：通过文件信息校验所有CSP
+输入参数：
+返回值： json string
+返回JSON结构:
+{
+"CMBC CSP V1.0" : {
+"fileList" : [
+{
+"fileMD5Calculate" : "C56B381B3913A0DFFFF16FD5DEA253E1",
+"fileMD5Record" : "C56B381B3913A0DFFFF16FD5DEA253E1",
+"fileName" : "2",
+"filePath" : "C:\\Program Files (x86)\\CMBC\\EBankingAssistant\\USBKey\\CMBC.dll",
+"fileType" : "csp",
+"success" : 1
+},
+{
+"fileMD5Calculate" : "1F79428E0A8A130C8BD689651A47CC5E",
+"fileMD5Record" : "1F79428E0A8A130C8BD689651A47CC5E",
+"fileName" : "1",
+"filePath" : "d:/show.cer",
+"fileType" : "csp",
+"success" : 1
+}
+],
+"success" : 1
+}
+}
+*/
+string WTF_CheckCSPWithFileInfo();
+
+/*
+函数功能：校验CSP完整性
+输入参数：
+返回值： json string
+返回JSON结构:
+{
+"cspName" : "CMBC CSP V1.0",
+"fileList" : [
+{
+"fileMD5Calculate" : "C56B381B3913A0DFFFF16FD5DEA253E1",
+"fileMD5Record" : "C56B381B3913A0DFFFF16FD5DEA253E1",
+"fileName" : "2",
+"filePath" : "C:\\Program Files (x86)\\CMBC\\EBankingAssistant\\USBKey\\CMBC.dll",
+"fileType" : "csp",
+"success" : 1
+},
+{
+"fileMD5Calculate" : "1F79428E0A8A130C8BD689651A47CC5E",
+"fileMD5Record" : "1F79428E0A8A130C8BD689651A47CC5E",
+"fileName" : "1",
+"filePath" : "d:/show.cer",
+"fileType" : "csp",
+"success" : 1
+}
+],
+"success" : 1
+}
+*/
+string WTF_CheckCSPItemWithFileInfo(string strCspName);
+
+/*
+函数功能：校验文件完整性MD5
+输入参数：
+返回值： json string
+返回JSON结构:
+{
+"file_list1" : {
+"fileList" : [
+{
+"fileMD5Calculate" : "C56B381B3913A0DFFFF16FD5DEA253E1",
+"fileMD5Record" : "C56B381B3913A0DFFFF16FD5DEA253E1",
+"fileName" : "3",
+"filePath" : "C:\\Program Files (x86)\\CMBC\\EBankingAssistant\\USBKey\\CMBC.dll",
+"fileType" : "file",
+"success" : 1
+},
+{
+"fileMD5Calculate" : "1F79428E0A8A130C8BD689651A47CC5E",
+"fileMD5Record" : "1F79428E0A8A130C8BD689651A47CC5E",
+"fileName" : "4",
+"filePath" : "d:/show.cer",
+"fileType" : "file",
+"success" : 1
+}
+],
+"success" : 1
+}
+}
+*/
+string WTF_CheckFileMd5();
+
+/*
+函数功能：读取UKey类型（莱商）
+输入参数：
+返回值： json string
+返回JSON结构:
+*/
+string WTF_ReadUkeyType();
+
 /*
 函数功能：检测运行状态
 输入参数：
