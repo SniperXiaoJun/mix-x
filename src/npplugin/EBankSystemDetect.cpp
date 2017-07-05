@@ -367,6 +367,59 @@ string WTF_RepairLocalTime()
 	return item.toStyledString();
 }
 
+
+
+
+BOOL ElevateCurrentProcess(string strPath, string strParameters, unsigned int nTimeoutMilliseconds)
+{
+	// Launch itself as administrator.  
+	SHELLEXECUTEINFOA sei = { 0 };
+	sei.lpVerb = "runas";
+	sei.lpFile = strPath.c_str();
+	sei.lpParameters = strParameters.c_str();
+	//  sei.hwnd = hWnd;  
+	sei.nShow = SW_SHOWNORMAL;
+	sei.cbSize = sizeof(SHELLEXECUTEINFO);
+	sei.fMask = SEE_MASK_NOCLOSEPROCESS;
+	sei.hwnd = NULL;
+	sei.lpDirectory = NULL;
+	sei.hInstApp = NULL;
+
+	if (!ShellExecuteExA(&sei)) {
+		DWORD dwStatus = GetLastError();
+		if (dwStatus == ERROR_CANCELLED) {
+			return FALSE;
+		}
+		else if (dwStatus == ERROR_FILE_NOT_FOUND) {
+			return FALSE;
+		}
+		return FALSE;
+	}
+
+	if (0 != nTimeoutMilliseconds)
+	{
+		DWORD res = WaitForSingleObject(sei.hProcess, nTimeoutMilliseconds);
+
+		if (WAIT_OBJECT_0 == res)
+		{
+			return TRUE;
+		}
+		else if (WAIT_TIMEOUT == res)
+		{
+			TerminateProcess(sei.hProcess, 0);
+			return FALSE;
+		}
+		else
+		{
+			TerminateProcess(sei.hProcess, 0);
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+
+}
+
 unsigned int WTF_InstallApplication(string strAppPath,string strArgs, unsigned int nTimeoutMilliseconds)
 {
 	char szCmd[256] = {0};
@@ -436,9 +489,8 @@ string WTF_InstallApp(string strAppPath,string strArgs, unsigned int nTimeoutMil
 
 	if(_file)
 	{
-		ulRet = WTF_InstallApplication(strAppPath,strArgs, nTimeoutMilliseconds);
-
-		if (ulRet)
+		//ulRet = WTF_InstallApplication(strAppPath,strArgs, nTimeoutMilliseconds);
+		if (!ElevateCurrentProcess(strAppPath, strArgs, nTimeoutMilliseconds))
 		{
 			item["success"] = FALSE;
 			item["msg"] = utf8_encode(L"应用程序未安装成功，请卸载后重新安装客户端");
@@ -498,9 +550,8 @@ string WTF_RunApplication(string strAppPath, string strArgs, int ulFlag)
 
 	if(_file)
 	{
-		ulRet = WTF_RunApplication(strAppPath,strArgs);
-
-		if (ulRet)
+		//ulRet = WTF_InstallApplication(strAppPath,strArgs, nTimeoutMilliseconds);
+		if (!ElevateCurrentProcess(strAppPath, strArgs, 0))
 		{
 			item["success"] = FALSE;
 			item["msg"] = utf8_encode(L"应用程序未启动成功，请卸载后重新安装客户端");
