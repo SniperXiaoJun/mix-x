@@ -30,7 +30,7 @@ NPBool CPlugin::init(NPWindow* pNPWindow)
 	if(m_hWnd == NULL)
 		return false;
 
-#if 0
+#if 1
 	m_hWnd = 0;
 
 	HDC hDC = GetDC(m_hWnd);     //获得系统绘图设备  
@@ -40,7 +40,7 @@ NPBool CPlugin::init(NPWindow* pNPWindow)
 	HBITMAP bmpBack = CreateCompatibleBitmap(hDC, m_Width, m_Height);//创建掩码位图（画布）  
 	SelectObject(memDC, bmpBack);    //将画布贴到绘图设备上  
 
-	HPEN penBack = CreatePen(PS_SOLID, 1, RGB(255, 0, 255));//创建画笔  
+	HPEN penBack = CreatePen(PS_SOLID, 3, RGB(255, 0, 255));//创建画笔  
 	SelectObject(memDC, penBack);    //将画笔选到绘图设备上  
 
 	HBRUSH brushBack = CreateSolidBrush(RGB(255, 255, 255));//创建画刷  
@@ -49,7 +49,7 @@ NPBool CPlugin::init(NPWindow* pNPWindow)
 									 //擦除背景  
 	RECT rcClient;//区域结构  
 	GetClientRect(m_hWnd, &rcClient);//获得客户区域  
-	HBRUSH brushTemp = (HBRUSH)GetStockObject(WHITE_BRUSH);//获得库存物体，白色画刷。  
+	HBRUSH brushTemp = (HBRUSH)GetStockObject(BLACK_BRUSH);//获得库存物体，白色画刷。  
 	FillRect(memDC, &rcClient, brushTemp);//填充客户区域。  
 										  //////////////////////////////////////////////////////////////////////////      
 	HBRUSH brushObj = CreateSolidBrush(RGB(0, 255, 0));//创建物体画刷  

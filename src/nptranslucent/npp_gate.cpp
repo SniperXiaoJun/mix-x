@@ -1,4 +1,4 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+﻿/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: NPL 1.1/GPL 2.0/LGPL 2.1
  *
@@ -91,6 +91,9 @@ NPError NPP_New(NPMIMEType pluginType,
 	  }
   }
   instance->pdata = (void *)pPlugin;
+
+  NPN_SetValue(instance, NPPVpluginWindowBool, NULL);
+
   return rv;
 }
 
@@ -261,7 +264,81 @@ int16_t	NPP_HandleEvent(NPP instance, void* event)
   int16_t rv = 0;
   CPlugin * pPlugin = (CPlugin *)instance->pdata;
   if (pPlugin)
-    rv = pPlugin->handleEvent(event);
+  {
+	  rv = pPlugin->handleEvent(event);
+  }
+
+  if (true)
+  {
+	  switch (((NPEvent*)event)->event) {
+	  case WM_PAINT:
+	  {
+		  HDC hDC = (HDC)((NPEvent*)event)->wParam;
+		  RECT * drc = (RECT *)((NPEvent*)event)->lParam;
+		  HDC memDC = CreateCompatibleDC(0);  //创建辅助绘图设备  
+
+		  int m_Width = drc->right - drc->left;
+		  int m_Height = drc->top - drc->bottom;
+
+		  if (m_Width < 0)
+		  {
+			  m_Width = -m_Width;
+		  }
+
+		  if (m_Height < 0)
+		  {
+			  m_Height = -m_Height;
+		  }
+
+		  HBITMAP bmpBack = CreateCompatibleBitmap(hDC, m_Width, m_Height);//创建掩码位图（画布）  
+		  SelectObject(memDC, bmpBack);    //将画布贴到绘图设备上  
+
+		  HPEN penBack = CreatePen(PS_SOLID, 3, RGB(255, 0, 255));//创建画笔  
+		  SelectObject(memDC, penBack);    //将画笔选到绘图设备上  
+
+		  HBRUSH brushBack = CreateSolidBrush(RGB(255, 255, 255));//创建画刷  
+		  SelectObject(memDC, brushBack);  //将画刷选到绘图设备上  
+
+										   //擦除背景  
+
+		  HBRUSH brushTemp = (HBRUSH)GetStockObject(BLACK_BRUSH);//获得库存物体，白色画刷。  
+		  FillRect(memDC, drc, brushTemp);//填充客户区域。  
+										  //////////////////////////////////////////////////////////////////////////      
+		  HBRUSH brushObj = CreateSolidBrush(RGB(0, 255, 0));//创建物体画刷  
+															 //绘制维网格，矩形画法。  
+		  int dw = 30;
+		  int rows = m_Width / dw;
+		  int cols = m_Height / dw;
+		  for (int r = 0; r<rows; ++r)
+		  {
+			  for (int c = 0; c<cols; ++c)
+			  {
+				  if (r == c)
+				  {
+					  SelectObject(memDC, brushObj);
+				  }
+				  else
+				  {
+					  SelectObject(memDC, brushBack);
+				  }
+				  Rectangle(memDC, c*dw, r*dw, (c + 1)*dw, (r + 1)*dw);
+			  }
+		  }
+
+		  DeleteObject(brushObj);
+		  //////////////////////////////////////////////////////////////////////////  
+		  BitBlt(hDC, 0, 0, m_Width, m_Height, memDC, 0, 0, SRCCOPY);//复制到系统设备上显示  
+		  DeleteObject(penBack);  //释放画笔资源  
+		  DeleteObject(brushBack);//释放画刷资源  
+		  DeleteObject(bmpBack);  //释放位图资源  
+		  DeleteDC(memDC);        //释放辅助绘图设备  
+		  // ReleaseDC(m_hWnd, hDC);   //归还系统绘图设备  
+	  }
+	  break;
+	  default:
+		  break;
+	  }
+  }
 
   return rv;
 }
