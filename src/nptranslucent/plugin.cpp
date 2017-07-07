@@ -2,6 +2,9 @@
 #include "plugin.h"
 #include "PluginObject.h"
 
+#include "resource.h"
+//#include "DemoBackDialog.h"
+
 CPlugin::CPlugin(NPP pNPInstance) :
 	m_pNPInstance(pNPInstance),
 	m_pNPStream(NULL),
@@ -27,16 +30,15 @@ NPBool CPlugin::init(NPWindow* pNPWindow)
 	m_hWnd = (HWND)pNPWindow->window;
 	if(m_hWnd == NULL)
 		return false;
-#if 0
+
 	lpOldProc = SubclassWindow(m_hWnd, (WNDPROC)PluginWinProc);
 	SetWindowLongPtr(m_hWnd, GWLP_USERDATA, (LONG_PTR)this);
 	m_Window = pNPWindow;
 
-	Dlg=new DLDialog();
-	Dlg->Create(GetModuleHandleA("npsafeinput.dll"),MAKEINTRESOURCE(IDD_INPUT),m_hWnd);
-	Dlg->ShowDlg();
-	SetWindowPos(Dlg->hWnd,HWND_TOPMOST,0,0,m_Width,m_Height,SWP_NOZORDER|SWP_NOMOVE);
-#endif
+	//CDemoBackDialog * dlg = new CDemoBackDialog(IDB_PNG_BACKIMAGE, m_hWnd);
+	//dlg->ShowWindow(SH_SHOW);
+	//SetWindowPos(dlg->m_hWnd,HWND_TOPMOST,0,0,m_Width,m_Height,SWP_NOZORDER|SWP_NOMOVE);
+
 	m_bInitialized = true;
 	return true;
 }

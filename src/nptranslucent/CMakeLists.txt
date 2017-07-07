@@ -1,13 +1,13 @@
 include_directories(../../include)
 include_directories(../../include/npapi)
 
-add_definitions(-DUNICODE -D_UNICODE -DNOCRYPT -DMIX_BORINGSSL)
-add_definitions(-DWIN32 -D_WINDOWS -DXP_WIN -D_X86_)
+add_definitions(-DUNICODE -D_UNICODE)
+add_definitions(-D_X86_)
 
 LINK_DIRECTORIES(
   ${CMAKE_SOURCE_DIR}/../lib
 )
-
+#/force:multiple 
 SET(CMAKE_MFC_FLAG 1)
 
  FILE(GLOB 
