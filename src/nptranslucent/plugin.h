@@ -26,5 +26,4 @@ public:
 	NPObject *GetScriptableObject();
 
 	char * GetValue();
-	const char * GetMac();
 };

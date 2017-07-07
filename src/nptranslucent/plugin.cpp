@@ -123,17 +123,7 @@ CPlugin::GetScriptableObject()
 char *
 CPlugin::GetValue()
 {
-	return "";
-}
-
-const char * CPlugin::GetMac(){
-#if 0
-	GetMacAddress *addr=new GetMacAddress();
-	return addr->GetMac();
-#else
-
-	return "";
-#endif
+	return "1.1.1.1";
 }
 
 static LRESULT CALLBACK PluginWinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
