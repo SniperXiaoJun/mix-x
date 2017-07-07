@@ -30,9 +30,8 @@ NPBool CPlugin::init(NPWindow* pNPWindow)
 	if(m_hWnd == NULL)
 		return false;
 
-	lpOldProc = SubclassWindow(m_hWnd, (WNDPROC)PluginWinProc);
-	SetWindowLongPtr(m_hWnd, GWLP_USERDATA, (LONG_PTR)this);
-	m_Window = pNPWindow;
+#if 0
+	m_hWnd = 0;
 
 	HDC hDC = GetDC(m_hWnd);     //获得系统绘图设备  
 
@@ -82,6 +81,20 @@ NPBool CPlugin::init(NPWindow* pNPWindow)
 	DeleteObject(bmpBack);  //释放位图资源  
 	DeleteDC(memDC);        //释放辅助绘图设备  
 	ReleaseDC(m_hWnd, hDC);   //归还系统绘图设备  
+#elif 1
+	lpOldProc = SubclassWindow(m_hWnd, (WNDPROC)PluginWinProc);
+	SetWindowLongPtr(m_hWnd, GWLP_USERDATA, (LONG_PTR)this);
+	m_Window = pNPWindow;
+#else
+	lpOldProc = SubclassWindow(m_hWnd, (WNDPROC)PluginWinProc);
+	SetWindowLongPtr(m_hWnd, GWLP_USERDATA, (LONG_PTR)this);
+	m_Window = pNPWindow;
+
+	Dlg = new DLDialog();
+	Dlg->Create(GetModuleHandleA("npsafeinput.dll"), MAKEINTRESOURCE(IDD_INPUT), m_hWnd);
+	Dlg->ShowDlg();
+	SetWindowPos(Dlg->hWnd, HWND_TOPMOST, 0, 0, m_Width, m_Height, SWP_NOZORDER | SWP_NOMOVE);
+#endif
 
 	m_bInitialized = true;
 	return true;
