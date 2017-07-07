@@ -236,6 +236,64 @@ void NPP_Print (NPP instance, NPPrint* printInfo)
 {
   if(instance == NULL)
     return;
+
+
+  // Make sure we have an instance
+
+  if (!instance)
+	  return;
+
+  // Retrieve instance data
+  CPlugin* myinstance = (CPlugin *)instance->pdata;
+
+  if (!printInfo)
+  {
+
+  }
+  else
+  {
+	  // Must be NP_EMBED. printInfo contains the printer DC 
+	  // print window.
+		  NPWindow* printWindow = &(printInfo->print.embedPrint.window);
+	  void* platformPrint = printInfo->print.embedPrint.platformPrint;
+
+	  // Create a pen
+
+	  LOGBRUSH lb;
+	  lb.lbStyle = BS_SOLID;
+	  lb.lbHatch = 0;
+
+	  HPEN hPen = ExtCreatePen(PS_COSMETIC | PS_SOLID, 1,&lb, 0, NULL);
+
+	  // Get the printer DC from platformPrint.
+
+	  HDC hDC = (HDC)(DWORD)platformPrint;
+
+	  HPEN hPenOld = (HPEN)SelectObject(hDC, hPen);
+
+	  // Draw a rectangle
+
+	  BOOL result = Rectangle(hDC,
+		  (int)(printWindow->x),
+		  (int)(printWindow->y),
+		  (int)(printWindow->x + printWindow->width),
+		  (int)(printWindow->y + printWindow->height));
+
+	  // Print some simple text
+
+	  char buf[] = "Hello From My Plug-in";
+
+	  TextOutA(hDC,
+		  printWindow->x + 180,
+		  printWindow->y + 180,
+		  buf,
+		  strlen(buf));
+
+	  // Cleanup
+
+	  SelectObject(hDC, hPenOld);
+	  DeleteObject(hPen);
+  }
 }
 
 void NPP_URLNotify(NPP instance, const char* url, NPReason reason, void* notifyData)

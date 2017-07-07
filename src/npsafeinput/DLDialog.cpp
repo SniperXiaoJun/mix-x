@@ -1,6 +1,7 @@
 #include "DLDialog.h"
 
 
+
 DLDialog::DLDialog():
 	hWnd(NULL)
 {
