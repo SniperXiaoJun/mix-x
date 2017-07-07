@@ -26,6 +26,8 @@ add_subdirectory(sqlite)
 add_subdirectory(dbcs)
 add_subdirectory(npplugin)
 add_subdirectory(npsafeinput)
+add_subdirectory(nptranslucent)
+
 
 ##
 add_subdirectory(x_test)

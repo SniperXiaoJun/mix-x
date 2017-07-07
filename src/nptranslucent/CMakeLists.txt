@@ -19,9 +19,16 @@ SET(CMAKE_MFC_FLAG 1)
 
   ${CMAKE_SOURCE_DIR}/nptranslucent/PluginObject.cpp
   ${CMAKE_SOURCE_DIR}/nptranslucent/Plugin.cpp
-  ${CMAKE_SOURCE_DIR}/nptranslucent/GetMacAddress.cpp
-  ${CMAKE_SOURCE_DIR}/nptranslucent/DLDialog.cpp
   ${CMAKE_SOURCE_DIR}/nptranslucent/nptranslucent.rc
+
+  ${CMAKE_SOURCE_DIR}/nptranslucent/BackDialogBase.cpp
+  ${CMAKE_SOURCE_DIR}/nptranslucent/CtrlDemoBackDialog.cpp
+  ${CMAKE_SOURCE_DIR}/nptranslucent/CtrlDemoForeDialog.cpp
+  ${CMAKE_SOURCE_DIR}/nptranslucent/DemoBackDialog.cpp
+  ${CMAKE_SOURCE_DIR}/nptranslucent/DemoForeDialog.cpp
+  ${CMAKE_SOURCE_DIR}/nptranslucent/DialogSimple.cpp
+  ${CMAKE_SOURCE_DIR}/nptranslucent/explorer.cpp
+  ${CMAKE_SOURCE_DIR}/nptranslucent/ForeDialogBase.cpp
  )
  
 ADD_LIBRARY(
@@ -30,14 +37,6 @@ ADD_LIBRARY(
   nptranslucent.def
   ${nptranslucent_cpps}
 )
-
-target_link_libraries(nptranslucent sqlite3)
-TARGET_LINK_LIBRARIES(nptranslucent mix_bssl)
-TARGET_LINK_LIBRARIES(nptranslucent smb_base)
-TARGET_LINK_LIBRARIES(nptranslucent smb_qtui)
-TARGET_LINK_LIBRARIES(nptranslucent Wininet)
-TARGET_LINK_LIBRARIES(nptranslucent Crypt32)
-TARGET_LINK_LIBRARIES(nptranslucent SetupAPI)
 
 
 

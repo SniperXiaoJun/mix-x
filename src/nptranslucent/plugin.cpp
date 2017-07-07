@@ -9,7 +9,6 @@ CPlugin::CPlugin(NPP pNPInstance) :
 	m_pScriptableObject(NULL)
 {
 	m_hWnd = NULL;
-	Dlg =  NULL;
 }
 
 CPlugin::~CPlugin()
@@ -28,7 +27,7 @@ NPBool CPlugin::init(NPWindow* pNPWindow)
 	m_hWnd = (HWND)pNPWindow->window;
 	if(m_hWnd == NULL)
 		return false;
-
+#if 0
 	lpOldProc = SubclassWindow(m_hWnd, (WNDPROC)PluginWinProc);
 	SetWindowLongPtr(m_hWnd, GWLP_USERDATA, (LONG_PTR)this);
 	m_Window = pNPWindow;
@@ -37,7 +36,7 @@ NPBool CPlugin::init(NPWindow* pNPWindow)
 	Dlg->Create(GetModuleHandleA("npsafeinput.dll"),MAKEINTRESOURCE(IDD_INPUT),m_hWnd);
 	Dlg->ShowDlg();
 	SetWindowPos(Dlg->hWnd,HWND_TOPMOST,0,0,m_Width,m_Height,SWP_NOZORDER|SWP_NOMOVE);
-
+#endif
 	m_bInitialized = true;
 	return true;
 }
@@ -47,7 +46,6 @@ void CPlugin::shut()
 	// subclass it back
 	SubclassWindow(m_hWnd, lpOldProc);
 	m_hWnd = NULL;
-	Dlg = NULL;
 	m_bInitialized = false;
 }
 
@@ -79,12 +77,17 @@ CPlugin::GetScriptableObject()
 char *
 CPlugin::GetValue()
 {
-	return Dlg->GetVal();
+	return "";
 }
 
 const char * CPlugin::GetMac(){
+#if 0
 	GetMacAddress *addr=new GetMacAddress();
 	return addr->GetMac();
+#else
+
+	return "";
+#endif
 }
 
 static LRESULT CALLBACK PluginWinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)

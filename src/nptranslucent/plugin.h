@@ -1,6 +1,4 @@
 #include "pluginbase.h"
-#include "DLDialog.h"
-#include "GetMacAddress.h";
 
 class CPlugin:public nsPluginInstanceBase
 {
@@ -13,7 +11,6 @@ private:
 	NPObject *m_pScriptableObject;
 
 public:
-	DLDialog *Dlg;
 	int m_Width;
 	int m_Height;
 
