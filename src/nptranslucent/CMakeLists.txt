@@ -29,6 +29,8 @@ SET(CMAKE_MFC_FLAG 1)
   ${CMAKE_SOURCE_DIR}/nptranslucent/DialogSimple.cpp
   ${CMAKE_SOURCE_DIR}/nptranslucent/explorer.cpp
   ${CMAKE_SOURCE_DIR}/nptranslucent/ForeDialogBase.cpp
+  ${CMAKE_SOURCE_DIR}/nptranslucent/DLDialog.cpp
+  ${CMAKE_SOURCE_DIR}/nptranslucent/TranslucentDemo.cpp
  )
  
 ADD_LIBRARY(
