@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
-// Used by np4xscr.rc
+// Microsoft Visual C++ ????????
+// ? nprt.rc ??
 //
 #define IDD_MAIN                        101
 #define IDC_BUTTON_GO                   1002
@@ -18,4 +18,3 @@
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
-
