@@ -47,6 +47,8 @@ char *NPP_GetMIMEDescription(void)
 	return "application/x-draw";
 }
 
+ULONG_PTR m_gdiplusToken;
+
 NPError NPP_Initialize(void)
 {
 	return NPERR_NO_ERROR;
@@ -67,7 +69,11 @@ NPError NPP_New(NPMIMEType pluginType,
                 char *argn[],
                 char *argv[],
                 NPSavedData* saved)
-{   
+{  
+
+	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+	Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
+
 	if (!instance)
 	{
 		return NPERR_INVALID_INSTANCE_ERROR;
@@ -93,6 +99,8 @@ NPError NPP_New(NPMIMEType pluginType,
 // here is the place to clean up and destroy the CPlugin object
 NPError NPP_Destroy (NPP instance, NPSavedData **save)
 {
+	Gdiplus::GdiplusShutdown(m_gdiplusToken);
+
 	if(instance == NULL)
 	{
 		return NPERR_INVALID_INSTANCE_ERROR;

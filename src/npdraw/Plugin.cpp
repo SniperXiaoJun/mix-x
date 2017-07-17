@@ -101,23 +101,10 @@ bool LoadBitmapFromPNG(UINT uResourceID,
 	{
 		CopyMemory(pBuffer, pResourceData, nImageSize);
 
-		{
-			char buffer[1024] = { 0 };
-
-			sprintf(buffer, "*nImageSize= %d", nImageSize);
-			MessageBoxA(NULL, buffer, "info", 0);
-		}
-
 		IStream* pStream = 0;
 		if (S_OK == ::CreateStreamOnHGlobal(hBuffer, FALSE, &pStream))
 		{
 			*ppBitmapOut = new Gdiplus::Bitmap(pStream);
-			{
-				char buffer[1024] = { 0 };
-
-				sprintf(buffer, "*ppBitmapOut= %d", *ppBitmapOut);
-				MessageBoxA(NULL, buffer, "info", 0);
-			}
 
 			/*Gdiplus::Bitmap::GetLastStatus();*/
 
@@ -157,43 +144,10 @@ int16_t CPlugin::handleEvent(void *pEvent)
 
 		bResult = LoadBitmapFromPNG(IDB_PNG1,&m_pSealImage, NULL);
 
-		{
-			char buffer[1024] = { 0 };
-
-			sprintf(buffer, "bResult= %d", bResult);
-			MessageBoxA(NULL, buffer, "info", 0);
-		}
-
-		{
-			char buffer[1024] = { 0 };
-
-			sprintf(buffer, "m_pSealImage= %d", m_pSealImage);
-			MessageBoxA(NULL, buffer, "info", 0);
-		}
-
 		nSealWidth = m_pSealImage->GetWidth();
 		nSealHeigth = m_pSealImage->GetHeight();
 
-		{
-			char buffer[1024] = { 0 };
 
-			sprintf(buffer, "m_pSealImage= %d", m_pSealImage);
-			MessageBoxA(NULL, buffer, "info", 0);
-		}
-
-		{
-			char buffer[1024] = { 0 };
-
-			sprintf(buffer, "nSealWidth= %d", nSealWidth);
-			MessageBoxA(NULL, buffer, "info", 0);
-		}
-
-		{
-			char buffer[1024] = { 0 };
-
-			sprintf(buffer, "nSealHeigth= %d", nSealHeigth);
-			MessageBoxA(NULL, buffer, "info", 0);
-		}
 
 		rcSealRect.left = 0;
 		rcSealRect.top = 0;
@@ -204,12 +158,6 @@ int16_t CPlugin::handleEvent(void *pEvent)
 		hMemBitmap = ::CreateCompatibleBitmap(hDC, nSealWidth, nSealHeigth);
 		::SelectObject(hMemDC, hMemBitmap);
 
-		{
-			char buffer[1024] = { 0 };
-
-			sprintf(buffer, "hMemDC= %d", hMemDC);
-			MessageBoxA(NULL, buffer, "info", 0);
-		}
 
 		// Draw background
 		hBackBrush = ::CreateSolidBrush(RGB(255, 255, 255));
@@ -225,26 +173,12 @@ int16_t CPlugin::handleEvent(void *pEvent)
 			Gdiplus::UnitPixel,
 			NULL, NULL, NULL);
 
-		{
-			char buffer[1024] = { 0 };
-
-			sprintf(buffer, "enStatus= %d", enStatus);
-			MessageBoxA(NULL, buffer, "info", 0);
-		}
-
 		// Copy memory DC to the drawable.
 		bResult = StretchBlt(hDC,
 			m_pWindow->x, m_pWindow->y, nSealWidth, nSealHeigth,
 			hMemDC,
 			0, 0, nSealWidth, nSealHeigth,
 			SRCAND); //Use SRCAND to achieve a transparent effect.
-
-		{
-			char buffer[1024] = { 0 };
-
-			sprintf(buffer, "bResult= %d", bResult);
-			MessageBoxA(NULL, buffer, "info", 0);
-		}
 
 		break;
 	}
