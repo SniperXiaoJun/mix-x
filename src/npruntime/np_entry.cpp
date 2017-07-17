@@ -40,8 +40,7 @@
 // Main plugin entry point implementation
 //
 #include "npapi.h"
-#include "pluginbase.h"
-#include <stddef.h>
+#include "npfunctions.h"
 
 #ifndef HIBYTE
 #define HIBYTE(x) ((((uint32_t)(x)) & 0xff00) >> 8)
@@ -56,10 +55,9 @@ NPError OSCALL NP_GetEntryPoints(NPPluginFuncs* pFuncs)
   if(pFuncs == NULL)
     return NPERR_INVALID_FUNCTABLE_ERROR;
 
-  if(pFuncs->size < sizeof(NPPluginFuncs))
+  if(pFuncs->size < (offsetof(NPPluginFuncs, setvalue) + sizeof(void*)))
     return NPERR_INVALID_FUNCTABLE_ERROR;
 
-  pFuncs->version       = (NP_VERSION_MAJOR << 8) | NP_VERSION_MINOR;
   pFuncs->newp          = NPP_New;
   pFuncs->destroy       = NPP_Destroy;
   pFuncs->setwindow     = NPP_SetWindow;
@@ -73,7 +71,6 @@ NPError OSCALL NP_GetEntryPoints(NPPluginFuncs* pFuncs)
   pFuncs->urlnotify     = NPP_URLNotify;
   pFuncs->getvalue      = NPP_GetValue;
   pFuncs->setvalue      = NPP_SetValue;
-  pFuncs->javaClass     = NULL;
 
   return NPERR_NO_ERROR;
 }
@@ -126,8 +123,8 @@ NP_Initialize(NPNetscapeFuncs* pFuncs
   NPNFuncs.memfree                 = pFuncs->memfree;
   NPNFuncs.memflush                = pFuncs->memflush;
   NPNFuncs.reloadplugins           = pFuncs->reloadplugins;
-  NPNFuncs.getJavaEnv              = pFuncs->getJavaEnv;
-  NPNFuncs.getJavaPeer             = pFuncs->getJavaPeer;
+  NPNFuncs.getJavaEnv              = NULL;
+  NPNFuncs.getJavaPeer             = NULL;
   NPNFuncs.getvalue                = pFuncs->getvalue;
   NPNFuncs.setvalue                = pFuncs->setvalue;
   NPNFuncs.invalidaterect          = pFuncs->invalidaterect;
@@ -162,21 +159,19 @@ NP_Initialize(NPNetscapeFuncs* pFuncs
    */
   pluginFuncs->version    = (NP_VERSION_MAJOR << 8) + NP_VERSION_MINOR;
   pluginFuncs->size       = sizeof(NPPluginFuncs);
-  pluginFuncs->newp       = NewNPP_NewProc(NPP_New);
-  pluginFuncs->destroy    = NewNPP_DestroyProc(NPP_Destroy);
-  pluginFuncs->setwindow  = NewNPP_SetWindowProc(NPP_SetWindow);
-  pluginFuncs->newstream  = NewNPP_NewStreamProc(NPP_NewStream);
-  pluginFuncs->destroystream = NewNPP_DestroyStreamProc(NPP_DestroyStream);
-  pluginFuncs->asfile     = NewNPP_StreamAsFileProc(NPP_StreamAsFile);
-  pluginFuncs->writeready = NewNPP_WriteReadyProc(NPP_WriteReady);
-  pluginFuncs->write      = NewNPP_WriteProc(NPP_Write);
-  pluginFuncs->print      = NewNPP_PrintProc(NPP_Print);
-  pluginFuncs->urlnotify  = NewNPP_URLNotifyProc(NPP_URLNotify);
+  pluginFuncs->newp       = (NPP_NewProcPtr)(NPP_New);
+  pluginFuncs->destroy    = (NPP_DestroyProcPtr)(NPP_Destroy);
+  pluginFuncs->setwindow  = (NPP_SetWindowProcPtr)(NPP_SetWindow);
+  pluginFuncs->newstream  = (NPP_NewStreamProcPtr)(NPP_NewStream);
+  pluginFuncs->destroystream = (NPP_DestroyStreamProcPtr)(NPP_DestroyStream);
+  pluginFuncs->asfile     = (NPP_StreamAsFileProcPtr)(NPP_StreamAsFile);
+  pluginFuncs->writeready = (NPP_WriteReadyProcPtr)(NPP_WriteReady);
+  pluginFuncs->write      = (NPP_WriteProcPtr)(NPP_Write);
+  pluginFuncs->print      = (NPP_PrintProcPtr)(NPP_Print);
+  pluginFuncs->urlnotify  = (NPP_URLNotifyProcPtr)(NPP_URLNotify);
   pluginFuncs->event      = NULL;
-  pluginFuncs->getvalue   = NewNPP_GetValueProc(NPP_GetValue);
-#ifdef OJI
-  pluginFuncs->javaClass  = NPP_GetJavaClass();
-#endif
+  pluginFuncs->getvalue   = (NPP_GetValueProcPtr)(NPP_GetValue);
+  pluginFuncs->javaClass  = NULL;
 
   NPP_Initialize();
 #endif

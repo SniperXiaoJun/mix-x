@@ -53,9 +53,7 @@
 #endif
 
 #include "plugin.h"
-#include "pluginbase.h"
-#include <stddef.h>
-#include <stdio.h>
+#include "npfunctions.h"
 
 static NPIdentifier sFoo_id;
 static NPIdentifier sBar_id;
@@ -451,12 +449,17 @@ ScriptablePluginObject::Invoke(NPIdentifier name, const NPVariant *args,
 
     NPN_ReleaseVariantValue(&docv);
 
-    STRINGZ_TO_NPVARIANT(strdup("foo return val"), *result);
+    const char* outString = "foo return val";
+    char* npOutString = (char *)NPN_MemAlloc(strlen(outString) + 1);
+    if (!npOutString)
+      return false;
+    strcpy(npOutString, outString);
+    STRINGZ_TO_NPVARIANT(npOutString, *result);
 
-    return TRUE;
+    return true;
   }
 
-  return FALSE;
+  return false;
 }
 
 bool
@@ -465,15 +468,20 @@ ScriptablePluginObject::InvokeDefault(const NPVariant *args, uint32_t argCount,
 {
   printf ("ScriptablePluginObject default method called!\n");
 
-  STRINGZ_TO_NPVARIANT(strdup("default method return val"), *result);
+  const char* outString = "default method return val";
+  char* npOutString = (char *)NPN_MemAlloc(strlen(outString) + 1);
+  if (!npOutString)
+    return false;
+  strcpy(npOutString, outString);
+  STRINGZ_TO_NPVARIANT(npOutString, *result);
 
-  return TRUE;
+  return true;
 }
 
 CPlugin::CPlugin(NPP pNPInstance) :
   m_pNPInstance(pNPInstance),
   m_pNPStream(NULL),
-  m_bInitialized(FALSE),
+  m_bInitialized(false),
   m_pScriptableObject(NULL)
 {
 #ifdef XP_WIN
@@ -525,7 +533,7 @@ CPlugin::CPlugin(NPP pNPInstance) :
     NPN_GetProperty(m_pNPInstance, doc, n, &rval);
 
     if (NPVARIANT_IS_STRING(rval)) {
-      printf ("title = %s\n", NPVARIANT_TO_STRING(rval).UTF8Length);
+      printf ("title = %s\n", NPVARIANT_TO_STRING(rval).UTF8Characters);
 
       NPN_ReleaseVariantValue(&rval);
     }
@@ -574,7 +582,7 @@ CPlugin::CPlugin(NPP pNPInstance) :
   NPN_Invoke(sWindowObj, n, vars, 3, &rval);
 
   if (NPVARIANT_IS_STRING(rval)) {
-    printf ("prompt returned '%s'\n", NPVARIANT_TO_STRING(rval).utf8characters);
+    printf ("prompt returned '%s'\n", NPVARIANT_TO_STRING(rval).UTF8Characters);
   }
 
   NPN_ReleaseVariantValue(&rval);
@@ -624,12 +632,12 @@ static WNDPROC lpOldProc = NULL;
 NPBool CPlugin::init(NPWindow* pNPWindow)
 {
   if(pNPWindow == NULL)
-    return FALSE;
+    return false;
 
 #ifdef XP_WIN
   m_hWnd = (HWND)pNPWindow->window;
   if(m_hWnd == NULL)
-    return FALSE;
+    return false;
 
   // subclass window so we can intercept window messages and
   // do our drawing to it
@@ -637,13 +645,13 @@ NPBool CPlugin::init(NPWindow* pNPWindow)
 
   // associate window with our CPlugin object so we can access 
   // it in the window procedure
-  SetWindowLong(m_hWnd, GWL_USERDATA, (LONG)this);
+  SetWindowLongPtr(m_hWnd, GWLP_USERDATA, (LONG_PTR)this);
 #endif
 
   m_Window = pNPWindow;
 
-  m_bInitialized = TRUE;
-  return TRUE;
+  m_bInitialized = true;
+  return true;
 }
 
 void CPlugin::shut()
@@ -654,7 +662,7 @@ void CPlugin::shut()
   m_hWnd = NULL;
 #endif
 
-  m_bInitialized = FALSE;
+  m_bInitialized = false;
 }
 
 NPBool CPlugin::isInitialized()
@@ -684,7 +692,7 @@ void CPlugin::showVersion()
   strcpy(m_String, ua);
 
 #ifdef XP_WIN
-  InvalidateRect(m_hWnd, NULL, TRUE);
+  InvalidateRect(m_hWnd, NULL, true);
   UpdateWindow(m_hWnd);
 #endif
 
@@ -706,7 +714,7 @@ void CPlugin::clear()
   strcpy(m_String, "");
 
 #ifdef XP_WIN
-  InvalidateRect(m_hWnd, NULL, TRUE);
+  InvalidateRect(m_hWnd, NULL, true);
   UpdateWindow(m_hWnd);
 #endif
 }
@@ -748,13 +756,13 @@ static LRESULT CALLBACK PluginWinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
         RECT rc;
         GetClientRect(hWnd, &rc);
         FrameRect(hdc, &rc, GetStockBrush(BLACK_BRUSH));
-        CPlugin * p = (CPlugin *)GetWindowLong(hWnd, GWL_USERDATA);
+        CPlugin * p = (CPlugin *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
         if(p) {
           if (p->m_String[0] == 0) {
             strcpy("foo", p->m_String);
           }
 
-          DrawTextA(hdc, p->m_String, strlen(p->m_String), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+          DrawText(hdc, p->m_String, strlen(p->m_String), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
         }
 
         EndPaint(hWnd, &ps);

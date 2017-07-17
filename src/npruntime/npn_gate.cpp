@@ -40,8 +40,7 @@
 // Implementation of Netscape entry points (NPN_*)
 //
 #include "npapi.h"
-#include "pluginbase.h"
-#include <stddef.h>
+#include "npfunctions.h"
 
 #ifndef HIBYTE
 #define HIBYTE(x) ((((uint32_t)(x)) & 0xff00) >> 8)
@@ -179,23 +178,6 @@ void NPN_ReloadPlugins(NPBool reloadPages)
 {
   NPNFuncs.reloadplugins(reloadPages);
 }
-
-#if 0
-JRIEnv* NPN_GetJavaEnv(void)
-{
-  JRIEnv * rv = NULL;
-	rv = NPNFuncs.getJavaEnv();
-  return rv;
-}
-
-jref NPN_GetJavaPeer(NPP instance)
-{
-  jref rv;
-	rv = NPNFuncs.getJavaPeer(instance);
-  return rv;
-}
-
-#endif
 
 NPError NPN_GetValue(NPP instance, NPNVariable variable, void *value)
 {
