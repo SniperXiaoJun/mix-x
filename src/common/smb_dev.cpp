@@ -795,6 +795,19 @@ unsigned int SMB_DEV_SM2SignProcess(OPST_HANDLE_ARGS *args,
 	FUNC_NAME_INIT(func_, GenRandom, );
 	FUNC_NAME_INIT(func_, Transmit, );
 
+#if USE_SELF_MUTEX
+	if (ulRet = SDSCWaitMutex(mutex_buffer, INFINITE, &hMutex))
+	{
+		goto err;
+	}
+#else
+	ulRet = func_LockDev(hDev, 0xFFFFFFFF);
+	if (0 != ulRet)
+	{
+		goto err;
+	}
+#endif
+
 	{
 		if (hCon)
 		{
@@ -855,6 +868,15 @@ err:
 	if (pHeader)
 	{
 		SMB_CS_FreeSKFLink(&pHeader);
+	}
+
+	if (hDev)
+	{
+#if USE_SELF_MUTEX
+		SDSCReleaseMutex(hMutex);
+#else
+		func_UnlockDev(hDev);
+#endif
 	}
 
 
@@ -2057,6 +2079,19 @@ unsigned int SMB_DEV_SM2SignProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, u
 		goto err;
 	}
 
+#if USE_SELF_MUTEX
+	if (ulRet = SDSCWaitMutex(mutex_buffer, INFINITE, &hMutex))
+	{
+		goto err;
+	}
+#else
+	ulRet = func_LockDev(hDev, 0xFFFFFFFF);
+	if (0 != ulRet)
+	{
+		goto err;
+	}
+#endif
+
 	FUNC_NAME_INIT(func_, ECCSignData, );
 
 	{
@@ -2075,6 +2110,15 @@ unsigned int SMB_DEV_SM2SignProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, u
 	}
 
 err:
+
+	if (hDev)
+	{
+#if USE_SELF_MUTEX
+		SDSCReleaseMutex(hMutex);
+#else
+		func_UnlockDev(hDev);
+#endif
+	}
 
 	return ulRet;
 }
