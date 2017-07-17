@@ -54,6 +54,7 @@
 
 #include "plugin.h"
 #include "npfunctions.h"
+#include <stdio.h>
 
 static NPIdentifier sFoo_id;
 static NPIdentifier sBar_id;
@@ -762,7 +763,7 @@ static LRESULT CALLBACK PluginWinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
             strcpy("foo", p->m_String);
           }
 
-          DrawText(hdc, p->m_String, strlen(p->m_String), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+          DrawTextA(hdc, p->m_String, strlen(p->m_String), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
         }
 
         EndPaint(hWnd, &ps);
