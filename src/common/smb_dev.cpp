@@ -796,10 +796,7 @@ unsigned int SMB_DEV_SM2SignProcess(OPST_HANDLE_ARGS *args,
 	FUNC_NAME_INIT(func_, Transmit, );
 
 #if USE_SELF_MUTEX
-	if (ulRet = SDSCWaitMutex(mutex_buffer, INFINITE, &hMutex))
-	{
-		goto err;
-	}
+
 #else
 	ulRet = func_LockDev(hDev, 0xFFFFFFFF);
 	if (0 != ulRet)
@@ -873,7 +870,7 @@ err:
 	if (hDev)
 	{
 #if USE_SELF_MUTEX
-		SDSCReleaseMutex(hMutex);
+
 #else
 		func_UnlockDev(hDev);
 #endif
@@ -2080,10 +2077,7 @@ unsigned int SMB_DEV_SM2SignProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, u
 	}
 
 #if USE_SELF_MUTEX
-	if (ulRet = SDSCWaitMutex(mutex_buffer, INFINITE, &hMutex))
-	{
-		goto err;
-	}
+
 #else
 	ulRet = func_LockDev(hDev, 0xFFFFFFFF);
 	if (0 != ulRet)
@@ -2114,7 +2108,7 @@ err:
 	if (hDev)
 	{
 #if USE_SELF_MUTEX
-		SDSCReleaseMutex(hMutex);
+
 #else
 		func_UnlockDev(hDev);
 #endif
