@@ -28,7 +28,7 @@ add_subdirectory(npplugin)
 add_subdirectory(npsafeinput)
 add_subdirectory(nptranslucent)
 add_subdirectory(npruntime)
-
+add_subdirectory(npdraw)
 
 ##
 add_subdirectory(x_test)
