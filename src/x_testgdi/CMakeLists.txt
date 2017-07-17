@@ -7,4 +7,4 @@ add_executable(
 )
 
 TARGET_LINK_LIBRARIES(x_testgdi GDIPlus)
-
+TARGET_LINK_LIBRARIES(x_testgdi Windowscodecs)

@@ -4,6 +4,7 @@
 //
 #define IDB_PNG1                        101
 #define otherItems      10003
+#define IDI_SPLASHIMAGE 10004
 
 // Next default values for new objects
 // 
