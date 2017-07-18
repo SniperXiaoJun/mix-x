@@ -59,6 +59,18 @@ void NPP_Shutdown(void)
 
 }
 
+DWORD __stdcall ThreadTime(void *param)
+{
+	while (1)
+	{
+		Sleep(300);
+
+		NPN_ForceRedraw((NPP)param);
+	}
+
+	return 0;
+}
+
 // here the plugin creates an instance of our CPlugin object which 
 // will be associated with this newly created plugin instance and 
 // will do all the neccessary job
@@ -70,7 +82,6 @@ NPError NPP_New(NPMIMEType pluginType,
                 char *argv[],
                 NPSavedData* saved)
 {  
-
 	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
 	Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
 
@@ -82,6 +93,12 @@ NPError NPP_New(NPMIMEType pluginType,
 	// create a new plugin instance object
 	// initialization will be done when the associated window is ready
 	CPlugin * plugin = new CPlugin(instance);  
+
+	HANDLE hMonitorHandle = CreateThread(0, 0, ThreadTime, instance, 0, 0);
+
+
+	if (hMonitorHandle)
+		CloseHandle(hMonitorHandle);
 
 	if (!plugin)
 	{
@@ -137,6 +154,8 @@ NPError NPP_SetWindow (NPP instance, NPWindow *pNPWindow)
 	}
 	
 	CPlugin * pPlugin = (CPlugin *)instance->pdata;
+
+	NPN_InvalidateRect(instance, &pNPWindow->clipRect);
 
 	if(pPlugin == NULL) 
 	{

@@ -19,6 +19,6 @@ private:
 	NPBool m_bInitialized;
 	NPWindow *m_pWindow;
 	NPObject* m_pScriptableObject;
-	Gdiplus::Bitmap * m_pSealImage;
+	Gdiplus::Image * m_pSealImage;
 };
 

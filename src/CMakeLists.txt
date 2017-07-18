@@ -38,4 +38,5 @@ add_subdirectory(x_process_get)
 add_subdirectory(x_ip_get)
 add_subdirectory(x_file_log)
 add_subdirectory(x_testgdi)
+add_subdirectory(x_test_activex)
 

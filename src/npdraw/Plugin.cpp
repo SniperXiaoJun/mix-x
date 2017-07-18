@@ -55,7 +55,7 @@ NPObject* CPlugin::GetScriptableObject()
 
 
 bool LoadBitmapFromPNG(UINT uResourceID,
-	Gdiplus::Bitmap** ppBitmapOut, HINSTANCE hInstance /*= NULL*/)
+	Gdiplus::Image** ppBitmapOut, HINSTANCE hInstance /*= NULL*/)
 {
 	bool bRet = false;
 
@@ -104,7 +104,7 @@ bool LoadBitmapFromPNG(UINT uResourceID,
 		IStream* pStream = 0;
 		if (S_OK == ::CreateStreamOnHGlobal(hBuffer, FALSE, &pStream))
 		{
-			*ppBitmapOut = new Gdiplus::Bitmap(pStream);
+			*ppBitmapOut = new Gdiplus::Image(pStream);
 
 			/*Gdiplus::Bitmap::GetLastStatus();*/
 
@@ -129,6 +129,8 @@ int16_t CPlugin::handleEvent(void *pEvent)
 	{
 	case WM_PAINT:
 	{
+		MessageBoxA(NULL, "", "", 0);
+
 		HDC hDC = NULL;
 		HDC hMemDC = NULL;
 		HBITMAP hMemBitmap = NULL;
