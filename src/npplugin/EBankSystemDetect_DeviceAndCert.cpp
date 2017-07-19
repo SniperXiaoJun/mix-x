@@ -927,6 +927,8 @@ std::string WTF_ReadCurrentCerts(int Expire)
 								itemDevInfo["devNickName"] = item["commonName"];
 								itemDevInfo["devFrom"] = "csp";
 								itemDevInfo["serialNumber"] = "unknow";
+								itemDevInfo["cspName"] = pszName;
+								itemDevInfo["dwKeyType"] = (int)dwKeyType;
 
 								itemDevCerts.append(item);
 								itemDev = itemDevInfo;
@@ -1109,6 +1111,8 @@ std::string WTF_ReadCurrentCerts(int Expire)
 							itemDevInfo["devNickName"] = item["commonName"];
 							itemDevInfo["devFrom"] = "csp";
 							itemDevInfo["serialNumber"] = "unknow";
+							itemDevInfo["cspName"] = szProvider;
+							itemDevInfo["dwKeyType"] = (int)dwKeyType;
 
 							itemDevCerts.append(item);
 							itemDev = itemDevInfo;
