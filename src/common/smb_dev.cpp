@@ -2050,6 +2050,8 @@ unsigned int SMB_DEV_SM2SignProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, u
 	HINSTANCE ghInst = NULL;
 	unsigned int ulRet = 0;
 
+	FUNC_NAME_DECLARE(func_, LockDev, );
+	FUNC_NAME_DECLARE(func_, UnlockDev, );
 	FUNC_NAME_DECLARE(func_, ECCSignData, );
 
 	DEVHANDLE hDev = NULL;
@@ -2076,6 +2078,11 @@ unsigned int SMB_DEV_SM2SignProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, u
 		goto err;
 	}
 
+	FUNC_NAME_INIT(func_, LockDev, );
+	FUNC_NAME_INIT(func_, UnlockDev, );
+	FUNC_NAME_INIT(func_, ECCSignData, );
+
+
 #if USE_SELF_MUTEX
 
 #else
@@ -2086,7 +2093,7 @@ unsigned int SMB_DEV_SM2SignProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, u
 	}
 #endif
 
-	FUNC_NAME_INIT(func_, ECCSignData, );
+	
 
 	{
 		if (hCon)
