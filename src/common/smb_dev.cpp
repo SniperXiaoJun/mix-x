@@ -726,8 +726,8 @@ unsigned int SMB_DEV_SM2SignProcess(OPST_HANDLE_ARGS *args,
 	FUNC_NAME_DECLARE(func_, GenerateAgreementDataWithECCEx, );
 	FUNC_NAME_DECLARE(func_, GenerateAgreementDataAndKeyWithECCEx, );
 
-	FUNC_NAME_DECLARE(func_, GenRandom, );
-	FUNC_NAME_DECLARE(func_, Transmit, );
+	//FUNC_NAME_DECLARE(func_, GenRandom, );
+	//FUNC_NAME_DECLARE(func_, Transmit, );
 
 
 	DEVHANDLE hDev = NULL;
@@ -792,8 +792,8 @@ unsigned int SMB_DEV_SM2SignProcess(OPST_HANDLE_ARGS *args,
 
 	FUNC_NAME_INIT(func_, ECCSignData, );
 
-	FUNC_NAME_INIT(func_, GenRandom, );
-	FUNC_NAME_INIT(func_, Transmit, );
+	//FUNC_NAME_INIT(func_, GenRandom, );
+	//FUNC_NAME_INIT(func_, Transmit, );
 
 #if USE_SELF_MUTEX
 
@@ -1859,8 +1859,8 @@ unsigned int SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr * pCertAttr, OPST_
 	FUNC_NAME_DECLARE(func_, GenerateAgreementDataWithECCEx, );
 	FUNC_NAME_DECLARE(func_, GenerateAgreementDataAndKeyWithECCEx, );
 
-	FUNC_NAME_DECLARE(func_, GenRandom, );
-	FUNC_NAME_DECLARE(func_, Transmit, );
+	//FUNC_NAME_DECLARE(func_, GenRandom, );
+	//FUNC_NAME_DECLARE(func_, Transmit, );
 
 
 	unsigned int ulRet = 0;
@@ -1917,8 +1917,8 @@ unsigned int SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr * pCertAttr, OPST_
 
 	FUNC_NAME_INIT(func_, ECCSignData, );
 
-	FUNC_NAME_INIT(func_, GenRandom, );
-	FUNC_NAME_INIT(func_, Transmit, );
+	//FUNC_NAME_INIT(func_, GenRandom, );
+	//FUNC_NAME_INIT(func_, Transmit, );
 
 	{
 		unsigned char bufferRandom[8] = { 0 };
