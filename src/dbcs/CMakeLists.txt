@@ -1,7 +1,7 @@
 include_directories(../../include)
 
 
-add_definitions(-DUNICODE -D_UNICODE -DNOCRYPT -DMIX_BORINGSSL -DUSE_SELF_MUTEX)
+add_definitions(-DUNICODE -D_UNICODE -DNOCRYPT -DMIX_BORINGSSL)
 
 set(
     ARCH_SOURCES
@@ -38,6 +38,7 @@ LINK_DIRECTORIES(
 ADD_LIBRARY(
   smb_base SHARED
   
+  smb_base.rc
   smb_base.def
   ${common_cs} 
   ${common_cpps} 
