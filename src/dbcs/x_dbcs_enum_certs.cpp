@@ -14,6 +14,10 @@ unsigned int SHOW_ALL_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 {
 	while (pCertCtxNode)
 	{
+		SMB_CS_CertificateAttr * attr = NULL;
+
+		SMB_CS_DuplicateCertAttr(pCertCtxNode->ptr_data, &attr);
+
 		if (SMB_CERT_ALG_FLAG_RSA == pCertCtxNode->ptr_data->stAttr.ucCertAlgType)
 		{
 			SMB_UI_ShowCert(pCertCtxNode->ptr_data->stContent.data, pCertCtxNode->ptr_data->stContent.length);
@@ -23,6 +27,8 @@ unsigned int SHOW_ALL_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 			SMB_QTUI_ShowUI(pCertCtxNode->ptr_data->stContent.data, pCertCtxNode->ptr_data->stContent.length);
 		}
 		pCertCtxNode = pCertCtxNode->ptr_next;
+
+		SMB_CS_FreeCertAttr(attr);
 	}
 
 	return 0;

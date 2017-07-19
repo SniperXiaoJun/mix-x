@@ -232,6 +232,16 @@ extern "C" {
 	COMMON_API unsigned int SMB_CS_FreeCertCtx(IN SMB_CS_CertificateContext *pCertCtx);
 
 	/*
+	拷贝证书属性
+	*/
+	COMMON_API unsigned int SMB_CS_DuplicateCertAttr(IN SMB_CS_CertificateContext *pCertCtx, IN OUT SMB_CS_CertificateAttr **ppCertAttr);
+
+	/*
+	释放证书属性
+	*/
+	COMMON_API unsigned int SMB_CS_FreeCertAttr(IN SMB_CS_CertificateAttr *pCertAttr);
+
+	/*
 	添加证书到数据库 ucStoreType 1:CA&ROOT 2:USER
 	*/
 	COMMON_API unsigned int SMB_CS_AddCertCtx(IN SMB_CS_CertificateContext *pCertCtx, IN unsigned char ucStoreType);

@@ -6,6 +6,9 @@ EXPORTS
 	SMB_CS_FreeCertCtx
 	SMB_CS_FreeCertCtxLink
 
+	SMB_CS_DuplicateCertAttr
+	SMB_CS_FreeCertAttr
+
 	SMB_CS_AddCertCtx
 	SMB_CS_DelCertCtx
 	SMB_CS_ClrAllCertCtx

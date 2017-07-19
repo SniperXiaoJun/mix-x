@@ -911,6 +911,190 @@ unsigned int SMB_CS_FreeCertCtx(SMB_CS_CertificateContext *pCertCtx)
 	return 0;
 }
 
+
+unsigned int SMB_CS_DuplicateCertAttr(IN SMB_CS_CertificateContext *pCertCtx, IN OUT SMB_CS_CertificateAttr **ppCertAttr)
+{
+	if (pCertCtx && ppCertAttr)
+	{
+		SMB_CS_CertificateAttr * pCertAttr = (SMB_CS_CertificateAttr *)malloc(sizeof(SMB_CS_CertificateAttr));
+
+		memcpy(pCertAttr, &pCertCtx->stAttr, sizeof(SMB_CS_CertificateAttr));
+
+		if (pCertCtx->stAttr.stSKFName.data)
+		{
+			pCertAttr->stSKFName.length = pCertCtx->stAttr.stSKFName.length;
+			pCertAttr->stSKFName.data = (unsigned char *)malloc(pCertAttr->stSKFName.length);
+			memcpy(pCertAttr->stSKFName.data, pCertCtx->stAttr.stSKFName.data, pCertCtx->stAttr.stSKFName.length);
+		}
+
+		if (pCertCtx->stAttr.stDeviceName.data)
+		{
+			pCertAttr->stDeviceName.length = pCertCtx->stAttr.stDeviceName.length;
+			pCertAttr->stDeviceName.data = (unsigned char *)malloc(pCertAttr->stDeviceName.length);
+			memcpy(pCertAttr->stDeviceName.data, pCertCtx->stAttr.stDeviceName.data, pCertCtx->stAttr.stDeviceName.length);
+		}
+
+		if (pCertCtx->stAttr.stApplicationName.data)
+		{
+			pCertAttr->stApplicationName.length = pCertCtx->stAttr.stApplicationName.length;
+			pCertAttr->stApplicationName.data = (unsigned char *)malloc(pCertAttr->stApplicationName.length);
+			memcpy(pCertAttr->stApplicationName.data, pCertCtx->stAttr.stApplicationName.data, pCertCtx->stAttr.stApplicationName.length);
+		}
+
+		if (pCertCtx->stAttr.stContainerName.data)
+		{
+			pCertAttr->stContainerName.length = pCertCtx->stAttr.stContainerName.length;
+			pCertAttr->stContainerName.data = (unsigned char *)malloc(pCertAttr->stContainerName.length);
+			memcpy(pCertAttr->stContainerName.data, pCertCtx->stAttr.stContainerName.data, pCertCtx->stAttr.stContainerName.length);
+		}
+
+		if (pCertCtx->stAttr.stCommonName.data)
+		{
+			pCertAttr->stCommonName.length = pCertCtx->stAttr.stCommonName.length;
+			pCertAttr->stCommonName.data = (unsigned char *)malloc(pCertAttr->stCommonName.length);
+			memcpy(pCertAttr->stCommonName.data, pCertCtx->stAttr.stCommonName.data, pCertCtx->stAttr.stCommonName.length);
+		}
+
+		if (pCertCtx->stAttr.stSubject.data)
+		{
+			pCertAttr->stSubject.length = pCertCtx->stAttr.stSubject.length;
+			pCertAttr->stSubject.data = (unsigned char *)malloc(pCertAttr->stSubject.length);
+			memcpy(pCertAttr->stSubject.data, pCertCtx->stAttr.stSubject.data, pCertCtx->stAttr.stSubject.length);
+		}
+
+		if (pCertCtx->stAttr.stIssue.data)
+		{
+			pCertAttr->stIssue.length = pCertCtx->stAttr.stIssue.length;
+			pCertAttr->stIssue.data = (unsigned char *)malloc(pCertAttr->stIssue.length);
+			memcpy(pCertAttr->stIssue.data, pCertCtx->stAttr.stIssue.data, pCertCtx->stAttr.stIssue.length);
+		}
+
+		if (pCertCtx->stAttr.stPublicKey.data)
+		{
+			pCertAttr->stPublicKey.length = pCertCtx->stAttr.stPublicKey.length;
+			pCertAttr->stPublicKey.data = (unsigned char *)malloc(pCertAttr->stPublicKey.length);
+			memcpy(pCertAttr->stPublicKey.data, pCertCtx->stAttr.stPublicKey.data, pCertCtx->stAttr.stPublicKey.length);
+		}
+
+		if (pCertCtx->stAttr.stSerialNumber.data)
+		{
+			pCertAttr->stSerialNumber.length = pCertCtx->stAttr.stSerialNumber.length;
+			pCertAttr->stSerialNumber.data = (unsigned char *)malloc(pCertAttr->stSerialNumber.length);
+			memcpy(pCertAttr->stSerialNumber.data, pCertCtx->stAttr.stSerialNumber.data, pCertCtx->stAttr.stSerialNumber.length);
+		}
+
+		if (pCertCtx->stAttr.stSubjectKeyID.data)
+		{
+			pCertAttr->stSubjectKeyID.length = pCertCtx->stAttr.stSubjectKeyID.length;
+			pCertAttr->stSubjectKeyID.data = (unsigned char *)malloc(pCertAttr->stSubjectKeyID.length);
+			memcpy(pCertAttr->stSubjectKeyID.data, pCertCtx->stAttr.stSubjectKeyID.data, pCertCtx->stAttr.stSubjectKeyID.length);
+		}
+
+		if (pCertCtx->stAttr.stIssueKeyID.data)
+		{
+			pCertAttr->stIssueKeyID.length = pCertCtx->stAttr.stIssueKeyID.length;
+			pCertAttr->stIssueKeyID.data = (unsigned char *)malloc(pCertAttr->stIssueKeyID.length);
+			memcpy(pCertAttr->stIssueKeyID.data, pCertCtx->stAttr.stIssueKeyID.data, pCertCtx->stAttr.stIssueKeyID.length);
+		}
+
+		if (pCertCtx->stAttr.stVendorData.data)
+		{
+			pCertAttr->stVendorData.length = pCertCtx->stAttr.stVendorData.length;
+			pCertAttr->stVendorData.data = (unsigned char *)malloc(pCertAttr->stVendorData.length);
+			memcpy(pCertAttr->stVendorData.data, pCertCtx->stAttr.stVendorData.data, pCertCtx->stAttr.stVendorData.length);
+		}
+
+		*ppCertAttr = pCertAttr;
+	}
+
+	return 0;
+}
+
+
+unsigned int SMB_CS_FreeCertAttr(IN SMB_CS_CertificateAttr *pCertAttr)
+{
+	if (pCertAttr)
+	{
+		if (pCertAttr->stSKFName.data)
+		{
+			free(pCertAttr->stSKFName.data);
+			pCertAttr->stSKFName.data = NULL;
+		}
+
+		if (pCertAttr->stDeviceName.data)
+		{
+			free(pCertAttr->stDeviceName.data);
+			pCertAttr->stDeviceName.data = NULL;
+		}
+
+		if (pCertAttr->stApplicationName.data)
+		{
+			free(pCertAttr->stApplicationName.data);
+			pCertAttr->stApplicationName.data = NULL;
+		}
+
+		if (pCertAttr->stContainerName.data)
+		{
+			free(pCertAttr->stContainerName.data);
+			pCertAttr->stContainerName.data = NULL;
+		}
+
+		if (pCertAttr->stCommonName.data)
+		{
+			free(pCertAttr->stCommonName.data);
+			pCertAttr->stCommonName.data = NULL;
+		}
+
+		if (pCertAttr->stSubject.data)
+		{
+			free(pCertAttr->stSubject.data);
+			pCertAttr->stSubject.data = NULL;
+		}
+
+		if (pCertAttr->stIssue.data)
+		{
+			free(pCertAttr->stIssue.data);
+			pCertAttr->stIssue.data = NULL;
+		}
+
+		if (pCertAttr->stPublicKey.data)
+		{
+			free(pCertAttr->stPublicKey.data);
+			pCertAttr->stPublicKey.data = NULL;
+		}
+
+		if (pCertAttr->stSerialNumber.data)
+		{
+			free(pCertAttr->stSerialNumber.data);
+			pCertAttr->stSerialNumber.data = NULL;
+		}
+
+		if (pCertAttr->stSubjectKeyID.data)
+		{
+			free(pCertAttr->stSubjectKeyID.data);
+			pCertAttr->stSubjectKeyID.data = NULL;
+		}
+
+		if (pCertAttr->stIssueKeyID.data)
+		{
+			free(pCertAttr->stIssueKeyID.data);
+			pCertAttr->stIssueKeyID.data = NULL;
+		}
+
+		if (pCertAttr->stVendorData.data)
+		{
+			free(pCertAttr->stVendorData.data);
+			pCertAttr->stVendorData.data = NULL;
+		}
+
+		free(pCertAttr);
+		pCertAttr = NULL;
+	}
+
+	return 0;
+}
+
+
 unsigned int SMB_CS_FreeCertCtxLink(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
 {
 	while (*ppCertCtxNodeHeader)
