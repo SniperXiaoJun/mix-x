@@ -6,7 +6,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-	COMMON_API int SMB_QTUI_ShowUI(unsigned char *pCertContent, unsigned int uiCertContentLen);
+	COMMON_API unsigned int CALL_CONVENTION SMB_QTUI_ShowUI(unsigned char *pCertContent, unsigned int uiCertContentLen);
 #ifdef __cplusplus
 }
 #endif

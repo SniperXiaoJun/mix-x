@@ -51,7 +51,7 @@ static const char ROLLBACK_CMD[] = "ROLLBACK TRANSACTION;";
 static const char CHECK_TABLE_CMD[] = "SELECT ALL * FROM %s LIMIT 0;";
 static const char *CREATE_TABLE_CMD[] =
 { "CREATE TABLE if not exists table_certificate (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, content UNIQUE ON CONFLICT REPLACE, store_type, id_attr);"
-, "CREATE TABLE if not exists table_certificate_attr (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, cert_alg_type, cert_usage_type, skf_name, device_name, application_name, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid UNIQUE ON CONFLICT REPLACE, isuue_keyid, vendor_data, verify, not_before, not_after);"
+, "CREATE TABLE if not exists table_certificate_attr (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, cert_alg_type, cert_usage_type, skf_name, device_name, application_name, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid, isuue_keyid, vendor_data, verify, not_before, not_after);"
 , "CREATE TABLE if not exists table_skf (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name, path UNIQUE ON CONFLICT REPLACE, signtype, pin_verify);"
 , "CREATE TABLE if not exists table_pid_vid (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, pid UNIQUE ON CONFLICT REPLACE, vid, type);"
 , "CREATE TABLE if not exists table_product (id INTEGER PRIMARY KEY UNIQUE ON CONFLICT REPLACE, name UNIQUE ON CONFLICT REPLACE, id_skf, id_pid_vid);"
@@ -291,7 +291,7 @@ err:
 
 
 
-unsigned int SMB_CS_Init()
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_Init()
 {
 	int crv = 0;
 	SDB sdb = { 0 };
@@ -403,7 +403,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_CreateCertCtx(SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_CreateCertCtx(SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen)
 {
 	SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
 	unsigned int uiRet = -1;
@@ -431,7 +431,7 @@ err:
 	return uiRet;
 }
 
-unsigned int SMB_CS_FillCertAttr(SMB_CS_CertificateContext * pCertCtx)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_FillCertAttr(SMB_CS_CertificateContext * pCertCtx)
 {
 	unsigned int ulRet = 0;
 	if (NULL == pCertCtx)
@@ -763,7 +763,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_FindCertCtx(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_FindCertCtx(SMB_CS_CertificateFindAttr *pCertificateFindAttr, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -799,7 +799,7 @@ err:
 
 
 
-unsigned int SMB_CS_SetCertCtxVendor(SMB_CS_CertificateContext *pCertCtx, unsigned char *pVendor, unsigned int uiVendorLen)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_SetCertCtxVendor(SMB_CS_CertificateContext *pCertCtx, unsigned char *pVendor, unsigned int uiVendorLen)
 {
 	unsigned int ulRet = 0;
 	if (NULL == pCertCtx)
@@ -822,7 +822,7 @@ err:
 	return ulRet;
 }
 
-unsigned int SMB_CS_FreeCertCtx(SMB_CS_CertificateContext *pCertCtx)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_FreeCertCtx(SMB_CS_CertificateContext *pCertCtx)
 {
 	if (pCertCtx)
 	{
@@ -912,7 +912,7 @@ unsigned int SMB_CS_FreeCertCtx(SMB_CS_CertificateContext *pCertCtx)
 }
 
 
-unsigned int SMB_CS_DuplicateCertAttr(IN SMB_CS_CertificateContext *pCertCtx, IN OUT SMB_CS_CertificateAttr **ppCertAttr)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_DuplicateCertAttr(IN SMB_CS_CertificateContext *pCertCtx, IN OUT SMB_CS_CertificateAttr **ppCertAttr)
 {
 	if (pCertCtx && ppCertAttr)
 	{
@@ -1011,7 +1011,7 @@ unsigned int SMB_CS_DuplicateCertAttr(IN SMB_CS_CertificateContext *pCertCtx, IN
 }
 
 
-unsigned int SMB_CS_FreeCertAttr(IN SMB_CS_CertificateAttr *pCertAttr)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_FreeCertAttr(IN SMB_CS_CertificateAttr *pCertAttr)
 {
 	if (pCertAttr)
 	{
@@ -1095,7 +1095,7 @@ unsigned int SMB_CS_FreeCertAttr(IN SMB_CS_CertificateAttr *pCertAttr)
 }
 
 
-unsigned int SMB_CS_FreeCertCtxLink(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_FreeCertCtxLink(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader)
 {
 	while (*ppCertCtxNodeHeader)
 	{
@@ -1171,7 +1171,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_GetCertCtxByCert(SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_GetCertCtxByCert(SMB_CS_CertificateContext **ppCertCtx, unsigned char *pCertificate, unsigned int uiCertificateLen)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -1319,7 +1319,7 @@ int GetExtSubjectIdentifier(PCCERT_CONTEXT pCertContext,
 }
 #endif
 
-unsigned int SMB_CS_VerifyCert(unsigned int uiFlag, unsigned char* pbCert, unsigned int uiCertLen)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_VerifyCert(unsigned int uiFlag, unsigned char* pbCert, unsigned int uiCertLen)
 {
 	unsigned int ulRet = 0;
 
@@ -1634,7 +1634,7 @@ err:
 	return ulRet;
 }
 
-unsigned int SMB_CS_EnumCertCtx(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char ucStoreType)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_EnumCertCtx(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char ucStoreType)
 {
 	SMB_CS_CertificateFindAttr findAttr;
 	if (0 == ucStoreType)
@@ -1653,7 +1653,7 @@ unsigned int SMB_CS_EnumCertCtx(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHe
 	return SMB_CS_FindCertCtx(&findAttr, ppCertCtxNodeHeader);
 }
 
-unsigned int SMB_CS_DelCertCtxLink(SMB_CS_CertificateContext_NODE *pCertCtxNodeHeader)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_DelCertCtxLink(SMB_CS_CertificateContext_NODE *pCertCtxNodeHeader)
 {
 	while (pCertCtxNodeHeader)
 	{
@@ -1922,7 +1922,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_AddCertCtx(SMB_CS_CertificateContext *pCertCtx, unsigned char ucStoreType)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_AddCertCtx(SMB_CS_CertificateContext *pCertCtx, unsigned char ucStoreType)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -2059,7 +2059,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_DelCertCtx(SMB_CS_CertificateContext *pCertCtx)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_DelCertCtx(SMB_CS_CertificateContext *pCertCtx)
 {
 	int crv = 0;
 	SDB sdb = { 0 };
@@ -2091,7 +2091,7 @@ err:
 	return crv;
 }
 
-unsigned int SMB_CS_ClrAllCertCtx(unsigned char ucStoreType)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_ClrAllCertCtx(unsigned char ucStoreType)
 {
 	SMB_CS_CertificateContext_NODE *header = NULL;
 
@@ -2118,7 +2118,7 @@ unsigned int SMB_CS_ClrAllCertCtx(unsigned char ucStoreType)
 	return 0;
 }
 
-unsigned int SMB_CS_SetPath(char *pDbPath)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_SetPath(char *pDbPath)
 {
 	if (NULL == pDbPath)
 	{
@@ -2170,7 +2170,7 @@ unsigned int SMB_CS_SetPath(char *pDbPath)
 
 
 
-unsigned int  SMB_CS_ImportCaCert(unsigned char *pbCert, unsigned int uiCertLen, unsigned int *pulAlgType)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_ImportCaCert(unsigned char *pbCert, unsigned int uiCertLen, unsigned int *pulAlgType)
 {
 	unsigned int ulRet = 0;
 
@@ -2415,7 +2415,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_ExecSQL(char *pSqlData, unsigned int uiSqlDataLen)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_ExecSQL(char *pSqlData, unsigned int uiSqlDataLen)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -2449,7 +2449,7 @@ err:
 }
 
 
-unsigned int SMB_CS_FindCertChain(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char *pbCert, unsigned int uiCertLen)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_FindCertChain(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned char *pbCert, unsigned int uiCertLen)
 {
 	unsigned int ulRet = 0;
 
@@ -2612,7 +2612,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_EnumCSP(SMB_CS_CSP_NODE **ppNodeHeader)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_EnumCSP(SMB_CS_CSP_NODE **ppNodeHeader)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -2739,7 +2739,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_EnumPIDVID(SMB_CS_PIDVID_NODE **ppNodeHeader)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_EnumPIDVID(SMB_CS_PIDVID_NODE **ppNodeHeader)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -2881,7 +2881,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_EnumFileInfo(SMB_CS_FileInfo_NODE **ppNodeHeader)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_EnumFileInfo(SMB_CS_FileInfo_NODE **ppNodeHeader)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -3012,7 +3012,7 @@ err:
 	return sqlerr;
 }
 
-unsigned int SMB_CS_EnumSKF(SMB_CS_SKF_NODE **ppNodeHeader)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_EnumSKF(SMB_CS_SKF_NODE **ppNodeHeader)
 {
 	unsigned int ulRet = -1;
 	int crv = 0;
@@ -3046,7 +3046,7 @@ err:
 	return crv;
 }
 
-unsigned int SMB_CS_FreeCSPLink(SMB_CS_CSP_NODE **ppNodeHeader)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_FreeCSPLink(SMB_CS_CSP_NODE **ppNodeHeader)
 {
 	while (*ppNodeHeader)
 	{
@@ -3057,7 +3057,7 @@ unsigned int SMB_CS_FreeCSPLink(SMB_CS_CSP_NODE **ppNodeHeader)
 	return 0;
 }
 
-unsigned int SMB_CS_FreeSKFLink(SMB_CS_SKF_NODE **ppNodeHeader)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_FreeSKFLink(SMB_CS_SKF_NODE **ppNodeHeader)
 {
 	while (*ppNodeHeader)
 	{
@@ -3068,7 +3068,7 @@ unsigned int SMB_CS_FreeSKFLink(SMB_CS_SKF_NODE **ppNodeHeader)
 	return 0;
 }
 
-unsigned int SMB_CS_FreePIDVIDLink(SMB_CS_PIDVID_NODE **ppNodeHeader)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_FreePIDVIDLink(SMB_CS_PIDVID_NODE **ppNodeHeader)
 {
 	while (*ppNodeHeader)
 	{
@@ -3079,7 +3079,7 @@ unsigned int SMB_CS_FreePIDVIDLink(SMB_CS_PIDVID_NODE **ppNodeHeader)
 	return 0;
 }
 
-unsigned int SMB_CS_FreeFileInfoLink(SMB_CS_FileInfo_NODE **ppNodeHeader)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_FreeFileInfoLink(SMB_CS_FileInfo_NODE **ppNodeHeader)
 {
 	while (*ppNodeHeader)
 	{
@@ -3090,7 +3090,7 @@ unsigned int SMB_CS_FreeFileInfoLink(SMB_CS_FileInfo_NODE **ppNodeHeader)
 	return 0;
 }
 
-unsigned int SMB_CS_FreeFileInfo(SMB_CS_FileInfo *pPtr)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_FreeFileInfo(SMB_CS_FileInfo *pPtr)
 {
 	if (pPtr)
 	{
@@ -3137,7 +3137,7 @@ unsigned int SMB_CS_FreeFileInfo(SMB_CS_FileInfo *pPtr)
 	return 0;
 }
 
-unsigned int SMB_CS_FreeCSP(SMB_CS_CSP *pPtr)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_FreeCSP(SMB_CS_CSP *pPtr)
 {
 	if (pPtr)
 	{
@@ -3160,7 +3160,7 @@ unsigned int SMB_CS_FreeCSP(SMB_CS_CSP *pPtr)
 	return 0;
 }
 
-unsigned int SMB_CS_FreeSKF(SMB_CS_SKF *pPtr)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_FreeSKF(SMB_CS_SKF *pPtr)
 {
 	if (pPtr)
 	{
@@ -3195,7 +3195,7 @@ unsigned int SMB_CS_FreeSKF(SMB_CS_SKF *pPtr)
 	return 0;
 }
 
-unsigned int SMB_CS_FreePIDVID(SMB_CS_PIDVID *pPtr)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_FreePIDVID(SMB_CS_PIDVID *pPtr)
 {
 	if (pPtr)
 	{

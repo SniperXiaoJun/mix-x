@@ -23,12 +23,12 @@ typedef struct _OPST_HANDLE_ARGS {
 	void*hAPP;
 	void*hCon;
 }OPST_HANDLE_ARGS;
-COMMON_API unsigned int SMB_DEV_ArgsGet(SMB_CS_CertificateAttr*pCertAttr, OPST_HANDLE_ARGS*args);
-COMMON_API unsigned int SMB_DEV_ArgsPut(SMB_CS_CertificateAttr*pCertAttr, OPST_HANDLE_ARGS*args);
-COMMON_API unsigned int SMB_DEV_ArgsClr();
-COMMON_API unsigned int SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr*pCertAttr, OPST_HANDLE_ARGS *args);
-COMMON_API unsigned int SMB_DEV_SM2SignProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, unsigned int uiDataLen, PECCSIGNATUREBLOB pSignature);
-COMMON_API unsigned int SMB_DEV_SM2SignFinalize(OPST_HANDLE_ARGS *args);
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ArgsGet(SMB_CS_CertificateAttr*pCertAttr, OPST_HANDLE_ARGS*args);
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ArgsPut(SMB_CS_CertificateAttr*pCertAttr, OPST_HANDLE_ARGS*args);
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ArgsClr();
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr*pCertAttr, OPST_HANDLE_ARGS *args);
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, unsigned int uiDataLen, PECCSIGNATUREBLOB pSignature);
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignFinalize(OPST_HANDLE_ARGS *args);
 COMMON_API HINSTANCE SMB_DEV_LoadLibrary(char*pszDllPath);
 
 std::map<std::string, OPST_HANDLE_ARGS> g_currentArgs;
@@ -98,7 +98,7 @@ typedef ULONG(DEVAPI *pSKF_GenerateKeyWithECCEx)(HANDLE hAgreementHandle,
 	BYTE* pbID, ULONG ulIDLen,
 	BYTE *pbAgreementKey, ULONG *pulAgreementKeyLen);
 
-unsigned int SMB_DEV_ArgsGet(SMB_CS_CertificateAttr *pCertAttr, OPST_HANDLE_ARGS *args)
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ArgsGet(SMB_CS_CertificateAttr *pCertAttr, OPST_HANDLE_ARGS *args)
 {
 	OPST_HANDLE_ARGS tmpArgs = { 0 };
 
@@ -132,7 +132,7 @@ unsigned int SMB_DEV_ArgsGet(SMB_CS_CertificateAttr *pCertAttr, OPST_HANDLE_ARGS
 	return 0;
 }
 
-unsigned int SMB_DEV_ArgsPut(SMB_CS_CertificateAttr *pCertAttr, OPST_HANDLE_ARGS *args)
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ArgsPut(SMB_CS_CertificateAttr *pCertAttr, OPST_HANDLE_ARGS *args)
 {
 	OPST_HANDLE_ARGS tmpArgs = { 0 };
 
@@ -158,7 +158,7 @@ unsigned int SMB_DEV_ArgsPut(SMB_CS_CertificateAttr *pCertAttr, OPST_HANDLE_ARGS
 	return 0;
 }
 
-unsigned int SMB_DEV_ArgsClr()
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ArgsClr()
 {
 	g_currentArgs.clear();
 
@@ -190,7 +190,7 @@ HINSTANCE SMB_DEV_LoadLibrary(char *pszDllPath)
 }
 
 
-unsigned int SMB_DEV_ChangePINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsigned int ulPINType, char *pszOldPin, char *pszNewPin, ULONG *puiRetryCount)
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ChangePINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsigned int ulPINType, char *pszOldPin, char *pszNewPin, ULONG *puiRetryCount)
 {
 	HINSTANCE ghInst = NULL;
 
@@ -361,7 +361,7 @@ err:
 	return ulRet;
 }
 
-unsigned int SMB_DEV_GetDevInfoByCertAttr(SMB_CS_CertificateAttr *pCertAttr, DEVINFO *pDevInfo)
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_GetDevInfoByCertAttr(SMB_CS_CertificateAttr *pCertAttr, DEVINFO *pDevInfo)
 {
 	HINSTANCE ghInst = NULL;
 
@@ -518,7 +518,7 @@ err:
 }
 
 
-unsigned int SMB_DEV_VerifyPINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsigned int ulPINType, char *pszPin, ULONG *puiRetryCount)
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_VerifyPINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsigned int ulPINType, char *pszPin, ULONG *puiRetryCount)
 {
 	HINSTANCE ghInst = NULL;
 
@@ -691,7 +691,7 @@ err:
 }
 
 
-unsigned int SMB_DEV_SM2SignProcess(OPST_HANDLE_ARGS *args,
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignProcess(OPST_HANDLE_ARGS *args,
 	SMB_CS_CertificateAttr *pCertAttr,
 	char *pszPIN,
 	BYTE *pbDigest, unsigned int uiDigestLen,
@@ -881,7 +881,7 @@ err:
 }
 
 
-unsigned int SMB_DEV_SM2Sign(
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2Sign(
 	SMB_CS_CertificateAttr *pCertAttr,
 	char *pszPIN,
 	BYTE *pbDigest, unsigned int uiDigestLen,
@@ -942,7 +942,7 @@ err:
 	return ulRet;
 }
 
-unsigned int SMB_DEV_SM2SignByCertAttr(
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignByCertAttr(
 	SMB_CS_CertificateAttr *pCertAttr,
 	char *pszPIN,
 	BYTE *pbDigest, unsigned int uiDigestLen,
@@ -1116,7 +1116,7 @@ err:
 }
 
 
-unsigned int SMB_DEV_FindEnCertificateByCertAttr(
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_FindEnCertificateByCertAttr(
 	IN SMB_CS_CertificateAttr *pCertAttr, OUT unsigned char *pbCert, IN OUT unsigned int *pulCertLen
 )
 {
@@ -1289,7 +1289,7 @@ err:
 	return ulRet;
 }
 
-unsigned int SMB_DEV_SM2VerifyDigest(ECCPUBLICKEYBLOB* pECCPubKeyBlob, BYTE *pbData, ULONG  ulDataLen, PECCSIGNATUREBLOB pSignature)
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2VerifyDigest(ECCPUBLICKEYBLOB* pECCPubKeyBlob, BYTE *pbData, ULONG  ulDataLen, PECCSIGNATUREBLOB pSignature)
 {
 	unsigned int ulRet = 0;
 
@@ -1323,7 +1323,7 @@ err:
 }
 
 
-unsigned int SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiKeyFlag, unsigned int uiUsageFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag)
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EnumCertBySKF(const char *pszSKFName, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiKeyFlag, unsigned int uiUsageFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag)
 {
 	HINSTANCE ghInst = NULL;
 
@@ -1788,7 +1788,7 @@ err:
 	return ulRet;
 }
 
-unsigned int SMB_DEV_EnumCert(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiKeyFlag, unsigned int uiUsageFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag)
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EnumCert(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiKeyFlag, unsigned int uiUsageFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag)
 {
 	unsigned int ulRet = 0;
 
@@ -1822,7 +1822,7 @@ unsigned int SMB_DEV_EnumCert(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHead
 }
 
 
-unsigned int SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr * pCertAttr, OPST_HANDLE_ARGS * args)
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr * pCertAttr, OPST_HANDLE_ARGS * args)
 {
 	HINSTANCE ghInst = NULL;
 
@@ -2045,7 +2045,7 @@ err:
 	return ulRet;
 	}
 
-unsigned int SMB_DEV_SM2SignProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, unsigned int ulDataLen, PECCSIGNATUREBLOB pSignature)
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, unsigned int ulDataLen, PECCSIGNATUREBLOB pSignature)
 {
 	HINSTANCE ghInst = NULL;
 	unsigned int ulRet = 0;
@@ -2124,7 +2124,7 @@ err:
 	return ulRet;
 }
 
-unsigned int SMB_DEV_SM2SignFinalize(OPST_HANDLE_ARGS * args)
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignFinalize(OPST_HANDLE_ARGS * args)
 {
 	HINSTANCE ghInst = NULL;
 	unsigned int ulRet = 0;
@@ -2197,7 +2197,7 @@ err:
 	return ulRet;
 	}
 
-unsigned int SMB_DEV_SM2SignProcessByCertAttr(
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignProcessByCertAttr(
 	SMB_CS_CertificateAttr*pCertAttr,
 	BYTE *pbDigest, unsigned int uiDigestLen,
 	BYTE *pbData, unsigned int uiDataLen,
@@ -2297,7 +2297,7 @@ err:
 
 #if (defined(WIN32) || defined(WINDOWS))
 #include "Cryptuiapi.h"
-unsigned int SMB_UI_ShowCert(BYTE* pbCert, unsigned int ulCertLen)
+COMMON_API unsigned int CALL_CONVENTION SMB_UI_ShowCert(BYTE* pbCert, unsigned int ulCertLen)
 {
 	//2.获取CertContext
 	PCCERT_CONTEXT pCertContext = NULL;
@@ -2323,7 +2323,7 @@ err:
 }
 #endif
 
-COMMON_API unsigned int SMB_DEV_SM2GetAgreementKey(
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2GetAgreementKey(
 	IN SMB_CS_CertificateAttr *pCertAttr,
 	IN ULONG ulAlgId,
 	OUT ECCPUBLICKEYBLOB *pTempECCPubKeyBlobA,
@@ -2542,7 +2542,7 @@ err:
 	return ulRet;
 }
 
-COMMON_API unsigned int SMB_DEV_SM2GetAgreementKeyEx(
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2GetAgreementKeyEx(
 	IN BYTE* pbCert,
 	IN unsigned int ulCertLen,
 	IN int ulAlgId,
@@ -2618,7 +2618,7 @@ COMMON_API unsigned int SMB_DEV_SM2GetAgreementKeyEx(
 }
 
 
-unsigned int SMB_DEV_FindSKFDriver(const char * pszSKFName, char * szVersion)
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_FindSKFDriver(const char * pszSKFName, char * szVersion)
 {
 	HINSTANCE ghInst = NULL;
 
@@ -2746,7 +2746,7 @@ err:
 }
 
 
-unsigned int SMB_DEV_ReadSKFPinVerify(SMB_CS_CertificateAttr *pCertAttr, char * pszPinVerify, unsigned int *puiPinVerifyLen)
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ReadSKFPinVerify(SMB_CS_CertificateAttr *pCertAttr, char * pszPinVerify, unsigned int *puiPinVerifyLen)
 {
 	unsigned int ulRet = -1;
 	SMB_CS_SKF_NODE *pHeader = NULL;

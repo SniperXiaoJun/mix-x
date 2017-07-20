@@ -11,17 +11,17 @@ extern "C" {
 	/*
 	执行SQL语句
 	*/
-	COMMON_API unsigned int SMB_CS_ExecSQL(IN char *pSqlData,IN unsigned int uiSqlDataLen);
+	COMMON_API unsigned int CALL_CONVENTION SMB_CS_ExecSQL(IN char *pSqlData,IN unsigned int uiSqlDataLen);
 
 	/*
 	填充证书属性
 	*/
-	COMMON_API unsigned int SMB_CS_FillCertAttr(IN OUT SMB_CS_CertificateContext *pCertCtx);
+	COMMON_API unsigned int CALL_CONVENTION SMB_CS_FillCertAttr(IN OUT SMB_CS_CertificateContext *pCertCtx);
 
 	/*
 	获取证书链
 	*/
-	COMMON_API unsigned int SMB_CS_FindCertChain(OUT SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, IN unsigned char *pbCert, IN unsigned int uiCertLen);
+	COMMON_API unsigned int CALL_CONVENTION SMB_CS_FindCertChain(OUT SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, IN unsigned char *pbCert, IN unsigned int uiCertLen);
 
 
 #ifdef __cplusplus
