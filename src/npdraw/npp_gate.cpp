@@ -65,7 +65,7 @@ DWORD __stdcall ThreadTime(void *param)
 	{
 		Sleep(300);
 
-		NPN_ForceRedraw((NPP)param);
+		//NPN_ForceRedraw((NPP)param);
 	}
 
 	return 0;
@@ -108,7 +108,16 @@ NPError NPP_New(NPMIMEType pluginType,
 	// associate the plugin instance object with NPP instance
 	instance->pdata = (void *)plugin;
 
-	NPN_SetValue(instance, NPPVpluginWindowBool, NULL);
+	NPError result = NPN_SetValue(instance, NPPVpluginWindowBool, (void*)false);
+
+	NPRect rect;
+	rect.left = 0;
+	rect.top = 0;
+	rect.right = 200;
+	rect.bottom = 200;
+	NPN_InvalidateRect(instance, &rect);
+
+	//NPN_InvalidateRegion(instance, NULL);
 
 	return NPERR_NO_ERROR;
 }
@@ -135,7 +144,7 @@ NPError NPP_Destroy (NPP instance, NPSavedData **save)
 
 	return rv;
 }
-
+#include <stdio.h>
 // during this call we know when the plugin window is ready or
 // is about to be destroyed so we can do some gui specific
 // initialization and shutdown
@@ -155,8 +164,6 @@ NPError NPP_SetWindow (NPP instance, NPWindow *pNPWindow)
 	
 	CPlugin * pPlugin = (CPlugin *)instance->pdata;
 
-	NPN_InvalidateRect(instance, &pNPWindow->clipRect);
-
 	if(pPlugin == NULL) 
 	{
 		return NPERR_GENERIC_ERROR;
@@ -165,6 +172,24 @@ NPError NPP_SetWindow (NPP instance, NPWindow *pNPWindow)
 	// window just created
 	if(!pPlugin->isInitialized() && (pNPWindow->window != NULL)) 
 	{ 
+		{
+			char buffer[1024] = { 0 };
+
+			sprintf(buffer, "pNPWindow->type=%d", pNPWindow->type);
+
+			MessageBoxA(NULL, buffer, "info", 0);
+		}
+
+		NPN_InvalidateRect(instance, &pNPWindow->clipRect);
+
+		{
+			char buffer[1024] = { 0 };
+
+			sprintf(buffer, "bottom=%d left=%d right=%d top=%d", pNPWindow->clipRect.bottom, pNPWindow->clipRect.left, pNPWindow->clipRect.right, pNPWindow->clipRect.top);
+
+			MessageBoxA(NULL, buffer, "info", 0);
+		}
+
 		if(!pPlugin->init(pNPWindow))
 		{
 			delete pPlugin;

@@ -129,8 +129,6 @@ int16_t CPlugin::handleEvent(void *pEvent)
 	{
 	case WM_PAINT:
 	{
-		MessageBoxA(NULL, "", "", 0);
-
 		HDC hDC = NULL;
 		HDC hMemDC = NULL;
 		HBITMAP hMemBitmap = NULL;
