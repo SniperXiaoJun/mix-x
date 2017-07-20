@@ -300,15 +300,19 @@ int CertificateItemParse::parse()
 
 			akeyid = (AUTHORITY_KEYID*)X509_get_ext_d2i(m_pX509, NID_authority_key_identifier, &crit, NULL);
 
-			memset(data_value_tmp, 0, sizeof(data_value_tmp));
-			for (i = 0; i < akeyid->keyid->length; i++)
+			if (akeyid)
 			{
-				char keyid[8] = { 0 };
-				sprintf(keyid, "%02x", akeyid->keyid->data[i]);
-				strcat(data_value_tmp, keyid);
+				memset(data_value_tmp, 0, sizeof(data_value_tmp));
+				for (i = 0; i < akeyid->keyid->length; i++)
+				{
+					char keyid[8] = { 0 };
+					sprintf(keyid, "%02x", akeyid->keyid->data[i]);
+					strcat(data_value_tmp, keyid);
+				}
+
+				m_strIssueKeyID = std::string(data_value_tmp);
 			}
 
-			m_strIssueKeyID = std::string(data_value_tmp);
 		}
 
 		{
@@ -319,15 +323,18 @@ int CertificateItemParse::parse()
 
 			akeyid = (ASN1_OCTET_STRING*)X509_get_ext_d2i(m_pX509, NID_subject_key_identifier, &crit, NULL);
 
-			memset(data_value_tmp, 0, sizeof(data_value_tmp));
-			for (i = 0; i < akeyid->length; i++)
+			if (akeyid)
 			{
-				char keyid[8] = { 0 };
-				sprintf(keyid, "%02x", akeyid->data[i]);
-				strcat(data_value_tmp, keyid);
-			}
+				memset(data_value_tmp, 0, sizeof(data_value_tmp));
+				for (i = 0; i < akeyid->length; i++)
+				{
+					char keyid[8] = { 0 };
+					sprintf(keyid, "%02x", akeyid->data[i]);
+					strcat(data_value_tmp, keyid);
+				}
 
-			m_strSubjectKeyID = std::string(data_value_tmp);
+				m_strSubjectKeyID = std::string(data_value_tmp);
+			}
 		}
 
 		uiRet = 0;
