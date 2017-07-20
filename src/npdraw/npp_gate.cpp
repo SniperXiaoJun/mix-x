@@ -259,6 +259,21 @@ NPError	NPP_GetValue(NPP instance, NPPVariable variable, void *value)
 			*(NPObject **)value = plugin->GetScriptableObject();
 			break;
 		}
+
+	case NPPVpluginWindowBool:
+	{
+		bool btrue = false;
+
+		*(bool *)value = btrue;
+		break;
+	}
+	case NPPVpluginTransparentBool:
+	{
+		bool btrue = true;
+
+		*(bool *)value = btrue;
+		break;
+	}
 	
 	default:
 		{
