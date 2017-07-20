@@ -80,8 +80,16 @@ int main(int argc, char * argv[])
 {
 	SMB_CS_CertificateContext_NODE *header = NULL;
 
+	SMB_CS_CertificateContext *ctx = NULL;
+
 	SMB_CS_SetPath("smb_cs.db");
 	SMB_CS_Init();
+
+	SMB_CS_EnumCertCtx(&header, 2);
+
+
+	SMB_CS_GetCertCtxByCert(&ctx, header->ptr_data->stContent.data, header->ptr_data->stContent.length);
+
 
 	SMB_DEV_EnumCert(&header, SMB_CERT_ALG_FLAG_SM2| SMB_CERT_ALG_FLAG_RSA,
 		SMB_CERT_USAGE_FLAG_SIGN| SMB_CERT_USAGE_FLAG_EX, // Ç©Ãû

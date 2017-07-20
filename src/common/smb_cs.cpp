@@ -1115,9 +1115,9 @@ unsigned int sdb_GetCertCtxByCert(SDB *sdb, SMB_CS_CertificateContext **ppCertCt
 
 	LOCK_SQLITE();
 
-	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select a.id as id content, store_type, id_attr, "
+	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, "select a.id as id, content, store_type, id_attr, "
 		"cert_alg_type, cert_usage_type, skf_name, device_name, application_name, container_name, common_name, subject, isuue, public_key, serial_number, subject_keyid, isuue_keyid, vendor_data, verify, not_before, not_after "
-		"from table_certificate as a,table_certificate as b where a.id_attr=b.id and content=$content limit(0,1); ", -1, &stmt, NULL);
+		"from table_certificate as a,table_certificate_attr as b where a.id_attr=b.id and content=$content limit 0,1;", -1, &stmt, NULL);
 
 	if (sqlerr != SQLITE_OK)
 	{
@@ -1146,6 +1146,7 @@ unsigned int sdb_GetCertCtxByCert(SDB *sdb, SMB_CS_CertificateContext **ppCertCt
 		{
 			SMB_CS_CertificateContext *pCertCtx = NULL;
 			sdb_FillCertCtx(&pCertCtx, NULL, stmt);
+			*ppCertCtx = pCertCtx;
 		}
 
 	} while (!sdb_done(sqlerr, &retry));
