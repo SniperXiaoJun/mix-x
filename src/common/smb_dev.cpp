@@ -242,7 +242,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ChangePINByCertAttr(SMB_CS_Certi
 
 	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
 	{
-		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length>pPtr->ptr_data->stName.length ? pCertAttr->stSKFName.length - 1 : pPtr->ptr_data->stName.length - 1))
 		{
 			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
 			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
@@ -414,7 +414,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_GetDevInfoByCertAttr(SMB_CS_Cert
 
 	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
 	{
-		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length>pPtr->ptr_data->stName.length ? pCertAttr->stSKFName.length - 1 : pPtr->ptr_data->stName.length - 1))
 		{
 			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
 			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
@@ -570,7 +570,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_VerifyPINByCertAttr(SMB_CS_Certi
 
 	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
 	{
-		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length>pPtr->ptr_data->stName.length ? pCertAttr->stSKFName.length - 1 : pPtr->ptr_data->stName.length - 1))
 		{
 			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
 			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
@@ -765,7 +765,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignProcess(OPST_HANDLE_ARGS 
 
 	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
 	{
-		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length>pPtr->ptr_data->stName.length ? pCertAttr->stSKFName.length - 1 : pPtr->ptr_data->stName.length - 1))
 		{
 			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
 			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
@@ -881,7 +881,7 @@ err:
 }
 
 
-COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2Sign(
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignByCertAttr(
 	SMB_CS_CertificateAttr *pCertAttr,
 	char *pszPIN,
 	BYTE *pbDigest, unsigned int uiDigestLen,
@@ -942,180 +942,6 @@ err:
 	return ulRet;
 }
 
-COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignByCertAttr(
-	SMB_CS_CertificateAttr *pCertAttr,
-	char *pszPIN,
-	BYTE *pbDigest, unsigned int uiDigestLen,
-	BYTE *pbData, unsigned int uiDataLen,
-	PECCSIGNATUREBLOB pSignature, ULONG *puiRetryCount)
-{
-	HINSTANCE ghInst = NULL;
-
-	/*
-	SKF函数地址
-	*/
-
-	FUNC_NAME_DECLARE(func_, EnumDev, );
-	FUNC_NAME_DECLARE(func_, ConnectDev, );
-	FUNC_NAME_DECLARE(func_, DisConnectDev, );
-	FUNC_NAME_DECLARE(func_, ChangePIN, );
-	FUNC_NAME_DECLARE(func_, OpenApplication, );
-	FUNC_NAME_DECLARE(func_, CloseApplication, );
-	FUNC_NAME_DECLARE(func_, EnumApplication, );
-	FUNC_NAME_DECLARE(func_, ExportCertificate, );
-	FUNC_NAME_DECLARE(func_, EnumContainer, );
-	FUNC_NAME_DECLARE(func_, OpenContainer, );
-	FUNC_NAME_DECLARE(func_, CloseContainer, );
-	FUNC_NAME_DECLARE(func_, VerifyPIN, );
-	FUNC_NAME_DECLARE(func_, GetContainerType, );
-	FUNC_NAME_DECLARE(func_, ECCSignData, );
-	FUNC_NAME_DECLARE(func_, ECCVerify, );
-	FUNC_NAME_DECLARE(func_, ExtECCVerify, );
-	FUNC_NAME_DECLARE(func_, GetDevInfo, );
-	FUNC_NAME_DECLARE(func_, LockDev, );
-	FUNC_NAME_DECLARE(func_, UnlockDev, );
-
-	FUNC_NAME_DECLARE(func_, GenerateKeyWithECCEx, );
-	FUNC_NAME_DECLARE(func_, GenerateAgreementDataWithECC, );
-	FUNC_NAME_DECLARE(func_, GenerateAgreementDataWithECCEx, );
-	FUNC_NAME_DECLARE(func_, GenerateAgreementDataAndKeyWithECCEx, );
-
-	unsigned int ulRet = 0;
-
-	char dllPathValue[BUFFER_LEN_1K] = { 0 };
-	char signTypeValue[BUFFER_LEN_1K] = { 0 };
-
-	DEVHANDLE hDev = NULL;
-	HAPPLICATION hAPP = NULL;
-	HCONTAINER hCon = NULL;
-
-	SMB_CS_SKF_NODE *pPtr = NULL;
-	SMB_CS_SKF_NODE *pHeader = NULL;
-
-	SMB_CS_EnumSKF(&pHeader);
-
-	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
-	{
-		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data , pCertAttr->stSKFName.length))
-		{
-			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
-			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
-			break;
-		}
-	}
-
-#if defined(USE_LOAD_LIBRARY)
-	ghInst = LoadLibraryA(dllPathValue);//动态加载Dll
-#else
-	ghInst = SMB_DEV_LoadLibrary(dllPathValue);
-#endif
-
-	if (!ghInst)
-	{
-		ulRet = EErr_SMB_DLL_PATH;
-		goto err;
-	}
-
-	FUNC_NAME_INIT(func_, EnumDev, );
-	FUNC_NAME_INIT(func_, ConnectDev, );
-	FUNC_NAME_INIT(func_, DisConnectDev, );
-	FUNC_NAME_INIT(func_, ChangePIN, );
-	FUNC_NAME_INIT(func_, OpenApplication, );
-	FUNC_NAME_INIT(func_, CloseApplication, );
-	FUNC_NAME_INIT(func_, EnumApplication, );
-	FUNC_NAME_INIT(func_, ExportCertificate, );
-	FUNC_NAME_INIT(func_, EnumContainer, );
-	FUNC_NAME_INIT(func_, OpenContainer, );
-	FUNC_NAME_INIT(func_, CloseContainer, );
-	FUNC_NAME_INIT(func_, VerifyPIN, );
-	FUNC_NAME_INIT_GetContainerType(func_, GetContainerType, );
-	FUNC_NAME_INIT(func_, ECCSignData, );
-	FUNC_NAME_INIT(func_, LockDev, );
-	FUNC_NAME_INIT(func_, UnlockDev, );
-
-	{
-		ulRet = func_ConnectDev((char *)pCertAttr->stDeviceName.data, &hDev);
-		if (0 != ulRet)
-		{
-			goto err;
-		}
-
-
-		ulRet = func_OpenApplication(hDev, (char *)pCertAttr->stApplicationName.data, &hAPP);
-		if (0 != ulRet)
-		{
-			goto err;
-		}
-
-		ulRet = func_VerifyPIN(hAPP, 1, pszPIN, puiRetryCount);
-		if (0 != ulRet)
-		{
-			goto err;
-		}
-
-		ulRet = func_OpenContainer(hAPP, (char *)pCertAttr->stContainerName.data, &hCon);
-		if (0 != ulRet)
-		{
-			goto err;
-		}
-
-		if (0 == memcmp("data", signTypeValue, 4))
-		{
-			ulRet = func_ECCSignData(hCon, pbData, uiDataLen, pSignature);
-		}
-		else
-		{
-			ulRet = func_ECCSignData(hCon, pbDigest, uiDigestLen, pSignature);
-		}
-
-		if (0 != ulRet)
-		{
-			goto err;
-		}
-
-		ulRet = func_CloseContainer(hCon);
-		if (0 != ulRet)
-		{
-			goto err;
-		}
-
-		ulRet = func_CloseApplication(hAPP);
-		if (0 != ulRet)
-		{
-			goto err;
-		}
-
-		ulRet = func_DisConnectDev(hDev); hDev = NULL;
-		if (0 != ulRet)
-		{
-			goto err;
-		}
-	}
-
-err:
-
-	if (hDev)
-	{
-		func_DisConnectDev(hDev); hDev = NULL;
-	}
-
-	if (ghInst)
-	{
-#if defined(USE_FREE_GHINST)
-		FreeLibrary(ghInst);//释放Dll函数
-		ghInst = NULL;
-#endif
-	}
-
-	if (pHeader)
-	{
-		SMB_CS_FreeSKFLink(&pHeader);
-	}
-
-	return ulRet;
-}
-
-
 COMMON_API unsigned int CALL_CONVENTION SMB_DEV_FindEnCertificateByCertAttr(
 	IN SMB_CS_CertificateAttr *pCertAttr, OUT unsigned char *pbCert, IN OUT unsigned int *pulCertLen
 )
@@ -1171,7 +997,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_FindEnCertificateByCertAttr(
 
 	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
 	{
-		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length>pPtr->ptr_data->stName.length ? pCertAttr->stSKFName.length-1 : pPtr->ptr_data->stName.length-1))
 		{
 			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
 			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
@@ -1879,7 +1705,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignInitialize(SMB_CS_Certifi
 
 	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
 	{
-		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length>pPtr->ptr_data->stName.length ? pCertAttr->stSKFName.length - 1 : pPtr->ptr_data->stName.length - 1))
 		{
 			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
 			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
@@ -2195,104 +2021,6 @@ err:
 	}
 
 	return ulRet;
-	}
-
-COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignProcessByCertAttr(
-	SMB_CS_CertificateAttr*pCertAttr,
-	BYTE *pbDigest, unsigned int uiDigestLen,
-	BYTE *pbData, unsigned int uiDataLen,
-	PECCSIGNATUREBLOB pSignature)
-{
-	OPST_HANDLE_ARGS args = { 0 };
-	OPST_HANDLE_ARGS argsZERO = { 0 };
-	unsigned int ulRet = 0;
-	unsigned int signTypeLen = BUFFER_LEN_1K;
-	char signTypeValue[BUFFER_LEN_1K] = { 0 };
-	char dllPathValue[BUFFER_LEN_1K] = { 0 };
-
-	SMB_CS_SKF_NODE *pPtr = NULL;
-	SMB_CS_SKF_NODE *pHeader = NULL;
-
-	SMB_CS_EnumSKF(&pHeader);
-
-	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
-	{
-		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
-		{
-			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
-			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
-			break;
-		}
-	}
-
-	ulRet = SMB_DEV_ArgsGet(pCertAttr, &args);
-	if (0 != ulRet)
-	{
-		goto err;
-	}
-
-	if (0 == memcmp(&args, &argsZERO, sizeof(OPST_HANDLE_ARGS)))
-	{
-		ulRet = SMB_DEV_SM2SignInitialize(pCertAttr, &args);
-
-		SMB_DEV_ArgsPut(pCertAttr, &args);
-
-		if (0 != ulRet)
-		{
-			goto err;
-		}
-	}
-
-	if (0 == memcmp("data", signTypeValue, 4))
-	{
-		ulRet = SMB_DEV_SM2SignProcessInner(&args,pbData, uiDataLen, pSignature);
-	}
-	else
-	{
-		ulRet = SMB_DEV_SM2SignProcessInner(&args, pbDigest, uiDigestLen, pSignature);
-	}
-
-	if (SAR_FAIL == ulRet)
-	{
-		SMB_DEV_SM2SignFinalize(&args);
-		memcpy(&args, &argsZERO, sizeof(OPST_HANDLE_ARGS));
-		ulRet = SMB_DEV_SM2SignInitialize(pCertAttr, &args);
-
-		SMB_DEV_ArgsPut(pCertAttr, &args);
-
-		if (0 != ulRet)
-		{
-			goto err;
-		}
-
-		if (0 == memcmp("data", signTypeValue, 4))
-		{
-			ulRet = SMB_DEV_SM2SignProcessInner(&args, pbData, uiDataLen, pSignature);
-		}
-		else
-		{
-			ulRet = SMB_DEV_SM2SignProcessInner(&args, pbDigest, uiDigestLen, pSignature);
-		}
-
-		if (0 != ulRet)
-		{
-			goto err;
-		}
-	}
-
-err:
-	if (ulRet)
-	{
-		SMB_DEV_SM2SignFinalize(&args);
-		SMB_DEV_ArgsClr();
-	}
-
-	if (pHeader)
-	{
-		SMB_CS_FreeSKFLink(&pHeader);
-	}
-
-	return ulRet;
 }
 
 #if (defined(WIN32) || defined(WINDOWS))
@@ -2323,7 +2051,7 @@ err:
 }
 #endif
 
-COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2GetAgreementKey(
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2GetAgreementKeyByCertAttr(
 	IN SMB_CS_CertificateAttr *pCertAttr,
 	IN ULONG ulAlgId,
 	OUT ECCPUBLICKEYBLOB *pTempECCPubKeyBlobA,
@@ -2390,7 +2118,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2GetAgreementKey(
 
 	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
 	{
-		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length>pPtr->ptr_data->stName.length ? pCertAttr->stSKFName.length-1 : pPtr->ptr_data->stName.length-1))
 		{
 			memcpy(dllPathValue, pPtr->ptr_data->stPath.data, pPtr->ptr_data->stPath.length);
 			memcpy(signTypeValue, pPtr->ptr_data->stSignType.data, pPtr->ptr_data->stSignType.length);
@@ -2589,7 +2317,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2GetAgreementKeyEx(
 	memcpy(pTempECCPubKeyBlobB.XCoordinate + 64 - uiECCLen, pbTempECCPubKeyBlobB + 1, uiECCLen);
 	memcpy(pTempECCPubKeyBlobB.YCoordinate + 64 - uiECCLen, pbTempECCPubKeyBlobB + 1 + uiECCLen, uiECCLen);
 
-	uiRet = SMB_DEV_SM2GetAgreementKey(&(pCertCtx->stAttr), ulAlgId, &pTempECCPubKeyBlobA, pbIDA, ulIDALen,
+	uiRet = SMB_DEV_SM2GetAgreementKeyByCertAttr(&(pCertCtx->stAttr), ulAlgId, &pTempECCPubKeyBlobA, pbIDA, ulIDALen,
 		&pECCPubKeyBlobB, &pTempECCPubKeyBlobB, pbIDB, ulIDBLen,
 		pbAgreementKey, pulAgreementKeyLen, pszPIN, puiRetryCount);
 	if (0 != uiRet)
@@ -2746,34 +2474,33 @@ err:
 }
 
 
-COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ReadSKFPinVerify(SMB_CS_CertificateAttr *pCertAttr, char * pszPinVerify, unsigned int *puiPinVerifyLen)
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ReadSKFPinVerifyByCertAttr(SMB_CS_CertificateAttr *pCertAttr, char * pszPinVerify, unsigned int *puiPinVerifyLen)
 {
 	unsigned int ulRet = -1;
 	SMB_CS_SKF_NODE *pHeader = NULL;
-	SMB_CS_SKF_NODE *pNode = NULL;
+	SMB_CS_SKF_NODE *pPtr = NULL;
 
 	SMB_CS_EnumSKF(&pHeader);
 
-	pNode = pHeader;
 
-	while (pNode) 
+	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
 	{
-		if (0 == memcmp(pNode->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length))
+		if (0 == memcmp(pPtr->ptr_data->stName.data, pCertAttr->stSKFName.data, pCertAttr->stSKFName.length>pPtr->ptr_data->stName.length ? pCertAttr->stSKFName.length - 1 : pPtr->ptr_data->stName.length - 1))
 		{
 			if (NULL == pszPinVerify)
 			{
-				*puiPinVerifyLen = pNode->ptr_data->stPinVerify.length;
+				*puiPinVerifyLen = pPtr->ptr_data->stPinVerify.length;
 				ulRet = 0;
 			}
-			else if (*puiPinVerifyLen < pNode->ptr_data->stPinVerify.length)
+			else if (*puiPinVerifyLen < pPtr->ptr_data->stPinVerify.length)
 			{
-				*puiPinVerifyLen = pNode->ptr_data->stPinVerify.length;
+				*puiPinVerifyLen = pPtr->ptr_data->stPinVerify.length;
 				ulRet = EErr_SMB_MEM_LES;
 			}
 			else
 			{
-				*puiPinVerifyLen = pNode->ptr_data->stPinVerify.length;
-				memcpy(pszPinVerify, pNode->ptr_data->stPinVerify.data, pNode->ptr_data->stPinVerify.length);
+				*puiPinVerifyLen = pPtr->ptr_data->stPinVerify.length;
+				memcpy(pszPinVerify, pPtr->ptr_data->stPinVerify.data, pPtr->ptr_data->stPinVerify.length);
 				ulRet = 0;
 			}
 			break;
@@ -2788,3 +2515,117 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ReadSKFPinVerify(SMB_CS_Certific
 	return ulRet;
 }
 
+
+COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_FindEnCertificateBySignCert(
+	IN unsigned char *pbSignCert, IN unsigned int uiSignCertLen, OUT unsigned char *pbCert, IN OUT unsigned int *puiCertLen
+)
+{
+	SMB_CS_CertificateContext *pCertCtx = NULL;
+
+	unsigned int		uiRet = 0;
+
+
+	uiRet = SMB_CS_GetCertCtxByCert(&pCertCtx, pbSignCert, uiSignCertLen);
+	if (0 != uiRet)
+	{
+		goto err;
+	}
+
+	if (NULL == pCertCtx)
+	{
+		uiRet = EErr_SMB_NO_CERT;
+		goto err;
+	}
+	
+	uiRet = SMB_DEV_FindEnCertificateByCertAttr(&pCertCtx->stAttr,pbCert,puiCertLen);
+	if (0 != uiRet)
+	{
+		goto err;
+	}
+err:
+
+	if (pCertCtx)
+	{
+		SMB_CS_FreeCertCtx(pCertCtx);
+	}
+
+	return uiRet;
+}
+
+
+COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ReadSKFPinVerifyBySignCert(IN unsigned char *pbSignCert, IN unsigned int uiSignCertLen, char * pszPinVerify, unsigned int *puiPinVerifyLen)
+{
+	SMB_CS_CertificateContext *pCertCtx = NULL;
+
+	unsigned int		uiRet = 0;
+
+
+	uiRet = SMB_CS_GetCertCtxByCert(&pCertCtx, pbSignCert, uiSignCertLen);
+	if (0 != uiRet)
+	{
+		goto err;
+	}
+
+	if (NULL == pCertCtx)
+	{
+		uiRet = EErr_SMB_NO_CERT;
+		goto err;
+	}
+
+	uiRet = SMB_DEV_ReadSKFPinVerifyByCertAttr(&pCertCtx->stAttr, pszPinVerify, puiPinVerifyLen);
+	if (0 != uiRet)
+	{
+		goto err;
+	}
+err:
+
+	if (pCertCtx)
+	{
+		SMB_CS_FreeCertCtx(pCertCtx);
+	}
+
+	return uiRet;
+}
+
+
+COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignBySignCert(
+	IN unsigned char *pbSignCert, IN unsigned int uiSignCertLen,
+	char *pszPIN,
+	BYTE *pbDigest, unsigned int uiDigestLen,
+	BYTE *pbData, unsigned int uiDataLen,
+	PECCSIGNATUREBLOB pSignature, ULONG *puiRetryCount)
+{
+	SMB_CS_CertificateContext *pCertCtx = NULL;
+
+	unsigned int		uiRet = 0;
+
+
+	uiRet = SMB_CS_GetCertCtxByCert(&pCertCtx, pbSignCert, uiSignCertLen);
+	if (0 != uiRet)
+	{
+		goto err;
+	}
+
+	if (NULL == pCertCtx)
+	{
+		uiRet = EErr_SMB_NO_CERT;
+		goto err;
+	}
+
+	uiRet = SMB_DEV_SM2SignByCertAttr(&pCertCtx->stAttr, pszPIN,
+		pbDigest,  uiDigestLen,
+		pbData, uiDataLen,
+		pSignature, puiRetryCount);
+	if (0 != uiRet)
+	{
+		goto err;
+	}
+err:
+
+	if (pCertCtx)
+	{
+		SMB_CS_FreeCertCtx(pCertCtx);
+	}
+
+	return uiRet;
+}

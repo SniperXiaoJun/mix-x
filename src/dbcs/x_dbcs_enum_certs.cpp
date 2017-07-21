@@ -87,8 +87,25 @@ int main(int argc, char * argv[])
 
 	SMB_CS_EnumCertCtx(&header, 2);
 
+#if 1
+	{
+		unsigned int buffer_len = 1024;
+		unsigned char buffer[1024] = { 0 };
 
-	SMB_CS_GetCertCtxByCert(&ctx, header->ptr_data->stContent.data, header->ptr_data->stContent.length);
+		unsigned int buffer_len_verify = 1024;
+		char buffer_verfify[1024] = { 0 };
+
+		SMB_DEV_FindEnCertificateBySignCert(header->ptr_data->stContent.data, header->ptr_data->stContent.length, buffer,&buffer_len);
+
+		SMB_DEV_ReadSKFPinVerifyBySignCert(header->ptr_data->stContent.data, header->ptr_data->stContent.length, buffer_verfify, &buffer_len_verify);
+
+		SMB_DEV_SM2SignBySignCert(header->ptr_data->stContent.data, header->ptr_data->stContent.length, NULL, 0,0,0,0,0,0);
+	}
+	
+#endif
+
+
+
 
 
 	SMB_DEV_EnumCert(&header, SMB_CERT_ALG_FLAG_SM2| SMB_CERT_ALG_FLAG_RSA,

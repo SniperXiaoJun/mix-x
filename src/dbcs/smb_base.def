@@ -45,15 +45,16 @@ EXPORTS
 	SMB_DEV_EnumCert
 	SMB_DEV_ChangePINByCertAttr
 	SMB_DEV_FindEnCertificateByCertAttr
-	SMB_DEV_SM2SignProcessByCertAttr
+	SMB_DEV_FindEnCertificateBySignCert
 	SMB_DEV_GetDevInfoByCertAttr
 	SMB_DEV_VerifyPINByCertAttr
 	SMB_DEV_SM2SignByCertAttr
-	SMB_DEV_SM2Sign
+	SMB_DEV_SM2SignBySignCert
 	SMB_DEV_SM2VerifyDigest
 	SMB_DEV_FindSKFDriver
 
-	SMB_DEV_ReadSKFPinVerify
+	SMB_DEV_ReadSKFPinVerifyByCertAttr
+	SMB_DEV_ReadSKFPinVerifyBySignCert
 
 	SMB_UI_ShowCert
 
