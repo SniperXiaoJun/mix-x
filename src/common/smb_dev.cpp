@@ -2516,7 +2516,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ReadSKFPinVerifyByCertAttr(SMB_C
 }
 
 
-COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_FindEnCertificateBySignCert(
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_FindEnCertificateBySignCert(
 	IN unsigned char *pbSignCert, IN unsigned int uiSignCertLen, OUT unsigned char *pbCert, IN OUT unsigned int *puiCertLen
 )
 {
@@ -2553,7 +2553,7 @@ err:
 }
 
 
-COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ReadSKFPinVerifyBySignCert(IN unsigned char *pbSignCert, IN unsigned int uiSignCertLen, char * pszPinVerify, unsigned int *puiPinVerifyLen)
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ReadSKFPinVerifyBySignCert(IN unsigned char *pbSignCert, IN unsigned int uiSignCertLen, char * pszPinVerify, unsigned int *puiPinVerifyLen)
 {
 	SMB_CS_CertificateContext *pCertCtx = NULL;
 
@@ -2588,7 +2588,7 @@ err:
 }
 
 
-COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignBySignCert(
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignBySignCert(
 	IN unsigned char *pbSignCert, IN unsigned int uiSignCertLen,
 	char *pszPIN,
 	BYTE *pbDigest, unsigned int uiDigestLen,

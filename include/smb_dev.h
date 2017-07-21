@@ -29,7 +29,7 @@ extern "C" {
 		puiCertsLen		长度
 	返回值: 0:成功 其他:错误码
 	*/
-	COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EnumCertBySKF(const char*pszSKFName, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiKeyFlag, unsigned int uiUsageFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag);
+	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EnumCertBySKF(const char*pszSKFName, SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiKeyFlag, unsigned int uiUsageFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag);
 
 	/*
 	功能名称:	枚举证书
@@ -49,24 +49,24 @@ extern "C" {
 		puiCertsLen		长度
 	返回值: 0:成功 其他:错误码
 	*/
-	COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EnumCert(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiKeyFlag, unsigned int uiUsageFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag);
+	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EnumCert(SMB_CS_CertificateContext_NODE **ppCertCtxNodeHeader, unsigned int uiKeyFlag, unsigned int uiUsageFlag, unsigned int uiVerifyFlag, unsigned int uiFilterFlag);
 
 	/*
 	通过签名证书获取加密证书
 	*/
-	COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_FindEnCertificateBySignCert(
+	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_FindEnCertificateBySignCert(
 		IN unsigned char *pbSignCert, IN unsigned int uiSignCertLen, OUT unsigned char *pbCert, IN OUT unsigned int *puiCertLen
 	);
 
 	/*
 	通过签名证书读取PIN校验方式
 	*/
-	COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ReadSKFPinVerifyBySignCert(IN unsigned char *pbSignCert, IN unsigned int uiSignCertLen, char * pszPinVerify, unsigned int *puiPinVerifyLen);
+	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ReadSKFPinVerifyBySignCert(IN unsigned char *pbSignCert, IN unsigned int uiSignCertLen, char * pszPinVerify, unsigned int *puiPinVerifyLen);
 
 	/*
 	通过签名证书签名
 	*/
-	COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignBySignCert(
+	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignBySignCert(
 		IN unsigned char *pbSignCert, IN unsigned int uiSignCertLen,
 		char *pszPIN,
 		BYTE *pbDigest, unsigned int uiDigestLen,
@@ -76,7 +76,7 @@ extern "C" {
 	/*
 	通过证书描述属性获取加密证书
 	*/
-	COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_FindEnCertificateByCertAttr(
+	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_FindEnCertificateByCertAttr(
 		IN SMB_CS_CertificateAttr *pCertAttr, OUT unsigned char *pbCert, IN OUT unsigned int *puiCertLen
 	);
 
@@ -95,7 +95,7 @@ extern "C" {
 	失败：
 	功能描述:	修改密码
 	*/
-	COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ChangePINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsigned int uiPINType, const char*pszOldPin, const char*pszNewPin, ULONG *puiRetryCount);
+	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ChangePINByCertAttr(SMB_CS_CertificateAttr *pCertAttr, unsigned int uiPINType, const char*pszOldPin, const char*pszNewPin, ULONG *puiRetryCount);
 
 
 
@@ -110,7 +110,7 @@ extern "C" {
 	失败：
 	功能描述:	修改密码
 	*/
-	COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_GetDevInfoByCertAttr(SMB_CS_CertificateAttr*pCertAttr, DEVINFO *pDevInfo);
+	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_GetDevInfoByCertAttr(SMB_CS_CertificateAttr*pCertAttr, DEVINFO *pDevInfo);
 
 	/*
 	功能名称:	验证设备密码通过证书属性（签名证书代表设备）
@@ -125,7 +125,7 @@ extern "C" {
 	失败：
 	功能描述:	验证设备密码通过证书属性
 	*/
-	COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_VerifyPINByCertAttr(SMB_CS_CertificateAttr*pCertAttr, unsigned int uiPINType, char*pszPin, ULONG *puiRetryCount);
+	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_VerifyPINByCertAttr(SMB_CS_CertificateAttr*pCertAttr, unsigned int uiPINType, char*pszPin, ULONG *puiRetryCount);
 
 	/*
 	功能名称:	SM2证书签名
@@ -142,7 +142,7 @@ extern "C" {
 	失败：
 	功能描述:	修改密码
 	*/
-	COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignByCertAttr(
+	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignByCertAttr(
 		SMB_CS_CertificateAttr *pCertAttr,
 		char *pszPIN,
 		BYTE *pbDigest, unsigned int uiDigestLen,
@@ -163,7 +163,7 @@ extern "C" {
 	失败：
 	功能描述:	修改密码
 	*/
-	COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2VerifyDigest(ECCPUBLICKEYBLOB *pSM2PubKeyBlob, BYTE *pbData, ULONG uiDataLen, PECCSIGNATUREBLOB pSignature);
+	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2VerifyDigest(ECCPUBLICKEYBLOB *pSM2PubKeyBlob, BYTE *pbData, ULONG uiDataLen, PECCSIGNATUREBLOB pSignature);
 
 
 	/*
@@ -174,7 +174,7 @@ extern "C" {
 	返回值		0：成功。
 	其他：		错误码
 	*/
-	COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_UI_ShowCert(BYTE *pbCert, unsigned int uiCertLen);
+	COMMON_API unsigned int CALL_CONVENTION SMB_UI_ShowCert(BYTE *pbCert, unsigned int uiCertLen);
 
 	/*
 	功能描述:	查找SKF驱动
@@ -185,7 +185,7 @@ extern "C" {
 	返回值		0：  成功。
 	其他：		错误码
 	*/
-	COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_FindSKFDriver(const char * pszSKFName, char * szVersion);
+	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_FindSKFDriver(const char * pszSKFName, char * szVersion);
 
 	/*
 	功能描述:	读取PIN码校验处理
@@ -198,10 +198,10 @@ extern "C" {
 	返回值		0：  成功。
 	其他：		错误码
 	*/
-	COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ReadSKFPinVerifyByCertAttr(SMB_CS_CertificateAttr *pCertAttr, char * pszPinVerify, unsigned int *puiPinVerifyLen);
+	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ReadSKFPinVerifyByCertAttr(SMB_CS_CertificateAttr *pCertAttr, char * pszPinVerify, unsigned int *puiPinVerifyLen);
 
 
-	COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2GetAgreementKeyByCertAttr(
+	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2GetAgreementKeyByCertAttr(
 		IN SMB_CS_CertificateAttr*pCertAttr,
 		IN ULONG ulAlgId,
 		OUT ECCPUBLICKEYBLOB *pTempECCPubKeyBlobA,
@@ -216,7 +216,7 @@ extern "C" {
 		IN char*pszPIN,
 		IN OUT ULONG*puiRetryCount);
 
-	COMMON_API COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2GetAgreementKeyEx(
+	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2GetAgreementKeyEx(
 		IN BYTE *pbCert,
 		IN unsigned int uiCertLen,
 		IN int uiAlgId,
