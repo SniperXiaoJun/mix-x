@@ -200,9 +200,10 @@ typedef enum _EErr_SMB
 													EErr_SMB_CREATE_CERT_CONTEXT,					// 创建证书上下文
 													EErr_SMB_ADD_CERT_TO_STORE,						// 保存证书
 													EErr_SMB_NO_RIGHT,								// 没有权限
-													EErr_SMB_SET_CERT_CONTEXT_PROPERTY,				// 设置属性                        // 参数错误
+													EErr_SMB_SET_CERT_CONTEXT_PROPERTY,				// 设置属性
 													EErr_SMB_MEM_LES,                               // 内存不足
 													EErr_SMB_INVALID_ARG,                           // 参数错误
+													EErr_SMB_NO_CERT,                               // 没找见证书
 													EErr_SMB_FAIL = -1,
 
 }EErr_SMB;
