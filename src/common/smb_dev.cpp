@@ -27,8 +27,14 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ArgsGet(SMB_CS_CertificateAttr*p
 COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ArgsPut(SMB_CS_CertificateAttr*pCertAttr, OPST_HANDLE_ARGS*args);
 COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ArgsClr();
 COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignInitialize(SMB_CS_CertificateAttr*pCertAttr, OPST_HANDLE_ARGS *args);
-COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, unsigned int uiDataLen, PECCSIGNATUREBLOB pSignature);
 COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignFinalize(OPST_HANDLE_ARGS *args);
+COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignProcess(OPST_HANDLE_ARGS *args,
+	SMB_CS_CertificateAttr *pCertAttr,
+	char *pszPIN,
+	BYTE *pbDigest, unsigned int uiDigestLen,
+	BYTE *pbData, unsigned int uiDataLen,
+	PECCSIGNATUREBLOB pSignature, ULONG *puiRetryCount);
+
 COMMON_API HINSTANCE SMB_DEV_LoadLibrary(char*pszDllPath);
 
 std::map<std::string, OPST_HANDLE_ARGS> g_currentArgs;
@@ -1871,84 +1877,6 @@ err:
 	return ulRet;
 	}
 
-COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignProcessInner(OPST_HANDLE_ARGS *args, BYTE *pbData, unsigned int ulDataLen, PECCSIGNATUREBLOB pSignature)
-{
-	HINSTANCE ghInst = NULL;
-	unsigned int ulRet = 0;
-
-	FUNC_NAME_DECLARE(func_, LockDev, );
-	FUNC_NAME_DECLARE(func_, UnlockDev, );
-	FUNC_NAME_DECLARE(func_, ECCSignData, );
-
-	DEVHANDLE hDev = NULL;
-	HAPPLICATION hAPP = NULL;
-	HCONTAINER hCon = NULL;
-
-	OPST_HANDLE_ARGS * handleArgs = args;
-
-	if (handleArgs)
-	{
-		ghInst = (HINSTANCE)handleArgs->ghInst;
-		hDev = handleArgs->hDev;
-		hAPP = handleArgs->hAPP;
-		hCon = handleArgs->hCon;
-	}
-	else
-	{
-		return EErr_SMB_FAIL;
-	}
-
-	if (!ghInst)
-	{
-		ulRet = EErr_SMB_DLL_PATH;
-		goto err;
-	}
-
-	FUNC_NAME_INIT(func_, LockDev, );
-	FUNC_NAME_INIT(func_, UnlockDev, );
-	FUNC_NAME_INIT(func_, ECCSignData, );
-
-
-#if USE_SELF_MUTEX
-
-#else
-	ulRet = func_LockDev(hDev, 0xFFFFFFFF);
-	if (0 != ulRet)
-	{
-		goto err;
-	}
-#endif
-
-	
-
-	{
-		if (hCon)
-		{
-			ulRet = func_ECCSignData(hCon, pbData, ulDataLen, pSignature);
-			if (0 != ulRet)
-			{
-				goto err;
-			}
-		}
-		else
-		{
-			ulRet = EErr_SMB_FAIL;
-		}
-	}
-
-err:
-
-	if (hDev)
-	{
-#if USE_SELF_MUTEX
-
-#else
-		func_UnlockDev(hDev);
-#endif
-	}
-
-	return ulRet;
-}
 
 COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignFinalize(OPST_HANDLE_ARGS * args)
 {
