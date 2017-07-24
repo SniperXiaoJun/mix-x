@@ -85,10 +85,12 @@ int main(int argc, char * argv[])
 	SMB_CS_SetPath("smb_cs.db");
 	SMB_CS_Init();
 
-	SMB_CS_EnumCertCtx(&header, 2);
+	
 
-#if 1
+#if 0
 	{
+		SMB_CS_EnumCertCtx(&header, 2);
+
 		unsigned int buffer_len = 1024;
 		unsigned char buffer[1024] = { 0 };
 
@@ -103,10 +105,6 @@ int main(int argc, char * argv[])
 	}
 	
 #endif
-
-
-
-
 
 	SMB_DEV_EnumCert(&header, SMB_CERT_ALG_FLAG_SM2| SMB_CERT_ALG_FLAG_RSA,
 		SMB_CERT_USAGE_FLAG_SIGN| SMB_CERT_USAGE_FLAG_EX, // Ç©Ãû
