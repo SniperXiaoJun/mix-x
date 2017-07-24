@@ -58,7 +58,7 @@ FILE(GLOB
  )
  
 ADD_LIBRARY(
-  npplugin SHARED
+  npwtsmbplugin SHARED
   
   npplugin.def
   
@@ -67,13 +67,13 @@ ADD_LIBRARY(
   ${common_cpps}
 )
 
-target_link_libraries(npplugin sqlite3)
-TARGET_LINK_LIBRARIES(npplugin mix_bssl)
-TARGET_LINK_LIBRARIES(npplugin smb_base)
-TARGET_LINK_LIBRARIES(npplugin smb_qtui)
-TARGET_LINK_LIBRARIES(npplugin Wininet)
-TARGET_LINK_LIBRARIES(npplugin Crypt32)
-TARGET_LINK_LIBRARIES(npplugin SetupAPI)
+target_link_libraries(npwtsmbplugin sqlite3)
+TARGET_LINK_LIBRARIES(npwtsmbplugin mix_bssl)
+TARGET_LINK_LIBRARIES(npwtsmbplugin smb_base)
+TARGET_LINK_LIBRARIES(npwtsmbplugin smb_qtui)
+TARGET_LINK_LIBRARIES(npwtsmbplugin Wininet)
+TARGET_LINK_LIBRARIES(npwtsmbplugin Crypt32)
+TARGET_LINK_LIBRARIES(npwtsmbplugin SetupAPI)
 
 
 
