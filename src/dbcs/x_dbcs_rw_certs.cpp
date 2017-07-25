@@ -30,6 +30,8 @@ unsigned int ADD_USER_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 	return 0;
 }
 
+#pragma comment( linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
+
 int main(int argc, char * argv[])
 {
 	SMB_CS_CertificateContext_NODE *header = NULL;
@@ -48,7 +50,7 @@ int main(int argc, char * argv[])
 
 	SMB_DEV_EnumCert(&header, SMB_CERT_ALG_FLAG_SM2,
 		SMB_CERT_USAGE_FLAG_SIGN | SMB_CERT_USAGE_FLAG_EX, 
-		SMB_CERT_VERIFY_FLAG_TIME | SMB_CERT_VERIFY_FLAG_CHAIN | SMB_CERT_VERIFY_FLAG_CRL,
+		SMB_CERT_VERIFY_FLAG_NOTHING,
 		SMB_CERT_FILTER_FLAG_FALSE);
 
 	ADD_USER_CERTS(header);
