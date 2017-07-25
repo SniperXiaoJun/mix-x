@@ -560,6 +560,25 @@ err:
 	return item.toStyledString();
 }
 
+unsigned int ADD_USER_CERTS(SMB_CS_CertificateContext_NODE *pCertCtxNode)
+{
+	SMB_CS_ClrAllCertCtx(2);
+
+	while (pCertCtxNode)
+	{
+		if (SMB_CERT_ALG_FLAG_RSA == pCertCtxNode->ptr_data->stAttr.ucCertAlgType)
+		{
+
+		}
+		else
+		{
+			SMB_CS_AddCertCtx(pCertCtxNode->ptr_data, 2);
+		}
+		pCertCtxNode = pCertCtxNode->ptr_next;
+	}
+
+	return 0;
+}
 
 std::string WTF_ReadCurrentCerts(int Expire)
 {
@@ -744,15 +763,7 @@ std::string WTF_ReadCurrentCerts(int Expire)
 			}
 		}
 
-		SMB_CS_ClrAllCertCtx(2);
-
-		pCertCtxNode = header;
-
-		while (pCertCtxNode)
-		{
-			SMB_CS_AddCertCtx(pCertCtxNode->ptr_data,2);
-			pCertCtxNode = pCertCtxNode->ptr_next;
-		}
+		ADD_USER_CERTS(header);
 	}
 
 	SMB_CS_EnumCSP(&pHeader);
@@ -1152,6 +1163,11 @@ std::string WTF_ReadCurrentCerts(int Expire)
 	if (pHeader)
 	{
 		SMB_CS_FreeCSPLink(&pHeader);
+	}
+
+	if (header)
+	{
+		SMB_CS_FreeCertCtxLink(&header);
 	}
 
 	g_CurrentCerts = All.toStyledString();

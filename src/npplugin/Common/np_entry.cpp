@@ -1,4 +1,4 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+ï»¿/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: NPL 1.1/GPL 2.0/LGPL 2.1
  *
@@ -42,6 +42,8 @@
 #include<pluginbase.h>
 #include <stddef.h>
 #include "../plugin.h"
+#include <fstream>
+
 #ifndef HIBYTE
 #define HIBYTE(x) ((((uint32_t)(x)) & 0xff00) >> 8)
 #endif
@@ -50,7 +52,7 @@ NPNetscapeFuncs NPNFuncs;
 
 #ifdef XP_WIN
 
-// ä¯ÀÀÆ÷»ñÈ¡ËùÓÐ¿ÉÄÜÐèÒªµ÷ÓÃµÄAPIº¯ÊýÖ¸Õë
+// Ã¤Â¯Ã€Ã€Ã†Ã·Â»Ã±ÃˆÂ¡Ã‹Ã¹Ã“ÃÂ¿Ã‰Ã„ÃœÃÃ¨Ã’ÂªÂµÃ·Ã“ÃƒÂµÃ„APIÂºÂ¯ÃŠÃ½Ã–Â¸Ã•Ã«
 NPError  OSCALL NP_GetEntryPoints(NPPluginFuncs *pFuncs)
 {
 	if(pFuncs == NULL)
@@ -95,7 +97,108 @@ NPError NP_GetValue(void *future, NPPVariable variable, void *value)
 }
 
 
-// ²å¼þ²¿·ÖÒ»Ð©³õÊ¼»¯²Ù×÷
+HMODULE GetSelfModuleHandle()
+{
+	MEMORY_BASIC_INFORMATION mbi;
+	return ((::VirtualQuery(GetSelfModuleHandle, &mbi, sizeof(mbi)) != 0) ? (HMODULE)mbi.AllocationBase : NULL);
+}
+
+//-----------------------------------------------------------------------------
+// å¼€å§‹ä¿®æ”¹æ–¹æ³•
+//-----------------------------------------------------------------------------
+
+typedef void (WINAPI *PGNSI)(LPSYSTEM_INFO);
+
+BOOL Is64Bit_OS()
+{
+	BOOL bRetVal = FALSE;
+	SYSTEM_INFO si = { 0 };
+	PGNSI pGNSI = (PGNSI)GetProcAddress(GetModuleHandleA("kernel32.dll"), "GetNativeSystemInfo");
+
+	if (NULL != pGNSI)
+		pGNSI(&si);
+	else
+		GetSystemInfo(&si);
+
+	if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 ||
+		si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64)
+	{
+		bRetVal = TRUE;
+	}
+	else
+	{
+
+	}
+	return bRetVal;
+}
+
+
+unsigned int GetPathDbFileOut(char pDbPath[1024])
+{
+	char smb_db_path_prefix[1024] = { 0 };
+	char smb_db_path[1024] = { 0 };
+	int i = 0;
+
+	GetModuleFileNameA(NULL, smb_db_path_prefix, 1024);
+	for (i = strlen(smb_db_path_prefix); i > 0; i--)
+	{
+		if ('\\' == smb_db_path_prefix[i])
+		{
+			break;
+		}
+	}
+
+	GetEnvironmentVariableA("APPDATA", smb_db_path, MAX_PATH);
+	strcat(smb_db_path, &smb_db_path_prefix[i]);
+
+	for (i = strlen(smb_db_path); i > 0; i--)
+	{
+		if ('.' == smb_db_path[i])
+		{
+			smb_db_path[i] = 0;
+			break;
+		}
+	}
+
+	strcat(smb_db_path, ".smb_cs.db");
+
+	strcpy(pDbPath, smb_db_path);
+
+	return 0;
+}
+
+
+unsigned int GetPathDbFileIn(char *pDbPath)
+{
+	char smb_db_path[1024] = { 0 };
+	int i = 0;
+
+	//æ— æƒé™
+	GetModuleFileNameA(GetSelfModuleHandle(), smb_db_path, 1024);
+	for (i = strlen(smb_db_path); i > 0; i--)
+	{
+		if ('\\' == smb_db_path[i])
+		{
+			smb_db_path[i] = '\0';
+			break;
+		}
+	}
+
+	if (Is64Bit_OS())
+	{
+		strcat(smb_db_path, "\\smb_cs.db.64");
+	}
+	else
+	{
+		strcat(smb_db_path, "\\smb_cs.db.32");
+	}
+
+	strcpy(pDbPath, smb_db_path);
+
+	return 0;
+}
+
+// Â²Ã¥Â¼Ã¾Â²Â¿Â·Ã–Ã’Â»ÃÂ©Â³ÃµÃŠÂ¼Â»Â¯Â²Ã™Ã—Ã·
 NPError OSCALL NP_Initialize(NPNetscapeFuncs* pFuncs
 #ifdef XP_UNIX
               , NPPluginFuncs* pluginFuncs
@@ -161,7 +264,7 @@ NPError OSCALL NP_Initialize(NPNetscapeFuncs* pFuncs
 	NPNFuncs.releasevariantvalue     = pFuncs->releasevariantvalue;
 	NPNFuncs.setexception            = pFuncs->setexception;
 	
-	// Ìí¼Ó´úÂë
+	// ÃŒÃ­Â¼Ã“Â´ÃºÃ‚Ã«
 	NPNFuncs.pluginthreadasynccall   = pFuncs->pluginthreadasynccall;
 
 #ifdef XP_UNIX
@@ -189,6 +292,20 @@ NPError OSCALL NP_Initialize(NPNetscapeFuncs* pFuncs
 
 	NPP_Initialize();
 #endif
+
+	char path_db_fileIn[1024] = { 0 };
+	char path_db_fileOut[1024] = { 0 };
+
+	GetPathDbFileOut(path_db_fileOut);
+	GetPathDbFileIn(path_db_fileIn);
+
+	std::ifstream infile(path_db_fileIn, std::ios_base::binary);
+	std::ofstream outfile(path_db_fileOut, std::ios_base::binary);
+
+	if (infile)
+	{
+		outfile << infile.rdbuf();
+	}
 
 	return NPERR_NO_ERROR;
 }
