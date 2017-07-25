@@ -42,7 +42,7 @@ int main(int argc, char * argv[])
 
 	strcat(smb_db_path, "\\suloong_sm.smb_cs.db");
 
-	SMB_CS_SetPath("smb_cs.db");
+	SMB_CS_SetPath(smb_db_path);
 
 	SMB_CS_Init();
 
