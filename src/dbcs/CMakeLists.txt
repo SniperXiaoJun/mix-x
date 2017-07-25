@@ -118,3 +118,15 @@ add_executable(
 
 target_link_libraries(x_dbcs_enum_fileinfo smb_base)
 
+
+
+add_executable(
+  x_dbcs_rw_certs
+
+  x_dbcs_rw_certs.cpp
+  #${common_cs} 
+  #${common_cpps} 
+)
+
+target_link_libraries(x_dbcs_rw_certs smb_base)
+
