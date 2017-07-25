@@ -258,10 +258,13 @@ int CertificateItemParse::parse()
 				goto err;
 			}
 
-			memset(data_value_tmp, 0, sizeof(data_value_tmp));
+			size_t len = i2d_X509_NAME(pCommonName, NULL);
 
-			X509_NAME_get_text_by_NID(pCommonName, NID_commonName, data_value_tmp, sizeof(data_value_tmp));
-			m_strIssueCN = std::string(data_value_tmp);
+			m_strIssue.resize(len);
+
+			unsigned char * ptr_out = (unsigned char *)&m_strIssue.front();
+
+			len = i2d_X509_NAME(pCommonName, &ptr_out);
 		}
 
 		{
@@ -273,10 +276,13 @@ int CertificateItemParse::parse()
 				goto err;
 			}
 
-			memset(data_value_tmp, 0, sizeof(data_value_tmp));
+			size_t len = i2d_X509_NAME(pCommonName, NULL);
 
-			X509_NAME_get_text_by_NID(pCommonName, NID_commonName, data_value_tmp, sizeof(data_value_tmp));
-			m_strSubjectCN = std::string(data_value_tmp);
+			m_strSubject.resize(len);
+
+			unsigned char * ptr_out = (unsigned char *)&m_strSubject.front();
+
+			len = i2d_X509_NAME(pCommonName, &ptr_out);
 		}
 
 		{

@@ -471,6 +471,24 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_FillCertAttr(SMB_CS_CertificateCo
 			pCertCtx->stAttr.stIssueKeyID.length = certParse.m_strIssueKeyID.size();
 			pCertCtx->stAttr.stIssueKeyID.data = (unsigned char *)malloc(pCertCtx->stAttr.stIssueKeyID.length);
 			memcpy(pCertCtx->stAttr.stIssueKeyID.data, certParse.m_strIssueKeyID.c_str(), pCertCtx->stAttr.stIssueKeyID.length);
+
+			if (pCertCtx->stAttr.stIssue.data)
+			{
+				free(pCertCtx->stAttr.stIssue.data);
+				pCertCtx->stAttr.stIssue.data = NULL;
+			}
+			pCertCtx->stAttr.stIssue.length = certParse.m_strIssue.size();
+			pCertCtx->stAttr.stIssue.data = (unsigned char *)malloc(pCertCtx->stAttr.stIssue.length);
+			memcpy(pCertCtx->stAttr.stIssue.data, (unsigned char *)&certParse.m_strIssue.front(), pCertCtx->stAttr.stIssue.length);
+
+			if (pCertCtx->stAttr.stSubject.data)
+			{
+				free(pCertCtx->stAttr.stSubject.data);
+				pCertCtx->stAttr.stSubject.data = NULL;
+			}
+			pCertCtx->stAttr.stSubject.length = certParse.m_strSubject.size();
+			pCertCtx->stAttr.stSubject.data = (unsigned char *)malloc(pCertCtx->stAttr.stSubject.length);
+			memcpy(pCertCtx->stAttr.stSubject.data, (unsigned char *)&certParse.m_strSubject.front(), pCertCtx->stAttr.stSubject.length);
 		}
 
 		// 证书的属性
@@ -489,28 +507,6 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_FillCertAttr(SMB_CS_CertificateCo
 		pCertCtx->stAttr.stSerialNumber.length = strlen(data_info_value) + 1;
 		pCertCtx->stAttr.stSerialNumber.data = (unsigned char *)malloc(pCertCtx->stAttr.stSerialNumber.length);
 		memcpy(pCertCtx->stAttr.stSerialNumber.data, data_info_value, pCertCtx->stAttr.stSerialNumber.length);
-
-		memset(data_info_value, 0, 1024);
-		WT_GetCertInfo(CERT_ISSUER_DN, -1, data_info_value, &data_info_len);
-		if (pCertCtx->stAttr.stIssue.data)
-		{
-			free(pCertCtx->stAttr.stIssue.data);
-			pCertCtx->stAttr.stIssue.data = NULL;
-		}
-		pCertCtx->stAttr.stIssue.length = strlen(data_info_value) + 1;
-		pCertCtx->stAttr.stIssue.data = (unsigned char *)malloc(pCertCtx->stAttr.stIssue.length);
-		memcpy(pCertCtx->stAttr.stIssue.data, data_info_value, pCertCtx->stAttr.stIssue.length);
-
-		memset(data_info_value, 0, 1024);
-		WT_GetCertInfo(CERT_SUBJECT_DN, -1, data_info_value, &data_info_len);
-		if (pCertCtx->stAttr.stSubject.data)
-		{
-			free(pCertCtx->stAttr.stSubject.data);
-			pCertCtx->stAttr.stSubject.data = NULL;
-		}
-		pCertCtx->stAttr.stSubject.length = strlen(data_info_value) + 1;
-		pCertCtx->stAttr.stSubject.data = (unsigned char *)malloc(pCertCtx->stAttr.stSubject.length);
-		memcpy(pCertCtx->stAttr.stSubject.data, data_info_value, pCertCtx->stAttr.stSubject.length);
 
 		memset(data_info_value, 0, 1024);
 		WT_GetCertInfo(CERT_SUBJECT_DN, NID_COMMONNAME, data_info_value, &data_info_len);
@@ -641,27 +637,27 @@ int sdb_FillCertCtx(SMB_CS_CertificateContext **ppCertCtx, SMB_CS_CertificateFin
 	pos += 1;
 	pCertCtx->stAttr.ulNotAfter = sqlite3_column_int64(stmt, pos);
 
-	if (pCertificateFindAttr->uiFindFlag == 0x13)
-	{
-		FILE_WRITE_FMT(file_log_name, "%x", pCertificateFindAttr->uiFindFlag);
-		if (pCertificateFindAttr->stIssue.data)
-		{
-			FILE_WRITE_FMT(file_log_name, "%d %s pCertificateFindAttr length=%d", __LINE__, __FUNCTION__, pCertificateFindAttr->stIssue.length);
-			FILE_WRITE_FMT(file_log_name, "%d %s pCertificateFindAttr %s", __LINE__, __FUNCTION__, pCertificateFindAttr->stIssue.data);
-			FILE_WRITE_HEX(file_log_name, pCertificateFindAttr->stIssue.data, pCertificateFindAttr->stIssue.length);
-		}
+	//if (pCertificateFindAttr->uiFindFlag == 0x13)
+	//{
+	//	FILE_WRITE_FMT(file_log_name, "%x", pCertificateFindAttr->uiFindFlag);
+	//	if (pCertificateFindAttr->stIssue.data)
+	//	{
+	//		FILE_WRITE_FMT(file_log_name, "%d %s pCertificateFindAttr length=%d", __LINE__, __FUNCTION__, pCertificateFindAttr->stIssue.length);
+	//		FILE_WRITE_FMT(file_log_name, "%d %s pCertificateFindAttr %s", __LINE__, __FUNCTION__, pCertificateFindAttr->stIssue.data);
+	//		FILE_WRITE_HEX(file_log_name, pCertificateFindAttr->stIssue.data, pCertificateFindAttr->stIssue.length);
+	//	}
 
-		if (pCertCtx->stAttr.stIssue.data)
-		{
-			FILE_WRITE_FMT(file_log_name, "%d %s pCertCtx length=%d", __LINE__, __FUNCTION__, pCertCtx->stAttr.stIssue.length);
-			FILE_WRITE_FMT(file_log_name, "%d %s pCertificateFindAttr %s", __LINE__, __FUNCTION__, pCertCtx->stAttr.stIssue.data);
-			FILE_WRITE_HEX(file_log_name, pCertCtx->stAttr.stIssue.data, pCertCtx->stAttr.stIssue.length);
-		}
-		FILE_WRITE_FMT(file_log_name, "\n\n");
-	}
+	//	if (pCertCtx->stAttr.stIssue.data)
+	//	{
+	//		FILE_WRITE_FMT(file_log_name, "%d %s pCertCtx length=%d", __LINE__, __FUNCTION__, pCertCtx->stAttr.stIssue.length);
+	//		FILE_WRITE_FMT(file_log_name, "%d %s pCertificateFindAttr %s", __LINE__, __FUNCTION__, pCertCtx->stAttr.stIssue.data);
+	//		FILE_WRITE_HEX(file_log_name, pCertCtx->stAttr.stIssue.data, pCertCtx->stAttr.stIssue.length);
+	//	}
+	//	FILE_WRITE_FMT(file_log_name, "\n\n");
+	//}
 
 
-	if (NULL == pCertificateFindAttr || pCertificateFindAttr->uiFindFlag == 0x13)
+	if (NULL == pCertificateFindAttr)
 	{
 		*ppCertCtx = pCertCtx;
 	}
