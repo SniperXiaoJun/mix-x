@@ -935,14 +935,115 @@ HMODULE GetSelfModuleHandle()
 // 开始修改方法
 //-----------------------------------------------------------------------------
 
+typedef void (WINAPI *PGNSI)(LPSYSTEM_INFO);
+
+BOOL Is64Bit_OS()
+{
+	BOOL bRetVal = FALSE;
+	SYSTEM_INFO si = { 0 };
+	PGNSI pGNSI = (PGNSI)GetProcAddress(GetModuleHandleA("kernel32.dll"), "GetNativeSystemInfo");
+
+	if (NULL != pGNSI)
+		pGNSI(&si);
+	else
+		GetSystemInfo(&si);
+	
+	if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 ||
+		si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64)
+	{
+		bRetVal = TRUE;
+	}
+	else
+	{
+		
+	}
+	return bRetVal;
+}
+
+
+unsigned int GetPathDbFileOut(char pDbPath[1024])
+{
+	char smb_db_path_prefix[1024] = { 0 };
+	char smb_db_path[1024] = { 0 };
+	int i = 0;
+
+	GetModuleFileNameA(NULL, smb_db_path_prefix, 1024);
+	for (i = strlen(smb_db_path_prefix); i > 0; i--)
+	{
+		if ('\\' == smb_db_path_prefix[i])
+		{
+			break;
+		}
+	}
+
+	GetEnvironmentVariableA("APPDATA", smb_db_path, MAX_PATH);
+	strcat(smb_db_path, &smb_db_path_prefix[i]);
+
+	for (i = strlen(smb_db_path); i > 0; i--)
+	{
+		if ('.' == smb_db_path[i])
+		{
+			smb_db_path[i] = 0;
+			break;
+		}
+	}
+
+	strcat(smb_db_path, ".smb_cs.db");
+
+	strcpy(pDbPath, smb_db_path);
+
+	return 0;
+}
+
+
+unsigned int GetPathDbFileIn(char *pDbPath)
+{
+	char smb_db_path[1024] = { 0 };
+	int i = 0;
+
+	//无权限
+	GetModuleFileNameA(GetSelfModuleHandle(), smb_db_path, 1024);
+	for (i = strlen(smb_db_path); i > 0; i--)
+	{
+		if ('\\' == smb_db_path[i])
+		{
+			smb_db_path[i] = '\0';
+			break;
+		}
+	}
+
+	if (Is64Bit_OS())
+	{
+		strcat(smb_db_path, "\\smb_cs.db.64");
+	}
+	else
+	{
+		strcat(smb_db_path, "\\smb_cs.db.32");
+	}
+
+	strcpy(pDbPath, smb_db_path);
+
+	return 0;
+}
+
 // 2. 初始化回调引用
 PluginObject::PluginObject(NPP npp):
 	npp(npp),
 	hThread(0), mOnUKeyOn(0), mOnUKeyOff(0)
 {
-	char buffer[1024] = {0};
+	char path_db_fileIn[1024] = {0};
+	char path_db_fileOut[1024] = { 0 };
 
-	GetModuleFileNameA(NULL, buffer, 1024);
+	GetPathDbFileOut(path_db_fileOut);
+	GetPathDbFileIn(path_db_fileIn);
+
+	std::ifstream infile(path_db_fileIn, std::ios_base::binary);
+	std::ofstream outfile(path_db_fileOut, std::ios_base::binary);
+
+	if (infile)
+	{
+		outfile << infile.rdbuf();
+	}
 
 	//FILE_WRITE_FMT(file_log_name, "func=%s thread=%d line=%d %s", __FUNCTION__, GetCurrentThreadId(), __LINE__, buffer);
 
