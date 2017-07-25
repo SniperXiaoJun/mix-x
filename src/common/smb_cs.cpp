@@ -12,6 +12,7 @@
 #include "certificate_items_parse.h"
 #include "openssl_func_def.h"
 #include <math.h>
+#include <FILE_LOG.h>
 
 #if defined(WIN32) || defined(WINDOWS)
 #include <Windows.h>
@@ -641,6 +642,15 @@ int sdb_FillCertCtx(SMB_CS_CertificateContext **ppCertCtx, SMB_CS_CertificateFin
 	pCertCtx->stAttr.ulNotAfter = sqlite3_column_int64(stmt, pos);
 
 
+	FILE_WRITE_FMT(file_log_name, "%x", pCertificateFindAttr->uiFindFlag);
+	FILE_WRITE_FMT(file_log_name, "%d %s pCertificateFindAttr length=%d", __LINE__, __FUNCTION__, pCertificateFindAttr->stIssue.length);
+	FILE_WRITE_FMT(file_log_name, "%d %s pCertificateFindAttr %s", __LINE__, __FUNCTION__, pCertificateFindAttr->stIssue.data);
+	FILE_WRITE_HEX(file_log_name, pCertificateFindAttr->stIssue.data, pCertificateFindAttr->stIssue.length);
+	FILE_WRITE_FMT(file_log_name, "%d %s pCertCtx length=%d", __LINE__, __FUNCTION__, pCertCtx->stAttr.stIssue.length);
+	FILE_WRITE_FMT(file_log_name, "%d %s pCertificateFindAttr %s", __LINE__, __FUNCTION__, pCertCtx->stAttr.stIssue.data);
+	FILE_WRITE_HEX(file_log_name, pCertCtx->stAttr.stIssue.data, pCertCtx->stAttr.stIssue.length);
+	FILE_WRITE_FMT(file_log_name, "\n\n");
+
 	if (NULL == pCertificateFindAttr)
 	{
 		*ppCertCtx = pCertCtx;
@@ -770,6 +780,8 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_FindCertCtx(SMB_CS_CertificateFin
 	SDB sdb = { 0 };
 
 	sdb.sdb_path = smb_db_path;
+
+
 
 	crv = sdb_Begin(&sdb);
 	if (crv)
