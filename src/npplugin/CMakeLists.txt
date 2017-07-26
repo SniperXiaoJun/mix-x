@@ -36,7 +36,7 @@ FILE(GLOB
 
   ${CMAKE_SOURCE_DIR}/npplugin/PluginObject.cpp
   ${CMAKE_SOURCE_DIR}/npplugin/Plugin.cpp
-  ${CMAKE_SOURCE_DIR}/npplugin/npplugin.rc
+  
 
   ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect.cpp
   ${CMAKE_SOURCE_DIR}/npplugin/EBankSystemDetect_DeviceAndCert.cpp
@@ -61,6 +61,7 @@ ADD_LIBRARY(
   npwtsmbplugin SHARED
   
   npplugin.def
+  ${CMAKE_SOURCE_DIR}/npplugin/npplugin.rc
   
   ${npplugin_cpps}
   ${jsoncpp_cpps}
@@ -76,5 +77,22 @@ TARGET_LINK_LIBRARIES(npwtsmbplugin Crypt32)
 TARGET_LINK_LIBRARIES(npwtsmbplugin SetupAPI)
 
 
+ADD_LIBRARY(
+  npwtsmbplugin-wtbank SHARED
+  
+  npplugin.def
+  ${CMAKE_SOURCE_DIR}/npplugin/npplugin_wtbank.rc
+  
+  ${npplugin_cpps}
+  ${jsoncpp_cpps}
+  ${common_cpps}
+)
 
+target_link_libraries(npwtsmbplugin-wtbank sqlite3)
+TARGET_LINK_LIBRARIES(npwtsmbplugin-wtbank mix_bssl)
+TARGET_LINK_LIBRARIES(npwtsmbplugin-wtbank smb_base)
+TARGET_LINK_LIBRARIES(npwtsmbplugin-wtbank smb_qtui)
+TARGET_LINK_LIBRARIES(npwtsmbplugin-wtbank Wininet)
+TARGET_LINK_LIBRARIES(npwtsmbplugin-wtbank Crypt32)
+TARGET_LINK_LIBRARIES(npwtsmbplugin-wtbank SetupAPI)
 
