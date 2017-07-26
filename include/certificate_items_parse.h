@@ -43,6 +43,7 @@ extern "C" {
 typedef struct x509_st X509;
 
 #include <string>
+#include <vector>
 
 class CertificateItemParse
 {
@@ -73,8 +74,8 @@ public:
 	std::string m_strVersion;
 	std::string m_strSerialNumber;
 	std::string m_strOID;
-	std::string m_strIssue;
-	std::string m_strSubject;
+	std::vector<unsigned char> m_strIssue;
+	std::vector<unsigned char> m_strSubject;
 	std::string m_strIssueCN;
 	std::string m_strSubjectCN;
 	std::string m_strIssueKeyID;
