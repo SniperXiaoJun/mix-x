@@ -605,8 +605,6 @@ std::string WTF_ReadCurrentCerts(int Expire)
 			Json::Value itemDevInfo;
 			Json::Value itemDevCerts = Json::Value(Json::arrayValue); // 1 device's certs
 
-			itemDevInfo["devNickName"] = (char*)pCertCtxNode->ptr_data->stAttr.stCommonName.data;
-
 			itemDevInfo["devFrom"] = "skf";
 
 			memset(pDevInfo, 0, sizeof(DEVINFO));
@@ -668,7 +666,7 @@ std::string WTF_ReadCurrentCerts(int Expire)
 				WT_GetCertInfo(CERT_SUBJECT_DN, NID_COMMONNAME, data_info_value, &data_info_len);
 				item["subject"] = data_info_value;
 
-				item["commonName"] = (char*)pCertCtxNode->ptr_data->stAttr.stCommonName.data;
+				item["commonName"] = strstr(item["subject"].asCString(), "=") + 1 == 0 ? item["subject"] : strstr(item["subject"].asCString(), "=") + 1;
 
 				memset(data_info_value, 0, 1024);
 				WT_GetCertInfo(CERT_NOTBEFORE, 0, data_info_value, &data_info_len);
@@ -736,6 +734,8 @@ std::string WTF_ReadCurrentCerts(int Expire)
 				}
 				pCertCtxNode = pCertCtxNode->ptr_next;
 				itemDevCerts.append(item);  
+
+				itemDevInfo["devNickName"] = item["commonName"];
 			}
 
 			itemDev = itemDevInfo;
