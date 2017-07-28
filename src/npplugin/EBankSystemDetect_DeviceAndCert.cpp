@@ -364,16 +364,6 @@ string WTF_CheckCertChain(list<string> strListRootCertKeyIDHex, unsigned int uiF
 				id.KeyId.pbData = data_value_keyid;
 				id.KeyId.cbData = data_len_keyid;
 
-				item["chain_root_state"] = "not found";
-				item["sec_level"] = TYPE_SEC_EXCEPT;
-				item["success"] = FALSE;
-
-				if (TRUE != ulRet)
-				{
-					ulRet = EErr_SMB_CREATE_STORE;
-					goto err;
-				}
-
 				// Other common system stores include "Root", "Trust", and "Ca".
 				// 打开存储�?		
 				hCertStore = CertOpenStore(
