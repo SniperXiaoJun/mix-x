@@ -1,4 +1,4 @@
-
+﻿
 #include <smb_cs.h>
 #include <smb_dev.h>
 #include "json/json.h"
@@ -8,6 +8,51 @@
 #include<io.h>
 
 using namespace std;
+
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_ImportCaCertSM2(unsigned char *pbCert, unsigned int uiCertLen, unsigned int *pulAlgType)
+{
+	unsigned int ulRet = 0;
+
+	SMB_CS_CertificateContext * ctx = NULL;
+
+	SMB_CS_Init();
+
+	if (0 != SMB_CS_CreateCertCtx(&ctx, pbCert, uiCertLen))
+	{
+		ulRet = EErr_SMB_CREATE_CERT_CONTEXT;
+		goto err;
+	}
+#if defined(WIN32) || defined(WINDOWS)
+	if (SMB_CERT_ALG_FLAG_RSA == ctx->stAttr.ucCertAlgType)
+	{
+		
+	}
+	else
+	{
+		if (0 != SMB_CS_AddCertCtx(ctx, 1))
+		{
+			ulRet = EErr_SMB_ADD_CERT_TO_STORE;
+			goto err;
+		}
+	}
+#else
+	if (0 != SMB_CS_AddCertCtx(ctx, 1))
+	{
+		ulRet = EErr_SMB_ADD_CERT_TO_STORE;
+		goto err;
+	}
+#endif
+
+	ulRet = EErr_SMB_OK; // success
+
+err:
+	if (ctx)
+	{
+		SMB_CS_FreeCertCtx(ctx);
+	}
+
+	return ulRet;
+}
 
 void filesearch(string path, int layer)
 {

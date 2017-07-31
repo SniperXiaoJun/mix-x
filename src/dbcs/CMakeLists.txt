@@ -69,35 +69,36 @@ add_executable(
 
   x_dbcs_exec_sql.cpp
 )
-
 target_link_libraries(x_dbcs_exec_sql smb_base)
-
 
 add_executable(
   x_dbcs_install_ca_cert
 
   x_dbcs_install_ca_cert.cpp
- # ${common_cs} 
- # ${common_cpps} 
 )
-
-#target_link_libraries(x_dbcs_install_ca_cert sqlite3)
-#TARGET_LINK_LIBRARIES(x_dbcs_install_ca_cert mix_bssl)
-
 TARGET_LINK_LIBRARIES(x_dbcs_install_ca_cert smb_base)
+
+add_executable(
+  x_dbcs_install_ca_cert_rsa
+
+  x_dbcs_install_ca_cert_rsa.cpp
+)
+TARGET_LINK_LIBRARIES(x_dbcs_install_ca_cert_rsa smb_base)
+
+add_executable(
+  x_dbcs_install_ca_cert_sm2
+
+  x_dbcs_install_ca_cert_sm2.cpp
+)
+TARGET_LINK_LIBRARIES(x_dbcs_install_ca_cert_sm2 smb_base)
 
 add_executable(
   x_dbcs_enum_certs
 
   x_dbcs_enum_certs.cpp
-  #${common_cs} 
-  #${common_cpps} 
 )
-
 target_link_libraries(x_dbcs_enum_certs smb_base)
-#TARGET_LINK_LIBRARIES(x_dbcs_enum_certs mix_bssl)
 TARGET_LINK_LIBRARIES(x_dbcs_enum_certs SMB_QTUI)
-
 
 add_executable(
   x_dbcs_verify_der
@@ -106,17 +107,13 @@ add_executable(
   #${common_cs} 
   #${common_cpps} 
 )
-
 target_link_libraries(x_dbcs_verify_der smb_base)
 
 add_executable(
   x_dbcs_show_der
 
   x_dbcs_show_der.cpp
-  #${common_cs} 
-  #${common_cpps} 
 )
-
 target_link_libraries(x_dbcs_show_der smb_base)
 target_link_libraries(x_dbcs_show_der smb_qtui)
 
@@ -124,21 +121,13 @@ add_executable(
   x_dbcs_enum_fileinfo
 
   x_dbcs_enum_fileinfo.cpp
-  #${common_cs} 
-  #${common_cpps} 
 )
-
 target_link_libraries(x_dbcs_enum_fileinfo smb_base)
-
-
 
 add_executable(
   x_dbcs_rw_certs
 
   x_dbcs_rw_certs.cpp
-  #${common_cs} 
-  #${common_cpps} 
 )
-
 target_link_libraries(x_dbcs_rw_certs smb_base)
 
