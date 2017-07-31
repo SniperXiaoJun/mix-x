@@ -101,7 +101,7 @@ void filesearch(string path, int layer)
 				_file.read((char *)pbCaCert, length>sizeof(pbCaCert) ? sizeof(pbCaCert) : length);
 				_file.close();
 
-				SMB_CS_ImportCaCert(pbCaCert, length>sizeof(pbCaCert) ? sizeof(pbCaCert) : length, &ulAlgType);
+				SMB_CS_ImportCaCertSM2(pbCaCert, length>sizeof(pbCaCert) ? sizeof(pbCaCert) : length, &ulAlgType);
 			}
 			else
 			{
