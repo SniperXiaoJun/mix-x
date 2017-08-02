@@ -2920,6 +2920,7 @@ unsigned int OpenSSL_SM2Write(const unsigned char * pbIN, unsigned int uiINLen,
 	BIGNUM *prvkey = NULL;
 	X509 * x509 = NULL;
 	FILE * file = NULL;
+	X509_REQ *req = NULL;
 
 	file = fopen(szFileName, "w+b");
 	if (NULL == file)
@@ -3025,6 +3026,30 @@ unsigned int OpenSSL_SM2Write(const unsigned char * pbIN, unsigned int uiINLen,
 				data_len = PEM_write_ECPrivateKey(file, ec, cipher, (unsigned char*)szPassword, strlen(szPassword), NULL, NULL);
 			}
 
+		}
+		uiRet = 0;
+	}
+	break;
+	case E_INPUT_DATA_TYPE_CSR:
+	{
+		ptr_in = pbIN;
+
+		req = d2i_X509_REQ(NULL, &ptr_in, uiINLen);
+
+		if (NULL == req)
+		{
+			goto err;
+		}
+
+		if (fileEncode == EFILEENCODE_TYPE_DER)
+		{
+			ptr_out = data_value;
+			data_len = i2d_X509_REQ(req, &ptr_out);
+			fwrite(data_value, data_len, 1, file);
+		}
+		else if (fileEncode == EFILEENCODE_TYPE_PEM)
+		{
+			data_len = PEM_write_X509_REQ(file, req);
 		}
 		uiRet = 0;
 	}
@@ -3146,6 +3171,11 @@ err:
 	if (x509)
 	{
 		X509_free(x509);
+	}
+
+	if (req)
+	{
+		X509_REQ_free(req);
 	}
 
 	if (file)

@@ -115,6 +115,8 @@ BOOL CommonToolsDlgSM2Write::OnInitDialog()
 
 	pos = comboBoxType.InsertString(pos + 1, L"证书");
 
+	pos = comboBoxType.InsertString(pos + 1, L"证书请求");
+
 	pos = -1;
 
 	pos = comboBoxEncode.InsertString(pos + 1, L"DER");
