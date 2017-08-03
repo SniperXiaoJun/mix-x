@@ -174,7 +174,8 @@ unsigned int GetPathDbFileIn(char *pDbPath)
 	int i = 0;
 
 	//无权限
-	GetModuleFileNameA(GetSelfModuleHandle(), smb_db_path, 1024);
+	//GetModuleFileNameA(GetSelfModuleHandle(), smb_db_path, 1024);
+	GetModuleFileNameA(NULL, smb_db_path, 1024);
 	for (i = strlen(smb_db_path); i > 0; i--)
 	{
 		if ('\\' == smb_db_path[i])

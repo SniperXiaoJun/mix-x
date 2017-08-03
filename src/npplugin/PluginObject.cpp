@@ -788,7 +788,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			int i =0;
 			int tmpKeyCount = 0;
 			
-			Sleep(500);
+			Sleep(1500);
 
 			GetKeyCount(&tmpKeyCount);
 
