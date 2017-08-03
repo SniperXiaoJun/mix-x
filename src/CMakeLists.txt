@@ -29,6 +29,7 @@ add_subdirectory(npsafeinput)
 add_subdirectory(nptranslucent)
 add_subdirectory(npruntime)
 add_subdirectory(npdraw)
+add_subdirectory(smb_cs_secure)
 
 ##
 add_subdirectory(x_test)

@@ -96,6 +96,10 @@ static int sdb_openDB(const char *name, sqlite3 **sqlDB)
 		goto err;
 	}
 
+#if defined(SQLITE_HAS_CODEC)
+	sqlerr = sqlite3_key(*sqlDB, "abcdef",6);
+#endif
+
 	sqlerr = sqlite3_busy_timeout(*sqlDB, SDB_SQLITE_BUSY_TIMEOUT);
 	if (sqlerr != SQLITE_OK) {
 		sqlite3_close(*sqlDB);
