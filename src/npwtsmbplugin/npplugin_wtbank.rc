@@ -73,8 +73,8 @@ BEGIN
             VALUE "InternalName", "npbank.dll"
             VALUE "LegalCopyright", "Copyright (C) 2013"
             VALUE "MIMEType", "application/x-wtbank"
-            VALUE "OriginalFilename", "npwtsmbplugin.dll"
-            VALUE "ProductName", "npwtsmbplugin.dll"
+            VALUE "OriginalFilename", "npwtbankplugin.dll"
+            VALUE "ProductName", "npwtbankplugin.dll"
             VALUE "ProductVersion", "4.500.2017.808"
         END
     END
