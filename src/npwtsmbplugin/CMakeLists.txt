@@ -1,7 +1,7 @@
 include_directories(../../include)
 include_directories(../../include/npapi)
 
-add_definitions(-DUNICODE -D_UNICODE -DNOCRYPT -DMIX_BORINGSSL)
+add_definitions(-DUNICODE -D_UNICODE -DNOCRYPT -DMIX_BORINGSSL -DUSB_TIME_WAIT500)
 add_definitions(-DWIN32 -D_WINDOWS -DXP_WIN)
 
 IF(WIN32)
@@ -70,41 +70,41 @@ FILE(GLOB
  )
  
 ADD_LIBRARY(
-  npwtsmbplugin SHARED
+  npwtsmbplugin500 SHARED
   
-  npplugin.def
-  ${CMAKE_SOURCE_DIR}/npplugin/npplugin.rc
+  ${CMAKE_SOURCE_DIR}/npplugin/npplugin.def
+  ${CMAKE_SOURCE_DIR}/npwtsmbplugin/npplugin.rc
   
   ${npplugin_cpps}
   ${jsoncpp_cpps}
   ${common_cpps}
 )
 
-target_link_libraries(npwtsmbplugin sqlite3)
-TARGET_LINK_LIBRARIES(npwtsmbplugin mix_bssl)
-TARGET_LINK_LIBRARIES(npwtsmbplugin smb_base)
-TARGET_LINK_LIBRARIES(npwtsmbplugin smb_qtui)
-TARGET_LINK_LIBRARIES(npwtsmbplugin Wininet)
-TARGET_LINK_LIBRARIES(npwtsmbplugin Crypt32)
-TARGET_LINK_LIBRARIES(npwtsmbplugin SetupAPI)
+target_link_libraries(npwtsmbplugin500 sqlite3)
+TARGET_LINK_LIBRARIES(npwtsmbplugin500 mix_bssl)
+TARGET_LINK_LIBRARIES(npwtsmbplugin500 smb_base)
+TARGET_LINK_LIBRARIES(npwtsmbplugin500 smb_qtui)
+TARGET_LINK_LIBRARIES(npwtsmbplugin500 Wininet)
+TARGET_LINK_LIBRARIES(npwtsmbplugin500 Crypt32)
+TARGET_LINK_LIBRARIES(npwtsmbplugin500 SetupAPI)
 
 
 ADD_LIBRARY(
-  npwtbankplugin SHARED
+  npwtbankplugin500 SHARED
   
-  npplugin.def
-  ${CMAKE_SOURCE_DIR}/npplugin/npplugin_wtbank.rc
+  ${CMAKE_SOURCE_DIR}/npplugin/npplugin.def
+  ${CMAKE_SOURCE_DIR}/npwtsmbplugin/npplugin_wtbank.rc
   
   ${npplugin_cpps}
   ${jsoncpp_cpps}
   ${common_cpps}
 )
 
-target_link_libraries(npwtbankplugin sqlite3)
-TARGET_LINK_LIBRARIES(npwtbankplugin mix_bssl)
-TARGET_LINK_LIBRARIES(npwtbankplugin smb_base)
-TARGET_LINK_LIBRARIES(npwtbankplugin smb_qtui)
-TARGET_LINK_LIBRARIES(npwtbankplugin Wininet)
-TARGET_LINK_LIBRARIES(npwtbankplugin Crypt32)
-TARGET_LINK_LIBRARIES(npwtbankplugin SetupAPI)
+target_link_libraries(npwtbankplugin500 sqlite3)
+TARGET_LINK_LIBRARIES(npwtbankplugin500 mix_bssl)
+TARGET_LINK_LIBRARIES(npwtbankplugin500 smb_base)
+TARGET_LINK_LIBRARIES(npwtbankplugin500 smb_qtui)
+TARGET_LINK_LIBRARIES(npwtbankplugin500 Wininet)
+TARGET_LINK_LIBRARIES(npwtbankplugin500 Crypt32)
+TARGET_LINK_LIBRARIES(npwtbankplugin500 SetupAPI)
 

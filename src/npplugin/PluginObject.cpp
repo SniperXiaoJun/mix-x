@@ -787,8 +787,11 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			int i =0;
 			int tmpKeyCount = 0;
-			
+#if defined(USB_TIME_WAIT500)
+			Sleep(500);
+#else
 			Sleep(1500);
+#endif
 
 			GetKeyCount(&tmpKeyCount);
 
