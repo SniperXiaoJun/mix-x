@@ -68,7 +68,7 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "WinTrust"
-            VALUE "FileDescription", "npwtsmbplugin.dll"
+            VALUE "FileDescription", "npwtbankplugin.dll"
             VALUE "FileVersion", "4.500.2017.808"
             VALUE "InternalName", "npbank.dll"
             VALUE "LegalCopyright", "Copyright (C) 2013"
