@@ -1,7 +1,7 @@
 include_directories(../../include)
 
 
-add_definitions(-DUNICODE -D_UNICODE -DNOCRYPT -DMIX_BORINGSSL -DSQLITE_HAS_CODEC)
+add_definitions(-DUNICODE -D_UNICODE -DNOCRYPT -DMIX_BORINGSSL -DSQLITE_HAS_CODEC -DCODEC_TYPE=CODEC_TYPE_AES256)
 
 
 IF(WIN32)
@@ -62,7 +62,7 @@ LINK_DIRECTORIES(
 ADD_LIBRARY(
   smb_base_secure SHARED
   
-  ${CMAKE_SOURCE_DIR}/dbcs/smb_base.rc
+  ${CMAKE_SOURCE_DIR}/dbcs/smb_base_secure.rc
   ${CMAKE_SOURCE_DIR}/dbcs/smb_base.def
 
   ${common_cs} 
