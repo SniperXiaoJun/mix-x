@@ -69,13 +69,13 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "WinTrust"
             VALUE "FileDescription", "npwtbankplugin.dll"
-            VALUE "FileVersion", "4.500.2017.808"
+            VALUE "FileVersion", "4.500.2017.819"
             VALUE "InternalName", "npbank.dll"
             VALUE "LegalCopyright", "Copyright (C) 2013"
             VALUE "MIMEType", "application/x-wtbank"
             VALUE "OriginalFilename", "npwtbankplugin.dll"
             VALUE "ProductName", "npwtbankplugin.dll"
-            VALUE "ProductVersion", "4.500.2017.808"
+            VALUE "ProductVersion", "4.500.2017.819"
         END
     END
     BLOCK "VarFileInfo"

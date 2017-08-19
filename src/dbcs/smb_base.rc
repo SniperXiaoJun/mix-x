@@ -44,12 +44,12 @@ BEGIN
             VALUE "Comments", "lock"
             VALUE "CompanyName", "mix"
             VALUE "FileDescription", "smb_base"
-            VALUE "FileVersion", "1.0.2017.808"
+            VALUE "FileVersion", "1.0.2017.819"
             VALUE "InternalName", "smb_base.dll"
             VALUE "LegalCopyright", "Copyright © 2017"
             VALUE "OriginalFilename", "smb_base.dll"
             VALUE "ProductName", "smb_base+lock"
-            VALUE "ProductVersion", "1.0.2017.808"
+            VALUE "ProductVersion", "1.0.2017.819"
         END
     END
     BLOCK "VarFileInfo"

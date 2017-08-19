@@ -116,6 +116,8 @@ public:
 	std::map<std::string,int> paramThreadIntMap;
 	NPObject* paramCallback;			// 获取驱动安装信息
 	NPObject* paramCallbackGetEncryptPIN;			// 获取驱动安装信息
+	void *pFunctionID;
+	std::string strFunctionExecResult;
 
 	ParamThread()
 	{
@@ -138,6 +140,9 @@ public:
 };
 
 namespace {
+	DWORD WINAPI detectBankWebsiteThread(LPVOID lparam);
+	DWORD WINAPI detectWebsiteWithTimeoutThread(LPVOID lparam);
+
 	void splitdou(string s,list<string>& ret)  
 	{  
 		size_t last = 0;
@@ -706,44 +711,129 @@ namespace {
 		return true;
 	}
 
-	DWORD WINAPI detectBankWebsiteThread(LPVOID lparam){
+	DWORD WINAPI ThreadTimeoutKill(LPVOID lparam)
+	{
+		ParamThread* paramThread = (ParamThread*)lparam;
+		if (paramThread == NULL)
+			return false;
+
+		if (detectBankWebsiteThread == paramThread->pFunctionID)
+		{
+			std::string strSite = paramThread->paramThreadStringMap["Site"];
+			std::string strSubSite = paramThread->paramThreadStringMap["SubSite"];
+			int Port = paramThread->paramThreadIntMap["Port"];
+
+			paramThread->strFunctionExecResult = WTF_CheckWebSite(strSite, strSubSite, Port, 5);
+		}
+		else if (detectWebsiteWithTimeoutThread == paramThread->pFunctionID)
+		{
+			std::string strSite = paramThread->paramThreadStringMap["Site"];
+			std::string strSubSite = paramThread->paramThreadStringMap["SubSite"];
+			int Port = paramThread->paramThreadIntMap["Port"];
+			int Timeout = paramThread->paramThreadIntMap["Timeout"];
+
+			paramThread->strFunctionExecResult = WTF_CheckWebSite(strSite, strSubSite, Port, (unsigned int)Timeout);
+		}
+
+		return true;
+	}
+
+
+	DWORD WINAPI detectBankWebsiteThread(LPVOID lparam) {
 		UseMixMutex share_mutex("share_mutex_socket");
 
-		ParamThread* paramThread= (ParamThread*)lparam;
-		if (paramThread==NULL)
+		ParamThread* paramThread = (ParamThread*)lparam;
+		if (paramThread == NULL)
 			return false;
 		// 6: 网银链接
 
-		std::string strSite = paramThread->paramThreadStringMap["Site"];
-		std::string strSubSite = paramThread->paramThreadStringMap["SubSite"];
-		int Port = paramThread->paramThreadIntMap["Port"];
+		paramThread->pFunctionID = detectBankWebsiteThread;
 
-		//paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(WTF_CheckWebSite("per.cmbc.com.cn","pweb/static/login.html", 443)));
-		paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(WTF_CheckWebSite(strSite,strSubSite, Port, 10)));
+		HANDLE hThreadTimeout = CreateThread(NULL, 0, ThreadTimeoutKill, paramThread, 0, NULL);
+
+		DWORD res = WaitForSingleObject(hThreadTimeout, 5000);
+
+		if (WAIT_OBJECT_0 == res)
+		{
+
+		}
+		else if (WAIT_TIMEOUT == res)
+		{
+			TerminateThread(hThreadTimeout, 0);
+
+			Json::Value item;
+
+			item["success"] = FALSE;
+			item["sec_level"] = TYPE_SEC_EXCEPT;
+
+			paramThread->strFunctionExecResult = item.toStyledString();
+		}
+		else
+		{
+			TerminateThread(hThreadTimeout, 0);
+
+			Json::Value item;
+
+			item["success"] = FALSE;
+			item["sec_level"] = TYPE_SEC_EXCEPT;
+
+			paramThread->strFunctionExecResult = item.toStyledString();
+		}
+
+		paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(paramThread->strFunctionExecResult));
+
 		//FreeThreadParamItem(paramThread);
 
 		return true;
 	}
 
-	DWORD WINAPI detectWebsiteWithTimeoutThread(LPVOID lparam){
+	DWORD WINAPI detectWebsiteWithTimeoutThread(LPVOID lparam) {
 		UseMixMutex share_mutex("share_mutex_socket");
 
-		ParamThread* paramThread= (ParamThread*)lparam;
-		if (paramThread==NULL)
+		ParamThread* paramThread = (ParamThread*)lparam;
+		if (paramThread == NULL)
 			return false;
 		// 6: 网银链接
+		paramThread->pFunctionID = detectWebsiteWithTimeoutThread;
 
-		std::string strSite = paramThread->paramThreadStringMap["Site"];
-		std::string strSubSite = paramThread->paramThreadStringMap["SubSite"];
-		int Port = paramThread->paramThreadIntMap["Port"];
-		int Timeout = paramThread->paramThreadIntMap["Timeout"];
+		HANDLE hThreadTimeout = CreateThread(NULL, 0, ThreadTimeoutKill, paramThread, 0, NULL);
 
-		//paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(WTF_CheckWebSite("per.cmbc.com.cn","pweb/static/login.html", 443)));
-		paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(WTF_CheckWebSite(strSite,strSubSite, Port, (unsigned int)Timeout)));
+		DWORD res = WaitForSingleObject(hThreadTimeout, 5000);
+
+		if (WAIT_OBJECT_0 == res)
+		{
+
+		}
+		else if (WAIT_TIMEOUT == res)
+		{
+			TerminateThread(hThreadTimeout, 0);
+
+			Json::Value item;
+
+			item["success"] = FALSE;
+			item["sec_level"] = TYPE_SEC_EXCEPT;
+
+			paramThread->strFunctionExecResult = item.toStyledString();
+		}
+		else
+		{
+			TerminateThread(hThreadTimeout, 0);
+
+			Json::Value item;
+
+			item["success"] = FALSE;
+			item["sec_level"] = TYPE_SEC_EXCEPT;
+
+			paramThread->strFunctionExecResult = item.toStyledString();
+		}
+
+		paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(paramThread->strFunctionExecResult));
+
 		//FreeThreadParamItem(paramThread);
 
 		return true;
 	}
+
 
 	
 
