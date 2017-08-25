@@ -360,6 +360,21 @@ extern "C" {
 	*/
 	COMMON_API unsigned int CALL_CONVENTION SMB_CS_ImportCaCert(IN unsigned char *pbCert, IN unsigned int uiCertLen, OUT unsigned int *pulAlgType);
 
+	/*
+	检测根证书是否存在
+	*/
+	COMMON_API unsigned int CALL_CONVENTION SMB_CS_CheckRootCertExist(char * pKeyIDHex, unsigned int ulAlgType);
+
+	/*
+	导入CA&ROOT证书文件
+	*/
+	COMMON_API unsigned int CALL_CONVENTION SMB_CS_ImportCaCertFile(char * pCertFile, OUT unsigned int *pulAlgType);
+
+	/*
+	导入CA&ROOT RSA证书
+	*/
+	COMMON_API unsigned int CALL_CONVENTION SMB_CS_ImportCaCertRSA(unsigned char *pbCert, unsigned int uiCertLen, unsigned int *pulAlgType);
+
 #ifdef __cplusplus
 }
 #endif

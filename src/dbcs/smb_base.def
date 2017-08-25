@@ -40,6 +40,9 @@ EXPORTS
 	SMB_CS_SetCertCtxVendor
 	SMB_CS_VerifyCert
 	SMB_CS_ImportCaCert
+	SMB_CS_ImportCaCertRSA
+	SMB_CS_ImportCaCertFile
+	SMB_CS_CheckRootCertExist
 
 	SMB_DEV_EnumCertBySKF
 	SMB_DEV_EnumCert

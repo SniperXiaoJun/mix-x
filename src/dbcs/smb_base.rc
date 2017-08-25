@@ -25,8 +25,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,2017,808
- PRODUCTVERSION 1,0,2017,808
+ FILEVERSION 1,0,2017,825
+ PRODUCTVERSION 1,0,2017,825
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -44,12 +44,12 @@ BEGIN
             VALUE "Comments", "lock"
             VALUE "CompanyName", "mix"
             VALUE "FileDescription", "smb_base"
-            VALUE "FileVersion", "1.0.2017.819"
+            VALUE "FileVersion", "1.0.2017.825"
             VALUE "InternalName", "smb_base.dll"
             VALUE "LegalCopyright", "Copyright © 2017"
             VALUE "OriginalFilename", "smb_base.dll"
             VALUE "ProductName", "smb_base+lock"
-            VALUE "ProductVersion", "1.0.2017.819"
+            VALUE "ProductVersion", "1.0.2017.825"
         END
     END
     BLOCK "VarFileInfo"
