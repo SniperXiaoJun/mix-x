@@ -359,17 +359,17 @@ extern "C" {
 	导入CA&ROOT证书
 	*/
 	COMMON_API unsigned int CALL_CONVENTION SMB_CS_ImportCaCert(IN unsigned char *pbCert, IN unsigned int uiCertLen, OUT unsigned int *pulAlgType);
-
+#if defined(WINDOWS) || defined(WIN32)
 	/*
 	检测根证书是否存在
 	*/
-	COMMON_API unsigned int CALL_CONVENTION SMB_CS_CheckRootCertExist(char * pKeyIDHex, unsigned int ulAlgType);
+	COMMON_API unsigned int CALL_CONVENTION SMB_CS_CheckRootCertExist(wchar_t * pKeyIDHex, unsigned int ulAlgType);
 
 	/*
 	导入CA&ROOT证书文件
 	*/
-	COMMON_API unsigned int CALL_CONVENTION SMB_CS_ImportCaCertFile(char * pCertFile, OUT unsigned int *pulAlgType);
-
+	COMMON_API unsigned int CALL_CONVENTION SMB_CS_ImportCaCertFile(wchar_t * pCertFile, OUT unsigned int *pulAlgType);
+#endif
 	/*
 	导入CA&ROOT RSA证书
 	*/
