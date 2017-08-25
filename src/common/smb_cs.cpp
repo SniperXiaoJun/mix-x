@@ -3247,8 +3247,9 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_FreePIDVID(SMB_CS_PIDVID *pPtr)
 	return 0;
 }
 
+#include "encode_switch.h"
 
-COMMON_API unsigned int CALL_CONVENTION SMB_CS_CheckRootCertExist(char * pKeyIDHex, unsigned int ulAlgType)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_CheckRootCertExist(wchar_t * pKeyIDHex, unsigned int ulAlgType)
 {
 	unsigned int ulRet = 0;
 	unsigned int ulOutLen = 0;
@@ -3271,7 +3272,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_CheckRootCertExist(char * pKeyIDH
 	{
 
 		id.dwIdChoice = CERT_ID_KEY_IDENTIFIER;
-		OPF_Str2Bin(pKeyIDHex, strlen(pKeyIDHex), data_value_keyid, &data_len_keyid);
+		OPF_Str2Bin(utf8_encode(pKeyIDHex).c_str(), utf8_encode(pKeyIDHex).size(), data_value_keyid, &data_len_keyid);
 		id.KeyId.pbData = data_value_keyid;
 		id.KeyId.cbData = data_len_keyid;
 	
@@ -3309,8 +3310,8 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_CheckRootCertExist(char * pKeyIDH
 
 		findAttr.uiFindFlag = 128;
 
-		findAttr.stSubjectKeyID.data = (unsigned char*)pKeyIDHex;
-		findAttr.stSubjectKeyID.length = strlen(pKeyIDHex);
+		findAttr.stSubjectKeyID.data = (unsigned char *)utf8_encode(pKeyIDHex).c_str();
+		findAttr.stSubjectKeyID.length = utf8_encode(pKeyIDHex).size();
 
 		SMB_CS_FindCertCtx(&findAttr, &ctxHeader);
 
@@ -3462,7 +3463,7 @@ err:
 	return ulRet;
 }
 
-COMMON_API unsigned int CALL_CONVENTION SMB_CS_ImportCaCertFile(char * pCertFile, OUT unsigned int *pulAlgType)
+COMMON_API unsigned int CALL_CONVENTION SMB_CS_ImportCaCertFile(wchar_t * pCertFile, OUT unsigned int *pulAlgType)
 {
 	std::fstream _file;
 
