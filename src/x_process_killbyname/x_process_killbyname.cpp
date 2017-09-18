@@ -63,7 +63,7 @@ int KillProcessByName(const char *processName, unsigned int *puiCountProcess)
 		if (memcmp(big_chars, big_chars_process, strlen(big_chars_process)) == 0)
 		{
 			processNameCount++;
-			printf("PID=%5u    PName= %s\n", currentProcess.th32ProcessID, currentProcess.szExeFile); //遍历进程快照，轮流显示每个进程信息  
+			printf("ParentPID=%10u    PID=%10u    PName= %s\n", currentProcess.th32ParentProcessID,currentProcess.th32ProcessID, currentProcess.szExeFile); //遍历进程快照，轮流显示每个进程信息  
 			TerminateProcess(GetProcessHandle(currentProcess.th32ProcessID), 0);
 		}
 
