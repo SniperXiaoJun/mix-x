@@ -22,6 +22,7 @@ int KillProcessByName(const char *processName, unsigned int *puiCountProcess)
 	HANDLE hProcess = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);//给系统内的所有进程拍一个快照  
 	char big_chars[1024] = { 0 };
 	char big_chars_process[1024] = { 0 };
+	PROCESSENTRY32 topProcess = {0};
 
 	unsigned int processNameCount = 0;
 
@@ -63,15 +64,34 @@ int KillProcessByName(const char *processName, unsigned int *puiCountProcess)
 		if (memcmp(big_chars, big_chars_process, strlen(big_chars_process)) == 0)
 		{
 			processNameCount++;
-			printf("ParentPID=%10u    PID=%10u    PName= %s\n", currentProcess.th32ParentProcessID,currentProcess.th32ProcessID, currentProcess.szExeFile); //遍历进程快照，轮流显示每个进程信息  
-			TerminateProcess(GetProcessHandle(currentProcess.th32ProcessID), 0);
-		}
+			
+			if (topProcess.th32ProcessID == currentProcess.th32ParentProcessID)
+			{
+				printf("ParentPID=%10u    PID=%10u    PName= %s\n", currentProcess.th32ParentProcessID, currentProcess.th32ProcessID, currentProcess.szExeFile); //遍历进程快照，轮流显示每个进程信息  
+				// top is the paraent process
+				TerminateProcess(GetProcessHandle(currentProcess.th32ProcessID), 0);
+			}
+			else if (currentProcess.th32ProcessID == topProcess.th32ParentProcessID)
+			{
+				printf("ParentPID=%10u    PID=%10u    PName= %s\n", currentProcess.th32ParentProcessID, currentProcess.th32ProcessID, currentProcess.szExeFile); //遍历进程快照，轮流显示每个进程信息  
+				// current is the parent process
+				TerminateProcess(GetProcessHandle(topProcess.th32ProcessID), 0);
+				topProcess = currentProcess;
+			}
+			else
+			{
+				// let top = current
+				topProcess = currentProcess;
+			}
 
-		
+		}
 
 		bMore = Process32Next(hProcess, &currentProcess);    //遍历下一个  
 		countProcess++;
 	}
+
+	printf("ParentPID=%10u    PID=%10u    PName= %s\n", topProcess.th32ParentProcessID, topProcess.th32ProcessID, topProcess.szExeFile); //遍历进程快照，轮流显示每个进程信息  
+	TerminateProcess(GetProcessHandle(topProcess.th32ProcessID), 0);
 
 	CloseHandle(hProcess);  //清除hProcess句柄  
 	*puiCountProcess = processNameCount;
