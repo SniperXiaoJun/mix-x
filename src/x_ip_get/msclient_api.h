@@ -123,8 +123,25 @@ extern "C" {
 	*/
 	COMMON_API unsigned int MSCAPI_ReadHostIPAddress(char * pszAddress,unsigned int *puiAddressLen, int iFlag);
 
+	/*
+	功能名称:	读取主机IP地址
+	函数名称:	MSCAPI_ReadHostAddress
+	输入参数:
+	输出参数:
+	pszAddress	   地址值
+	puiAddressLen   地址值长度
+	返回值:
+	失败：
+	功能描述:
+	*/
 
+	typedef struct _STHostAddress
+	{
+		char szIPAddress[32];
+		char szMacAddress[32];
+	}STHostAddress;
 
+	COMMON_API unsigned int MSCAPI_ReadHostAddress(STHostAddress *pszAddress, unsigned int *puiAddressLen);
 
 
 	/*

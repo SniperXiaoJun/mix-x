@@ -974,6 +974,94 @@ unsigned int MSCAPI_ReadHostIPAddress(char * pszAddress,unsigned int *puiAddress
 }
 
 
+unsigned int MSCAPI_ReadHostAddress(STHostAddress *pszAddress, unsigned int *puiAddressLen)
+{
+	int rv = MSCAPIErrCodeSuccess;
+	IP_ADAPTER_INFO iai;
+	ULONG uSize = 0;
+	DWORD dwResult = GetAdaptersInfo(&iai, &uSize);
+	
+	if (dwResult == ERROR_BUFFER_OVERFLOW)
+	{
+		IP_ADAPTER_INFO* piai = (IP_ADAPTER_INFO*)HeapAlloc(GetProcessHeap(), 0, uSize);
+		if (piai != NULL)
+		{
+			dwResult = GetAdaptersInfo(piai, &uSize);
+			if (ERROR_SUCCESS == dwResult)
+			{
+				IP_ADAPTER_INFO* piai2 = piai;
+				int i = 0;
+				char buffer[32] = { 0 };
+
+				while (piai2 != NULL)
+				{
+					i++;
+					piai2 = piai2->Next;
+				}
+
+				if (NULL == pszAddress)
+				{
+					*puiAddressLen = i;
+					rv = MSCAPIErrCodeSuccess;
+				}
+				else if (*puiAddressLen < i)
+				{
+					*puiAddressLen = i;
+					rv = MSCAPIErrCodeMemLess;
+				}
+				else
+				{
+					*puiAddressLen = i;
+					memset(pszAddress, 0, sizeof(STHostAddress) * i);
+
+					piai2 = piai;
+					i = 0;
+
+					while (piai2 != NULL)
+					{
+						memcpy(pszAddress[i].szIPAddress, piai2->IpAddressList.IpAddress.String, strlen(piai2->IpAddressList.IpAddress.String));
+
+						memset(buffer, 0, 32);
+
+						sprintf(buffer, "%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x-",
+							piai2->AddressLength > 0 ? piai2->Address[0] : 0,
+							piai2->AddressLength > 1 ? piai2->Address[1] : 0,
+							piai2->AddressLength > 2 ? piai2->Address[2] : 0,
+							piai2->AddressLength > 3 ? piai2->Address[3] : 0,
+							piai2->AddressLength > 4 ? piai2->Address[4] : 0,
+							piai2->AddressLength > 5 ? piai2->Address[5] : 0,
+							piai2->AddressLength > 6 ? piai2->Address[6] : 0,
+							piai2->AddressLength > 7 ? piai2->Address[7] : 0
+						);
+
+						memcpy(pszAddress[i].szMacAddress, buffer, piai2->AddressLength * 3 - 1);
+
+						i++;
+						piai2 = piai2->Next;
+					}
+				}
+			}
+			else
+			{
+				//uErrorCode = 0xF0000000U + dwResult;
+				rv = MSCAPIErrCodeFailure;
+			}
+			HeapFree(GetProcessHeap(), 0, piai);
+		}
+		else
+		{
+			//uErrorCode = 0xE0000000U + dwResult;
+			rv = MSCAPIErrCodeFailure;
+		}
+	}
+	else
+	{
+		//uErrorCode = 0xE0000000U + dwResult;
+		rv = MSCAPIErrCodeFailure;
+	}
+
+	return rv;
+}
 
 
 unsigned int MSCAPI_CalcHWInfoHash(char *pszCpuSN,char *pszMacSN, char *pszHostMacAddress, char *pszHostIPAddress,char * pszHash,unsigned int *puiHashLen, int iFlag)
