@@ -1,5 +1,8 @@
 include_directories(../../include)
 
+add_definitions(-DUNICODE -D_UNICODE -DNOCRYPT -DMIX_BORINGSSL)
+add_definitions(-DWIN32 -D_WINDOWS -DXP_WIN)
+
 LINK_DIRECTORIES(
   ${CMAKE_SOURCE_DIR}/../lib
 )
@@ -21,7 +24,7 @@ add_executable(
 
   x_ip_get.cpp
   registry.cc
-  msclient_api.cpp
+  ${CMAKE_SOURCE_DIR}/npplugin/msclient_api.cpp
 )
 
 target_link_libraries(x_ip_get mix_bssl)
