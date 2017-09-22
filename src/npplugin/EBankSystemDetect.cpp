@@ -635,7 +635,7 @@ string WTF_DetectLocalIPAddress()
 	return item.toStyledString();
 }
 
-bool getPublicIp(string& ip);
+bool getPublicIp(string& ip_remote, string &ip_local);
 
 string WTF_DetectNetworkIPAddress()
 {
@@ -644,6 +644,7 @@ string WTF_DetectNetworkIPAddress()
 	item["success"] = FALSE;
 
 	std::string strIP;
+	std::string strLocalIP;
 
 #if defined(WIN32)
 	WSADATA wsaData;
@@ -654,11 +655,66 @@ string WTF_DetectNetworkIPAddress()
 #endif
 
 
-	if (getPublicIp(strIP))
+	if (getPublicIp(strIP, strLocalIP))
 	{
 		item["success"] = TRUE;
 		item["msg"] = utf8_encode(L"获取IP地址成功");
 		item["ip_address"] = strIP;
+	}
+	else
+	{
+		item["success"] = FALSE;
+		item["msg"] = utf8_encode(L"异常错误，获取IP地址失败");
+	}
+
+	return item.toStyledString();
+}
+
+
+
+string WTF_DetectHostAddress()
+{
+	Json::Value item;
+	unsigned int ulRet = 0;
+	item["success"] = FALSE;
+
+	std::string strIP;
+	std::string strLocalIP;
+
+#if defined(WIN32)
+	WSADATA wsaData;
+	int err = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (err != 0) {
+		fprintf(stderr, "WSAStartup failed with error %d\n", err);
+	}
+#endif
+
+
+	if (getPublicIp(strIP, strLocalIP))
+	{
+		STHostAddress *address = NULL;
+		unsigned int address_len = 0;
+		int i = 0;
+
+		MSCAPI_ReadHostAddress(address, &address_len);
+
+		address = (STHostAddress*)malloc(sizeof(STHostAddress)*address_len);
+
+		MSCAPI_ReadHostAddress(address, &address_len);
+
+		for (i = 0; i < address_len; i++)
+		{
+			if (0 == strcmp(address[i].szIPAddress, strLocalIP.c_str()))
+			{
+				break;
+			}
+		}
+
+		item["success"] = TRUE;
+		item["msg"] = utf8_encode(L"获取IP地址成功");
+		item["local_ip"] = strLocalIP;
+		item["remote_ip"] = strIP;
+		item["mac"] = address[i].szMacAddress;
 	}
 	else
 	{

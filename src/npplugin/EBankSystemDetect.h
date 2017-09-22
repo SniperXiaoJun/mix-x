@@ -774,4 +774,22 @@ string WTF_DetectLocalIPAddress();
 */
 string WTF_DetectNetworkIPAddress();
 
+
+
+/*
+函数功能：检测主机地址
+输入参数：
+返回值： json string
+返回JSON结构:
+{
+"local_ip" : "192.168.18.206",
+"mac" : "b8-a3-86-8e-a1-04",
+"msg" : "获取IP地址成功",
+"remote_ip" : "218.241.251.145 ",
+"success" : 1
+}
+*/
+
+string WTF_DetectHostAddress();
+
 #endif/*_EBANK_SYSTEM_DETECT_H*/

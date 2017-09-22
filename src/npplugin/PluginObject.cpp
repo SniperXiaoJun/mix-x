@@ -39,6 +39,7 @@ const char* kDetectHost = "detectHost";
 
 const char* kDetectLocalIPAddress = "detectLocalIPAddress";
 const char* kDetectNetworkIPAddress = "detectNetworkIPAddress";
+const char* kDetectHostAddress = "detectHostAddress";
 const char* kDetectMACAddress = "detectMACAddress";
 const char* kDetectProcessLikeRunState = "detectProcessLikeRunState";
 const char* kDetectWebsiteWithTimeout = "detectWebsiteWithTimeout";
@@ -711,6 +712,21 @@ namespace {
 		return true;
 	}
 
+	DWORD WINAPI DetectHostAddressThread(LPVOID lparam) {
+		UseMixMutex share_mutex("share_mutex_socket");
+
+		ParamThread* paramThread = (ParamThread*)lparam;
+		if (paramThread == NULL)
+			return false;
+
+		// 1: 时间
+		paramThread->pluginObj->ExecuteJSCallback(paramThread->paramCallback, utf8_decode(WTF_DetectHostAddress()));
+
+		//FreeThreadParamItem(paramThread);
+
+		return true;
+	}
+
 	DWORD WINAPI ThreadTimeoutKill(LPVOID lparam)
 	{
 		ParamThread* paramThread = (ParamThread*)lparam;
@@ -1151,6 +1167,7 @@ bool PluginObject::hasMethod(NPIdentifier methodName){
 		|| strcmp(pName, kDetectUntrustUrl)==0 
 		|| strcmp(pName, kDetectBankWebsite)==0 
 		|| strcmp(pName, kDetectLocalIPAddress)==0 
+		|| strcmp(pName, kDetectHostAddress) == 0
 		|| strcmp(pName, kDetectNetworkIPAddress)==0 
 		|| strcmp(pName, kDetectMACAddress)==0 
 		|| strcmp(pName, kDetectWebsiteWithTimeout)==0 
@@ -1839,6 +1856,22 @@ bool PluginObject::invoke(NPIdentifier methodName,
 
 			outString = "detect DetectNetworkIPAddress async.";
 		} 
+		else if (strcmp(name, kDetectHostAddress) == 0) {
+			ret_val = true;
+
+			ParamThread * paramThread = new ParamThread();
+			paramThread->pluginObj = this;
+
+			paramThread->paramCallback = NPN_RetainObject(NPVARIANT_TO_OBJECT(args[0]));
+
+			AddThreadParamItem(paramThread);
+
+			hThread = CreateThread(NULL, 0, DetectHostAddressThread, paramThread, 0, NULL);
+
+			AddThreadItem(hThread);
+
+			outString = "detect DetectHostAddress async.";
+		}
 		else if (strcmp(name, kDetectLocalIPAddress)==0 ) {
 			ret_val = true;
 

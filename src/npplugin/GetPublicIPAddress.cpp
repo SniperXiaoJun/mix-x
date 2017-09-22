@@ -23,12 +23,19 @@ typedef int ssize_t;
 
 using namespace std;
 
-bool getPublicIp(string& ip)
+bool getPublicIp(string& ip_remote, string &ip_local)
 {
 	char peer[] = "GET / HTTP/1.1\r\n"
 		"Host:ip.dnsexit.com\r\n\r\n";
 	SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
 	sockaddr_in addr;
+	sockaddr_in addr_tmp = { 0 };
+	string strDest;
+
+	char buffer[1024] = { 0 };
+
+	int addr_in_len = sizeof(sockaddr_in);
+
 	char text[600] = { 0 };
 	int i = 0;
 
@@ -53,6 +60,26 @@ bool getPublicIp(string& ip)
 		return false;
 	}
 
+	if (-1 == getpeername(sock, (sockaddr*)&addr_tmp, &addr_in_len))
+	{
+		perror("getpeername failed");
+		return false;
+	}
+
+	memset(buffer, 0, 1024);
+	sprintf(buffer, "%d.%d.%d.%d", addr_tmp.sin_addr.S_un.S_un_b.s_b1, addr_tmp.sin_addr.S_un.S_un_b.s_b2, addr_tmp.sin_addr.S_un.S_un_b.s_b3, addr_tmp.sin_addr.S_un.S_un_b.s_b4);
+	strDest = buffer;
+
+	if (-1 == getsockname(sock, (sockaddr*)&addr_tmp, &addr_in_len))
+	{
+		perror("getsockname failed");
+		return false;
+	}
+
+	memset(buffer, 0, 1024);
+	sprintf(buffer, "%d.%d.%d.%d", addr_tmp.sin_addr.S_un.S_un_b.s_b1, addr_tmp.sin_addr.S_un.S_un_b.s_b2, addr_tmp.sin_addr.S_un.S_un_b.s_b3, addr_tmp.sin_addr.S_un.S_un_b.s_b4);
+	ip_local = buffer;
+
 	if (-1 == send(sock, peer, sizeof(peer), 0))
 	{
 		perror("send error");
@@ -68,7 +95,7 @@ bool getPublicIp(string& ip)
 	while (text[i] != '\n' || text[i + 1] != '\r')//去掉前面的信息  
 		i++;
 
-	ip = &text[i + 5];//得到ip地址开始位置，复制到字符串ip中  
+	ip_remote = &text[i + 5];//得到ip地址开始位置，复制到字符串ip中  
 
 	closesocket(sock);
 
