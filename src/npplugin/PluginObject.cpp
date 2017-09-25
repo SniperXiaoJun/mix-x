@@ -40,6 +40,7 @@ const char* kDetectHost = "detectHost";
 const char* kDetectLocalIPAddress = "detectLocalIPAddress";
 const char* kDetectNetworkIPAddress = "detectNetworkIPAddress";
 const char* kDetectHostAddress = "detectHostAddress";
+const char* kDetectHostAddressSync = "detectHostAddressSync";
 const char* kDetectMACAddress = "detectMACAddress";
 const char* kDetectProcessLikeRunState = "detectProcessLikeRunState";
 const char* kDetectWebsiteWithTimeout = "detectWebsiteWithTimeout";
@@ -754,6 +755,23 @@ namespace {
 		return true;
 	}
 
+	DWORD WINAPI ThreadTimeoutKillSync(LPVOID lparam)
+	{
+		UseMixMutex share_mutex("share_mutex_socket");
+
+		ParamThread* paramThread = (ParamThread*)lparam;
+		if (paramThread == NULL)
+			return false;
+
+		if (kDetectHostAddressSync == paramThread->pFunctionID)
+		{
+			paramThread->strFunctionExecResult = WTF_DetectHostAddress();
+		}
+
+		return true;
+	}
+
+
 
 	DWORD WINAPI detectBankWebsiteThread(LPVOID lparam) {
 		UseMixMutex share_mutex("share_mutex_socket");
@@ -1168,6 +1186,7 @@ bool PluginObject::hasMethod(NPIdentifier methodName){
 		|| strcmp(pName, kDetectBankWebsite)==0 
 		|| strcmp(pName, kDetectLocalIPAddress)==0 
 		|| strcmp(pName, kDetectHostAddress) == 0
+		|| strcmp(pName, kDetectHostAddressSync) == 0
 		|| strcmp(pName, kDetectNetworkIPAddress)==0 
 		|| strcmp(pName, kDetectMACAddress)==0 
 		|| strcmp(pName, kDetectWebsiteWithTimeout)==0 
@@ -1871,6 +1890,48 @@ bool PluginObject::invoke(NPIdentifier methodName,
 			AddThreadItem(hThread);
 
 			outString = "detect DetectHostAddress async.";
+		}
+		else if (strcmp(name, kDetectHostAddressSync) == 0) {
+			ParamThread * paramThread = new ParamThread();
+			paramThread->pluginObj = this;
+
+			paramThread->pFunctionID = (void *)kDetectHostAddressSync;
+
+			HANDLE hThreadTimeout = CreateThread(NULL, 0, ThreadTimeoutKillSync, paramThread, 0, NULL);
+
+			AddThreadParamItem(paramThread);
+
+			DWORD res = WaitForSingleObject(hThreadTimeout, 5000);
+
+			if (WAIT_OBJECT_0 == res)
+			{
+
+			}
+			else if (WAIT_TIMEOUT == res)
+			{
+				TerminateThread(hThreadTimeout, 0);
+
+				Json::Value item;
+
+				item["success"] = FALSE;
+				item["msg"] = utf8_encode(L"操作等待超时");
+
+				paramThread->strFunctionExecResult = item.toStyledString();
+			}
+			else
+			{
+				TerminateThread(hThreadTimeout, 0);
+
+				Json::Value item;
+
+				item["success"] = FALSE;
+				item["msg"] = utf8_encode(L"操作等待异常");
+
+				paramThread->strFunctionExecResult = item.toStyledString();
+			}
+
+			ret_val = true;
+			outString = paramThread->strFunctionExecResult;
 		}
 		else if (strcmp(name, kDetectLocalIPAddress)==0 ) {
 			ret_val = true;
