@@ -124,6 +124,8 @@ unsigned int GetPathDbFileIn(char *pDbPath)
 	return 0;
 }
 
+#pragma comment( linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
+
 int main(int argc, char * argv[])
 {
 	HCRYPTPROV	hCryptProv = NULL;
@@ -173,5 +175,5 @@ int main(int argc, char * argv[])
 
 	KillProcessByName(process_name, &i);
 
-	return getchar();
+	return 0; //getchar();
 }

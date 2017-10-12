@@ -7,6 +7,8 @@ LINK_DIRECTORIES(
 add_executable(
   x_process_killbyname
 
+  x_process_killbyname.rc
+
   x_process_killbyname.cpp
 )
 
