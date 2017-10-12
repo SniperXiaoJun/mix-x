@@ -99,17 +99,45 @@ int KillProcessByName(const char *processName, unsigned int *puiCountProcess)
 	return 0;
 }
 
+
+unsigned int GetPathDbFileIn(char *pDbPath)
+{
+	char smb_db_path[1024] = { 0 };
+	int i = 0;
+
+	//无权限
+	//GetModuleFileNameA(GetSelfModuleHandle(), smb_db_path, 1024);
+	GetModuleFileNameA(NULL, smb_db_path, 1024);
+	for (i = strlen(smb_db_path); i > 0; i--)
+	{
+		if ('.' == smb_db_path[i])
+		{
+			smb_db_path[i] = '\0';
+			break;
+		}
+	}
+
+	strcat(smb_db_path, ".conf");
+	
+	strcpy(pDbPath, smb_db_path);
+
+	return 0;
+}
+
 int main(int argc, char * argv[])
 {
 	HCRYPTPROV	hCryptProv = NULL;
 	DWORD dwError;
 	char process_name[128] = { 0 };
+	char file_in[255] = { 0 };
+
+	GetPathDbFileIn(file_in);
 
 	SetLastError(0);
 
 	std::fstream _file;
 
-	_file.open("pid.conf", std::ios::binary | std::ios::in);
+	_file.open(file_in, std::ios::binary | std::ios::in);
 
 	if (_file)
 	{
