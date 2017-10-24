@@ -671,7 +671,9 @@ std::string WTF_ReadCurrentCerts(int Expire)
 				WT_GetCertInfo(CERT_SUBJECT_DN, NID_COMMONNAME, data_info_value, &data_info_len);
 				item["subject"] = data_info_value;
 
-				item["commonName"] = strstr(item["subject"].asCString(), "=") + 1 == 0 ? item["subject"] : strstr(item["subject"].asCString(), "=") + 1;
+				//item["commonName"] = strstr(item["subject"].asCString(), "=") + 1 == 0 ? item["subject"] : strstr(item["subject"].asCString(), "=") + 1;
+
+				item["commonName"] = data_info_len == 0 ? "" : strstr(data_info_value, "=") + 1;
 
 				memset(data_info_value, 0, 1024);
 				WT_GetCertInfo(CERT_NOTBEFORE, 0, data_info_value, &data_info_len);
@@ -879,7 +881,10 @@ std::string WTF_ReadCurrentCerts(int Expire)
 								WT_GetCertInfo(CERT_SUBJECT_DN, NID_COMMONNAME, data_info_value, &data_info_len);
 								item["subject"] = data_info_value;
 
-								item["commonName"] = strstr(item["subject"].asCString(), "=") + 1 == 0 ? item["subject"] : strstr(item["subject"].asCString(), "=") + 1;
+								//item["commonName"] = strstr(item["subject"].asCString(), "=") + 1 == 0 ? item["subject"] : strstr(item["subject"].asCString(), "=") + 1;
+								
+								item["commonName"] = data_info_len == 0 ? "" : strstr(data_info_value, "=") + 1;
+
 
 								memset(data_info_value, 0, 1024);
 								WT_GetCertInfo(CERT_NOTBEFORE, 0, data_info_value, &data_info_len);
@@ -1063,7 +1068,8 @@ std::string WTF_ReadCurrentCerts(int Expire)
 							WT_GetCertInfo(CERT_SUBJECT_DN, NID_COMMONNAME, data_info_value, &data_info_len);
 							item["subject"] = data_info_value;
 
-							item["commonName"] = strstr(item["subject"].asCString(), "=") + 1 == 0 ? item["subject"] : strstr(item["subject"].asCString(), "=") + 1;
+							//item["commonName"] = strstr(item["subject"].asCString(), "=") + 1 == 0 ? item["subject"] : strstr(item["subject"].asCString(), "=") + 1;
+							item["commonName"] = data_info_len == 0 ? "" : strstr(data_info_value, "=") + 1;
 
 							memset(data_info_value, 0, 1024);
 							WT_GetCertInfo(CERT_NOTBEFORE, 0, data_info_value, &data_info_len);
