@@ -130,6 +130,7 @@ int skfKeyCount = 0;
 
 int GetKeyCount(int *piCount)
 {
+	FILE_LOG_FMT(file_log_name, "%s %d %s", __FUNCTION__, __LINE__, "START");
 	SMB_CS_PIDVID_NODE *pHeader = NULL;
 	int tmpCount = 0;
 	int count = 0;
@@ -196,7 +197,7 @@ err:
 	}
 
 	*piCount = count;
-
+	FILE_LOG_FMT(file_log_name, "%s %d %s", __FUNCTION__, __LINE__, "END");
 	return 0;
 }
 std::string WTF_GetCurrentCerts(int Expire);
@@ -586,6 +587,9 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 	SMB_CS_Init();
 
+	FILE_LOG_FMT(file_log_name, "%s %d %s", __FUNCTION__, __LINE__, "ENTER");
+
+	FILE_LOG_FMT(file_log_name, "%s %d %s", __FUNCTION__, __LINE__, "SKF READ START");
 	ulRet = SMB_DEV_EnumCert(&header, SMB_CERT_ALG_FLAG_SM2 | SMB_CERT_ALG_FLAG_RSA,
 		SMB_CERT_USAGE_FLAG_SIGN | SMB_CERT_USAGE_FLAG_EX, // Ç©Ãû
 		SMB_CERT_VERIFY_FLAG_TIME | SMB_CERT_VERIFY_FLAG_CHAIN | SMB_CERT_VERIFY_FLAG_CRL,
@@ -598,6 +602,7 @@ std::string WTF_ReadCurrentCerts(int Expire)
 	else
 	{
 		pCertCtxNode = header;
+		
 
 		while (pCertCtxNode)
 		{
@@ -755,8 +760,10 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 		ADD_USER_CERTS(header);
 	}
-
+	FILE_LOG_FMT(file_log_name, "%s %d %s", __FUNCTION__, __LINE__, "SKF READ END");
 	SMB_CS_EnumCSP(&pHeader);
+
+	FILE_LOG_FMT(file_log_name, "%s %d %s", __FUNCTION__, __LINE__, "CSP READ START");
 
 	if (NULL == pHeader)
 	{
@@ -1144,7 +1151,7 @@ std::string WTF_ReadCurrentCerts(int Expire)
 			pNode = pNode->ptr_next;
 		}
 	}
-
+	FILE_LOG_FMT(file_log_name, "%s %d %s", __FUNCTION__, __LINE__, "CSP READ END");
 	if (pDevInfo)
 	{
 		free(pDevInfo);
@@ -1161,6 +1168,8 @@ std::string WTF_ReadCurrentCerts(int Expire)
 	}
 
 	g_CurrentCerts = All.toStyledString();
+
+	FILE_LOG_FMT(file_log_name, "%s %d %s", __FUNCTION__, __LINE__, "LEAVE");
 	
 	return All.toStyledString();
 }
