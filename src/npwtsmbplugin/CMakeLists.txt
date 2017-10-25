@@ -27,9 +27,7 @@ FILE(GLOB
 FILE(GLOB 
   common_cpps
   ${CMAKE_SOURCE_DIR}/common/encode_switch.cpp
-  ${CMAKE_SOURCE_DIR}/common/o_all_func_def.c
   ${CMAKE_SOURCE_DIR}/common/certificate_items_parse.cpp
-  ${CMAKE_SOURCE_DIR}/common/smcert.cpp
  )
  
  FILE(GLOB 
