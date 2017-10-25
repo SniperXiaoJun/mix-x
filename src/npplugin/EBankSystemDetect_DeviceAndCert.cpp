@@ -1069,6 +1069,7 @@ std::string WTF_ReadCurrentCerts(int Expire)
 							item["subject"] = data_info_value;
 
 							//item["commonName"] = strstr(item["subject"].asCString(), "=") + 1 == 0 ? item["subject"] : strstr(item["subject"].asCString(), "=") + 1;
+							// 上边当subject=""时，非法访问内存NULL+1转string
 							item["commonName"] = data_info_len == 0 ? "" : strstr(data_info_value, "=") + 1;
 
 							memset(data_info_value, 0, 1024);
