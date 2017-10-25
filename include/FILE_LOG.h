@@ -10,7 +10,9 @@
 
 #include "common.h"
 
+#ifndef FILE_LOG_TO_FILE
 #define FILE_LOG_TO_FILE 0
+#endif
 
 #if defined(_WINDOWS) || defined(WIN32)
 

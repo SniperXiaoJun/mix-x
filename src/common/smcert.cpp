@@ -727,7 +727,7 @@ int GetInfoByNameID(X509_NAME *certname, int inID, char *pszOut, int *piOutLen)
 	BIO				*mem = NULL;
 	const char		*s = NULL;
 	char	*p = NULL;	
-	char	tmp_buf[80] = {0};		
+	char	tmp_buf[256] = {0};		
 	char	*pszBuf = NULL;	
 	int		iLen;
 	int		i, n, iTempLen;
