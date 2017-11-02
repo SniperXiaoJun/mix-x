@@ -443,8 +443,11 @@ unsigned long	CheckSecurityCenter(unsigned long ulSecurityCenterType, CSecurityP
 								);     
 	if (FAILED(hres))
     {
-		printf("Failed to initialize security. Error code = 0x%08x\n", hres); 
-        goto FINISH;                    // Program has failed.
+		if (RPC_E_TOO_LATE != hres)
+		{
+			printf("Failed to initialize security. Error code = 0x%08x\n", hres);
+			goto FINISH; // Program has failed.
+		}    
     }
 
 //    printf("// Step 3: ---------------------------------------------------\n");
