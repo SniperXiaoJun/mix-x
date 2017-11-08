@@ -32,6 +32,7 @@ add_subdirectory(npdraw)
 add_subdirectory(smb_cs_log)
 add_subdirectory(smb_cs_secure)
 add_subdirectory(smb_cs_secure_log)
+add_subdirectory(smb_qtui_win_system)
 add_subdirectory(npwtsmbplugin)
 
 
