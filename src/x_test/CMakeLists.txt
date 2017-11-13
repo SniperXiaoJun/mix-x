@@ -32,11 +32,18 @@ add_executable(
 add_dependencies(x_all x_test_auth_admin)
 
 add_executable(
-  x_test
+  x_test_ssl
 
-  x_test.cpp
+  ${CMAKE_SOURCE_DIR}/common/FILE_LOG.c
+  ${CMAKE_SOURCE_DIR}/npplugin/registry.cc
+  ${CMAKE_SOURCE_DIR}/npplugin/SSLCon.cpp
+
+  x_test_ssl.cpp
 )
-add_dependencies(x_all x_test)
+add_dependencies(x_all x_test_ssl)
+
+TARGET_LINK_LIBRARIES(x_test_ssl Wininet)
+TARGET_LINK_LIBRARIES(x_test_ssl Crypt32)
 
 add_executable(
   x_test_getlocalip
