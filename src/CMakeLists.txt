@@ -47,5 +47,7 @@ add_subdirectory(x_file_log)
 add_subdirectory(x_testgdi)
 add_subdirectory(x_test_activex)
 add_subdirectory(x_file_copy)
+add_subdirectory(x_process_turn)
+
 
 
