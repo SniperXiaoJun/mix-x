@@ -203,6 +203,7 @@ int main(int argc, char * argv[])
 		Sleep(5000*12*2);
 		KillProcessByName(process_name, &i);
 		printf("current j=%d i = %d\n", j, i);
+		j++;
 	}
 
 
