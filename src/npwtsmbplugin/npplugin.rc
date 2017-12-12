@@ -51,8 +51,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,500,2017,1025
- PRODUCTVERSION 4,500,2017,1025
+ FILEVERSION 4,500,2017,1212
+ PRODUCTVERSION 4,500,2017,1212
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -69,13 +69,13 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "WinTrust"
             VALUE "FileDescription", "npwtsmbplugin.dll"
-            VALUE "FileVersion", "4.500.2017.1025"
+            VALUE "FileVersion", "4.500.2017.1212"
             VALUE "InternalName", "npbank.dll"
             VALUE "LegalCopyright", "Copyright (C) 2013"
             VALUE "MIMEType", "application/x-wtsmb"
             VALUE "OriginalFilename", "npwtsmbplugin.dll"
             VALUE "ProductName", "npwtsmbplugin.dll"
-            VALUE "ProductVersion", "4.500.2017.1025"
+            VALUE "ProductVersion", "4.500.2017.1212"
         END
     END
     BLOCK "VarFileInfo"

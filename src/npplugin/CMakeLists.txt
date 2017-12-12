@@ -87,22 +87,22 @@ TARGET_LINK_LIBRARIES(npwtsmbplugin Crypt32)
 TARGET_LINK_LIBRARIES(npwtsmbplugin SetupAPI)
 
 
-ADD_LIBRARY(
-  npwtbankplugin SHARED
-  
-  npplugin.def
-  ${CMAKE_SOURCE_DIR}/npplugin/npplugin_wtbank.rc
-  
-  ${npplugin_cpps}
-  ${jsoncpp_cpps}
-  ${common_cpps}
-)
+#ADD_LIBRARY(
+#  npwtbankplugin SHARED
+#  
+#  npplugin.def
+#  ${CMAKE_SOURCE_DIR}/npplugin/npplugin_wtbank.rc
+#  
+#  ${npplugin_cpps}
+#  ${jsoncpp_cpps}
+#  ${common_cpps}
+#)
 
-target_link_libraries(npwtbankplugin sqlite3)
-TARGET_LINK_LIBRARIES(npwtbankplugin mix_bssl)
-TARGET_LINK_LIBRARIES(npwtbankplugin smb_base)
-TARGET_LINK_LIBRARIES(npwtbankplugin smb_qtui)
-TARGET_LINK_LIBRARIES(npwtbankplugin Wininet)
-TARGET_LINK_LIBRARIES(npwtbankplugin Crypt32)
-TARGET_LINK_LIBRARIES(npwtbankplugin SetupAPI)
+#target_link_libraries(npwtbankplugin sqlite3)
+#TARGET_LINK_LIBRARIES(npwtbankplugin mix_bssl)
+#TARGET_LINK_LIBRARIES(npwtbankplugin smb_base)
+#TARGET_LINK_LIBRARIES(npwtbankplugin smb_qtui)
+#TARGET_LINK_LIBRARIES(npwtbankplugin Wininet)
+#TARGET_LINK_LIBRARIES(npwtbankplugin Crypt32)
+#TARGET_LINK_LIBRARIES(npwtbankplugin SetupAPI)
 

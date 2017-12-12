@@ -87,22 +87,22 @@ TARGET_LINK_LIBRARIES(npwtsmbplugin500 Crypt32)
 TARGET_LINK_LIBRARIES(npwtsmbplugin500 SetupAPI)
 
 
-ADD_LIBRARY(
-  npwtbankplugin500 SHARED
-  
-  ${CMAKE_SOURCE_DIR}/npplugin/npplugin.def
-  ${CMAKE_SOURCE_DIR}/npwtsmbplugin/npplugin_wtbank.rc
-  
-  ${npplugin_cpps}
-  ${jsoncpp_cpps}
-  ${common_cpps}
-)
+#ADD_LIBRARY(
+#  npwtbankplugin500 SHARED
+#  
+#  ${CMAKE_SOURCE_DIR}/npplugin/npplugin.def
+#  ${CMAKE_SOURCE_DIR}/npwtsmbplugin/npplugin_wtbank.rc
+#  
+#  ${npplugin_cpps}
+#  ${jsoncpp_cpps}
+#  ${common_cpps}
+#)
 
-target_link_libraries(npwtbankplugin500 sqlite3)
-TARGET_LINK_LIBRARIES(npwtbankplugin500 mix_bssl)
-TARGET_LINK_LIBRARIES(npwtbankplugin500 smb_base)
-TARGET_LINK_LIBRARIES(npwtbankplugin500 smb_qtui)
-TARGET_LINK_LIBRARIES(npwtbankplugin500 Wininet)
-TARGET_LINK_LIBRARIES(npwtbankplugin500 Crypt32)
-TARGET_LINK_LIBRARIES(npwtbankplugin500 SetupAPI)
+#target_link_libraries(npwtbankplugin500 sqlite3)
+#TARGET_LINK_LIBRARIES(npwtbankplugin500 mix_bssl)
+#TARGET_LINK_LIBRARIES(npwtbankplugin500 smb_base)
+#TARGET_LINK_LIBRARIES(npwtbankplugin500 smb_qtui)
+#TARGET_LINK_LIBRARIES(npwtbankplugin500 Wininet)
+#TARGET_LINK_LIBRARIES(npwtbankplugin500 Crypt32)
+#TARGET_LINK_LIBRARIES(npwtbankplugin500 SetupAPI)
 
