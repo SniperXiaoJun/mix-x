@@ -4,6 +4,7 @@
 #include <setupapi.h>
 #include <algorithm>
 #include <map>
+#include <common.h>
 
 int CollectUSBInfo(int * piCount, char * pVID, char * pPID)
 {
@@ -90,8 +91,7 @@ err:
 	return 0;
 }
 
-
-int main()
+unsigned int CALL_CONVENTION SMB_CS_GetKeyInfo(wchar_t * pKeyIDHex, unsigned int ulAlgType)
 {
 
 	//95568·Ç¹úÃÜ£º
@@ -136,7 +136,7 @@ int main()
 		keyFlag = keyFlag | (1 << 1);
 	}
 
-	//keyFlag = keyFlag | (1 << 2);
+	keyFlag = keyFlag | (1 << 2);
 
 	return keyFlag;
 }
