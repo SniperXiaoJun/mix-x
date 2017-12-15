@@ -142,7 +142,7 @@ ADD_LIBRARY(
 
   GetKeyInfo.cpp
 )
-target_link_libraries(GetKeyInfo smb_base)
+
 TARGET_LINK_LIBRARIES(GetKeyInfo SetupAPI)
 
 
