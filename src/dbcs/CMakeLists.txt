@@ -132,3 +132,17 @@ add_executable(
 )
 target_link_libraries(x_dbcs_rw_certs smb_base)
 
+
+add_executable(
+  x_dbcs_getkeyinfo
+
+  x_dbcs_getkeyinfo.rc
+
+  x_dbcs_getkeyinfo.cpp
+)
+target_link_libraries(x_dbcs_getkeyinfo smb_base)
+TARGET_LINK_LIBRARIES(x_dbcs_getkeyinfo SetupAPI)
+
+
+
+
