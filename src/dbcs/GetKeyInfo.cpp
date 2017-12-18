@@ -136,7 +136,7 @@ unsigned int CALL_CONVENTION SMB_CS_GetKeyInfo(wchar_t * pKeyIDHex, unsigned int
 		keyFlag = keyFlag | (1 << 1);
 	}
 
-	keyFlag = keyFlag | (1 << 2);
+	//keyFlag = keyFlag | (1 << 2);
 
 	return keyFlag;
 }
