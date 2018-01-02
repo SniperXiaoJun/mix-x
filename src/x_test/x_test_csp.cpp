@@ -508,6 +508,155 @@ void function4()
 	} while (NULL != context_OUT);
 }
 
+
+void function5()
+{
+	{
+		HCERTSTORE hSysStore = 0;
+		PCCERT_CONTEXT pCertContext = NULL;
+		PCCERT_CONTEXT pCert[10] = { 0 };
+		DWORD dwCertCount = 0;
+
+		hSysStore = CertOpenSystemStore(NULL, L"MY");
+
+		//Enum the certificate in the store
+		int i;
+		for (i = 0; i < 10; i++)
+		{
+			pCertContext = CertEnumCertificatesInStore(
+				hSysStore,
+				pCertContext);
+
+			if (pCertContext == NULL)
+			{
+				break;
+			}
+
+			MessageBoxA(NULL, "1", "Info", MB_ICONEXCLAMATION | MB_YESNO);
+
+			pCert[i] = CertDuplicateCertificateContext(pCertContext);
+			//CertFreeCertificateContext(pCertContext);
+		}
+
+		//Close store
+		CertCloseStore(hSysStore, 0);
+
+		dwCertCount = i;
+		for (i = 0; i < dwCertCount; i++)
+		{
+			BOOL bFlag;
+			DWORD dwBufferSize = 0;
+			HCRYPTPROV hCryptProv = 0;
+			CRYPT_KEY_PROV_INFO *pvKeyProv = NULL;
+			HCRYPTKEY hKey = NULL;
+			BYTE* bCert = NULL;
+			DWORD dwCertLength;
+
+			//Get certificate's proprety CSP name and container name
+			bFlag = CertGetCertificateContextProperty(pCert[i],
+				CERT_KEY_PROV_INFO_PROP_ID,
+				NULL,
+				&dwBufferSize);
+
+			MessageBoxA(NULL, "2", "Info", MB_ICONEXCLAMATION | MB_YESNO);
+
+			if (!bFlag)
+			{
+				continue;
+			}
+
+			pvKeyProv = (CRYPT_KEY_PROV_INFO*) new BYTE[dwBufferSize];
+
+			bFlag = CertGetCertificateContextProperty(pCert[i],
+				CERT_KEY_PROV_INFO_PROP_ID,
+				pvKeyProv,
+				&dwBufferSize);
+
+			if (!bFlag)
+			{
+				delete pvKeyProv;
+				continue;
+			}
+
+			MessageBoxA(NULL, "3", "Info", MB_ICONEXCLAMATION | MB_YESNO);
+
+
+			if (NULL == pvKeyProv->pwszContainerName || NULL == pvKeyProv->pwszProvName)
+			{
+				delete pvKeyProv;
+				continue;
+			}
+
+			MessageBoxA(NULL, "4", "Info", MB_ICONEXCLAMATION | MB_YESNO);
+
+			//Open the container
+			bFlag = CryptAcquireContextW(&hCryptProv,
+				pvKeyProv->pwszContainerName,
+				pvKeyProv->pwszProvName,
+				PROV_RSA_FULL,
+				0);
+
+			if (!bFlag)
+			{
+				delete pvKeyProv;
+				continue;
+			}
+
+			MessageBoxA(NULL, "8", "Info", MB_ICONEXCLAMATION | MB_YESNO);
+
+			bFlag = CryptGetUserKey(hCryptProv, AT_KEYEXCHANGE, &hKey);
+			if (!bFlag)
+			{
+				DWORD dwError = GetLastError();
+
+				CryptReleaseContext(hCryptProv, 0);
+				delete pvKeyProv;
+				continue;
+			}
+
+			MessageBoxA(NULL, "9", "Info", MB_ICONEXCLAMATION | MB_YESNO);
+
+			bFlag = CryptGetKeyParam(hKey, KP_CERTIFICATE, NULL, &dwCertLength, 0);
+
+			if (!bFlag)
+			{
+				CryptDestroyKey(hKey);
+				CryptReleaseContext(hCryptProv, 0);
+				delete pvKeyProv;
+				continue;
+			}
+
+			MessageBoxA(NULL, "10", "Info", MB_ICONEXCLAMATION | MB_YESNO);
+
+			bCert = new BYTE[dwCertLength];
+			bFlag = CryptGetKeyParam(hKey, KP_CERTIFICATE, bCert, &dwCertLength, 0);
+
+			if (!bFlag)
+			{
+				GetLastError();
+				delete bCert;
+				CryptDestroyKey(hKey);
+				CryptReleaseContext(hCryptProv, 0);
+				delete pvKeyProv;
+				continue;
+			}
+
+			MessageBoxA(NULL, "11", "Info", MB_ICONEXCLAMATION | MB_YESNO);
+
+			delete bCert;
+			CryptDestroyKey(hKey);
+			CryptReleaseContext(hCryptProv, 0);
+			delete pvKeyProv;
+		}
+
+		// free
+		for (i = 0; i < 10; i++)
+		{
+			CertFreeCertificateContext(pCert[i]);
+		}
+	}
+}
+
 int main(int argc, char * argv[])
 {
 	HCRYPTPROV	hCryptProv = NULL;
@@ -515,6 +664,8 @@ int main(int argc, char * argv[])
 	char csp_name[128] = { 0 };
 
 	SetLastError(0);
+
+	function5();
 
 	function4();
 
