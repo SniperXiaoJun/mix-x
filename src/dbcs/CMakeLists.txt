@@ -132,3 +132,19 @@ add_executable(
 )
 target_link_libraries(x_dbcs_rw_certs smb_base)
 
+
+ADD_LIBRARY(
+  GetKeyInfo SHARED
+
+  GetKeyInfo.rc
+
+  GetKeyInfo.def
+
+  GetKeyInfo.cpp
+)
+
+TARGET_LINK_LIBRARIES(GetKeyInfo SetupAPI)
+
+
+
+
