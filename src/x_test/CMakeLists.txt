@@ -10,6 +10,7 @@ target_link_libraries(x_test_certkeyid sqlite3)
 TARGET_LINK_LIBRARIES(x_test_certkeyid Crypt32)
 add_dependencies(x_all x_test_certkeyid)
 
+add_definitions(-DUNICODE -D_UNICODE)
 
 include_directories(../../include)
 
@@ -20,7 +21,9 @@ add_executable(
 )
 
 target_link_libraries(x_test_csp sqlite3)
+TARGET_LINK_LIBRARIES(x_test_csp Crypt32)
 add_dependencies(x_all x_test_csp)
+
 
 
 add_executable(
