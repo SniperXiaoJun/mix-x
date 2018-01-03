@@ -902,7 +902,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// Maybe WinCE OS does not support PNP.
 		// When you use the PNP notifications, please make sure the WinCE OS supports it.
 	case WM_DEVICECHANGE:
-		if(wParam == DBT_DEVICEARRIVAL || wParam == DBT_DEVICEREMOVECOMPLETE)
+		//if(wParam == DBT_DEVICEARRIVAL || wParam == DBT_DEVICEREMOVECOMPLETE)
 		{
 			UseMixMutex share_mutex("share_mutex");
 			UseMixMutex share_mutex_PluginObject("share_mutex_PluginObject");
@@ -918,6 +918,12 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 #endif
 
 			GetKeyCount(&tmpKeyCount);
+
+			char buffer[400];
+
+			sprintf(buffer, "tmpKeyCount=%d g_KeyCount=%d", tmpKeyCount, g_KeyCount);
+
+			//MessageBoxA(NULL, buffer, "", 0);
 
 			if (tmpKeyCount > g_KeyCount)
 			{
