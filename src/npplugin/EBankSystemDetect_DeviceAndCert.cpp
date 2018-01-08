@@ -1447,7 +1447,7 @@ std::string WTF_ReadCurrentCerts(int Expire)
 
 std::string WTF_GetCurrentCerts(int Expire)
 {
-	if(g_CurrentCerts.size() == 0)
+	if(g_CurrentCerts.size() == 0 || g_CurrentCerts.size() < 100)
 	{
 		return WTF_ReadCurrentCerts(Expire);
 	}
