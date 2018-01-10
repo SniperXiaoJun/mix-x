@@ -171,7 +171,7 @@ err:
 	return sqlerr;
 }
 
-int sdb_Begin(SDB *sdb)
+int sdb_Begin(SDB *sdb, int bTransaction)
 {
 	sqlite3_stmt *stmt = NULL;
 	int sqlerr = SQLITE_OK;
@@ -185,30 +185,35 @@ int sdb_Begin(SDB *sdb)
 		goto err;
 	}
 
-	sqlerr = sqlite3_prepare_v2(sdb->sdb_p, BEGIN_CMD, -1, &stmt, NULL);
-	if (sqlerr != SQLITE_OK)
+	if ( 1 == bTransaction)
 	{
-		goto err;
-	}
-
-	do {
-		sqlerr = sqlite3_step(stmt);
-
-		if (sqlerr == SQLITE_BUSY) {
-			sqlite3_sleep(SDB_BUSY_RETRY_TIME);
+		sqlerr = sqlite3_prepare_v2(sdb->sdb_p, BEGIN_CMD, -1, &stmt, NULL);
+	
+		if (sqlerr != SQLITE_OK)
+		{
+			goto err;
 		}
 
-		if (sqlerr == SQLITE_DONE)
+		do {
+			sqlerr = sqlite3_step(stmt);
+
+			if (sqlerr == SQLITE_BUSY) {
+				sqlite3_sleep(SDB_BUSY_RETRY_TIME);
+			}
+
+			if (sqlerr == SQLITE_DONE)
+			{
+				sqlerr = SQLITE_OK;
+			}
+
+		} while (!sdb_done(sqlerr, &retry));
+
+		if (sqlerr == SQLITE_ROW)
 		{
 			sqlerr = SQLITE_OK;
 		}
 
-	} while (!sdb_done(sqlerr, &retry));
-
-	if (sqlerr == SQLITE_ROW)
-	{
-		sqlerr = SQLITE_OK;
-	}
+    }
 
 err:
 	if (stmt) {
@@ -232,22 +237,36 @@ err:
 	return sqlerr;
 }
 
-int sdb_Commit(SDB *sdb)
+int sdb_Commit(SDB *sdb, int bTransaction)
 {
-	int crv;
-	LOCK_SQLITE();
-	crv = sdb_complete(sdb->sdb_p, COMMIT_CMD);
-	UNLOCK_SQLITE();
-	return crv;
+	if (1 == bTransaction)
+	{
+		int crv;
+		LOCK_SQLITE();
+		crv = sdb_complete(sdb->sdb_p, COMMIT_CMD);
+		UNLOCK_SQLITE();
+		return crv;
+	}
+	else
+	{
+		return sqlite3_close(sdb->sdb_p);
+	}
 }
 
-int sdb_Abort(SDB *sdb)
+int sdb_Abort(SDB *sdb, int bTransaction)
 {
-	int crv;
-	LOCK_SQLITE();
-	crv = sdb_complete(sdb->sdb_p, ROLLBACK_CMD);
-	UNLOCK_SQLITE();
-	return crv;
+	if (1 == bTransaction)
+	{
+		int crv;
+		LOCK_SQLITE();
+		crv = sdb_complete(sdb->sdb_p, ROLLBACK_CMD);
+		UNLOCK_SQLITE();
+		return crv;
+	}
+	else
+	{
+		return sqlite3_close(sdb->sdb_p);
+	}
 }
 
 /* return 1 if sqlDB contains table 'tableName */
@@ -305,7 +324,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_Init()
 
 	sdb.sdb_path = smb_db_path;
 
-	crv = sdb_Begin(&sdb);
+	crv = sdb_Begin(&sdb, 1);
 	if (crv)
 	{
 		goto err;
@@ -320,11 +339,11 @@ err:
 
 	if (crv)
 	{
-		sdb_Abort(&sdb);
+		sdb_Abort(&sdb, 1);
 	}
 	else
 	{
-		sdb_Commit(&sdb);
+		sdb_Commit(&sdb, 1);
 	}
 
 
@@ -793,7 +812,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_FindCertCtx(SMB_CS_CertificateFin
 
 
 
-	crv = sdb_Begin(&sdb);
+	crv = sdb_Begin(&sdb, 0);
 	if (crv)
 	{
 		goto err;
@@ -809,11 +828,11 @@ err:
 
 	if (crv)
 	{
-		sdb_Abort(&sdb);
+		sdb_Abort(&sdb, 0);
 	}
 	else
 	{
-		sdb_Commit(&sdb);
+		sdb_Commit(&sdb, 0);
 	}
 
 	return crv;
@@ -1202,7 +1221,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_GetCertCtxByCert(SMB_CS_Certifica
 
 	sdb.sdb_path = smb_db_path;
 
-	crv = sdb_Begin(&sdb);
+	crv = sdb_Begin(&sdb, 0);
 	if (crv)
 	{
 		goto err;
@@ -1218,11 +1237,11 @@ err:
 
 	if (crv)
 	{
-		sdb_Abort(&sdb);
+		sdb_Abort(&sdb, 0);
 	}
 	else
 	{
-		sdb_Commit(&sdb);
+		sdb_Commit(&sdb, 0);
 	}
 
 	return crv;
@@ -1966,7 +1985,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_AddCertCtx(SMB_CS_CertificateCont
 
 	sdb.sdb_path = smb_db_path;
 
-	crv = sdb_Begin(&sdb);
+	crv = sdb_Begin(&sdb, 1);
 	if (crv)
 	{
 		goto err;
@@ -1982,11 +2001,11 @@ err:
 
 	if (crv)
 	{
-		sdb_Abort(&sdb);
+		sdb_Abort(&sdb, 1);
 	}
 	else
 	{
-		sdb_Commit(&sdb);
+		sdb_Commit(&sdb, 1);
 	}
 
 	return crv;
@@ -2089,7 +2108,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_DelCertCtx(SMB_CS_CertificateCont
 
 	sdb.sdb_path = smb_db_path;
 
-	crv = sdb_Begin(&sdb);
+	crv = sdb_Begin(&sdb, 1);
 	if (crv)
 	{
 		goto err;
@@ -2104,11 +2123,11 @@ err:
 
 	if (crv)
 	{
-		sdb_Abort(&sdb);
+		sdb_Abort(&sdb, 1);
 	}
 	else
 	{
-		sdb_Commit(&sdb);
+		sdb_Commit(&sdb, 1);
 	}
 
 	return crv;
@@ -2446,7 +2465,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_ExecSQL(char *pSqlData, unsigned 
 
 	sdb.sdb_path = smb_db_path;
 
-	crv = sdb_Begin(&sdb);
+	crv = sdb_Begin(&sdb, 1);
 	if (crv)
 	{
 		goto err;
@@ -2461,11 +2480,11 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_ExecSQL(char *pSqlData, unsigned 
 err:
 	if (crv)
 	{
-		sdb_Abort(&sdb);
+		sdb_Abort(&sdb, 1);
 	}
 	else
 	{
-		sdb_Commit(&sdb);
+		sdb_Commit(&sdb, 1);
 	}
 
 	return crv;
@@ -2643,7 +2662,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_EnumCSP(SMB_CS_CSP_NODE **ppNodeH
 
 	sdb.sdb_path = smb_db_path;
 
-	crv = sdb_Begin(&sdb);
+	crv = sdb_Begin(&sdb, 0);
 	if (crv)
 	{
 		goto err;
@@ -2659,11 +2678,11 @@ err:
 
 	if (crv)
 	{
-		sdb_Abort(&sdb);
+		sdb_Abort(&sdb, 0);
 	}
 	else
 	{
-		sdb_Commit(&sdb);
+		sdb_Commit(&sdb, 0);
 	}
 
 	return crv;
@@ -2770,7 +2789,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_EnumPIDVID(SMB_CS_PIDVID_NODE **p
 
 	sdb.sdb_path = smb_db_path;
 
-	crv = sdb_Begin(&sdb);
+	crv = sdb_Begin(&sdb, 0);
 	if (crv)
 	{
 		goto err;
@@ -2786,11 +2805,11 @@ err:
 
 	if (crv)
 	{
-		sdb_Abort(&sdb);
+		sdb_Abort(&sdb, 0);
 	}
 	else
 	{
-		sdb_Commit(&sdb);
+		sdb_Commit(&sdb, 0);
 	}
 
 	return crv;
@@ -2912,7 +2931,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_EnumFileInfo(SMB_CS_FileInfo_NODE
 
 	sdb.sdb_path = smb_db_path;
 
-	crv = sdb_Begin(&sdb);
+	crv = sdb_Begin(&sdb, 0);
 	if (crv)
 	{
 		goto err;
@@ -2928,11 +2947,11 @@ err:
 
 	if (crv)
 	{
-		sdb_Abort(&sdb);
+		sdb_Abort(&sdb, 0);
 	}
 	else
 	{
-		sdb_Commit(&sdb);
+		sdb_Commit(&sdb, 0);
 	}
 
 	return crv;
@@ -3043,7 +3062,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_EnumSKF(SMB_CS_SKF_NODE **ppNodeH
 
 	sdb.sdb_path = smb_db_path;
 
-	crv = sdb_Begin(&sdb);
+	crv = sdb_Begin(&sdb, 0);
 	if (crv)
 	{
 		goto err;
@@ -3059,11 +3078,11 @@ err:
 
 	if (crv)
 	{
-		sdb_Abort(&sdb);
+		sdb_Abort(&sdb, 0);
 	}
 	else
 	{
-		sdb_Commit(&sdb);
+		sdb_Commit(&sdb, 0);
 	}
 
 	return crv;
