@@ -54,26 +54,26 @@ void CommonToolsDlgChar::OnBnClickedOk()
 	// TODO: 在此添加控件通知处理程序代码
 	// CDialogEx::OnOK();
 
-	unsigned char data_value_in[BUFFER_LEN_1K * 4] = { 0 };
-	unsigned char data_value_out[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned char data_value_in[BUFFER_LEN_1K*BUFFER_LEN_1K] = { 0 };
+	unsigned char data_value_out[BUFFER_LEN_1K*BUFFER_LEN_1K] = { 0 };
 
-	unsigned int data_len_in = BUFFER_LEN_1K * 4;
-	unsigned int data_len_out = BUFFER_LEN_1K * 4;
+	unsigned int data_len_in = BUFFER_LEN_1K*BUFFER_LEN_1K;
+	unsigned int data_len_out = BUFFER_LEN_1K*BUFFER_LEN_1K;
 
-	wchar_t data_value_tmp[BUFFER_LEN_1K] = { 0 };
+	wchar_t data_value_tmp[BUFFER_LEN_1K*BUFFER_LEN_1K] = { 0 };
 
 	switch (m_iSelIN)
 	{
 	case E_INPUT_TYPE_FILE:
 	{
-		editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+		editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K*BUFFER_LEN_1K);
 
 		FILE_READ("", utf8_encode(data_value_tmp).c_str(), data_value_in, &data_len_in);
 	}
 	break;
 	case E_INPUT_TYPE_CHAR:
 	{
-		editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+		editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K*BUFFER_LEN_1K);
 
 		memcpy(data_value_in, utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()));
 
@@ -82,7 +82,7 @@ void CommonToolsDlgChar::OnBnClickedOk()
 	break;
 	case E_INPUT_TYPE_HEX:
 	{
-		editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+		editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K*BUFFER_LEN_1K);
 
 		OPF_Str2Bin(utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()), data_value_in, &data_len_in);
 	}
@@ -102,7 +102,7 @@ void CommonToolsDlgChar::OnBnClickedOk()
 	{
 	case E_OUTPUT_TYPE_FILE:
 	{
-		editOUT.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+		editOUT.GetWindowText(data_value_tmp, BUFFER_LEN_1K*BUFFER_LEN_1K);
 
 		FILE_WRITE("", utf8_encode(data_value_tmp).c_str(), data_value_out, data_len_out);
 	}
@@ -129,19 +129,19 @@ void CommonToolsDlgChar::OnBnClickedCancel()
 	// TODO: 在此添加控件通知处理程序代码
 	//CDialogEx::OnCancel();
 
-	unsigned char data_value_in[BUFFER_LEN_1K * 4] = { 0 };
-	unsigned char data_value_out[BUFFER_LEN_1K * 4] = { 0 };
+	unsigned char data_value_in[BUFFER_LEN_1K*BUFFER_LEN_1K] = { 0 };
+	unsigned char data_value_out[BUFFER_LEN_1K*BUFFER_LEN_1K] = { 0 };
 
-	unsigned int data_len_in = BUFFER_LEN_1K * 4;
-	unsigned int data_len_out = BUFFER_LEN_1K * 4;
+	unsigned int data_len_in = BUFFER_LEN_1K*BUFFER_LEN_1K;
+	unsigned int data_len_out = BUFFER_LEN_1K*BUFFER_LEN_1K;
 
-	wchar_t data_value_tmp[BUFFER_LEN_1K] = { 0 };
+	wchar_t data_value_tmp[BUFFER_LEN_1K*BUFFER_LEN_1K] = { 0 };
 
 	switch (m_iSelIN)
 	{
 	case E_INPUT_TYPE_FILE:
 	{
-		editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+		editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K*BUFFER_LEN_1K);
 
 		FILE_READ("", utf8_encode(data_value_tmp).c_str(), (unsigned char *)data_value_in, &data_len_in);
 	}
@@ -149,7 +149,7 @@ void CommonToolsDlgChar::OnBnClickedCancel()
 	case E_INPUT_TYPE_CHAR:
 	case E_INPUT_TYPE_HEX:
 	{
-		editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+		editIN.GetWindowText(data_value_tmp, BUFFER_LEN_1K*BUFFER_LEN_1K);
 
 		memcpy(data_value_in, utf8_encode(data_value_tmp).c_str(), strlen(utf8_encode(data_value_tmp).c_str()));
 
@@ -171,7 +171,7 @@ void CommonToolsDlgChar::OnBnClickedCancel()
 	{
 	case E_OUTPUT_TYPE_FILE:
 	{
-		editOUT.GetWindowText(data_value_tmp, BUFFER_LEN_1K * 4);
+		editOUT.GetWindowText(data_value_tmp, BUFFER_LEN_1K*BUFFER_LEN_1K);
 
 		FILE_WRITE("", (char *)utf8_encode(data_value_tmp).c_str(), data_value_out, data_len_out);
 	}
