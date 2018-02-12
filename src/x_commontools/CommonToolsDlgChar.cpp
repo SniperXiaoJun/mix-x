@@ -54,13 +54,13 @@ void CommonToolsDlgChar::OnBnClickedOk()
 	// TODO: 在此添加控件通知处理程序代码
 	// CDialogEx::OnOK();
 
-	unsigned char data_value_in[BUFFER_LEN_1K*BUFFER_LEN_1K] = { 0 };
-	unsigned char data_value_out[BUFFER_LEN_1K*BUFFER_LEN_1K] = { 0 };
+	unsigned char *data_value_in = (unsigned char *)malloc(BUFFER_LEN_1K*BUFFER_LEN_1K);
+	unsigned char *data_value_out = (unsigned char *)malloc(BUFFER_LEN_1K*BUFFER_LEN_1K);
 
 	unsigned int data_len_in = BUFFER_LEN_1K*BUFFER_LEN_1K;
 	unsigned int data_len_out = BUFFER_LEN_1K*BUFFER_LEN_1K;
 
-	wchar_t data_value_tmp[BUFFER_LEN_1K*BUFFER_LEN_1K] = { 0 };
+	wchar_t *data_value_tmp = (wchar_t *)malloc(BUFFER_LEN_1K*BUFFER_LEN_1K);
 
 	switch (m_iSelIN)
 	{
@@ -91,7 +91,7 @@ void CommonToolsDlgChar::OnBnClickedOk()
 	{
 		MessageBox(L"选择类型", L"提示");
 
-		return;
+		goto end;
 	}
 	break;
 	}
@@ -117,10 +117,27 @@ void CommonToolsDlgChar::OnBnClickedOk()
 	{
 		MessageBox(L"选择类型", L"提示");
 
-		return;
+		goto end;
 	}
 	break;
 	}
+
+end:
+	if (data_value_in)
+	{
+		free(data_value_in);
+	}
+
+	if (data_value_out)
+	{
+		free(data_value_out);
+	}
+
+	if (data_value_tmp)
+	{
+		free(data_value_tmp);
+	}
+
 }
 
 
@@ -129,13 +146,13 @@ void CommonToolsDlgChar::OnBnClickedCancel()
 	// TODO: 在此添加控件通知处理程序代码
 	//CDialogEx::OnCancel();
 
-	unsigned char data_value_in[BUFFER_LEN_1K*BUFFER_LEN_1K] = { 0 };
-	unsigned char data_value_out[BUFFER_LEN_1K*BUFFER_LEN_1K] = { 0 };
+	unsigned char *data_value_in = (unsigned char *)malloc(BUFFER_LEN_1K*BUFFER_LEN_1K);
+	unsigned char *data_value_out = (unsigned char *)malloc(BUFFER_LEN_1K*BUFFER_LEN_1K);
 
 	unsigned int data_len_in = BUFFER_LEN_1K*BUFFER_LEN_1K;
 	unsigned int data_len_out = BUFFER_LEN_1K*BUFFER_LEN_1K;
 
-	wchar_t data_value_tmp[BUFFER_LEN_1K*BUFFER_LEN_1K] = { 0 };
+	wchar_t *data_value_tmp = (wchar_t *)malloc(BUFFER_LEN_1K*BUFFER_LEN_1K);
 
 	switch (m_iSelIN)
 	{
@@ -160,7 +177,7 @@ void CommonToolsDlgChar::OnBnClickedCancel()
 	{
 		MessageBox(L"选择类型", L"提示");
 
-		return;
+		goto end;
 	}
 	break;
 	}
@@ -186,10 +203,28 @@ void CommonToolsDlgChar::OnBnClickedCancel()
 	{
 		MessageBox(L"选择类型", L"提示");
 
-		return;
+		goto end;
 	}
 	break;
 	}
+
+end:
+
+	if (data_value_in)
+	{
+		free(data_value_in);
+	}
+
+	if (data_value_out)
+	{
+		free(data_value_out);
+	}
+
+	if (data_value_tmp)
+	{
+		free(data_value_tmp);
+	}
+
 }
 
 
