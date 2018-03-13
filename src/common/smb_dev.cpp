@@ -22,6 +22,7 @@ typedef struct _OPST_HANDLE_ARGS {
 	void*hDev;
 	void*hAPP;
 	void*hCon;
+	int type;
 }OPST_HANDLE_ARGS;
 COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ArgsGet(SMB_CS_CertificateAttr*pCertAttr, OPST_HANDLE_ARGS*args);
 COMMON_API unsigned int CALL_CONVENTION SMB_DEV_ArgsPut(SMB_CS_CertificateAttr*pCertAttr, OPST_HANDLE_ARGS*args);
@@ -68,6 +69,63 @@ std::map<std::string, OPST_HANDLE_ARGS> g_currentArgs;
 	else \
 { \
 } 
+
+
+#include <gdca_saf/gdca_gm_def.h>
+#include <gdca_saf/saf_api_set.h>
+#include <gdca_saf/saf_api.h>
+
+typedef int(*pSAF_Initialize)(void **phAppHandle,char *pucCfgFilePath);
+typedef int(*pSAF_Finalize)(void *hAppHandle);
+typedef int(*pSAF_EnumCertificates)(void *hAppHandle, SGD_USR_CERT_ENUMLIST *usrCerts);
+typedef int(*pSAF_EnumCertificatesFree)(void *hAppHandle, SGD_USR_CERT_ENUMLIST *usrCerts);
+typedef int(*pSAF_Login)(
+	void *hAppHandle,
+	unsigned int uiUsrType,
+	unsigned char *pucContainerName,
+	unsigned int uiContainerNameLen,
+	unsigned char *pucPin,
+	unsigned int uiPinLen,
+	unsigned int *puiRemainCount);
+
+typedef int(*pSAF_GetCertificateInfo)(
+	void *hAppHandle,
+	unsigned char *pucCertificate,
+	unsigned int uiCertificateLen,
+	unsigned int uiInfoType,
+	unsigned char *pucInfo,
+	unsigned int *puiInfoLen);
+
+typedef int(*pSAF_Hash)(
+	unsigned int uiAlgoType,
+	unsigned char *pucInData,
+	unsigned int uiInDataLen,
+	unsigned char *pucPublicKey,
+	unsigned int ulPublicKeyLen,
+	unsigned char *pucID,
+	unsigned int ulIDLen,
+	unsigned char *pucOutData,
+	unsigned int *puiOutDataLen);
+
+typedef int(*pSAF_EccSign)(
+	void *hAppHandle,
+	unsigned char *pucContainerName,
+	unsigned int uiContainerNameLen,
+	unsigned int uiAlgorithmID,
+	unsigned char *pucInData,
+	unsigned int uiInDataLen,
+	unsigned char *pucSignData,
+	unsigned int *puiSignDataLen);
+
+typedef int(*pSAF_EccVerifySign)(
+	unsigned char *pucPublicKey,
+	unsigned int uiPublicKeyLen,
+	unsigned int uiAlgorithmID,
+	unsigned char *pucInData,
+	unsigned int uiInDataLen,
+	unsigned char *pucSignData,
+	unsigned int uiSignDataLen);
+
 
 typedef ULONG(DEVAPI *pSKF_EnumDev)(BOOL bPresent, LPSTR szNameList, ULONG *puiSize);
 typedef ULONG(DEVAPI *pSKF_ConnectDev)(LPSTR szName, DEVHANDLE *phDev);
@@ -1213,9 +1271,30 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EnumCertBySKF(const char *pszSKF
 	char *ptrApp = NULL;
 	char *ptrDev = NULL;
 
+	
+
+	SMB_CS_SKF_NODE *pPtr = NULL;
+	SMB_CS_SKF_NODE *pHeader = NULL;
 	SMB_CS_CertificateContext_NODE *pCtxNode = NULL;
 
 	DEVHANDLE hDev = NULL;
+
+
+	pSAF_Initialize fpSAF_Initialize = NULL;
+	pSAF_Finalize fpSAF_Finalize = NULL;
+	pSAF_EnumCertificates fpSAF_EnumCertificates = NULL;
+	pSAF_EnumCertificatesFree fpSAF_EnumCertificatesFree = NULL;
+	pSAF_Login fpSAF_Login = NULL;
+	pSAF_GetCertificateInfo fpSAF_GetCertificateInfo = NULL;
+	pSAF_Hash fpSAF_Hash = NULL;
+	pSAF_EccSign fpSAF_EccSign = NULL;
+	pSAF_EccVerifySign fpSAF_EccVerifySign = NULL;
+
+	void *hAppHandle = NULL;
+	SGD_USR_CERT_ENUMLIST usrCerts;
+	unsigned int i;
+
+	CertificateItemParse parse;
 
 	if (0 == ppCertCtxNodeHeader)
 	{
@@ -1224,9 +1303,6 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EnumCertBySKF(const char *pszSKF
 	}
 
 	pTmp = (BYTE *)malloc(BUFFER_LEN_1K * 4);
-
-	SMB_CS_SKF_NODE *pPtr = NULL;
-	SMB_CS_SKF_NODE *pHeader = NULL;
 
 	SMB_CS_EnumSKF(&pHeader);
 
@@ -1252,335 +1328,454 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EnumCertBySKF(const char *pszSKF
 		goto err;
 	}
 
-	FUNC_NAME_INIT(func_, EnumDev, );
-	FUNC_NAME_INIT(func_, ConnectDev, );
-	FUNC_NAME_INIT(func_, DisConnectDev, );
-	FUNC_NAME_INIT(func_, ChangePIN, );
-	FUNC_NAME_INIT(func_, OpenApplication, );
-	FUNC_NAME_INIT(func_, CloseApplication, );
-	FUNC_NAME_INIT(func_, EnumApplication, );
-	FUNC_NAME_INIT(func_, ExportCertificate, );
-	FUNC_NAME_INIT(func_, EnumContainer, );
-	FUNC_NAME_INIT(func_, OpenContainer, );
-	FUNC_NAME_INIT(func_, CloseContainer, );
-	FUNC_NAME_INIT(func_, VerifyPIN, );
-	FUNC_NAME_INIT_GetContainerType(func_, GetContainerType, );
-	FUNC_NAME_INIT(func_, GetDevInfo, );
-	FUNC_NAME_INIT(func_, LockDev, );
-	FUNC_NAME_INIT(func_, UnlockDev, );
 
-	ulRet = func_EnumDev(TRUE, szDevs, &ulDevSize);
-	if (0 != ulRet)
+	fpSAF_Initialize = (pSAF_Initialize)GetProcAddress(ghInst, "SAF_Initialize"); 
+	fpSAF_EnumCertificates = (pSAF_EnumCertificates)GetProcAddress(ghInst, "SAF_EnumCertificates");
+	fpSAF_EnumCertificatesFree = (pSAF_EnumCertificatesFree)GetProcAddress(ghInst, "SAF_EnumCertificatesFree");
+	fpSAF_Login = (pSAF_Login)GetProcAddress(ghInst, "SAF_Login");
+	fpSAF_GetCertificateInfo = (pSAF_GetCertificateInfo)GetProcAddress(ghInst, "SAF_GetCertificateInfo");
+	fpSAF_Hash = (pSAF_Hash)GetProcAddress(ghInst, "SAF_Hash");
+	fpSAF_EccSign = (pSAF_EccSign)GetProcAddress(ghInst, "SAF_EccSign");
+	fpSAF_EccVerifySign = (pSAF_EccVerifySign)GetProcAddress(ghInst, "SAF_EccVerifySign");
+	fpSAF_Finalize = (pSAF_Finalize)GetProcAddress(ghInst, "SAF_Finalize");
+
+	if (fpSAF_Initialize &&fpSAF_EnumCertificates &&fpSAF_EnumCertificatesFree &&fpSAF_Login &&fpSAF_GetCertificateInfo &&fpSAF_Hash && fpSAF_EccSign &&fpSAF_EccVerifySign)
 	{
-		goto err;
+		//初始化环境
+		ulRet = fpSAF_Initialize(&hAppHandle, "saf_cfg_watch.dat");
+		if (0 != ulRet)
+		{
+			printf("SAF_Initialize error\n");
+			goto clear_over;
+		}
+
+		//枚举用户证书
+		ulRet = fpSAF_EnumCertificates(hAppHandle, &usrCerts);
+		if (0 != ulRet)
+		{
+			printf("SAF_EnumCertificates error:ret=%x\n", ulRet);
+			goto clear_over;
+		}
+		printf("certCount=%d\n", usrCerts.certCount);
+		for (i = 0; i<usrCerts.certCount; i++)
+		{
+			printf("the %d's cert:\n", i);
+			printf("containerName=%s\n", usrCerts.containerName[i]);
+			printf("containerNameLen=%d\n", usrCerts.containerNameLen[i]);
+			printf("keyUsage=%d\n", usrCerts.keyUsage[i]);
+			printf("certificateLen=%d\n", usrCerts.certificateLen[i]);
+
+			parse.setCertificate(usrCerts.certificate[i], usrCerts.certificateLen[i]);
+
+			parse.parse();
+
+			if (parse.m_iKeyAlg | uiKeyFlag)
+			{
+				//获取签名证书
+				if (KeyUsageSign == usrCerts.keyUsage[i])
+				{
+					if (SMB_CERT_USAGE_FLAG_SIGN & uiUsageFlag)
+					{
+						SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
+
+						memset(pCertCtx, 0, sizeof(SMB_CS_CertificateContext));
+
+						pCertCtx->stContent.length = usrCerts.certificateLen[i];
+						pCertCtx->stContent.data = (unsigned char *)malloc(pCertCtx->stContent.length);
+						memcpy(pCertCtx->stContent.data, usrCerts.certificate[i], pCertCtx->stContent.length);
+
+						ptrDev = "saf_example";
+						pCertCtx->stAttr.stDeviceName.length = strlen(ptrDev) + 1;
+						pCertCtx->stAttr.stDeviceName.data = (unsigned char *)malloc(pCertCtx->stAttr.stDeviceName.length);
+						memcpy(pCertCtx->stAttr.stDeviceName.data, ptrDev, pCertCtx->stAttr.stDeviceName.length);
+
+						pCertCtx->stAttr.stSKFName.length = strlen(pszSKFName) + 1;
+						pCertCtx->stAttr.stSKFName.data = (unsigned char *)malloc(pCertCtx->stAttr.stSKFName.length);
+						memcpy(pCertCtx->stAttr.stSKFName.data, pszSKFName, pCertCtx->stAttr.stSKFName.length);
+
+						pCertCtx->stAttr.ucCertUsageType = 1; //	签名加密
+
+						pCertCtx->stAttr.ucCertAlgType = parse.m_iKeyAlg; // RSA SM2
+
+						OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppCertCtxNodeHeader, (void *)pCertCtx);
+					}
+					else
+					{
+
+					}
+				}
+
+				//获取加密证书
+				if (KeyUsageEncrypt == usrCerts.keyUsage[i])
+				{
+					if (SMB_CERT_USAGE_FLAG_EX & uiUsageFlag)
+					{
+						SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
+
+						memset(pCertCtx, 0, sizeof(SMB_CS_CertificateContext));
+
+						pCertCtx->stContent.length = usrCerts.certificateLen[i];
+						pCertCtx->stContent.data = (unsigned char *)malloc(pCertCtx->stContent.length);
+						memcpy(pCertCtx->stContent.data, usrCerts.certificate[i], pCertCtx->stContent.length);
+
+						ptrDev = "saf_example";
+						pCertCtx->stAttr.stDeviceName.length = strlen(ptrDev) + 1;
+						pCertCtx->stAttr.stDeviceName.data = (unsigned char *)malloc(pCertCtx->stAttr.stDeviceName.length);
+						memcpy(pCertCtx->stAttr.stDeviceName.data, ptrDev, pCertCtx->stAttr.stDeviceName.length);
+
+						pCertCtx->stAttr.stSKFName.length = strlen(pszSKFName) + 1;
+						pCertCtx->stAttr.stSKFName.data = (unsigned char *)malloc(pCertCtx->stAttr.stSKFName.length);
+						memcpy(pCertCtx->stAttr.stSKFName.data, pszSKFName, pCertCtx->stAttr.stSKFName.length);
+
+						pCertCtx->stAttr.ucCertUsageType = 1; //	签名加密
+
+						pCertCtx->stAttr.ucCertAlgType = parse.m_iKeyAlg; // RSA SM2
+
+						OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppCertCtxNodeHeader, (void *)pCertCtx);
+					}
+					else
+					{
+
+					}
+				}
+			}
+		}
+
+		printf("Test_ReadCert success... \n\n");
 	}
-
-	for (ptrDev = szDevs; (ptrDev < szDevs + ulDevSize) && *ptrDev != 0;)
+	else
 	{
-		hDev = NULL;
+		FUNC_NAME_INIT(func_, EnumDev, );
+		FUNC_NAME_INIT(func_, ConnectDev, );
+		FUNC_NAME_INIT(func_, DisConnectDev, );
+		FUNC_NAME_INIT(func_, ChangePIN, );
+		FUNC_NAME_INIT(func_, OpenApplication, );
+		FUNC_NAME_INIT(func_, CloseApplication, );
+		FUNC_NAME_INIT(func_, EnumApplication, );
+		FUNC_NAME_INIT(func_, ExportCertificate, );
+		FUNC_NAME_INIT(func_, EnumContainer, );
+		FUNC_NAME_INIT(func_, OpenContainer, );
+		FUNC_NAME_INIT(func_, CloseContainer, );
+		FUNC_NAME_INIT(func_, VerifyPIN, );
+		FUNC_NAME_INIT_GetContainerType(func_, GetContainerType, );
+		FUNC_NAME_INIT(func_, GetDevInfo, );
+		FUNC_NAME_INIT(func_, LockDev, );
+		FUNC_NAME_INIT(func_, UnlockDev, );
 
-		ulRet = func_ConnectDev(ptrDev, &hDev);
+		ulRet = func_EnumDev(TRUE, szDevs, &ulDevSize);
 		if (0 != ulRet)
 		{
 			goto err;
 		}
+
+		for (ptrDev = szDevs; (ptrDev < szDevs + ulDevSize) && *ptrDev != 0;)
+		{
+			hDev = NULL;
+
+			ulRet = func_ConnectDev(ptrDev, &hDev);
+			if (0 != ulRet)
+			{
+				goto err;
+			}
 
 #if USE_SELF_MUTEX
-		
+
 #else
-		ulRet = func_LockDev(hDev, 0xFFFFFFFF);
-		if (0 != ulRet)
-		{
-			goto err;
-		}
+			ulRet = func_LockDev(hDev, 0xFFFFFFFF);
+			if (0 != ulRet)
+			{
+				goto err;
+			}
 #endif
 
-		//ulRet = func_GetDevInfo(hDev,&devInfo);
-		//if (0 != ulRet)
-		//{
-		//	goto err;
-		//}
+			//ulRet = func_GetDevInfo(hDev,&devInfo);
+			//if (0 != ulRet)
+			//{
+			//	goto err;
+			//}
 
-		ulAppsSize = BUFFER_LEN_1K;
+			ulAppsSize = BUFFER_LEN_1K;
 
-		ulRet = func_EnumApplication(hDev, szAppNames, &ulAppsSize);
-
-		if (0 != ulRet)
-		{
-			goto err;
-		}
-
-		for (ptrApp = szAppNames; (ptrApp < szAppNames + ulAppsSize) && *ptrApp != 0;)
-		{
-			ulConSize = BUFFER_LEN_1K;
-
-			ulRet = func_OpenApplication(hDev, ptrApp, &hAPP);
+			ulRet = func_EnumApplication(hDev, szAppNames, &ulAppsSize);
 
 			if (0 != ulRet)
 			{
 				goto err;
 			}
 
-			ulRet = func_EnumContainer(hAPP, szConNames, &ulConSize);
-
-			if (0 != ulRet)
+			for (ptrApp = szAppNames; (ptrApp < szAppNames + ulAppsSize) && *ptrApp != 0;)
 			{
-				goto err;
-			}
+				ulConSize = BUFFER_LEN_1K;
 
-			if (0 == ulConSize)
-			{
-				ulRet = EErr_SMB_DLL_PATH;
-				goto err;
-			}
+				ulRet = func_OpenApplication(hDev, ptrApp, &hAPP);
 
-			for (ptrContainer = szConNames; (ptrContainer < szConNames + ulConSize) && *ptrContainer != 0; )
-			{
-				HCONTAINER hCon = NULL;
-				ULONG ulContainerType = 0;
-
-				ulRet = func_OpenContainer(hAPP, ptrContainer, &hCon);
-				if (ulRet)
+				if (0 != ulRet)
 				{
 					goto err;
 				}
 
-				//1表示为RSA容器，为2表示为ECC容器
-				ulRet = func_GetContainerType(hCon, &ulContainerType);
-				if (ulRet)
+				ulRet = func_EnumContainer(hAPP, szConNames, &ulConSize);
+
+				if (0 != ulRet)
 				{
 					goto err;
 				}
 
-				if (!(uiKeyFlag & ulContainerType))
+				if (0 == ulConSize)
 				{
+					ulRet = EErr_SMB_DLL_PATH;
+					goto err;
+				}
+
+				for (ptrContainer = szConNames; (ptrContainer < szConNames + ulConSize) && *ptrContainer != 0; )
+				{
+					HCONTAINER hCon = NULL;
+					ULONG ulContainerType = 0;
+
+					ulRet = func_OpenContainer(hAPP, ptrContainer, &hCon);
+					if (ulRet)
+					{
+						goto err;
+					}
+
+					//1表示为RSA容器，为2表示为ECC容器
+					ulRet = func_GetContainerType(hCon, &ulContainerType);
+					if (ulRet)
+					{
+						goto err;
+					}
+
+					if (!(uiKeyFlag & ulContainerType))
+					{
+						// next Container
+						ptrContainer += strlen(ptrContainer);
+						ptrContainer += 1;
+						continue;
+					}
+
+					if (SMB_CERT_USAGE_FLAG_SIGN & uiUsageFlag)
+					{
+						ULONG nValueLen = BUFFER_LEN_1K * 4;
+
+						nValueLen = BUFFER_LEN_1K * 4;
+
+						ulRet = func_ExportCertificate(hCon, TRUE, pTmp, &nValueLen);
+
+						if ((0 == ulRet) && (nValueLen != 0))
+						{
+							if (uiVerifyFlag)
+							{
+								ulRet = SMB_CS_VerifyCert(uiVerifyFlag, pTmp, nValueLen);
+
+								if (ulRet)
+								{
+									// next Container
+									if (SMB_CERT_FILTER_FLAG_TRUE == uiFilterFlag)
+									{
+										ptrContainer += strlen(ptrContainer);
+										ptrContainer += 1;
+
+										continue;
+									}
+								}
+
+							}
+
+							{
+								SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
+
+								memset(pCertCtx, 0, sizeof(SMB_CS_CertificateContext));
+
+								if (uiVerifyFlag)
+								{
+									switch (ulRet) {
+									case 0:
+										pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_OK;
+										break;
+									case EErr_SMB_VERIFY_TIME:
+										pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_TIME_INVALID;
+										break;
+									case EErr_SMB_NO_CERT_CHAIN:
+										pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_CHAIN_INVALID;
+										break;
+									case EErr_SMB_VERIFY_CERT:
+										pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_SIGN_INVALID;
+										break;
+									default:
+										pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_CHAIN_INVALID;
+										break;
+									}
+								}
+
+								pCertCtx->stContent.length = nValueLen;
+								pCertCtx->stContent.data = (unsigned char *)malloc(pCertCtx->stContent.length);
+								memcpy(pCertCtx->stContent.data, pTmp, pCertCtx->stContent.length);
+
+								pCertCtx->stAttr.stSKFName.length = strlen(pszSKFName) + 1;
+								pCertCtx->stAttr.stSKFName.data = (unsigned char *)malloc(pCertCtx->stAttr.stSKFName.length);
+								memcpy(pCertCtx->stAttr.stSKFName.data, pszSKFName, pCertCtx->stAttr.stSKFName.length);
+
+								pCertCtx->stAttr.stDeviceName.length = strlen(ptrDev) + 1;
+								pCertCtx->stAttr.stDeviceName.data = (unsigned char *)malloc(pCertCtx->stAttr.stDeviceName.length);
+								memcpy(pCertCtx->stAttr.stDeviceName.data, ptrDev, pCertCtx->stAttr.stDeviceName.length);
+
+								pCertCtx->stAttr.stApplicationName.length = strlen(ptrApp) + 1;
+								pCertCtx->stAttr.stApplicationName.data = (unsigned char *)malloc(pCertCtx->stAttr.stApplicationName.length);
+								memcpy(pCertCtx->stAttr.stApplicationName.data, ptrApp, pCertCtx->stAttr.stApplicationName.length);
+
+								pCertCtx->stAttr.stContainerName.length = strlen(ptrContainer) + 1;
+								pCertCtx->stAttr.stContainerName.data = (unsigned char *)malloc(pCertCtx->stAttr.stContainerName.length);
+								memcpy(pCertCtx->stAttr.stContainerName.data, ptrContainer, pCertCtx->stAttr.stContainerName.length);
+
+								pCertCtx->stAttr.ucCertUsageType = 1; //	签名加密
+
+								pCertCtx->stAttr.ucCertAlgType = ulContainerType; // RSA SM2
+
+								OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppCertCtxNodeHeader, (void *)pCertCtx);
+							}
+
+						}
+						else if (0x0A00001C == ulRet)
+						{
+							// 证书未发现
+							ulRet = 0;
+						}
+						else
+						{
+
+						}
+					}
+
+					if (SMB_CERT_USAGE_FLAG_EX & uiUsageFlag)
+					{
+						ULONG nValueLen = BUFFER_LEN_1K * 4;
+
+						nValueLen = BUFFER_LEN_1K * 4;
+
+						ulRet = func_ExportCertificate(hCon, FALSE, pTmp, &nValueLen);
+
+						if ((0 == ulRet) && (nValueLen != 0))
+						{
+							if (uiVerifyFlag)
+							{
+								ulRet = SMB_CS_VerifyCert(uiVerifyFlag, pTmp, nValueLen);
+
+								if (ulRet)
+								{
+									// next Container
+									if (SMB_CERT_FILTER_FLAG_TRUE == uiFilterFlag)
+									{
+										ptrContainer += strlen(ptrContainer);
+										ptrContainer += 1;
+
+										continue;
+									}
+								}
+							}
+
+							{
+								SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
+
+								memset(pCertCtx, 0, sizeof(SMB_CS_CertificateContext));
+
+								if (uiVerifyFlag)
+								{
+									switch (ulRet) {
+									case 0:
+										pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_OK;
+										break;
+									case EErr_SMB_VERIFY_TIME:
+										pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_TIME_INVALID;
+										break;
+									case EErr_SMB_NO_CERT_CHAIN:
+										pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_CHAIN_INVALID;
+										break;
+									case EErr_SMB_VERIFY_CERT:
+										pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_SIGN_INVALID;
+										break;
+									default:
+										pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_CHAIN_INVALID;
+										break;
+									}
+								}
+
+								pCertCtx->stContent.length = nValueLen;
+								pCertCtx->stContent.data = (unsigned char *)malloc(pCertCtx->stContent.length);
+								memcpy(pCertCtx->stContent.data, pTmp, pCertCtx->stContent.length);
+
+								pCertCtx->stAttr.stSKFName.length = strlen(pszSKFName) + 1;
+								pCertCtx->stAttr.stSKFName.data = (unsigned char *)malloc(pCertCtx->stAttr.stSKFName.length);
+								memcpy(pCertCtx->stAttr.stSKFName.data, pszSKFName, pCertCtx->stAttr.stSKFName.length);
+
+								pCertCtx->stAttr.stDeviceName.length = strlen(ptrDev) + 1;
+								pCertCtx->stAttr.stDeviceName.data = (unsigned char *)malloc(pCertCtx->stAttr.stDeviceName.length);
+								memcpy(pCertCtx->stAttr.stDeviceName.data, ptrDev, pCertCtx->stAttr.stDeviceName.length);
+
+								pCertCtx->stAttr.stApplicationName.length = strlen(ptrApp) + 1;
+								pCertCtx->stAttr.stApplicationName.data = (unsigned char *)malloc(pCertCtx->stAttr.stApplicationName.length);
+								memcpy(pCertCtx->stAttr.stApplicationName.data, ptrApp, pCertCtx->stAttr.stApplicationName.length);
+
+								pCertCtx->stAttr.stContainerName.length = strlen(ptrContainer) + 1;
+								pCertCtx->stAttr.stContainerName.data = (unsigned char *)malloc(pCertCtx->stAttr.stContainerName.length);
+								memcpy(pCertCtx->stAttr.stContainerName.data, ptrContainer, pCertCtx->stAttr.stContainerName.length);
+
+								pCertCtx->stAttr.ucCertUsageType = 2; //	签名加密
+
+								pCertCtx->stAttr.ucCertAlgType = ulContainerType; // RSA SM2
+
+								OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppCertCtxNodeHeader, (void *)pCertCtx);
+							}
+						}
+						else if (0x0A00001C == ulRet)
+						{
+							// 证书未发现
+							ulRet = 0;
+						}
+						else
+						{
+
+						}
+					}
+
+					ulRet = func_CloseContainer(hCon);
+					if (ulRet)
+					{
+						goto err;
+					}
+
 					// next Container
 					ptrContainer += strlen(ptrContainer);
 					ptrContainer += 1;
-					continue;
 				}
 
-				if (SMB_CERT_USAGE_FLAG_SIGN & uiUsageFlag)
-				{
-					ULONG nValueLen = BUFFER_LEN_1K * 4;
-
-					nValueLen = BUFFER_LEN_1K * 4;
-
-					ulRet = func_ExportCertificate(hCon, TRUE, pTmp, &nValueLen);
-
-					if ((0 == ulRet) && (nValueLen != 0))
-					{
-						if (uiVerifyFlag)
-						{
-							ulRet = SMB_CS_VerifyCert(uiVerifyFlag, pTmp, nValueLen);
-
-							if (ulRet)
-							{
-								// next Container
-								if (SMB_CERT_FILTER_FLAG_TRUE == uiFilterFlag)
-								{
-									ptrContainer += strlen(ptrContainer);
-									ptrContainer += 1;
-
-									continue;
-								}
-							}
-
-						}
-
-						{
-							SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
-
-							memset(pCertCtx, 0, sizeof(SMB_CS_CertificateContext));
-
-							if (uiVerifyFlag)
-							{
-								switch (ulRet) {
-								case 0:
-									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_OK;
-									break;
-								case EErr_SMB_VERIFY_TIME:
-									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_TIME_INVALID;
-									break;
-								case EErr_SMB_NO_CERT_CHAIN:
-									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_CHAIN_INVALID;
-									break;
-								case EErr_SMB_VERIFY_CERT:
-									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_SIGN_INVALID;
-									break;
-								default:
-									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_CHAIN_INVALID;
-									break;
-								}
-							}
-
-							pCertCtx->stContent.length = nValueLen;
-							pCertCtx->stContent.data = (unsigned char *)malloc(pCertCtx->stContent.length);
-							memcpy(pCertCtx->stContent.data, pTmp, pCertCtx->stContent.length);
-
-							pCertCtx->stAttr.stSKFName.length = strlen(pszSKFName) + 1;
-							pCertCtx->stAttr.stSKFName.data = (unsigned char *)malloc(pCertCtx->stAttr.stSKFName.length);
-							memcpy(pCertCtx->stAttr.stSKFName.data, pszSKFName, pCertCtx->stAttr.stSKFName.length);
-
-							pCertCtx->stAttr.stDeviceName.length = strlen(ptrDev) + 1;
-							pCertCtx->stAttr.stDeviceName.data = (unsigned char *)malloc(pCertCtx->stAttr.stDeviceName.length);
-							memcpy(pCertCtx->stAttr.stDeviceName.data, ptrDev, pCertCtx->stAttr.stDeviceName.length);
-
-							pCertCtx->stAttr.stApplicationName.length = strlen(ptrApp) + 1;
-							pCertCtx->stAttr.stApplicationName.data = (unsigned char *)malloc(pCertCtx->stAttr.stApplicationName.length);
-							memcpy(pCertCtx->stAttr.stApplicationName.data, ptrApp, pCertCtx->stAttr.stApplicationName.length);
-
-							pCertCtx->stAttr.stContainerName.length = strlen(ptrContainer) + 1;
-							pCertCtx->stAttr.stContainerName.data = (unsigned char *)malloc(pCertCtx->stAttr.stContainerName.length);
-							memcpy(pCertCtx->stAttr.stContainerName.data, ptrContainer, pCertCtx->stAttr.stContainerName.length);
-
-							pCertCtx->stAttr.ucCertUsageType = 1; //	签名加密
-
-							pCertCtx->stAttr.ucCertAlgType = ulContainerType; // RSA SM2
-
-							OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppCertCtxNodeHeader, (void *)pCertCtx);
-						}
-
-					}
-					else if (0x0A00001C == ulRet)
-					{
-						// 证书未发现
-						ulRet = 0;
-					}
-					else
-					{
-
-					}
-				}
-
-				if (SMB_CERT_USAGE_FLAG_EX & uiUsageFlag)
-				{
-					ULONG nValueLen = BUFFER_LEN_1K * 4;
-
-					nValueLen = BUFFER_LEN_1K * 4;
-
-					ulRet = func_ExportCertificate(hCon, FALSE, pTmp, &nValueLen);
-
-					if ((0 == ulRet) && (nValueLen != 0))
-					{
-						if (uiVerifyFlag)
-						{
-							ulRet = SMB_CS_VerifyCert(uiVerifyFlag, pTmp, nValueLen);
-
-							if (ulRet)
-							{
-								// next Container
-								if (SMB_CERT_FILTER_FLAG_TRUE == uiFilterFlag)
-								{
-									ptrContainer += strlen(ptrContainer);
-									ptrContainer += 1;
-
-									continue;
-								}
-							}
-						}
-
-						{
-							SMB_CS_CertificateContext *pCertCtx = (SMB_CS_CertificateContext *)malloc(sizeof(SMB_CS_CertificateContext));
-
-							memset(pCertCtx, 0, sizeof(SMB_CS_CertificateContext));
-
-							if (uiVerifyFlag)
-							{
-								switch (ulRet) {
-								case 0:
-									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_OK;
-									break;
-								case EErr_SMB_VERIFY_TIME:
-									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_TIME_INVALID;
-									break;
-								case EErr_SMB_NO_CERT_CHAIN:
-									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_CHAIN_INVALID;
-									break;
-								case EErr_SMB_VERIFY_CERT:
-									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_SIGN_INVALID;
-									break;
-								default:
-									pCertCtx->stAttr.ulVerify = SMB_CERT_VERIFY_RESULT_FLAG_CHAIN_INVALID;
-									break;
-								}
-							}
-
-							pCertCtx->stContent.length = nValueLen;
-							pCertCtx->stContent.data = (unsigned char *)malloc(pCertCtx->stContent.length);
-							memcpy(pCertCtx->stContent.data, pTmp, pCertCtx->stContent.length);
-
-							pCertCtx->stAttr.stSKFName.length = strlen(pszSKFName) + 1;
-							pCertCtx->stAttr.stSKFName.data = (unsigned char *)malloc(pCertCtx->stAttr.stSKFName.length);
-							memcpy(pCertCtx->stAttr.stSKFName.data, pszSKFName, pCertCtx->stAttr.stSKFName.length);
-
-							pCertCtx->stAttr.stDeviceName.length = strlen(ptrDev) + 1;
-							pCertCtx->stAttr.stDeviceName.data = (unsigned char *)malloc(pCertCtx->stAttr.stDeviceName.length);
-							memcpy(pCertCtx->stAttr.stDeviceName.data, ptrDev, pCertCtx->stAttr.stDeviceName.length);
-
-							pCertCtx->stAttr.stApplicationName.length = strlen(ptrApp) + 1;
-							pCertCtx->stAttr.stApplicationName.data = (unsigned char *)malloc(pCertCtx->stAttr.stApplicationName.length);
-							memcpy(pCertCtx->stAttr.stApplicationName.data, ptrApp, pCertCtx->stAttr.stApplicationName.length);
-
-							pCertCtx->stAttr.stContainerName.length = strlen(ptrContainer) + 1;
-							pCertCtx->stAttr.stContainerName.data = (unsigned char *)malloc(pCertCtx->stAttr.stContainerName.length);
-							memcpy(pCertCtx->stAttr.stContainerName.data, ptrContainer, pCertCtx->stAttr.stContainerName.length);
-
-							pCertCtx->stAttr.ucCertUsageType = 2; //	签名加密
-
-							pCertCtx->stAttr.ucCertAlgType = ulContainerType; // RSA SM2
-
-							OPF_AddMallocedHandleNodeDataToLink((OPST_HANDLE_NODE **)ppCertCtxNodeHeader, (void *)pCertCtx);
-						}
-					}
-					else if (0x0A00001C == ulRet)
-					{
-						// 证书未发现
-						ulRet = 0;
-					}
-					else
-					{
-
-					}
-				}
-
-				ulRet = func_CloseContainer(hCon);
-				if (ulRet)
+				ulRet = func_CloseApplication(hAPP);
+				if (0 != ulRet)
 				{
 					goto err;
 				}
 
-				// next Container
-				ptrContainer += strlen(ptrContainer);
-				ptrContainer += 1;
+				// next Application
+				ptrApp += strlen(ptrApp);
+				ptrApp += 1;
 			}
 
-			ulRet = func_CloseApplication(hAPP);
+
+#if USE_SELF_MUTEX
+
+#else
+			func_UnlockDev(hDev);
+#endif
+			ulRet = func_DisConnectDev(hDev); hDev = NULL;
 			if (0 != ulRet)
 			{
 				goto err;
 			}
 
-			// next Application
-			ptrApp += strlen(ptrApp);
-			ptrApp += 1;
+			ptrDev += strlen(ptrDev);
+			ptrDev += 1;
 		}
-
-
-#if USE_SELF_MUTEX
-		
-#else
-		func_UnlockDev(hDev);
-#endif
-		ulRet = func_DisConnectDev(hDev); hDev = NULL;
-		if (0 != ulRet)
-		{
-			goto err;
-		}
-
-		ptrDev += strlen(ptrDev);
-		ptrDev += 1;
 	}
+
 
 	for (pCtxNode = *ppCertCtxNodeHeader; pCtxNode; pCtxNode = pCtxNode->ptr_next)
 	{
@@ -1588,6 +1783,22 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EnumCertBySKF(const char *pszSKF
 	}
 
 	ulRet = 0;
+
+
+clear_over:
+	//清除环境
+	if (NULL != hAppHandle)
+	{
+		//释放枚举证书的内存
+		fpSAF_EnumCertificatesFree(hAppHandle, &usrCerts);
+		printf("SAF_EnumCertificatesFree: ret=%x\n", 0);
+
+		fpSAF_Finalize(hAppHandle);
+		printf("SAF_Finalize: ret=%x\n", 0);
+
+		hAppHandle = NULL;
+	}
+
 err:
 	if (hDev)
 	{
@@ -1707,6 +1918,18 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignInitialize(SMB_CS_Certifi
 	SMB_CS_SKF_NODE *pPtr = NULL;
 	SMB_CS_SKF_NODE *pHeader = NULL;
 
+
+	pSAF_Initialize fpSAF_Initialize = NULL;
+	pSAF_Finalize fpSAF_Finalize = NULL;
+	pSAF_EnumCertificates fpSAF_EnumCertificates = NULL;
+	pSAF_EnumCertificatesFree fpSAF_EnumCertificatesFree = NULL;
+	pSAF_Login fpSAF_Login = NULL;
+	pSAF_GetCertificateInfo fpSAF_GetCertificateInfo = NULL;
+	pSAF_Hash fpSAF_Hash = NULL;
+	pSAF_EccSign fpSAF_EccSign = NULL;
+	pSAF_EccVerifySign fpSAF_EccVerifySign = NULL;
+	void *hAppHandle = NULL;
+
 	SMB_CS_EnumSKF(&pHeader);
 
 	for (pPtr = pHeader; pPtr; pPtr = pPtr->ptr_next)
@@ -1731,77 +1954,114 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignInitialize(SMB_CS_Certifi
 		goto err;
 	}
 
-	FUNC_NAME_INIT(func_, EnumDev, );
-	FUNC_NAME_INIT(func_, ConnectDev, );
-	FUNC_NAME_INIT(func_, DisConnectDev, );
-	FUNC_NAME_INIT(func_, ChangePIN, );
-	FUNC_NAME_INIT(func_, OpenApplication, );
-	FUNC_NAME_INIT(func_, CloseApplication, );
-	FUNC_NAME_INIT(func_, EnumApplication, );
-	FUNC_NAME_INIT(func_, ExportCertificate, );
-	FUNC_NAME_INIT(func_, EnumContainer, );
-	FUNC_NAME_INIT(func_, OpenContainer, );
-	FUNC_NAME_INIT(func_, CloseContainer, );
-	FUNC_NAME_INIT(func_, VerifyPIN, );
-	FUNC_NAME_INIT_GetContainerType(func_, GetContainerType, );
-	FUNC_NAME_INIT(func_, LockDev, );
-	FUNC_NAME_INIT(func_, UnlockDev, );
+	fpSAF_Initialize = (pSAF_Initialize)GetProcAddress(ghInst, "SAF_Initialize");
+	fpSAF_EnumCertificates = (pSAF_EnumCertificates)GetProcAddress(ghInst, "SAF_EnumCertificates");
+	fpSAF_EnumCertificatesFree = (pSAF_EnumCertificatesFree)GetProcAddress(ghInst, "SAF_EnumCertificatesFree");
+	fpSAF_Login = (pSAF_Login)GetProcAddress(ghInst, "SAF_Login");
+	fpSAF_GetCertificateInfo = (pSAF_GetCertificateInfo)GetProcAddress(ghInst, "SAF_GetCertificateInfo");
+	fpSAF_Hash = (pSAF_Hash)GetProcAddress(ghInst, "SAF_Hash");
+	fpSAF_EccSign = (pSAF_EccSign)GetProcAddress(ghInst, "SAF_EccSign");
+	fpSAF_EccVerifySign = (pSAF_EccVerifySign)GetProcAddress(ghInst, "SAF_EccVerifySign");
+	fpSAF_Finalize = (pSAF_Finalize)GetProcAddress(ghInst, "SAF_Finalize");
 
-	FUNC_NAME_INIT(func_, ECCSignData, );
-
-	//FUNC_NAME_INIT(func_, GenRandom, );
-	//FUNC_NAME_INIT(func_, Transmit, );
-
+	if (fpSAF_Initialize &&fpSAF_EnumCertificates &&fpSAF_EnumCertificatesFree &&fpSAF_Login &&fpSAF_GetCertificateInfo &&fpSAF_Hash && fpSAF_EccSign &&fpSAF_EccVerifySign)
 	{
-		unsigned char bufferRandom[8] = { 0 };
-		ULONG bufferRandomLen = 8;
+		OPST_HANDLE_ARGS * handleArgs = args;
 
-		unsigned char szEncrypPin[BUFFER_LEN_1K] = { 0 };
-		unsigned int uiEncryptPinLen = BUFFER_LEN_1K;
-
-
-		ulRet = func_ConnectDev((char *)pCertAttr->stDeviceName.data, &hDev);
+		//初始化环境
+		ulRet = fpSAF_Initialize(&hAppHandle, "saf_cfg_watch.dat");
 		if (0 != ulRet)
 		{
-			goto err;
+			printf("SAF_Initialize error\n");
+			goto clear_over;
 		}
+
+		handleArgs->ghInst = ghInst;
+		handleArgs->hAPP = hAppHandle;
+		handleArgs->type = 0xAF;
+
+		return 0;
+	}
+	else
+	{
+		FUNC_NAME_INIT(func_, EnumDev, );
+		FUNC_NAME_INIT(func_, ConnectDev, );
+		FUNC_NAME_INIT(func_, DisConnectDev, );
+		FUNC_NAME_INIT(func_, ChangePIN, );
+		FUNC_NAME_INIT(func_, OpenApplication, );
+		FUNC_NAME_INIT(func_, CloseApplication, );
+		FUNC_NAME_INIT(func_, EnumApplication, );
+		FUNC_NAME_INIT(func_, ExportCertificate, );
+		FUNC_NAME_INIT(func_, EnumContainer, );
+		FUNC_NAME_INIT(func_, OpenContainer, );
+		FUNC_NAME_INIT(func_, CloseContainer, );
+		FUNC_NAME_INIT(func_, VerifyPIN, );
+		FUNC_NAME_INIT_GetContainerType(func_, GetContainerType, );
+		FUNC_NAME_INIT(func_, LockDev, );
+		FUNC_NAME_INIT(func_, UnlockDev, );
+
+		FUNC_NAME_INIT(func_, ECCSignData, );
+
+		//FUNC_NAME_INIT(func_, GenRandom, );
+		//FUNC_NAME_INIT(func_, Transmit, );
+
+		{
+			unsigned char bufferRandom[8] = { 0 };
+			ULONG bufferRandomLen = 8;
+
+			unsigned char szEncrypPin[BUFFER_LEN_1K] = { 0 };
+			unsigned int uiEncryptPinLen = BUFFER_LEN_1K;
+
+
+			ulRet = func_ConnectDev((char *)pCertAttr->stDeviceName.data, &hDev);
+			if (0 != ulRet)
+			{
+				goto err;
+			}
 
 #if USE_SELF_MUTEX
-		
+
 #else
-		ulRet = func_LockDev(hDev, 0xFFFFFFFF);
-		if (0 != ulRet)
-		{
-			goto err;
-		}
+			ulRet = func_LockDev(hDev, 0xFFFFFFFF);
+			if (0 != ulRet)
+			{
+				goto err;
+			}
 #endif
 
-		FILE_LOG_FMT(file_log_name, "func=%s thread=%d line=%d watch=%d", __FUNCTION__, GetCurrentThreadId(), __LINE__, ulRet);
-		ulRet = func_OpenApplication(hDev, (char *)pCertAttr->stApplicationName.data, &hAPP);
-		if (0 != ulRet)
-		{
-			goto err;
-		}
-		FILE_LOG_FMT(file_log_name, "func=%s thread=%d line=%d watch=%d", __FUNCTION__, GetCurrentThreadId(), __LINE__, ulRet);
-
-		ulRet = func_OpenContainer(hAPP, (char *)pCertAttr->stContainerName.data, &hCon);
-		if (0 != ulRet)
-		{
-			goto err;
-		}
-		else
-		{
-			OPST_HANDLE_ARGS * handleArgs = args;
-
-			if (handleArgs)
+			FILE_LOG_FMT(file_log_name, "func=%s thread=%d line=%d watch=%d", __FUNCTION__, GetCurrentThreadId(), __LINE__, ulRet);
+			ulRet = func_OpenApplication(hDev, (char *)pCertAttr->stApplicationName.data, &hAPP);
+			if (0 != ulRet)
 			{
-				handleArgs->ghInst = ghInst;
-				handleArgs->hDev = hDev;
-				handleArgs->hAPP = hAPP;
-				handleArgs->hCon = hCon;
+				goto err;
+			}
+			FILE_LOG_FMT(file_log_name, "func=%s thread=%d line=%d watch=%d", __FUNCTION__, GetCurrentThreadId(), __LINE__, ulRet);
 
-				if (hCon)
+			ulRet = func_OpenContainer(hAPP, (char *)pCertAttr->stContainerName.data, &hCon);
+			if (0 != ulRet)
+			{
+				goto err;
+			}
+			else
+			{
+				OPST_HANDLE_ARGS * handleArgs = args;
+
+				if (handleArgs)
 				{
+					handleArgs->ghInst = ghInst;
+					handleArgs->hDev = hDev;
+					handleArgs->hAPP = hAPP;
+					handleArgs->hCon = hCon;
+
+					if (hCon)
+					{
+
+					}
+					else
+					{
+						ulRet = EErr_SMB_FAIL;
+						goto err;
+					}
 
 				}
 				else
@@ -1810,39 +2070,33 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignInitialize(SMB_CS_Certifi
 					goto err;
 				}
 
+				return 0;
 			}
-			else
+
+			if (hCon)
 			{
-				ulRet = EErr_SMB_FAIL;
+				func_CloseContainer(hCon); hCon = NULL;
+			}
+
+			ulRet = func_CloseApplication(hAPP);
+			if (0 != ulRet)
+			{
 				goto err;
 			}
 
-			return 0;
-		}
-
-		if (hCon)
-		{
-			func_CloseContainer(hCon); hCon = NULL;
-		}
-
-		ulRet = func_CloseApplication(hAPP);
-		if (0 != ulRet)
-		{
-			goto err;
-	}
-
 #if USE_SELF_MUTEX
-		
+
 #else
-		func_UnlockDev(hDev);
+			func_UnlockDev(hDev);
 #endif
 
-		ulRet = func_DisConnectDev(hDev); hDev = NULL;
-		if (0 != ulRet)
-		{
-			goto err;
+			ulRet = func_DisConnectDev(hDev); hDev = NULL;
+			if (0 != ulRet)
+			{
+				goto err;
+			}
 		}
-}
+	}
 
 err:
 
@@ -1868,6 +2122,14 @@ err:
 		ghInst = NULL;
 #endif
 	}
+clear_over:
+	if (NULL != hAppHandle)
+	{
+		fpSAF_Finalize(hAppHandle);
+		printf("SAF_Finalize: ret=%x\n", 0);
+
+		hAppHandle = NULL;
+	}
 
 	if (pHeader)
 	{
@@ -1875,69 +2137,88 @@ err:
 	}
 
 	return ulRet;
-	}
+}
 
 
 COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignFinalize(OPST_HANDLE_ARGS * args)
 {
 	HINSTANCE ghInst = NULL;
 	unsigned int ulRet = 0;
-
-	FUNC_NAME_DECLARE(func_, DisConnectDev, );
-	FUNC_NAME_DECLARE(func_, CloseApplication, );
-	FUNC_NAME_DECLARE(func_, CloseContainer, );
-	FUNC_NAME_DECLARE(func_, UnlockDev, );
-
-	DEVHANDLE hDev = NULL;
-	HAPPLICATION hAPP = NULL;
-	HCONTAINER hCon = NULL;
-
 	OPST_HANDLE_ARGS * handleArgs = args;
 
-
-	if (handleArgs)
+	if (0xAF == args->type)
 	{
-		ghInst = (HINSTANCE)handleArgs->ghInst;
-		hDev = handleArgs->hDev;
-		hAPP = handleArgs->hAPP;
-		hCon = handleArgs->hCon;
+		pSAF_Finalize fpSAF_Finalize = NULL;
+		
+		if (handleArgs)
+		{
+			ghInst = (HINSTANCE)handleArgs->ghInst;
+		}
+		else
+		{
+			return EErr_SMB_FAIL;
+		}
+
+		fpSAF_Finalize = (pSAF_Finalize)GetProcAddress(ghInst, "SAF_Finalize");
+
+		ulRet = fpSAF_Finalize(args->hAPP);
 	}
 	else
 	{
-		return EErr_SMB_FAIL;
-	}
 
-	if (!ghInst)
-	{
-		ulRet = EErr_SMB_DLL_PATH;
-		goto err;
-	}
+		FUNC_NAME_DECLARE(func_, DisConnectDev, );
+		FUNC_NAME_DECLARE(func_, CloseApplication, );
+		FUNC_NAME_DECLARE(func_, CloseContainer, );
+		FUNC_NAME_DECLARE(func_, UnlockDev, );
 
-	FUNC_NAME_INIT(func_, DisConnectDev, );
-	FUNC_NAME_INIT(func_, CloseApplication, );
-	FUNC_NAME_INIT(func_, CloseContainer, );
-	FUNC_NAME_INIT(func_, UnlockDev, );
+		DEVHANDLE hDev = NULL;
+		HAPPLICATION hAPP = NULL;
+		HCONTAINER hCon = NULL;
 
-err:
+		if (handleArgs)
+		{
+			ghInst = (HINSTANCE)handleArgs->ghInst;
+			hDev = handleArgs->hDev;
+			hAPP = handleArgs->hAPP;
+			hCon = handleArgs->hCon;
+		}
+		else
+		{
+			return EErr_SMB_FAIL;
+		}
 
-	if (hCon)
-	{
-		func_CloseContainer(hCon); hCon = NULL;
-	}
+		if (!ghInst)
+		{
+			ulRet = EErr_SMB_DLL_PATH;
+			goto err;
+		}
 
-	if (hAPP)
-	{
-		func_CloseApplication(hAPP); hAPP = NULL;
-	}
+		FUNC_NAME_INIT(func_, DisConnectDev, );
+		FUNC_NAME_INIT(func_, CloseApplication, );
+		FUNC_NAME_INIT(func_, CloseContainer, );
+		FUNC_NAME_INIT(func_, UnlockDev, );
 
-	if (hDev)
-	{
+	err:
+
+		if (hCon)
+		{
+			func_CloseContainer(hCon); hCon = NULL;
+		}
+
+		if (hAPP)
+		{
+			func_CloseApplication(hAPP); hAPP = NULL;
+		}
+
+		if (hDev)
+		{
 #if USE_SELF_MUTEX
-		
+
 #else
-		func_UnlockDev(hDev);
+			func_UnlockDev(hDev);
 #endif
-		func_DisConnectDev(hDev); hDev = NULL;
+			func_DisConnectDev(hDev); hDev = NULL;
+		}
 	}
 
 	if (ghInst)
