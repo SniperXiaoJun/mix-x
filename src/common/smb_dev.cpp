@@ -1986,6 +1986,8 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EnumCert(SMB_CS_CertificateConte
 
 	ulRet = 0;
 
+	SMB_DEV_ArgsClr();
+
 	if (pHeader)
 	{
 		SMB_CS_FreeSKFLink(&pHeader);
