@@ -11,6 +11,9 @@
 #include "SKFError.h"
 #include "certificate_items_parse.h"
 
+#include <openssl/base.h>
+#include "sm2_boringssl.h"
+
 #if USE_SELF_MUTEX
 #include "mix-mutex.h"
 static char mutex_buffer[25] = "mutex_smc_interface";
@@ -117,10 +120,11 @@ typedef int(*pSAF_EccSign)(
 	unsigned char *pucSignData,
 	unsigned int *puiSignDataLen);
 
-typedef int(*pSAF_EccVerifySign)(
-	unsigned char *pucPublicKey,
-	unsigned int uiPublicKeyLen,
+
+typedef int(*pSAF_EccVerifySignByCert)(
 	unsigned int uiAlgorithmID,
+	unsigned char *pucCertificate,
+	unsigned int uiCertificateLen,
 	unsigned char *pucInData,
 	unsigned int uiInDataLen,
 	unsigned char *pucSignData,
@@ -807,12 +811,32 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignProcess(OPST_HANDLE_ARGS 
 
 	OPST_HANDLE_ARGS * handleArgs = args;
 
+	pSAF_Initialize fpSAF_Initialize = NULL;
+	pSAF_Finalize fpSAF_Finalize = NULL;
+	pSAF_EnumCertificates fpSAF_EnumCertificates = NULL;
+	pSAF_EnumCertificatesFree fpSAF_EnumCertificatesFree = NULL;
+	pSAF_Login fpSAF_Login = NULL;
+	pSAF_GetCertificateInfo fpSAF_GetCertificateInfo = NULL;
+	pSAF_Hash fpSAF_Hash = NULL;
+	pSAF_EccSign fpSAF_EccSign = NULL;
+	pSAF_EccVerifySignByCert fpSAF_EccVerifySignByCert = NULL;
+	void *hAppHandle = NULL;
+	SGD_USR_CERT_ENUMLIST usrCerts;
+
 	if (handleArgs)
 	{
-		ghInst = (HINSTANCE)handleArgs->ghInst;
-		hDev = handleArgs->hDev;
-		hAPP = handleArgs->hAPP;
-		hCon = handleArgs->hCon;
+		if (0xAF == handleArgs->type)
+		{
+			ghInst = (HINSTANCE)handleArgs->ghInst;
+			hAppHandle = handleArgs->hAPP;
+		}
+		else
+		{
+			ghInst = (HINSTANCE)handleArgs->ghInst;
+			hDev = handleArgs->hDev;
+			hAPP = handleArgs->hAPP;
+			hCon = handleArgs->hCon;
+		}
 	}
 	else
 	{
@@ -838,98 +862,179 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignProcess(OPST_HANDLE_ARGS 
 		}
 	}
 
-	FUNC_NAME_INIT(func_, EnumDev, );
-	FUNC_NAME_INIT(func_, ConnectDev, );
-	FUNC_NAME_INIT(func_, DisConnectDev, );
-	FUNC_NAME_INIT(func_, ChangePIN, );
-	FUNC_NAME_INIT(func_, OpenApplication, );
-	FUNC_NAME_INIT(func_, CloseApplication, );
-	FUNC_NAME_INIT(func_, EnumApplication, );
-	FUNC_NAME_INIT(func_, ExportCertificate, );
-	FUNC_NAME_INIT(func_, EnumContainer, );
-	FUNC_NAME_INIT(func_, OpenContainer, );
-	FUNC_NAME_INIT(func_, CloseContainer, );
-	FUNC_NAME_INIT(func_, VerifyPIN, );
-	FUNC_NAME_INIT_GetContainerType(func_, GetContainerType, );
-	FUNC_NAME_INIT(func_, LockDev, );
-	FUNC_NAME_INIT(func_, UnlockDev, );
+	if (0xAF == handleArgs->type)
+	{
+		unsigned char signature_data_der[256] = { 0 };
+		unsigned int signature_len_der = 256;
 
-	FUNC_NAME_INIT(func_, ECCSignData, );
+		unsigned char signature_data[256] = { 0 };
+		int signature_len = 256;
 
-	//FUNC_NAME_INIT(func_, GenRandom, );
-	//FUNC_NAME_INIT(func_, Transmit, );
+		fpSAF_Initialize = (pSAF_Initialize)GetProcAddress(ghInst, "SAF_Initialize");
+		fpSAF_EnumCertificates = (pSAF_EnumCertificates)GetProcAddress(ghInst, "SAF_EnumCertificates");
+		fpSAF_EnumCertificatesFree = (pSAF_EnumCertificatesFree)GetProcAddress(ghInst, "SAF_EnumCertificatesFree");
+		fpSAF_Login = (pSAF_Login)GetProcAddress(ghInst, "SAF_Login");
+		fpSAF_GetCertificateInfo = (pSAF_GetCertificateInfo)GetProcAddress(ghInst, "SAF_GetCertificateInfo");
+		fpSAF_Hash = (pSAF_Hash)GetProcAddress(ghInst, "SAF_Hash");
+		fpSAF_EccSign = (pSAF_EccSign)GetProcAddress(ghInst, "SAF_EccSign");
+		fpSAF_EccVerifySignByCert = (pSAF_EccVerifySignByCert)GetProcAddress(ghInst, "SAF_EccVerifySignByCert");
+		fpSAF_Finalize = (pSAF_Finalize)GetProcAddress(ghInst, "SAF_Finalize");
+
+		//枚举用户证书
+		ulRet = fpSAF_EnumCertificates(hAppHandle, &usrCerts);
+		if (0 != ulRet)
+		{
+			printf("SAF_EnumCertificates error:ret=%x\n", ulRet);
+			goto clear_over;
+		}
+
+
+		//  "0" || "" ：标准PIN有效使用
+		//	"1"：无需调用校验PIN接口
+		//	"2"：PIN无效，但需调用校验PIN接口
+		if (0 == memcmp("2", pinVerifyValue, 1))
+		{
+			ulRet = fpSAF_Login(hAppHandle, 1, pCertAttr->stContainerName.data, pCertAttr->stContainerName.length ,(unsigned char *)pszPIN,strlen(pszPIN), (unsigned int *)puiRetryCount);
+			if (0 != ulRet)
+			{
+				goto clear_over;
+			}
+		}
+		else if (0 == memcmp("1", pinVerifyValue, 1))
+		{
+
+		}
+		else if (0 == memcmp("0", pinVerifyValue, 1))
+		{
+			ulRet = fpSAF_Login(hAppHandle, 1, pCertAttr->stContainerName.data, pCertAttr->stContainerName.length, (unsigned char *)pszPIN, strlen(pszPIN), (unsigned int *)puiRetryCount);
+			if (0 != ulRet)
+			{
+				goto clear_over;
+			}
+		}
+		else if (0 == memcmp("", pinVerifyValue, 1))
+		{
+			ulRet = fpSAF_Login(hAppHandle, 1, pCertAttr->stContainerName.data, pCertAttr->stContainerName.length, (unsigned char *)pszPIN, strlen(pszPIN), (unsigned int *)puiRetryCount);
+			if (0 != ulRet)
+			{
+				goto clear_over;
+			}
+		}
+
+		if (0 == memcmp("data", signTypeValue, 4))
+		{
+			ulRet = fpSAF_EccSign(hAppHandle, pCertAttr->stContainerName.data, pCertAttr->stContainerName.length, SGD_SM2_1, pbData, uiDataLen, signature_data_der, &signature_len_der);
+		}
+		else
+		{
+			ulRet = fpSAF_EccSign(hAppHandle, pCertAttr->stContainerName.data, pCertAttr->stContainerName.length, SGD_SM2_1, pbDigest, uiDigestLen, signature_data_der, &signature_len_der);
+		}
+
+		if (0 != ulRet)
+		{
+			goto clear_over;
+		}
+
+
+		SM2SignD2i(signature_data_der, signature_len_der, signature_data, &signature_len);
+
+
+		memset(pSignature, 0, sizeof(ECCSIGNATUREBLOB));
+
+		memcpy(pSignature->r + 32, signature_data, 32);
+		memcpy(pSignature->s + 32, signature_data+32, 32);
+	}
+	else
+	{
+		FUNC_NAME_INIT(func_, EnumDev, );
+		FUNC_NAME_INIT(func_, ConnectDev, );
+		FUNC_NAME_INIT(func_, DisConnectDev, );
+		FUNC_NAME_INIT(func_, ChangePIN, );
+		FUNC_NAME_INIT(func_, OpenApplication, );
+		FUNC_NAME_INIT(func_, CloseApplication, );
+		FUNC_NAME_INIT(func_, EnumApplication, );
+		FUNC_NAME_INIT(func_, ExportCertificate, );
+		FUNC_NAME_INIT(func_, EnumContainer, );
+		FUNC_NAME_INIT(func_, OpenContainer, );
+		FUNC_NAME_INIT(func_, CloseContainer, );
+		FUNC_NAME_INIT(func_, VerifyPIN, );
+		FUNC_NAME_INIT_GetContainerType(func_, GetContainerType, );
+		FUNC_NAME_INIT(func_, LockDev, );
+		FUNC_NAME_INIT(func_, UnlockDev, );
+
+		FUNC_NAME_INIT(func_, ECCSignData, );
+
+		//FUNC_NAME_INIT(func_, GenRandom, );
+		//FUNC_NAME_INIT(func_, Transmit, );
 
 #if USE_SELF_MUTEX
 
 #else
-	ulRet = func_LockDev(hDev, 0xFFFFFFFF);
-	if (0 != ulRet)
-	{
-		goto err;
-	}
+		ulRet = func_LockDev(hDev, 0xFFFFFFFF);
+		if (0 != ulRet)
+		{
+			goto err;
+		}
 #endif
 
-	{
-		if (hCon)
 		{
-
-			//  "0" || "" ：标准PIN有效使用
-			//	"1"：无需调用校验PIN接口
-			//	"2"：PIN无效，但需调用校验PIN接口
-			if (0 == memcmp("2", pinVerifyValue, 1))
+			if (hCon)
 			{
-				ulRet = func_VerifyPIN(hAPP, 1, pszPIN, puiRetryCount);
+
+				//  "0" || "" ：标准PIN有效使用
+				//	"1"：无需调用校验PIN接口
+				//	"2"：PIN无效，但需调用校验PIN接口
+				if (0 == memcmp("2", pinVerifyValue, 1))
+				{
+					ulRet = func_VerifyPIN(hAPP, 1, pszPIN, puiRetryCount);
+					if (0 != ulRet)
+					{
+						goto err;
+					}
+				}
+				else if (0 == memcmp("1", pinVerifyValue, 1))
+				{
+
+				}
+				else if (0 == memcmp("0", pinVerifyValue, 1))
+				{
+					ulRet = func_VerifyPIN(hAPP, 1, pszPIN, puiRetryCount);
+					if (0 != ulRet)
+					{
+						goto err;
+					}
+				}
+				else if (0 == memcmp("", pinVerifyValue, 1))
+				{
+					ulRet = func_VerifyPIN(hAPP, 1, pszPIN, puiRetryCount);
+					if (0 != ulRet)
+					{
+						goto err;
+					}
+				}
+
+				if (0 == memcmp("data", signTypeValue, 4))
+				{
+					ulRet = func_ECCSignData(hCon, pbData, uiDataLen, pSignature);
+				}
+				else
+				{
+					ulRet = func_ECCSignData(hCon, pbDigest, uiDigestLen, pSignature);
+				}
 				if (0 != ulRet)
 				{
 					goto err;
 				}
-			}
-			else if (0 == memcmp("1", pinVerifyValue, 1))
-			{
-
-			}
-			else if (0 == memcmp("0", pinVerifyValue, 1))
-			{
-				ulRet = func_VerifyPIN(hAPP, 1, pszPIN, puiRetryCount);
-				if (0 != ulRet)
-				{
-					goto err;
-				}
-			}
-			else if (0 == memcmp("", pinVerifyValue, 1))
-			{
-				ulRet = func_VerifyPIN(hAPP, 1, pszPIN, puiRetryCount);
-				if (0 != ulRet)
-				{
-					goto err;
-				}
-			}
-
-			if (0 == memcmp("data", signTypeValue, 4))
-			{
-				ulRet = func_ECCSignData(hCon, pbData, uiDataLen, pSignature);
 			}
 			else
 			{
-				ulRet = func_ECCSignData(hCon, pbDigest, uiDigestLen, pSignature);
+				ulRet = EErr_SMB_FAIL;
 			}
-			if (0 != ulRet)
-			{
-				goto err;
-			}
-		}
-		else
-		{
-			ulRet = EErr_SMB_FAIL;
 		}
 	}
+
 
 err:
-
-	if (pHeader)
-	{
-		SMB_CS_FreeSKFLink(&pHeader);
-	}
 
 	if (hDev)
 	{
@@ -940,6 +1045,23 @@ err:
 #endif
 	}
 
+clear_over:
+	//清除环境
+	if (NULL != hAppHandle)
+	{
+		//释放枚举证书的内存
+		fpSAF_EnumCertificatesFree(hAppHandle, &usrCerts);
+		printf("SAF_EnumCertificatesFree: ret=%x\n", 0);
+
+		//fpSAF_Finalize(hAppHandle);
+		//printf("SAF_Finalize: ret=%x\n", 0);
+		//hAppHandle = NULL;
+	}
+
+	if (pHeader)
+	{
+		SMB_CS_FreeSKFLink(&pHeader);
+	}
 
 	return ulRet;
 }
@@ -1288,7 +1410,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EnumCertBySKF(const char *pszSKF
 	pSAF_GetCertificateInfo fpSAF_GetCertificateInfo = NULL;
 	pSAF_Hash fpSAF_Hash = NULL;
 	pSAF_EccSign fpSAF_EccSign = NULL;
-	pSAF_EccVerifySign fpSAF_EccVerifySign = NULL;
+	pSAF_EccVerifySignByCert fpSAF_EccVerifySignByCert = NULL;
 
 	void *hAppHandle = NULL;
 	SGD_USR_CERT_ENUMLIST usrCerts;
@@ -1336,10 +1458,10 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EnumCertBySKF(const char *pszSKF
 	fpSAF_GetCertificateInfo = (pSAF_GetCertificateInfo)GetProcAddress(ghInst, "SAF_GetCertificateInfo");
 	fpSAF_Hash = (pSAF_Hash)GetProcAddress(ghInst, "SAF_Hash");
 	fpSAF_EccSign = (pSAF_EccSign)GetProcAddress(ghInst, "SAF_EccSign");
-	fpSAF_EccVerifySign = (pSAF_EccVerifySign)GetProcAddress(ghInst, "SAF_EccVerifySign");
+	fpSAF_EccVerifySignByCert = (pSAF_EccVerifySignByCert)GetProcAddress(ghInst, "SAF_EccVerifySignByCert");
 	fpSAF_Finalize = (pSAF_Finalize)GetProcAddress(ghInst, "SAF_Finalize");
 
-	if (fpSAF_Initialize &&fpSAF_EnumCertificates &&fpSAF_EnumCertificatesFree &&fpSAF_Login &&fpSAF_GetCertificateInfo &&fpSAF_Hash && fpSAF_EccSign &&fpSAF_EccVerifySign)
+	if (fpSAF_Initialize &&fpSAF_EnumCertificates &&fpSAF_EnumCertificatesFree &&fpSAF_Login &&fpSAF_GetCertificateInfo &&fpSAF_Hash && fpSAF_EccSign &&fpSAF_EccVerifySignByCert)
 	{
 		//初始化环境
 		ulRet = fpSAF_Initialize(&hAppHandle, "saf_cfg_watch.dat");
@@ -1389,6 +1511,10 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EnumCertBySKF(const char *pszSKF
 						pCertCtx->stAttr.stDeviceName.data = (unsigned char *)malloc(pCertCtx->stAttr.stDeviceName.length);
 						memcpy(pCertCtx->stAttr.stDeviceName.data, ptrDev, pCertCtx->stAttr.stDeviceName.length);
 
+						pCertCtx->stAttr.stContainerName.length = usrCerts.containerNameLen[i];
+						pCertCtx->stAttr.stContainerName.data = (unsigned char *)malloc(pCertCtx->stAttr.stContainerName.length);
+						memcpy(pCertCtx->stAttr.stContainerName.data, usrCerts.containerName[i], pCertCtx->stAttr.stContainerName.length);
+
 						pCertCtx->stAttr.stSKFName.length = strlen(pszSKFName) + 1;
 						pCertCtx->stAttr.stSKFName.data = (unsigned char *)malloc(pCertCtx->stAttr.stSKFName.length);
 						memcpy(pCertCtx->stAttr.stSKFName.data, pszSKFName, pCertCtx->stAttr.stSKFName.length);
@@ -1422,6 +1548,10 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EnumCertBySKF(const char *pszSKF
 						pCertCtx->stAttr.stDeviceName.length = strlen(ptrDev) + 1;
 						pCertCtx->stAttr.stDeviceName.data = (unsigned char *)malloc(pCertCtx->stAttr.stDeviceName.length);
 						memcpy(pCertCtx->stAttr.stDeviceName.data, ptrDev, pCertCtx->stAttr.stDeviceName.length);
+
+						pCertCtx->stAttr.stContainerName.length = usrCerts.containerNameLen[i];
+						pCertCtx->stAttr.stContainerName.data = (unsigned char *)malloc(pCertCtx->stAttr.stContainerName.length);
+						memcpy(pCertCtx->stAttr.stContainerName.data, usrCerts.containerName[i], pCertCtx->stAttr.stContainerName.length);
 
 						pCertCtx->stAttr.stSKFName.length = strlen(pszSKFName) + 1;
 						pCertCtx->stAttr.stSKFName.data = (unsigned char *)malloc(pCertCtx->stAttr.stSKFName.length);
@@ -1927,7 +2057,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignInitialize(SMB_CS_Certifi
 	pSAF_GetCertificateInfo fpSAF_GetCertificateInfo = NULL;
 	pSAF_Hash fpSAF_Hash = NULL;
 	pSAF_EccSign fpSAF_EccSign = NULL;
-	pSAF_EccVerifySign fpSAF_EccVerifySign = NULL;
+	pSAF_EccVerifySignByCert fpSAF_EccVerifySignByCert = NULL;
 	void *hAppHandle = NULL;
 
 	SMB_CS_EnumSKF(&pHeader);
@@ -1961,10 +2091,10 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignInitialize(SMB_CS_Certifi
 	fpSAF_GetCertificateInfo = (pSAF_GetCertificateInfo)GetProcAddress(ghInst, "SAF_GetCertificateInfo");
 	fpSAF_Hash = (pSAF_Hash)GetProcAddress(ghInst, "SAF_Hash");
 	fpSAF_EccSign = (pSAF_EccSign)GetProcAddress(ghInst, "SAF_EccSign");
-	fpSAF_EccVerifySign = (pSAF_EccVerifySign)GetProcAddress(ghInst, "SAF_EccVerifySign");
+	fpSAF_EccVerifySignByCert = (pSAF_EccVerifySignByCert)GetProcAddress(ghInst, "SAF_EccVerifySignByCert");
 	fpSAF_Finalize = (pSAF_Finalize)GetProcAddress(ghInst, "SAF_Finalize");
 
-	if (fpSAF_Initialize &&fpSAF_EnumCertificates &&fpSAF_EnumCertificatesFree &&fpSAF_Login &&fpSAF_GetCertificateInfo &&fpSAF_Hash && fpSAF_EccSign &&fpSAF_EccVerifySign)
+	if (fpSAF_Initialize &&fpSAF_EnumCertificates &&fpSAF_EnumCertificatesFree &&fpSAF_Login &&fpSAF_GetCertificateInfo &&fpSAF_Hash && fpSAF_EccSign &&fpSAF_EccVerifySignByCert)
 	{
 		OPST_HANDLE_ARGS * handleArgs = args;
 
@@ -2052,6 +2182,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignInitialize(SMB_CS_Certifi
 					handleArgs->hDev = hDev;
 					handleArgs->hAPP = hAPP;
 					handleArgs->hCon = hCon;
+					handleArgs->type = 0x00;
 
 					if (hCon)
 					{

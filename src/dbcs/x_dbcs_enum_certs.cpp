@@ -66,7 +66,8 @@ unsigned int SIGN_USE_CERT(SMB_CS_CertificateContext_NODE *pCertCtxNode)
 			unsigned int ulRet = 0;
 			ULONG ulRetry =0;
 
-			ulRet = SMB_DEV_SM2SignByCertAttr(&pCertCtxNode->ptr_data->stAttr,"111qqq", szDigest,32, szDigest, 32, &blob, &ulRetry);
+			ulRet = SMB_DEV_SM2SignByCertAttr(&pCertCtxNode->ptr_data->stAttr,"123456", szDigest,32, szDigest, 32, &blob, &ulRetry);
+			ulRet = SMB_DEV_SM2SignByCertAttr(&pCertCtxNode->ptr_data->stAttr, "123456", szDigest, 32, szDigest, 32, &blob, &ulRetry);
 
 			printf("ulRet = %d, ulRetry = %d\n", ulRet, ulRetry);
 		}
@@ -107,19 +108,19 @@ int main(int argc, char * argv[])
 #endif
 
 	SMB_DEV_EnumCert(&header, SMB_CERT_ALG_FLAG_SM2| SMB_CERT_ALG_FLAG_RSA,
-		SMB_CERT_USAGE_FLAG_SIGN| SMB_CERT_USAGE_FLAG_EX, // Ç©Ãû
+		SMB_CERT_USAGE_FLAG_SIGN | SMB_CERT_USAGE_FLAG_EX, // Ç©Ãû
 		SMB_CERT_VERIFY_FLAG_TIME | SMB_CERT_VERIFY_FLAG_CHAIN | SMB_CERT_VERIFY_FLAG_CRL,
 		SMB_CERT_FILTER_FLAG_FALSE);
 
 	SHOW_ALL_CERTS(header);
 
-	ADD_USER_CERTS(header);
+	//ADD_USER_CERTS(header);
 
-	SMB_CS_FreeCertCtxLink(&header);
+	//SMB_CS_FreeCertCtxLink(&header);
 
-	SMB_CS_EnumCertCtx(&header, 2);
+	//SMB_CS_EnumCertCtx(&header, 2);
 
-	//SIGN_USE_CERT(header);
+	SIGN_USE_CERT(header);
 
 	return 0;
 }
