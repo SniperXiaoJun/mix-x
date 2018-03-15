@@ -1,4 +1,4 @@
-/* Copyright (c) 2014, Google Inc.
+/* Copyright (c) 2017, Google Inc.
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -12,26 +12,5 @@
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
 
-#ifndef OPENSSL_HEADER_CHACHA_H
-#define OPENSSL_HEADER_CHACHA_H
-
-#include <openssl/base.h>
-
-#ifdef  __cplusplus
-extern "C" {
-#endif
-
-
-// CRYPTO_chacha_20 encrypts |in_len| bytes from |in| with the given key and
-// nonce and writes the result to |out|. If |in| and |out| alias, they must be
-// equal. The initial block counter is specified by |counter|.
-OPENSSL_EXPORT void CRYPTO_chacha_20(uint8_t *out, const uint8_t *in,
-                                     size_t in_len, const uint8_t key[32],
-                                     const uint8_t nonce[12], uint32_t counter);
-
-
-#if defined(__cplusplus)
-}  // extern C
-#endif
-
-#endif  // OPENSSL_HEADER_CHACHA_H
+// This header is provided in order to catch include path errors in consuming
+// BoringSSL.

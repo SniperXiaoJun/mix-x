@@ -4,6 +4,8 @@
 #ifndef XYSSL_SM4_H
 #define XYSSL_SM4_H
 
+#include <openssl/base.h>
+
 #define SM4_ENCRYPT     1
 #define SM4_DECRYPT     0
 
@@ -28,7 +30,7 @@ extern "C" {
  * \param ctx      SM4 context to be initialized
  * \param key      16-byte secret key
  */
-void sm4_setkey_enc( sm4_context *ctx, unsigned char key[16] );
+OPENSSL_EXPORT void sm4_setkey_enc( sm4_context *ctx, unsigned char key[16] );
 
 /**
  * \brief          SM4 key schedule (128-bit, decryption)
@@ -36,7 +38,7 @@ void sm4_setkey_enc( sm4_context *ctx, unsigned char key[16] );
  * \param ctx      SM4 context to be initialized
  * \param key      16-byte secret key
  */
-void sm4_setkey_dec( sm4_context *ctx, unsigned char key[16] );
+OPENSSL_EXPORT void sm4_setkey_dec( sm4_context *ctx, unsigned char key[16] );
 
 /**
  * \brief          SM4-ECB block encryption/decryption
@@ -46,7 +48,7 @@ void sm4_setkey_dec( sm4_context *ctx, unsigned char key[16] );
  * \param input    input block
  * \param output   output block
  */
-void sm4_crypt_ecb( sm4_context *ctx,
+OPENSSL_EXPORT void sm4_crypt_ecb( sm4_context *ctx,
 				     int mode,
 					 int length,
                      unsigned char *input,
@@ -61,7 +63,7 @@ void sm4_crypt_ecb( sm4_context *ctx,
  * \param input    buffer holding the input data
  * \param output   buffer holding the output data
  */
-void sm4_crypt_cbc( sm4_context *ctx,
+OPENSSL_EXPORT void sm4_crypt_cbc( sm4_context *ctx,
                      int mode,
                      int length,
                      unsigned char iv[16],

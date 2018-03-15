@@ -4519,7 +4519,8 @@ err:
 }
 
 
-#include "openssl/sm4.h"
+#include <sm4_soft.h>
+
 #define	SGD_SMS4_ECB	0x00000401		//SMS4算法ECB加密模式
 
 unsigned int OpenSSL_SM2GenExportEnvelopedKey(
