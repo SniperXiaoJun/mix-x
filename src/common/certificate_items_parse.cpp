@@ -656,7 +656,7 @@ err:
 
 	if (serial)
 	{
-		free(serial);
+		//free(serial);
 	}
 
 	if (bignum)
