@@ -78,6 +78,155 @@ std::map<std::string, OPST_HANDLE_ARGS> g_currentArgs;
 #include <gdca_saf/saf_api_set.h>
 #include <gdca_saf/saf_api.h>
 
+ULONG ErrorCodeConvert(ULONG errCode)
+{
+	if(errCode >= SAR_UnknownErr || errCode <= SAR_PKCS7DecErr)
+	{
+		switch (errCode)
+		{
+		case SAR_UnknownErr:               //异常错误
+			errCode = SAR_UNKNOWNERR;
+			break;
+		case SAR_NotSupportYetErr:               //不支持的服务
+			errCode = SAR_NOTSUPPORTYETERR;
+			break;
+		case SAR_FileErr:               //文件操作错误
+			errCode = SAR_FILEERR;
+			break;
+		case SAR_ProviderTypeErr:               //服务提供者参数类型错误
+			errCode = errCode;
+			break;
+		case SAR_LoadProviderErr:               //导入服务提供者接口错误
+			errCode = errCode;
+			break;
+		case SAR_LoadDevMngApiErr:               //导入设备管理接口错误
+			errCode = errCode;
+			break;
+		case SAR_AlgoTypeErr:               //算法类型错误
+			errCode = errCode;
+			break;
+		case SAR_NameLenErr:               //名称长度错误
+			errCode = SAR_NAMELENERR;
+			break;
+		case SAR_KeyUsageErr:               //密钥用途错误
+			errCode = SAR_KEYUSAGEERR;
+			break;
+		case SAR_ModulusLenErr:               //模的长度错误
+			errCode = SAR_MODULUSLENERR;
+			break;
+		case SAR_NotInitializeErr:               //未初始化
+			errCode = SAR_NOTINITIALIZEERR;
+			break;
+		case SAR_ObjErr:               //对象错误
+			errCode = SAR_INVALIDHANDLEERR;
+			break;
+		case SAR_MemoryErr:               //内存错误
+			errCode = SAR_MEMORYERR;
+			break;
+		case SAR_TimeoutErr:               //超时错误
+			errCode = SAR_TIMEOUTERR;
+			break;
+		case SAR_IndataLenErr:               //输入数据长度错误
+			errCode = SAR_INDATALENERR;
+			break;
+		case SAR_IndataErr:               //输入数据错误
+			errCode = SAR_INDATAERR;
+			break;
+		case SAR_GenRandErr:               //生成随机数错误
+			errCode = SAR_GENRANDERR;
+			break;
+		case SAR_HashErr:               //HASH运算错误
+			errCode = SAR_HASHOBJERR;
+			break;
+		case SAR_GenRsaKeyErr:               //产生RSA密钥错误
+			errCode = SAR_GENRSAKEYERR;
+			break;
+		case SAR_RsaModulusLenErr:               //RSA密钥模长错误
+			errCode = SAR_RSAMODULUSLENERR;
+			break;
+		case SAR_CspImportPubKeyErr:               //CSP服务导入公钥错误
+			errCode = SAR_CSPIMPRTPUBKEYERR;
+			break;
+		case SAR_RsaEncErr:               //RSA加密错误
+			errCode = SAR_RSAENCERR;
+			break;
+		case SAR_RsaDecErr:               //RSA解密错误
+			errCode = SAR_RSADECERR;
+			break;
+		case SAR_HashNotEqualErr:               //HASH值不相等
+			errCode = SAR_HASHNOTEQUALERR;
+			break;
+		case SAR_KeyNotFoundErr:               //密钥未发现
+			errCode = SAR_KEYNOTFOUNTERR;
+			break;
+		case SAR_CertNotFoundErr:               //证书未发现
+			errCode = SAR_CERTNOTFOUNTERR;
+			break;
+		case SAR_NotExportErr:               //对象未导出
+			errCode = SAR_NOTEXPORTERR;
+			break;
+		case SAR_CertRevokedErr:               //证书被吊销
+			errCode = errCode;
+			break;
+		case SAR_CertNotYetValidErr:               //证书未生效
+			errCode = errCode;
+			break;
+		case SAR_CertHasExpiredErr:               //证书已过期
+			errCode = errCode;
+			break;
+		case SAR_CertVerifyErr:               //证书验证错误
+			errCode = errCode;
+			break;
+		case SAR_CertEncodeErr:               //证书编码错误
+			errCode = errCode;
+			break;
+		case SAR_DecryptPadErr:               //解密时做补丁错误
+			errCode = SAR_DECRYPTPADERR;
+			break;
+		case SAR_MacLenErr:               //MAC长度错误
+			errCode = SAR_MACLENERR;
+			break;
+		case SAR_KeyInfoTypeErr:               //密钥类型错误
+			errCode = SAR_KEYINFOTYPEERR;
+			break;
+		case SAR_NotLoginErr:               //没有进行登陆认证
+			//errCode = SAR_USER_NOT_LOGGED_IN;
+			errCode = SAR_PIN_INCORRECT;
+			break;
+		case SAR_ECCEncErr:               //ECC加密错误
+			errCode = errCode;
+			break;
+		case SAR_ECCDecErr:               //ECC解密错误
+			errCode = errCode;
+			break;
+		case SAR_ExportSKErr:               //导出会话密钥错误
+			errCode = errCode;
+			break;
+		case SAR_ImportSKErr:               //导入会话密钥错误
+			errCode = errCode;
+			break;
+		case SAR_SymmEncErr:               //对称加密错误
+			errCode = errCode;
+			break;
+		case SAR_SymmDecErr:               //对称解密错误
+			errCode = errCode;
+			break;
+		case SAR_PKCS7SignErr:               //P7签名错误
+		case SAR_PKCS7VerifyErr:               //P7验证错误
+		case SAR_PKCS7EncErr:               //P7加密错误
+		case SAR_PKCS7DecErr:               //P7解密错误
+			errCode = errCode;
+			break;
+		default:
+			errCode = errCode;
+			break;
+		}
+	}
+
+	return errCode;
+}
+
+
 typedef int(*pSAF_Initialize)(void **phAppHandle,char *pucCfgFilePath);
 typedef int(*pSAF_Finalize)(void *hAppHandle);
 typedef int(*pSAF_EnumCertificates)(void *hAppHandle, SGD_USR_CERT_ENUMLIST *usrCerts);
@@ -1062,6 +1211,8 @@ clear_over:
 	{
 		SMB_CS_FreeSKFLink(&pHeader);
 	}
+
+	ulRet = ErrorCodeConvert(ulRet);
 
 	return ulRet;
 }
