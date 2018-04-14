@@ -964,6 +964,8 @@ err:
 		SMB_CS_FreeSKFLink(&pHeader);
 	}
 
+	ulRet = ErrorCodeConvert(ulRet);
+
 	return ulRet;
 }
 
