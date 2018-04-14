@@ -1768,7 +1768,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EnumCertBySKF(const char *pszSKF
 						pCertCtx->stAttr.stSKFName.data = (unsigned char *)malloc(pCertCtx->stAttr.stSKFName.length);
 						memcpy(pCertCtx->stAttr.stSKFName.data, pszSKFName, pCertCtx->stAttr.stSKFName.length);
 
-						pCertCtx->stAttr.ucCertUsageType = 1; //	签名加密
+						pCertCtx->stAttr.ucCertUsageType = 2; //	签名加密
 
 						pCertCtx->stAttr.ucCertAlgType = parse.m_iKeyAlg; // RSA SM2
 
