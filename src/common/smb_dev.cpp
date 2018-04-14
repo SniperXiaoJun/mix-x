@@ -743,6 +743,18 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_VerifyPINByCertAttr(SMB_CS_Certi
 	UseMixMutex mutex("mutex_dev");
 #endif
 
+	pSAF_Initialize fpSAF_Initialize = NULL;
+	pSAF_Finalize fpSAF_Finalize = NULL;
+	pSAF_EnumCertificates fpSAF_EnumCertificates = NULL;
+	pSAF_EnumCertificatesFree fpSAF_EnumCertificatesFree = NULL;
+	pSAF_Login fpSAF_Login = NULL;
+	pSAF_GetCertificateInfo fpSAF_GetCertificateInfo = NULL;
+	pSAF_Hash fpSAF_Hash = NULL;
+	pSAF_EccSign fpSAF_EccSign = NULL;
+	pSAF_EccVerifySignByCert fpSAF_EccVerifySignByCert = NULL;
+	void *hAppHandle = NULL;
+	SGD_USR_CERT_ENUMLIST usrCerts;
+
 	/*
 	SKF函数地址
 	*/
@@ -795,6 +807,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_VerifyPINByCertAttr(SMB_CS_Certi
 		}
 	}
 
+
 	if (0 != ulRet)
 	{
 		ulRet = EErr_SMB_DLL_REG_PATH;
@@ -813,24 +826,57 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_VerifyPINByCertAttr(SMB_CS_Certi
 		goto err;
 	}
 
-	FUNC_NAME_INIT(func_, EnumDev, );
-	FUNC_NAME_INIT(func_, ConnectDev, );
-	FUNC_NAME_INIT(func_, DisConnectDev, );
-	FUNC_NAME_INIT(func_, ChangePIN, );
-	FUNC_NAME_INIT(func_, OpenApplication, );
-	FUNC_NAME_INIT(func_, CloseApplication, );
-	FUNC_NAME_INIT(func_, EnumApplication, );
-	FUNC_NAME_INIT(func_, ExportCertificate, );
-	FUNC_NAME_INIT(func_, EnumContainer, );
-	FUNC_NAME_INIT(func_, OpenContainer, );
-	FUNC_NAME_INIT(func_, CloseContainer, );
-	FUNC_NAME_INIT(func_, VerifyPIN, );
-	FUNC_NAME_INIT_GetContainerType(func_, GetContainerType, );
-	FUNC_NAME_INIT(func_, LockDev, );
-	FUNC_NAME_INIT(func_, UnlockDev, );
+	fpSAF_Initialize = (pSAF_Initialize)GetProcAddress(ghInst, "SAF_Initialize");
+	fpSAF_EnumCertificates = (pSAF_EnumCertificates)GetProcAddress(ghInst, "SAF_EnumCertificates");
+	fpSAF_EnumCertificatesFree = (pSAF_EnumCertificatesFree)GetProcAddress(ghInst, "SAF_EnumCertificatesFree");
+	fpSAF_Login = (pSAF_Login)GetProcAddress(ghInst, "SAF_Login");
+	fpSAF_GetCertificateInfo = (pSAF_GetCertificateInfo)GetProcAddress(ghInst, "SAF_GetCertificateInfo");
+	fpSAF_Hash = (pSAF_Hash)GetProcAddress(ghInst, "SAF_Hash");
+	fpSAF_EccSign = (pSAF_EccSign)GetProcAddress(ghInst, "SAF_EccSign");
+	fpSAF_EccVerifySignByCert = (pSAF_EccVerifySignByCert)GetProcAddress(ghInst, "SAF_EccVerifySignByCert");
+	fpSAF_Finalize = (pSAF_Finalize)GetProcAddress(ghInst, "SAF_Finalize");
 
+	if (fpSAF_Initialize &&fpSAF_EnumCertificates &&fpSAF_EnumCertificatesFree &&fpSAF_Login &&fpSAF_GetCertificateInfo &&fpSAF_Hash && fpSAF_EccSign &&fpSAF_EccVerifySignByCert)
 	{
+		//初始化环境
+		ulRet = fpSAF_Initialize(&hAppHandle, "saf_cfg_watch.dat");
+		if (0 != ulRet)
+		{
+			printf("SAF_Initialize error\n");
+			goto clear_over;
+		}
 
+		//枚举用户证书
+		ulRet = fpSAF_EnumCertificates(hAppHandle, &usrCerts);
+		if (0 != ulRet)
+		{
+			printf("SAF_EnumCertificates error:ret=%x\n", ulRet);
+			goto clear_over;
+		}
+
+		ulRet = fpSAF_Login(hAppHandle, 1, pCertAttr->stContainerName.data, pCertAttr->stContainerName.length, (unsigned char *)pszPin, strlen(pszPin), (unsigned int *)puiRetryCount);
+		if (0 != ulRet)
+		{
+			goto clear_over;
+		}
+	}
+	else
+	{
+		FUNC_NAME_INIT(func_, EnumDev, );
+		FUNC_NAME_INIT(func_, ConnectDev, );
+		FUNC_NAME_INIT(func_, DisConnectDev, );
+		FUNC_NAME_INIT(func_, ChangePIN, );
+		FUNC_NAME_INIT(func_, OpenApplication, );
+		FUNC_NAME_INIT(func_, CloseApplication, );
+		FUNC_NAME_INIT(func_, EnumApplication, );
+		FUNC_NAME_INIT(func_, ExportCertificate, );
+		FUNC_NAME_INIT(func_, EnumContainer, );
+		FUNC_NAME_INIT(func_, OpenContainer, );
+		FUNC_NAME_INIT(func_, CloseContainer, );
+		FUNC_NAME_INIT(func_, VerifyPIN, );
+		FUNC_NAME_INIT_GetContainerType(func_, GetContainerType, );
+		FUNC_NAME_INIT(func_, LockDev, );
+		FUNC_NAME_INIT(func_, UnlockDev, );
 
 		ulRet = func_ConnectDev((char *)pCertAttr->stDeviceName.data, &hDev);
 		if (0 != ulRet)
@@ -867,7 +913,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_VerifyPINByCertAttr(SMB_CS_Certi
 		}
 
 #if USE_SELF_MUTEX
-		
+
 #else
 		func_UnlockDev(hDev);
 #endif
@@ -878,8 +924,22 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_VerifyPINByCertAttr(SMB_CS_Certi
 			goto err;
 		}
 	}
+clear_over:
+	//清除环境
+	if (NULL != hAppHandle)
+	{
+		//释放枚举证书的内存
+		fpSAF_EnumCertificatesFree(hAppHandle, &usrCerts);
+		printf("SAF_EnumCertificatesFree: ret=%x\n", 0);
+
+		fpSAF_Finalize(hAppHandle);
+		//printf("SAF_Finalize: ret=%x\n", 0);
+		hAppHandle = NULL;
+	}
 
 err:
+
+
 
 	if (hDev)
 	{
