@@ -141,6 +141,11 @@ public:
 	}
 };
 
+std::string WTF_ReadCurrentCerts(int Expire);
+
+
+
+
 namespace {
 	DWORD WINAPI detectBankWebsiteThread(LPVOID lparam);
 	DWORD WINAPI detectWebsiteWithTimeoutThread(LPVOID lparam);
@@ -889,10 +894,68 @@ namespace {
 
 		return true;
 	}
+
+
+
+	DWORD WINAPI ReadCertAfterTimeUnknow(LPVOID lparam) {
+		UseMixMutex share_mutex("share_mutex");
+		UseMixMutex share_mutex_PluginObject("share_mutex_PluginObject");
+
+		int iRet = 0;
+		string strRes;
+
+		int i = 0;
+		int tmpKeyCount = 0;
+#if defined(USB_TIME_WAIT500)
+		Sleep(500);
+#else
+		Sleep(1500);
+#endif
+
+		GetKeyCount(&tmpKeyCount);
+
+		char buffer[400];
+
+		sprintf(buffer, "tmpKeyCount=%d g_KeyCount=%d", tmpKeyCount, g_KeyCount);
+
+		//MessageBoxA(NULL, buffer, "", 0);
+
+		if (tmpKeyCount > g_KeyCount)
+		{
+			//WTF_ReadCurrentCerts(30);
+
+			for (i = 0; i < g_plgnObjVector.size(); i++)
+			{
+				(g_plgnObjVector[i])->ExecuteJSCallback((g_plgnObjVector[i])->mOnUKeyOn, utf8_decode(strRes));
+			}
+		}
+		else if (tmpKeyCount < g_KeyCount)
+		{
+			//WTF_ReadCurrentCerts(30);
+
+			for (i = 0; i < g_plgnObjVector.size(); i++)
+			{
+				(g_plgnObjVector[i])->ExecuteJSCallback((g_plgnObjVector[i])->mOnUKeyOff, utf8_decode(strRes));
+			}
+		}
+		else
+		{
+			// nothing need do
+		}
+
+		g_KeyCount = tmpKeyCount;
+
+
+		return true;
+	}
+
+
 }// end fo namespace
 
 
-std::string WTF_ReadCurrentCerts(int Expire);
+
+
+
 
 LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -904,51 +967,25 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_DEVICECHANGE:
 		//if(wParam == DBT_DEVICEARRIVAL || wParam == DBT_DEVICEREMOVECOMPLETE)
 		{
-			UseMixMutex share_mutex("share_mutex");
-			UseMixMutex share_mutex_PluginObject("share_mutex_PluginObject");
-			int iRet = 0;
-			string strRes;
 
-			int i =0;
-			int tmpKeyCount = 0;
-#if defined(USB_TIME_WAIT500)
-			Sleep(500);
-#else
-			Sleep(1500);
-#endif
+			DWORD dwExitCode = 0;
 
-			GetKeyCount(&tmpKeyCount);
+			static HANDLE hThrd = 0;
 
-			char buffer[400];
+			bool bRes = GetExitCodeThread(
+				hThrd,      // handle to the thread
+				&dwExitCode   // address to receive termination status
+				);
 
-			sprintf(buffer, "tmpKeyCount=%d g_KeyCount=%d", tmpKeyCount, g_KeyCount);
-
-			//MessageBoxA(NULL, buffer, "", 0);
-
-			if (tmpKeyCount > g_KeyCount)
+			if (bRes && (dwExitCode == STILL_ACTIVE))
 			{
-				WTF_ReadCurrentCerts(30);
 
-				for (i = 0; i < g_plgnObjVector.size(); i++)
-				{
-					(g_plgnObjVector[i])->ExecuteJSCallback((g_plgnObjVector[i])->mOnUKeyOn, utf8_decode(strRes));
-				}
-			}
-			else if(tmpKeyCount < g_KeyCount)
-			{
-				WTF_ReadCurrentCerts(30);
-
-				for (i = 0; i < g_plgnObjVector.size(); i++)
-				{
-					(g_plgnObjVector[i])->ExecuteJSCallback((g_plgnObjVector[i])->mOnUKeyOff, utf8_decode(strRes));
-				}
 			}
 			else
 			{
-				// nothing need do
+				ULONG ulThreadID = 0;
+				hThrd = CreateThread(NULL, 0, ReadCertAfterTimeUnknow, NULL, 0, &ulThreadID);
 			}
-
-			g_KeyCount = tmpKeyCount;
 		}
 
 		break;
