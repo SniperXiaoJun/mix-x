@@ -1645,6 +1645,8 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EnumCert(SMB_CS_CertificateConte
 
 	ulRet = 0;
 
+	SMB_DEV_ArgsClr();
+
 	if (pHeader)
 	{
 		SMB_CS_FreeSKFLink(&pHeader);
@@ -1766,16 +1768,6 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignInitialize(SMB_CS_Certifi
 			goto err;
 		}
 
-#if USE_SELF_MUTEX
-		
-#else
-		ulRet = func_LockDev(hDev, 0xFFFFFFFF);
-		if (0 != ulRet)
-		{
-			goto err;
-		}
-#endif
-
 		FILE_LOG_FMT(file_log_name, "func=%s thread=%d line=%d watch=%d", __FUNCTION__, GetCurrentThreadId(), __LINE__, ulRet);
 		ulRet = func_OpenApplication(hDev, (char *)pCertAttr->stApplicationName.data, &hAPP);
 		if (0 != ulRet)
@@ -1829,13 +1821,8 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignInitialize(SMB_CS_Certifi
 		if (0 != ulRet)
 		{
 			goto err;
-	}
+		}
 
-#if USE_SELF_MUTEX
-		
-#else
-		func_UnlockDev(hDev);
-#endif
 
 		ulRet = func_DisConnectDev(hDev); hDev = NULL;
 		if (0 != ulRet)
@@ -1853,11 +1840,6 @@ err:
 
 	if (hDev)
 	{
-#if USE_SELF_MUTEX
-		
-#else
-		func_UnlockDev(hDev);
-#endif
 		func_DisConnectDev(hDev); hDev = NULL;
 	}
 
@@ -1875,7 +1857,7 @@ err:
 	}
 
 	return ulRet;
-	}
+}
 
 
 COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignFinalize(OPST_HANDLE_ARGS * args)
@@ -1932,11 +1914,6 @@ err:
 
 	if (hDev)
 	{
-#if USE_SELF_MUTEX
-		
-#else
-		func_UnlockDev(hDev);
-#endif
 		func_DisConnectDev(hDev); hDev = NULL;
 	}
 
