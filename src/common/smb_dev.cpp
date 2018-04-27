@@ -1332,7 +1332,7 @@ COMMON_API unsigned int CALL_CONVENTION SMB_DEV_SM2SignByCertAttr(
 	}
 
 err:
-	if (ulRet)
+	if (ulRet || 0xAF == args.type)
 	{
 		SMB_DEV_SM2SignFinalize(&args);
 		SMB_DEV_ArgsClr();
