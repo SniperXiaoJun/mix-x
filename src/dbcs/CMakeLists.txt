@@ -132,6 +132,12 @@ add_executable(
 )
 target_link_libraries(x_dbcs_rw_certs smb_base)
 
+add_executable(
+  x_dbcs_check_chain
+
+  x_dbcs_check_chain.cpp
+)
+target_link_libraries(x_dbcs_check_chain smb_base)
 
 ADD_LIBRARY(
   GetKeyInfo SHARED

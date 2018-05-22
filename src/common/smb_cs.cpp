@@ -1441,12 +1441,17 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_VerifyCert(unsigned int uiFlag, u
 
 				id.dwIdChoice = CERT_ID_KEY_IDENTIFIER;
 
-				GetExtAuthorityIdentifier(certContext_IN, data_value_keyid, &data_len_keyid);
+				if (0 == GetExtAuthorityIdentifier(certContext_IN, data_value_keyid, &data_len_keyid))
+				{
+					id.KeyId.pbData = data_value_keyid;
+					id.KeyId.cbData = data_len_keyid;
 
-				id.KeyId.pbData = data_value_keyid;
-				id.KeyId.cbData = data_len_keyid;
-
-				certContext_OUT = CertFindCertificateInStore(hCertStore, X509_ASN_ENCODING, 0, CERT_FIND_CERT_ID, &id, NULL);
+					certContext_OUT = CertFindCertificateInStore(hCertStore, X509_ASN_ENCODING, 0, CERT_FIND_CERT_ID, &id, NULL);
+				}
+				else if (0 == memcmp((void *)&certParse.m_strIssue.front(), (void *)&certParse.m_strSubject.front(), certParse.m_strIssue.size() > certParse.m_strSubject.size() ? certParse.m_strIssue.size() : certParse.m_strSubject.size()))
+				{
+					certContext_OUT = CertDuplicateCertificateContext(certContext_IN);
+				}
 			}
 
 			if (NULL == certContext_OUT)
@@ -1485,12 +1490,17 @@ COMMON_API unsigned int CALL_CONVENTION SMB_CS_VerifyCert(unsigned int uiFlag, u
 
 					id.dwIdChoice = CERT_ID_KEY_IDENTIFIER;
 
-					GetExtAuthorityIdentifier(certContext_IN, data_value_keyid, &data_len_keyid);
+					if (0 == GetExtAuthorityIdentifier(certContext_IN, data_value_keyid, &data_len_keyid))
+					{
+						id.KeyId.pbData = data_value_keyid;
+						id.KeyId.cbData = data_len_keyid;
 
-					id.KeyId.pbData = data_value_keyid;
-					id.KeyId.cbData = data_len_keyid;
-
-					certContext_OUT = CertFindCertificateInStore(hCertStore, X509_ASN_ENCODING, 0, CERT_FIND_CERT_ID, &id, NULL);
+						certContext_OUT = CertFindCertificateInStore(hCertStore, X509_ASN_ENCODING, 0, CERT_FIND_CERT_ID, &id, NULL);
+					}
+					else if (0 == memcmp((void *)&certParse.m_strIssue.front(), (void *)&certParse.m_strSubject.front(), certParse.m_strIssue.size() > certParse.m_strSubject.size() ? certParse.m_strIssue.size() : certParse.m_strSubject.size()))
+					{
+						certContext_OUT = CertDuplicateCertificateContext(certContext_IN);
+					}
 				}
 			}
 
