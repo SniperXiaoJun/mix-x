@@ -212,9 +212,9 @@ typedef enum _EErr_SMB
 extern "C" {
 #endif
 
-	COMMON_API unsigned int CALL_CONVENTION SMB_CS_CreateSKF(SMB_CS_SKF * pSKF, char *pSKFName, char *pSKFPath, char *pSKFSignType, int uiSKFPinMode);
+	COMMON_API unsigned int CALL_CONVENTION SMB_CS_CreateSKF(OUT SMB_CS_SKF **ppSKF, IN char *pSKFName, IN char *pSKFPath, IN char *pSKFSignType, IN int uiSKFPinMode);
 
-	COMMON_API unsigned int CALL_CONVENTION SMB_CS_AddSKF(SMB_CS_SKF *pSKF);
+	COMMON_API unsigned int CALL_CONVENTION SMB_CS_AddSKF(IN SMB_CS_SKF *pSKF);
 
 
 	/*
