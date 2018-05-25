@@ -238,7 +238,7 @@ extern "C" {
 
 	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_EncryptMsg(IN const unsigned char * pbCert, IN unsigned int uiCertLen, IN const unsigned char *pbPlainText, IN unsigned int uiPlainTextLen, IN unsigned int iSymAlg, OUT unsigned char *pbCipherText, IN OUT int *puiCipherTextLen);
 
-	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_DecryptMsg(IN SMB_CS_CertificateAttr *pCertAttr, IN const unsigned char *pbCipherText, IN int uiCipherTextLen, OUT unsigned char *pbPlainText, IN OUT int *pbPlainTextLen);
+	COMMON_API unsigned int CALL_CONVENTION SMB_DEV_DecryptMsg(IN SMB_CS_CertificateAttr *pCertAttr, IN const unsigned char *pbCipherText, IN int uiCipherTextLen, OUT unsigned char *pbPlainText, IN OUT int *puiPlainTextLen);
 
 
 
