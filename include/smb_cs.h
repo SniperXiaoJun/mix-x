@@ -211,6 +211,12 @@ typedef enum _EErr_SMB
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+	COMMON_API unsigned int CALL_CONVENTION SMB_CS_CreateSKF(SMB_CS_SKF * pSKF, char *pSKFName, char *pSKFPath, char *pSKFSignType, int uiSKFPinMode);
+
+	COMMON_API unsigned int CALL_CONVENTION SMB_CS_AddSKF(SMB_CS_SKF *pSKF);
+
+
 	/*
 	数据库路径初始化
 	pDbPath:NULL 默认路径C:\Users\xxxxx\AppData\Roaming\xxxx.smb_cs.db
